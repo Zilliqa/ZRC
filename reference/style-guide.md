@@ -1,10 +1,18 @@
 # Style Style
 
-# General
+# Introduction
 
-- Scilla belongs to a ML family of languages. Our guidelines are similar to the ones followed by OCaml.
-- However, there are some differences in areas such as naming conventions. For more details, refer to the preceding sections.
-- In the event where you encounter something that is _not_ covered by this document, you can refer to [https://ocaml.org/learn/tutorials/guidelines.htm](https://ocaml.org/learn/tutorials/guidelines.html#How-to-indent-global-let-definitions)l
+The purpose of this guide is intended to provide coding conventions for writing scilla code. 
+
+As scilla is an evolving language, style guide will change over time to reflect the latest usability feedback and features. This guide should hence be thought of as an evolving document which will change over time, instead of a commandment that is set in stone.
+
+## General
+
+Scilla belongs to a meta-language ("ML") family of languages, and therefore, the style should be consistent with principles in ML-languagues. 
+
+We try to be as comprehensive in our guide as possible. As scilla is developed on OCaml, our guidelines are similar to the ones followed by OCaml. There are however, some delibrate variations that we have made intentionally due to the design and purpose of scilla. For example, although OCaml does not specify naming conventions for variables, but we hope that developers will follow `camel_case` convention. This is because smart contract parameters are meant to be interoperable, and sticking to consistent cases can make it easier for people to read your code and send transactions to your contract if required.
+
+In the event where you encounter something that is _not_ covered by this document, you can refer to [https://ocaml.org/learn/tutorials/guidelines.html](https://ocaml.org/learn/tutorials/guidelines.html)
 
 # Code Layout
 
@@ -175,4 +183,3 @@ let codeSuccess = Uint32 0
 let CodeSuccess = Uint32 0
 let Code_success = Uint32 0
 ```
-
