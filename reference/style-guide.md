@@ -2,7 +2,7 @@
 
 # Introduction
 
-The purpose of this guide is intended to provide coding conventions for writing scilla code. 
+The purpose of this guide is to provide coding conventions for writing scilla code. 
 
 Please note that as Scilla is an evolving language, this style guide will change over time to reflect the latest usability feedback and features. This guide shall hence be thought of as an evolving document over time, instead of a commandment that is set in stone.
 
