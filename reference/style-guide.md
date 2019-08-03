@@ -8,9 +8,10 @@ Please note that as Scilla is an evolving language, this style guide will change
 
 ## General
 
-Scilla belongs to a meta-language ("ML") family of languages, and therefore, the style shall be consistent with the principles laid out in ML-languagues. 
+Scilla belongs to the meta-language ("ML") family of languages, and therefore, the style shall be consistent with the principles laid out in ML-languagues. 
 
-Scilla is developed off the back of OCaml, therfore our guidelines are very similar to the ones laid out by the OCaml community. There are however, some delibrate variations that we have made intentionally to cater for the design and purpose of Scilla. For example, OCaml does not specify naming conventions for variables, but we hope that Scilla developers will follow the `camel_case` convention. This is because smart contract parameters are meant to be interoperable, and sticking to consistent cases can make it easier for people to read your code and send transactions to your contract if required.
+Scilla is developed off the back of OCaml, therfore our guidelines are very similar to the ones laid out by the OCaml community. There are however, some variations that we have made intentionally to cater for the design and purpose of Scilla. For example, OCaml does not specify naming conventions for variables, but we hope that Scilla developers will follow the `snake_case` convention. This is because smart contract parameters are meant to be interoperable, and sticking to consistent cases can make it easier for people to read your code and send transactions to your contract if required.
+
 
 In the event where you encounter something that is _not_ covered by this document, you can refer to [https://ocaml.org/learn/tutorials/guidelines.html](https://ocaml.org/learn/tutorials/guidelines.html)
 
@@ -30,7 +31,7 @@ Surround the top of every procedure, library and transition with blank spaces
 
 ### Maximum Line Length
 
-As recommended by [PEP 8](<[https://www.python.org/dev/peps/pep-0008/#maximum-line-length](https://www.python.org/dev/peps/pep-0008/#maximum-line-length)>), we recommend that you keep Scilla contracts to a maximum of 80 characters for readability.
+As recommended by [PEP 8](<[https://www.python.org/dev/peps/pep-0008/#maximum-line-length](https://www.python.org/dev/peps/pep-0008/#maximum-line-length)>), we recommend that you keep lines in Scilla contracts to a maximum of 80 characters for readability.
 
 Wrapped lines should conform to the following rules:
 
@@ -57,7 +58,7 @@ Wrapped lines should conform to the following rules:
 ## Indentation Rules
 
 - Indentation for `let...in` expressions
-- The expression following a definition introduced by `let` is indented to the same level as the keyword `let`, and the keyword in which introduces it is written at the end of the line
+- The expression following a definition introduced by `let` is indented to the same level as the keyword `let`, and the keyword `in` which introduces it is written at the end of the line.
 
 ```ocaml
 
