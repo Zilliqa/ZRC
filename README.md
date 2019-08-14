@@ -1,2 +1,2 @@
 # ZRC
-Zilliqa Reference Contracts
+Zilliqa Reference Contracts (ZRCs) describe constract standards for the Zilliqa platform.
