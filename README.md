@@ -10,5 +10,5 @@ The Zilliqa Reference Contracts (ZRCs) are the constract standards for the Zilli
 # ZRC Status
 1. **Draft** - a preliminary version of the ZRC that is not yet ready for submission.
 2. **Ready** - a preliminary version of the ZRC that is ready for review by a wide audience.
-3. **Finalized** - a finalized version of the ZRC that has been in the **Ready** state for at least 2 weeks **and** any technical changes that were requested have been addressed by the author.
+3. **Finalized** - a finalized version of the ZRC that has been in the **Ready** state for at least 2 weeks and any technical changes that were requested have been addressed by the author.
 4. **Implemented** - a finalized version of the ZRC that the Core Devs have decided to implement and release.
