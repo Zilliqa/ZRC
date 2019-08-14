@@ -14,4 +14,4 @@ The Zilliqa Reference Contracts (ZRCs) are the constract standards for the Zilli
 
 **Finalized** - a finalized version of the ZRC that has been in the **Ready** state for at least 2 weeks **and** any technical changes that were requested have been addressed by the author.
 
-**Implemented** (Core) - a finalized version of the ZRC that the Core Devs have decided to implement and release.
+**Implemented** - a finalized version of the ZRC that the Core Devs have decided to implement and release.
