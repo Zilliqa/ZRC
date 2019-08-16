@@ -1,5 +1,5 @@
 # ZRC
-The Zilliqa Reference Contracts (ZRCs) are the constract standards for the Zilliqa platform.
+The Zilliqa Reference Contracts (ZRCs) are the contract standards for the Zilliqa platform.
 
 # Contributing
 1. Review ZRC-0.
@@ -7,11 +7,11 @@ The Zilliqa Reference Contracts (ZRCs) are the constract standards for the Zilli
 3. Add your ZRC to your fork of the repository. There is a template ZRC here.
 4. Submit a Pull Request to [Zilliqa's ZRC repository](https://github.com/Zilliqa/ZRC).
 
-Your first PR should be a first draft of the final ZRC. It must meet the formatting criteria enforced by the build (largely, correct metadata in the header). An editor will manually review the first PR for a new ZRC and assign it a number before merging it. Make sure you include a `discussions-to header` with the URL to a discussion forum or open GitHub issue where people can discuss the ZRC as a whole.
+Your first PR should be a first draft of the final ZRC. An editor will manually review the first PR for a new ZRC and assign it a number before merging it. Make sure you include a `discussions-to header` with the URL to a discussion forum or open GitHub issue where people can discuss the ZRC as a whole.
 
 If your ZRC requires images, the image files should be included in a subdirectory of the assets folder for that ZRC as follow: `assets/zrc-X` (for zrc X). When linking to an image in the ZRC, use relative links such as `../assets/zrc-X/image.png`.
 
-When you believe your ZRC is mature and ready to progress past the 'Draft' phase, you should go to our Zilliqa Official Discord server and ask to have your issue added to the next community dev call where it can be discussed for inclusion in a future platform upgrade. If the community agrees to include it, the ZRC editors will update the state of your ZRC to 'Approved'.
+When you believe your ZRC is ready to progress past the 'Draft' phase, you should go to our Zilliqa Official Discord server and ask to have your issue added to the next community dev call where it can be discussed for inclusion in a future platform upgrade. If the community agrees to include it, the ZRC editors will update the state of your ZRC to 'Approved'.
 
 # ZRC Status
 1. **Draft** - a preliminary version of the ZRC that is not yet ready for submission.
