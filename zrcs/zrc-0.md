@@ -152,7 +152,7 @@ ZRCs may have a `requires` header, indicating the ZRC numbers that this ZRC depe
 
 #### `superseded-by` and `replaces` headers
 
-EIPs may also have a `superseded-by` header indicating that a ZRC has been rendered obsolete by a later document; the value is the number of the ZRC that replaces the current document. The newer ZRC must have a `replaces` header containing the number of the ZRC that it rendered obsolete.
+ZRCs may also have a `superseded-by` header indicating that a ZRC has been rendered obsolete by a later document; the value is the number of the ZRC that replaces the current document. The newer ZRC must have a `replaces` header containing the number of the ZRC that it rendered obsolete.
 
 ## Auxiliary Files
 
