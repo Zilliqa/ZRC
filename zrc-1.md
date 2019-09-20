@@ -19,6 +19,69 @@ A standard for NFT can be serve as an interface for game creators to create kitt
 
 ### Specification
 
+## Errror Codes
+```
+let code_success = Uint32 0
+let code_failure = Uint32 1
+let code_not_authorized = Uint32 2
+let code_not_found = Uint32 4
+let code_bad_request = Uint32 5
+let code_token_exists = Uint32 6
+let code_unexpected_error = Uint32 9
+let code_owner_not_right = Uint32 10
+```
+
+## Approve()
+```
+(* Approves an address to transfer the given token ID                   *)
+(* @event emit _eventname "Approve" if successful                       *)
+(* @param to: ByStr20 to be approved for the given token id             *)
+(* @param tokenId: uint256 id of the token to be apporved               *)
+transition approve(to: ByStr20, tokenId: Uint256)
+```
+
+## SetApprovalForAll()
+```
+(* Sets or unsets the approval of a given operator                      *)
+(* @event emit _eventname "SetApprovalForAll" if successful             *)
+(* @param address: to be set or unset as operator                       *)
+(* @param approved: status of the approval to be set                    *)
+transition setApprovalForAll(to: ByStr20, approved: Bool)
+```
+
+## TransferFrom()
+```
+(* Transfer the ownership of a given token ID to another address      *)
+(* @event emit _eventname "Transfer" if successful                    *)
+(* @param from:     Current owner of the token                        *)
+(* @param to:       Recipient address of the token                    *)
+(* @param tokenI:d   uint256 id of the token to be transferred        *)
+transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
+```
+
+## OwnerOf()
+```
+(* Get the owner of a particular tokenId                         *)
+(* @event emit _eventname "OwnerOf" if successful                *)
+transition ownerOf(tokenId: Uint256)
+```
+
+## BalanceOf()
+```
+(* Count all NFTs assigned to an owner                           *)
+(* @event emit _eventname "BalanceOf" if successful              *)
+transition balanceOf(address: ByStr20)
+```
+
+## Mint()
+```
+(* Mint new tokens.                                              *)
+(* @event emit _eventname "Birth" if successful                  *)
+(* @param to: address of the token recipient                     *)
+(* @param key: token key of the new token                        *)
+transition mint(to: ByStr20, key: String)
+```
+
 ## Existing Implementations
 
 ZRCs should be written in [markdown](https://en.wikipedia.org/wiki/Markdown) format.
@@ -109,56 +172,6 @@ ZRCs may also have a `superseded-by` header indicating that a ZRC has been rende
 ## Auxiliary Files
 
 ZRCs may include auxiliary files such as diagrams. Such files must be named ZRC-XXXX-Y.ext, where “XXXX” is the ZRC number, “Y” is a serial number (starting at 1), and “ext” is replaced by the actual file extension (e.g. “png”).
-
-## Transferring ZRC Ownership
-
-It occasionally becomes necessary to transfer ownership of ZRCs to a new champion. In general, we'd like to retain the original author as a co-author of the transferred ZRC, but that's really up to the original author. A good reason to transfer ownership is because the original author no longer has the time or interest in updating it or following through with the ZRC process, or has fallen off the face of the 'net (i.e. is unreachable or isn't responding to email). A bad reason to transfer ownership is because you don't agree with the direction of the ZRC. We try to build consensus around a ZRC, but if that's not possible, you can always submit a competing ZRC.
-
-If you are interested in assuming ownership of a ZRC, send a message asking to take over, addressed to both the original author and the ZRC editor. If the original author doesn't respond to email in a timely manner, the ZRC editor will make a unilateral decision (it's not like such decisions can't be reversed :)).
-
-## ZRC Editors
-
-The current ZRC editors are
-
-` * Jacob Johannsen (@jjcnn)`
-
-` * Vaivaswatha Nagaraj (@vaivaswatha)`
-
-` * Edison Lim (@edisonljh)`
-
-` * Han Wen Chua (@evesnow91)`
-
-` * Anton Trunov (anton-trunov)`
-
-` * Amrit Kumar (@AmritKumar)`
-
-
-## ZRC Editor Responsibilities
-
-For each new ZRC that comes in, an editor does the following:
-
-- Read the ZIP to check if it is ready: sound and complete. The ideas must make technical sense, even if they don't seem likely to get to final status.
-- The title should accurately describe the content.
-- Check the ZRC for language (spelling, grammar, sentence structure, etc.), markup (Github flavored Markdown), code style
-
-If the ZRC isn't ready, the editor will send it back to the author for revision, with specific instructions.
-
-Once the ZRC is ready for the repository, the ZRC editor will:
-
-- Assign a ZRC number (generally the PR number or, if preferred by the author, the Issue # if there was discussion in the Issues section of this repository about this ZRC)
-
-- Merge the corresponding pull request
-
-- Send a message back to the ZRC author with the next step.
-
-Many ZRCs are written and maintained by developers with write access to the Zilliqa codebase. The ZRC editors monitor ZRC changes, and correct any structure, grammar, spelling, or markup mistakes we see.
-
-The editors don't pass judgment on ZRCs. We merely do the administrative & editorial part.
-
-## History
-
-This document was derived heavily from [Ethereum's EIP-1](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1.md) which in turn was derived from [Bitcoin's BIP-0001](https://github.com/bitcoin/bips/blob/master/bip-0001.mediawiki) written by Amir Taaki which in turn was derived from [Python's PEP-0001]. In many places text was simply copied and modified. Although the PEP-0001 text was written by Barry Warsaw, Jeremy Hylton, and David Goodger, they are not responsible for its use in the Zilliqa Reference Contracts, and should not be bothered with technical questions specific to Zilliqa or the ZRC. Please direct all comments to the ZRC editors.
-
 
 ## Copyright
 
