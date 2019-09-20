@@ -51,7 +51,7 @@ Each status change is requested by the ZRC author and reviewed by the ZRC editor
   * :x:  Implemented which results in material changes or substantial unaddressed technical complaints will cause the ZRC to revert to Draft.
   * :arrow_right: Implemented -- a finalized version of the ZRC that the Core Devs have decided to implement and release.
 
-* **IMPLEMENTED** -- This ZRC represents the current state-of-the-art. An Implemented EIP should only be updated to correct errata.
+* **IMPLEMENTED** -- This ZRC represents the current state-of-the-art. An Implemented ZRC should only be updated to correct errata.
 
 ## What belongs in a successful ZRC?
 
@@ -70,7 +70,7 @@ Each ZRC should have the following parts:
 ## ZRC Formats and Templates
 
 ZRCs should be written in [markdown](https://en.wikipedia.org/wiki/Markdown) format.
-Image files should be included in a subdirectory of the `assets` folder for that EIP as follows: `assets/zrc-N` (where **N** is to be replaced with the EIP number). When linking to an image in the EIP, use relative links such as `../assets/zrc-1/image.png`.
+Image files should be included in a subdirectory of the `assets` folder for that ZRC as follows: `assets/zrc-N` (where **N** is to be replaced with the ZRC number). When linking to an image in the ZRC, use relative links such as `../assets/zrc-1/image.png`.
 
 ## ZRC Header Preamble
 
