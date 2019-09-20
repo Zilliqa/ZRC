@@ -19,7 +19,7 @@ A standard for NFT can be serve as an interface for game creators to create kitt
 
 ### Specification
 
-## Errror Codes
+**Errror Codes**
 ```
 let code_success = Uint32 0
 let code_failure = Uint32 1
@@ -31,7 +31,7 @@ let code_unexpected_error = Uint32 9
 let code_owner_not_right = Uint32 10
 ```
 
-## Approve()
+**Approve()**
 ```
 (* Approves an address to transfer the given token ID                   *)
 (* @event emit _eventname "Approve" if successful                       *)
@@ -40,7 +40,7 @@ let code_owner_not_right = Uint32 10
 transition approve(to: ByStr20, tokenId: Uint256)
 ```
 
-## SetApprovalForAll()
+**SetApprovalForAll()**
 ```
 (* Sets or unsets the approval of a given operator                      *)
 (* @event emit _eventname "SetApprovalForAll" if successful             *)
@@ -49,7 +49,7 @@ transition approve(to: ByStr20, tokenId: Uint256)
 transition setApprovalForAll(to: ByStr20, approved: Bool)
 ```
 
-## TransferFrom()
+**TransferFrom()**
 ```
 (* Transfer the ownership of a given token ID to another address      *)
 (* @event emit _eventname "Transfer" if successful                    *)
@@ -59,21 +59,21 @@ transition setApprovalForAll(to: ByStr20, approved: Bool)
 transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
 ```
 
-## OwnerOf()
+**OwnerOf()**
 ```
 (* Get the owner of a particular tokenId                         *)
 (* @event emit _eventname "OwnerOf" if successful                *)
 transition ownerOf(tokenId: Uint256)
 ```
 
-## BalanceOf()
+**BalanceOf()**
 ```
 (* Count all NFTs assigned to an owner                           *)
 (* @event emit _eventname "BalanceOf" if successful              *)
 transition balanceOf(address: ByStr20)
 ```
 
-## Mint()
+**Mint()**
 ```
 (* Mint new tokens.                                              *)
 (* @event emit _eventname "Birth" if successful                  *)
