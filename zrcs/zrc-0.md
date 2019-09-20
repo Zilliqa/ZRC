@@ -158,15 +158,15 @@ EIPs may also have a `superseded-by` header indicating that a ZRC has been rende
 
 ZRCs may include auxiliary files such as diagrams. Such files must be named ZRC-XXXX-Y.ext, where “XXXX” is the ZRC number, “Y” is a serial number (starting at 1), and “ext” is replaced by the actual file extension (e.g. “png”).
 
-## Transferring EIP Ownership
+## Transferring ZRC Ownership
 
 It occasionally becomes necessary to transfer ownership of ZRCs to a new champion. In general, we'd like to retain the original author as a co-author of the transferred ZRC, but that's really up to the original author. A good reason to transfer ownership is because the original author no longer has the time or interest in updating it or following through with the ZRC process, or has fallen off the face of the 'net (i.e. is unreachable or isn't responding to email). A bad reason to transfer ownership is because you don't agree with the direction of the ZRC. We try to build consensus around a ZRC, but if that's not possible, you can always submit a competing ZRC.
 
 If you are interested in assuming ownership of a ZRC, send a message asking to take over, addressed to both the original author and the ZRC editor. If the original author doesn't respond to email in a timely manner, the ZRC editor will make a unilateral decision (it's not like such decisions can't be reversed :)).
 
-## EIP Editors
+## ZRC Editors
 
-The current EIP editors are
+The current ZRC editors are
 
 ` * Jacob Johannsen (@jjcnn)`
 
