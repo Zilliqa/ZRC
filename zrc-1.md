@@ -114,12 +114,19 @@ transition balanceOf(address: ByStr20)
 **Mint()**
 
 ```ocaml
-(* Mint new tokens.                                              *)
-(* @event emit _eventname "Birth" if successful                  *)
-(* @param to: address of the token recipient                     *)
-(* @param key: token key of the new token                        *)
+(* Mint new tokens.                    *)
 transition mint(to: ByStr20, key: String)
 ```
+
+|  | Name | Type| Description
+|--|--|--|--|
+| @param | to | ByStr20 | Address of the token recipient. |
+| @param | key | String | Token key of the new token. |
+
+|  | Name | Description
+|--|--|--|
+| eventName | "Birth" | emit event if the call is successful. |
+
 
 ## Existing Implementations
 
