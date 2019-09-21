@@ -148,8 +148,8 @@ transition mint(to: ByStr20, key: String)
 
 ## Existing Implementations
 
-ZRCs should be written in [markdown](https://en.wikipedia.org/wiki/Markdown) format.
-Image files should be included in a subdirectory of the `assets` folder for that ZRC as follows: `assets/zrc-N` (where **N** is to be replaced with the ZRC number). When linking to an image in the ZRC, use relative links such as `../assets/zrc-1/image.png`.
+* [Zilliqa Celebrity card](https://viewblock.io/zilliqa/address/zil1262aknuja095r33kk20mcmwfvjc4wn9wwcjx7u)
+* [SuperPlayer NFT](https://viewblock.io/zilliqa/address/zil1vxl33hrua4wsld32zk2fjm6qv3qu4tg6cw4azu)
 
 <br/>
 
