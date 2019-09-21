@@ -3,21 +3,22 @@
 |--|--|--|--| -- | -- | -- |
 | 1  | Standard for Non Fungible Tokens | Draft | Meta  | Gareth Mensah <gareth@zilliqa.com> | 2019-09-20 | 2019-09-20 
 
-
+<br/><br/>  
 ## What are Non Fungible Tokens (NFT)?
 
 A NFT, or Non Fungible Token is an open standard to create collectible assets. Unlike fungible tokens, each token is completely unique and non-interchangeable with other tokens.
 
+<br/><br/> 
 ## Abstract 
 
 ZRC-1 defines a minimum interface a smart contract must implement to allow unique tokens to be managed, owned, and traded.
 
-
+<br/><br/> 
 ## Motivation
 
 A standard for NFT can be serve as an interface for game creators to create kitties, cards or weapons; by institutions to create certifications, diplomas and identifications. Generally, NFTs can be used to represent unique and rare assets as a tokens.
 
-
+<br/><br/> 
 ## Specification
 
 **Errror Codes**
@@ -32,6 +33,7 @@ let code_unexpected_error = Uint32 9
 let code_owner_not_right = Uint32 10
 ```
 
+<br/><br/> 
 **Approve()**
 
 ```ocaml
@@ -47,7 +49,8 @@ transition approve(to: ByStr20, tokenId: Uint256)
 |  | Name | Description
 |--|--|--|
 | eventName | "Approve" | emit event if the call is successful. |
-
+  
+<br/><br/> 
 **SetApprovalForAll()**
 
 ```ocaml
@@ -64,6 +67,7 @@ transition setApprovalForAll(to: ByStr20, approved: Bool)
 |--|--|--|
 | eventName | "SetApprovalForAll" | emit event if the call is successful. |
 
+<br/><br/> 
 **TransferFrom()**
 
 ```ocaml
@@ -81,6 +85,7 @@ transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
 |--|--|--|
 | eventName | "Transfer" | emit event if the call is successful. |
 
+<br/><br/> 
 **OwnerOf()**
 
 ```ocaml
@@ -96,6 +101,7 @@ transition ownerOf(tokenId: Uint256)
 |--|--|--|
 | eventName | "OwnerOf" | emit event if the call is successful. |
 
+<br/><br/> 
 **BalanceOf()**
 
 ```ocaml
@@ -111,6 +117,7 @@ transition balanceOf(address: ByStr20)
 |--|--|--|
 | eventName | "BalanceOf" | emit event if the call is successful. |
 
+<br/><br/> 
 **Mint()**
 
 ```ocaml
@@ -127,14 +134,13 @@ transition mint(to: ByStr20, key: String)
 |--|--|--|
 | eventName | "Birth" | emit event if the call is successful. |
 
-
+<br/><br/> 
 ## Existing Implementations
 
 ZRCs should be written in [markdown](https://en.wikipedia.org/wiki/Markdown) format.
 Image files should be included in a subdirectory of the `assets` folder for that ZRC as follows: `assets/zrc-N` (where **N** is to be replaced with the ZRC number). When linking to an image in the ZRC, use relative links such as `../assets/zrc-1/image.png`.
 
-
+<br/><br/> 
 ## Copyright
 
 Copyright and related rights waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
-
