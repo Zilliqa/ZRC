@@ -51,7 +51,7 @@ transition approve(to: ByStr20, tokenId: Uint256)
 **SetApprovalForAll()**
 
 ```ocaml
-(* Sets or unsets the approval of a given operator     *)
+(* Sets or unsets the approval of a given operator *)
 transition setApprovalForAll(to: ByStr20, approved: Bool)
 ```
 
@@ -67,7 +67,7 @@ transition setApprovalForAll(to: ByStr20, approved: Bool)
 **TransferFrom()**
 
 ```ocaml
-(* Transfer the ownership of a given token ID to another address   *)
+(* Transfer the ownership of a given token ID to another address *)
 transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
 ```
 
@@ -114,7 +114,7 @@ transition balanceOf(address: ByStr20)
 **Mint()**
 
 ```ocaml
-(* Mint new tokens.                    *)
+(* Mint new tokens *)
 transition mint(to: ByStr20, key: String)
 ```
 
