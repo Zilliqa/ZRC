@@ -33,39 +33,69 @@ let code_owner_not_right = Uint32 10
 ```
 
 **Approve()**
+
 ```ocaml
-(* Approves an address to transfer the given token ID                   *)
-(* @event emit _eventname "Approve" if successful                       *)
-(* @param to: ByStr20 to be approved for the given token id             *)
-(* @param tokenId: uint256 id of the token to be apporved               *)
+(* Approves an address to transfer the given token ID *)
 transition approve(to: ByStr20, tokenId: Uint256)
 ```
 
+|  | Name | Type| Description
+|--|--|--|--|
+| @param | to | ByStr20 | Address to be approved for the given token id. |
+| @param | tokenId | Uint256 | Id of the token to be approved. |
+
+| Events |
+|--|
+| emit _eventname "Approve" if successful. |
+
 **SetApprovalForAll()**
+
 ```ocaml
-(* Sets or unsets the approval of a given operator                      *)
-(* @event emit _eventname "SetApprovalForAll" if successful             *)
-(* @param address: to be set or unset as operator                       *)
-(* @param approved: status of the approval to be set                    *)
+(* Sets or unsets the approval of a given operator     *)
 transition setApprovalForAll(to: ByStr20, approved: Bool)
 ```
 
+
+|  | Name | Type| Description
+|--|--|--|--|
+| @param | to | ByStr20 | Address to be set or unset as operator. |
+| @param | approved | Bool | Status of the approval to be set. |
+
+| Events |
+|--|
+| emit _eventname "SetApprovalForAll" if successful. |
+
 **TransferFrom()**
+
 ```ocaml
-(* Transfer the ownership of a given token ID to another address      *)
-(* @event emit _eventname "Transfer" if successful                    *)
-(* @param from:     Current owner of the token                        *)
-(* @param to:       Recipient address of the token                    *)
-(* @param tokenI:d   uint256 id of the token to be transferred        *)
+(* Transfer the ownership of a given token ID to another address   *)
 transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
 ```
 
+|  | Name | Type| Description
+|--|--|--|--|
+| @param | from | ByStr20 | Current owner of the token. |
+| @param | to | ByStr20 | Recipient address of the token. |
+| @param | tokenId | Uint256 | Id of the token to be transferred. |
+
+| Events |
+|--|
+| emit _eventname "Transfer" if successful. |
+
 **OwnerOf()**
+
+|  | Name | Type| Description
+|--|--|--|--|
+| @param | tokenId | Uint256 | Id of a given token. |
+
 ```ocaml
-(* Get the owner of a particular tokenId                         *)
-(* @event emit _eventname "OwnerOf" if successful                *)
+(* Get the owner of a particular tokenId *)
 transition ownerOf(tokenId: Uint256)
 ```
+
+| Events |
+|--|
+| emit _eventname "OwnerOf" if successful. |
 
 **BalanceOf()**
 ```ocaml
