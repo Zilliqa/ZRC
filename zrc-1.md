@@ -44,9 +44,9 @@ transition approve(to: ByStr20, tokenId: Uint256)
 | @param | to | ByStr20 | Address to be approved for the given token id. |
 | @param | tokenId | Uint256 | Id of the token to be approved. |
 
-| Events |
-|--|
-| emit _eventname "Approve" if successful. |
+|  | Name | Description
+|--|--|--|
+| eventName | "Approve" | emit event if the call is successful. |
 
 **SetApprovalForAll()**
 
@@ -55,15 +55,14 @@ transition approve(to: ByStr20, tokenId: Uint256)
 transition setApprovalForAll(to: ByStr20, approved: Bool)
 ```
 
-
 |  | Name | Type| Description
 |--|--|--|--|
 | @param | to | ByStr20 | Address to be set or unset as operator. |
 | @param | approved | Bool | Status of the approval to be set. |
 
-| Events |
-|--|
-| emit _eventname "SetApprovalForAll" if successful. |
+|  | Name | Description
+|--|--|--|
+| eventName | "SetApprovalForAll" | emit event if the call is successful. |
 
 **TransferFrom()**
 
@@ -78,33 +77,42 @@ transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
 | @param | to | ByStr20 | Recipient address of the token. |
 | @param | tokenId | Uint256 | Id of the token to be transferred. |
 
-| Events |
-|--|
-| emit _eventname "Transfer" if successful. |
+|  | Name | Description
+|--|--|--|
+| eventName | "Transfer" | emit event if the call is successful. |
 
 **OwnerOf()**
-
-|  | Name | Type| Description
-|--|--|--|--|
-| @param | tokenId | Uint256 | Id of a given token. |
 
 ```ocaml
 (* Get the owner of a particular tokenId *)
 transition ownerOf(tokenId: Uint256)
 ```
 
-| Events |
-|--|
-| emit _eventname "OwnerOf" if successful. |
+|  | Name | Type| Description
+|--|--|--|--|
+| @param | tokenId | Uint256 | Id of a given token. |
+
+|  | Name | Description
+|--|--|--|
+| eventName | "OwnerOf" | emit event if the call is successful. |
 
 **BalanceOf()**
+
 ```ocaml
-(* Count all NFTs assigned to an owner                           *)
-(* @event emit _eventname "BalanceOf" if successful              *)
+(* Count the number of NFTs assigned to an owner *)
 transition balanceOf(address: ByStr20)
 ```
 
+|  | Name | Type| Description
+|--|--|--|--|
+| @param | address | ByStr20 | Address of an owner. |
+
+|  | Name | Description
+|--|--|--|
+| eventName | "BalanceOf" | emit event if the call is successful. |
+
 **Mint()**
+
 ```ocaml
 (* Mint new tokens.                                              *)
 (* @event emit _eventname "Birth" if successful                  *)
