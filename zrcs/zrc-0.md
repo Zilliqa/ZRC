@@ -25,7 +25,7 @@ A ZRC must meet certain minimum criteria. It must be a clear and complete descri
 
 Parties involved in the process are you, the champion or *ZRC author*, the [*ZRC editors*](#zrc-editors), and the [*Zilliqa Core Developers*](https://github.com/orgs/Zilliqa/people).
 
-Before you begin writing a formal ZRC, you should vet your idea. Ask the Ethereum community first if an idea is original to avoid wasting time on something that will be be rejected based on prior research. It is thus recommended to use one of the groups on the [Zilliqa Discord Channel](https://discord.gg/8tpGXrB),  or [the Issues section of this repository](https://github.com/Zilliqa/ZRC/issues). 
+Before you begin writing a formal ZRC, you should vet your idea. Ask the Zilliqa community first if an idea is original to avoid wasting time on something that will be be rejected based on prior research. It is thus recommended to use one of the groups on the [Zilliqa Discord Channel](https://discord.gg/8tpGXrB),  or [the Issues section of this repository](https://github.com/Zilliqa/ZRC/issues). 
 
 In addition to making sure your idea is original, it will be your role as the author to make your idea clear to reviewers and interested parties, as well as inviting editors, developers and community to give feedback on the aforementioned channels. You should try and gauge whether the interest in your ZRC is commensurate with both the work involved in implementing it and how many parties will have to conform to it.  Negative community feedback will be taken into consideration and may prevent your ZRC from moving past the Draft stage.
 
@@ -36,7 +36,7 @@ In addition to making sure your idea is original, it will be your role as the au
 Following is the process that a successful ZRC will move along:
 
 ```
-[ DRAFT ] -> [ READY ] -> [APPROVED] -> [ IMPLEMENTED ]
+[ DRAFT ] -> [ READY ] -> [ APPROVED ] -> [ IMPLEMENTED ]
 ```
 
 Each status change is requested by the ZRC author and reviewed by the ZRC editors. Use a pull request to update the status. Please include a link to where people should continue discussing your ZRC. The ZRC editors will process these requests as per the conditions below.
