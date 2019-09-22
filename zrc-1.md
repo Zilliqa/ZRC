@@ -40,6 +40,8 @@ A standard for NFT can serve as an interface for game creators to create kitties
 
 <br/>
 
+## Transitions
+
 **Approve()**
 
 ```ocaml
