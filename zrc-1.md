@@ -26,16 +26,17 @@ A standard for NFT can serve as an interface for game creators to create kitties
 ## Specification
 
 **Errror Codes**
-```ocaml
-let code_success = Uint32 0
-let code_failure = Uint32 1
-let code_not_authorized = Uint32 2
-let code_not_found = Uint32 4
-let code_bad_request = Uint32 5
-let code_token_exists = Uint32 6
-let code_unexpected_error = Uint32 9
-let code_owner_not_right = Uint32 10
-```
+
+| Name | Type | Code 
+|--|--|--|
+| code_success | Uint32 | 0  
+| code_failure | Uint32 | 1  
+| code_not_authorized | Uint32 | 2  
+| code_not_found | Uint32 | 4  
+| code_bad_request | Uint32 | 5  
+| code_token_exists | Uint32 | 6  
+| code_unexpected_error | Uint32 | 9  
+| code_owner_not_right | Uint32 | 10
 
 <br/>
 
