@@ -75,7 +75,8 @@ transition setApprovalForAll(to: ByStr20, approved: Bool)
 
 |  | Name | Description
 |--|--|--|
-| eventName | "SetApprovalForAll" | emit event if the call is successful. |
+| eventName | "SetApprovalForAllSuccess" | emit event if the call is successful. |
+| eventName | "SetApprovalForAllFailure" | emit event if the call is unsuccessful. |
 
 <br/>
 
@@ -112,7 +113,8 @@ transition balanceOf(address: ByStr20)
 
 |  | Name | Description
 |--|--|--|
-| eventName | "BalanceOf" | emit event if the call is successful. |
+| eventName | "BalanceOfSuccess" | emit event if the call is successful. |
+| eventName | "BalanceOfFailure" | emit event if the call is unsuccessful. |
 
 <br/>
 
@@ -130,7 +132,8 @@ transition mint(to: ByStr20, tokenId: String)
 
 |  | Name | Description
 |--|--|--|
-| eventName | "Birth" | emit event if the call is successful. |
+| eventName | "MintSuccess" | emit event if the call is successful. |
+| eventName | "MintFailure" | emit event if the call is unsuccessful. |
 
 <br/>
 
