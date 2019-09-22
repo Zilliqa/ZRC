@@ -19,7 +19,7 @@ ZRC-1 defines a minimum interface a smart contract must implement to allow uniqu
 
 ## Motivation
 
-A standard for NFT can serve as an interface for game creators to create kitties, cards or weapons; by institutions to create certifications, diplomas and identifications. Generally, NFTs can be used to represent unique and rare assets as a tokens.
+A standard for NFT can serve as an interface for game creators to create kitties, cards or weapons; by institutions to create certifications, diplomas and identifications. Generally, NFTs can be used to represent unique and rare assets as tokens.
 
 <br/>
 
