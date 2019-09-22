@@ -25,7 +25,7 @@ A standard for NFT can serve as an interface for game creators to create kitties
 
 ## Specification
 
-**Errror Codes**
+**Error Codes**
 
 | Name | Type | Code 
 |--|--|--|
