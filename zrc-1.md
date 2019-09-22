@@ -19,7 +19,7 @@ ZRC-1 defines a minimum interface a smart contract must implement to allow uniqu
 
 ## Motivation
 
-A standard for NFT can be serve as an interface for game creators to create kitties, cards or weapons; by institutions to create certifications, diplomas and identifications. Generally, NFTs can be used to represent unique and rare assets as a tokens.
+A standard for NFT can serve as an interface for game creators to create kitties, cards or weapons; by institutions to create certifications, diplomas and identifications. Generally, NFTs can be used to represent unique and rare assets as a tokens.
 
 <br/>
 
@@ -53,8 +53,9 @@ transition approve(to: ByStr20, tokenId: Uint256)
 
 |  | Name | Description
 |--|--|--|
-| eventName | "Approve" | emit event if the call is successful. |
-  
+| eventName | "ApproveSuccess" | emit event if the call is successful. |
+| eventName | "ApproveFailure" | emit event if the call is unsuccessful. |
+
 <br/>
 
 **SetApprovalForAll()**
@@ -90,24 +91,8 @@ transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
 
 |  | Name | Description
 |--|--|--|
-| eventName | "Transfer" | emit event if the call is successful. |
-
-<br/>
-
-**OwnerOf()**
-
-```ocaml
-(* Get the owner of a particular tokenId *)
-transition ownerOf(tokenId: Uint256)
-```
-
-|  | Name | Type| Description
-|--|--|--|--|
-| @param | tokenId | Uint256 | Id of a given token. |
-
-|  | Name | Description
-|--|--|--|
-| eventName | "OwnerOf" | emit event if the call is successful. |
+| eventName | "TransferSuccess" | emit event if the call is successful. |
+| eventName | "TransferFailure" | emit event if the call is unsuccessful. |
 
 <br/>
 
@@ -132,13 +117,13 @@ transition balanceOf(address: ByStr20)
 
 ```ocaml
 (* Mint new tokens *)
-transition mint(to: ByStr20, key: String)
+transition mint(to: ByStr20, tokenId: String)
 ```
 
 |  | Name | Type| Description
 |--|--|--|--|
 | @param | to | ByStr20 | Address of the token recipient. |
-| @param | key | String | Token key of the new token. |
+| @param | tokenId | Uint256 | Token id of the new token. |
 
 |  | Name | Description
 |--|--|--|
@@ -148,8 +133,7 @@ transition mint(to: ByStr20, key: String)
 
 ## Existing Implementations
 
-* [Zilliqa Celebrity card](https://viewblock.io/zilliqa/address/zil1262aknuja095r33kk20mcmwfvjc4wn9wwcjx7u)
-* [SuperPlayer NFT](https://viewblock.io/zilliqa/address/zil1vxl33hrua4wsld32zk2fjm6qv3qu4tg6cw4azu)
+* [NonfungibleToken](https://github.com/Zilliqa/scilla/blob/master/tests/contracts/nonfungible-token.scilla)
 
 <br/>
 
