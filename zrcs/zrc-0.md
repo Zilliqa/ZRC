@@ -205,7 +205,7 @@ The editors don't pass judgment on ZRCs. We merely do the administrative & edito
 
 ## History
 
-This document was derived heavily from [Ethereum's EIP-1](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1.md) which in turn was derived from [Bitcoin's BIP-0001](https://github.com/bitcoin/bips/blob/master/bip-0001.mediawiki) written by Amir Taaki which in turn was derived from [Python's PEP-0001]. In many places text was simply copied and modified. Although the PEP-0001 text was written by Barry Warsaw, Jeremy Hylton, and David Goodger, they are not responsible for its use in the Zilliqa Reference Contracts, and should not be bothered with technical questions specific to Zilliqa or the ZRC. Please direct all comments to the ZRC editors.
+This document was derived heavily from [Ethereum's EIP-1](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1.md) which in turn was derived from [Bitcoin's BIP-0001](https://github.com/bitcoin/bips/blob/master/bip-0001.mediawiki) written by Amir Taaki which in turn was derived from [Python's PEP-0001](https://www.python.org/dev/peps/pep-0001/). In many places text was simply copied and modified. Although the PEP-0001 text was written by Barry Warsaw, Jeremy Hylton, and David Goodger, they are not responsible for its use in the Zilliqa Reference Contracts, and should not be bothered with technical questions specific to Zilliqa or the ZRC. Please direct all comments to the ZRC editors.
 
 
 ## Copyright
