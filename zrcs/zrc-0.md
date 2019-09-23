@@ -172,7 +172,7 @@ The current ZRC editors are
 
 - Vaivaswatha Nagaraj ([**@vaivaswatha**](https://github.com/vaivaswatha))
 
-` * Edison Lim (@edisonljh)`
+- Edison Lim ([**@edisonljh**](https://github.com/edisonljh))
 
 ` * Han Wen Chua (@evesnow91)`
 
