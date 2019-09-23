@@ -25,16 +25,11 @@ The NFT contract specification as described below lists 1) the global error code
 
 The NFT contract must define the following global constants in the library part of the contract code. These constants will be used as error codes in events.
 
-| Name | Type | Code 
-|--|--|--|
-| `code_success` | `Uint32` | `0`  
-| `code_failure` | `Uint32` | `1`  
-| `code_not_authorized` | `Uint32` | `2`  
-| `code_not_found` | `Uint32` | `4`  
-| `code_bad_request` | `Uint32` | `5`  
-| `code_token_exists` | `Uint32` | `6`  
-| `code_unexpected_error` | `Uint32` | `9`  
-| `code_owner_not_right` | `Uint32` | `10`
+| Name | Type | Code | Description
+|--|--|--|--|
+| `code_success` | `Uint32` | `0` | Emit when the transition call is successful. |
+| `code_failure` | `Uint32` | `1` | Emit when the transition call is unsuccessful. |
+| `code_not_authorized` | `Uint32` | `2` | Emit when the transition call is unauthorized for a given user. |
 
 
 ## Transitions
@@ -67,8 +62,8 @@ transition setApprovalForAll(to: ByStr20, approved: Bool)
 
 |  | Name | Type| Description
 |--|--|--|--|
-| @param | to | ByStr20 | Address to be set or unset as operator. |
-| @param | approved | Bool | Status of the approval to be set. |
+| @param | `to` | `ByStr20` | Address to be set or unset as operator. |
+| @param | `approved` | `Bool` | Status of the approval to be set. |
 
 |  | Name | Description
 |--|--|--|
@@ -86,14 +81,14 @@ transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
 
 |  | Name | Type| Description
 |--|--|--|--|
-| @param | from | ByStr20 | Current owner of the token. |
-| @param | to | ByStr20 | Recipient address of the token. |
-| @param | tokenId | Uint256 | Id of the token to be transferred. |
+| @param | `from` | `ByStr20` | Current owner of the token. |
+| @param | `to` | `ByStr20` | Recipient address of the token. |
+| @param | `tokenId` | `Uint256` | Id of the token to be transferred. |
 
 |  | Name | Description
 |--|--|--|
-| eventName | "TransferSuccess" | emit event if the call is successful. |
-| eventName | "TransferFailure" | emit event if the call is unsuccessful. |
+| eventName | `TransferSuccess` | emit event if the call is successful. |
+| eventName | `TransferFailure` | emit event if the call is unsuccessful. |
 
 <br/>
 
@@ -106,12 +101,12 @@ transition balanceOf(address: ByStr20)
 
 |  | Name | Type| Description
 |--|--|--|--|
-| @param | address | ByStr20 | Address of an owner. |
+| @param | `address` | `ByStr20` | Address of an owner. |
 
 |  | Name | Description
 |--|--|--|
-| eventName | "BalanceOfSuccess" | emit event if the call is successful. |
-| eventName | "BalanceOfFailure" | emit event if the call is unsuccessful. |
+| eventName | `BalanceOfSuccess` | emit event if the call is successful. |
+| eventName | `BalanceOfFailure` | emit event if the call is unsuccessful. |
 
 <br/>
 
@@ -124,13 +119,13 @@ transition mint(to: ByStr20, tokenId: String)
 
 |  | Name | Type| Description
 |--|--|--|--|
-| @param | to | ByStr20 | Address of the token recipient. |
-| @param | tokenId | Uint256 | Token id of the new token. |
+| @param | `to` | `ByStr20` | Address of the token recipient. |
+| @param | `tokenId` | `Uint256` | Token id of the new token. |
 
 |  | Name | Description
 |--|--|--|
-| eventName | "MintSuccess" | emit event if the call is successful. |
-| eventName | "MintFailure" | emit event if the call is unsuccessful. |
+| eventName | `MintSuccess` | emit event if the call is successful. |
+| eventName | `MintFailure` | emit event if the call is unsuccessful. |
 
 <br/>
 
