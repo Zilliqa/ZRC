@@ -187,7 +187,7 @@ For each new ZRC that comes in, an editor does the following:
 
 - Read the ZIP to check if it is ready: sound and complete. The ideas must make technical sense, even if they don't seem likely to get to final status.
 - The title should accurately describe the content.
-- Check the ZRC for language (spelling, grammar, sentence structure, etc.), markup (Github flavored Markdown), code style
+- Check the ZRC for language (spelling, grammar, sentence structure, etc.), markup (GitHub Flavored Markdown), code style
 
 If the ZRC isn't ready, the editor will send it back to the author for revision, with specific instructions.
 
