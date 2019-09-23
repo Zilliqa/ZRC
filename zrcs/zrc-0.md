@@ -178,7 +178,7 @@ The current ZRC editors are
 
 - Anton Trunov ([**@anton-trunov**](https://github.com/anton-trunov))
 
-` * Amrit Kumar (@AmritKumar)`
+- Amrit Kumar ([**@AmritKumar**](https://github.com/AmritKumar))
 
 
 ## ZRC Editor Responsibilities
