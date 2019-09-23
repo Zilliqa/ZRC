@@ -84,7 +84,7 @@ Each ZRC must begin with an [RFC 822](https://www.ietf.org/rfc/rfc822.txt) style
 
 ` * discussions-to:` *a url pointing to the official discussion thread*
 
-` status:` *Draft | Ready | Approved| Implemented*
+` status:` *Draft | Ready | Approved | Implemented*
 
 `* review-period-end:` *date review period ends*
 
