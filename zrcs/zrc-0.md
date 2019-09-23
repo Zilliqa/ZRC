@@ -176,7 +176,7 @@ The current ZRC editors are
 
 ` * Han Wen Chua (@evesnow91)`
 
-` * Anton Trunov (anton-trunov)`
+- Anton Trunov ([**@anton-trunov**](https://github.com/anton-trunov))
 
 ` * Amrit Kumar (@AmritKumar)`
 
