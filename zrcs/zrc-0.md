@@ -5,7 +5,7 @@
 
 ## What is a ZRC?
 
-ZRC stands for Zilliqa Reference Contracts. A ZRC is a design document meant for the [Zilliqa](https://www.zilliqa.com) community that lays down application-level standards and conventions for contracts, tokens and libraries. The target language for the contracts and library is expected to be [Scilla](https://scilla.readthedocs.io/en/latest/). The ZRC should provide a concise technical specification of the contract's purpose and the features that it should provide. The ZRC author is responsible for building consensus within the community and documenting dissenting opinions.
+ZRC stands for Zilliqa Reference Contracts. A ZRC is a design document meant for the [Zilliqa](https://www.zilliqa.com) community that lays down application-level standards and conventions for contracts, tokens and libraries. The target language for the contracts and libraries is expected to be [Scilla](https://scilla.readthedocs.io/en/latest/). The ZRC should provide a concise technical specification of the contract's purpose and the features that it should provide. The ZRC author is responsible for building consensus within the community and documenting dissenting opinions.
 
 ## ZRC Rationale
 
