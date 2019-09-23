@@ -1,44 +1,41 @@
 
 |  ZRC | Title | Status| Type | Author | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd)
 |--|--|--|--| -- | -- | -- |
-| 1  | Standard for Non Fungible Tokens | Draft | Meta  | Gareth Mensah <gareth@zilliqa.com> | 2019-09-20 | 2019-09-20 
+| 1  | Standard for Non Fungible Tokens | Draft | Standard | Gareth Mensah <gareth@zilliqa.com> | 2019-09-20 | 2019-09-20 
 
-<br/> 
 
 ## What are Non Fungible Tokens (NFT)?
 
-A NFT, or Non Fungible Token is an open standard to create collectible assets. Unlike fungible tokens, each token is completely unique and non-interchangeable with other tokens.
-
-<br/>
+An NFT, or Non Fungible Token is an open standard to create collectible assets. Unlike fungible tokens, each token is completely unique and non-interchangeable with other tokens.
 
 ## Abstract 
 
-ZRC-1 defines a minimum interface a smart contract must implement to allow unique tokens to be managed, owned, and traded.
+ZRC-1 defines a minimum interface a smart contract must implement to allow unique tokens to be managed, tracked, owned, and traded. 
 
-<br/>
 
 ## Motivation
 
 A standard for NFT can serve as an interface for game creators to create kitties, cards or weapons; by institutions to create certifications, diplomas and identifications. Generally, NFTs can be used to represent unique and rare assets as tokens.
 
-<br/>
-
 ## Specification
+
+The NFT contract specification as described below lists 1) the global error codes to be declared in the library part of the contract, 2) the names and types of the immutable and mutable variables (aka `fields`), 3) the transitions that will allow changing the values of the mutable variables, and 4) the events to be emitted by them.
 
 **Error Codes**
 
+The NFT contract must define the following global constants in the library part of the contract code. These constants will be used as error codes in events.
+
 | Name | Type | Code 
 |--|--|--|
-| code_success | Uint32 | 0  
-| code_failure | Uint32 | 1  
-| code_not_authorized | Uint32 | 2  
-| code_not_found | Uint32 | 4  
-| code_bad_request | Uint32 | 5  
-| code_token_exists | Uint32 | 6  
-| code_unexpected_error | Uint32 | 9  
-| code_owner_not_right | Uint32 | 10
+| `code_success` | `Uint32` | `0`  
+| `code_failure` | `Uint32` | `1`  
+| `code_not_authorized` | `Uint32` | `2`  
+| `code_not_found` | `Uint32` | `4`  
+| `code_bad_request` | `Uint32` | `5`  
+| `code_token_exists` | `Uint32` | `6`  
+| `code_unexpected_error` | `Uint32` | `9`  
+| `code_owner_not_right` | `Uint32` | `10`
 
-<br/>
 
 ## Transitions
 
@@ -51,13 +48,13 @@ transition approve(to: ByStr20, tokenId: Uint256)
 
 |  | Name | Type| Description
 |--|--|--|--|
-| @param | to | ByStr20 | Address to be approved for the given token id. |
-| @param | tokenId | Uint256 | Id of the token to be approved. |
+| @param | `to` | `ByStr20` | Address to be approved for the given token id. |
+| @param | `tokenId` | `Uint256` | Id of the token to be approved. |
 
 |  | Name | Description
 |--|--|--|
-| eventName | "ApproveSuccess" | emit event if the call is successful. |
-| eventName | "ApproveFailure" | emit event if the call is unsuccessful. |
+| eventName | `ApproveSuccess` | emit event if the call is successful. |
+| eventName | `ApproveFailure` | emit event if the call is unsuccessful. |
 
 <br/>
 
@@ -75,8 +72,8 @@ transition setApprovalForAll(to: ByStr20, approved: Bool)
 
 |  | Name | Description
 |--|--|--|
-| eventName | "SetApprovalForAllSuccess" | emit event if the call is successful. |
-| eventName | "SetApprovalForAllFailure" | emit event if the call is unsuccessful. |
+| eventName | `SetApprovalForAllSuccess` | emit event if the call is successful. |
+| eventName | `SetApprovalForAllFailure` | emit event if the call is unsuccessful. |
 
 <br/>
 
@@ -146,3 +143,4 @@ transition mint(to: ByStr20, tokenId: String)
 ## Copyright
 
 Copyright and related rights waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
+
