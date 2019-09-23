@@ -4,7 +4,7 @@
 | 1  | Standard for Non Fungible Tokens | Draft | Standard | Gareth Mensah <gareth@zilliqa.com> | 2019-09-20 | 2019-09-20 
 
 
-## I. What are Non Fungible Tokens (NFT)?
+## I. What are Non Fungible Tokens?
 
 An NFT, or Non Fungible Token is an open standard to create collectible assets. Unlike fungible tokens, each token is completely unique and non-interchangeable with other tokens.
 
@@ -57,7 +57,7 @@ transition approve(to: ByStr20, tokenId: Uint256)
 
 <br/>
 
-**2. etApprovalForAll()**
+**2. ApprovalForAll()**
 
 ```ocaml
 (* Sets or unsets the approval of a given operator *)
