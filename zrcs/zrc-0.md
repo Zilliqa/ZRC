@@ -174,7 +174,7 @@ The current ZRC editors are
 
 - Edison Lim ([**@edisonljh**](https://github.com/edisonljh))
 
-` * Han Wen Chua (@evesnow91)`
+- Han Wen Chua ([**@evesnow91**](https://github.com/evesnow91))
 
 - Anton Trunov ([**@anton-trunov**](https://github.com/anton-trunov))
 
