@@ -39,10 +39,10 @@ The NFT contract must define the following global constants in the library part 
 
 | Name | Type | Description
 |--|--|--|
-| `tokenOwnerMap` | `Map Uint256 ByStr20` | Mapping between tokenId to token owner. |
-| `ownedTokenCount` | `Map ByStr20 Uint256` | Mapping from owner to number of owned tokens. |
-| `tokenApprovals` | `Map Uint256 ByStr20` | Mapping between tokenId to approved address. |
-| `operatorApprovals` | `Map ByStr20 (Map ByStr20 Bool)` | Mapping from owner to operator approvals. |
+| `tokenOwnerMap` | `Map Uint256 ByStr20 = Emp Uint256 ByStr20` | Mapping between tokenId to token owner. |
+| `ownedTokenCount` | `Map ByStr20 Uint256 = Emp ByStr20 Uint256` | Mapping from owner to number of owned tokens. |
+| `tokenApprovals` | `Map Uint256 ByStr20 = Emp Uint256 ByStr20` | Mapping between tokenId to approved address. |
+| `operatorApprovals` | `Map ByStr20 (Map ByStr20 Bool) = Emp ByStr20 (Map ByStr20 Bool)` | Mapping from owner to operator approvals. |
 
 ### C. Transitions
 
