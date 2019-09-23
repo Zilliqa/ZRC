@@ -80,7 +80,7 @@ Each ZRC must begin with an [RFC 822](https://www.ietf.org/rfc/rfc822.txt) style
 
 ` title:` *ZRC title*
 
-` author:` *a list of the author's or authors' name(s) and/or username(s), or name(s) and email(s). *
+` author:` *a list of the author's or authors' name(s) and/or username(s), or name(s) and email(s).*
 
 ` * discussions-to:` *a url pointing to the official discussion thread*
 
