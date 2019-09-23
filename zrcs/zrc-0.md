@@ -168,7 +168,7 @@ If you are interested in assuming ownership of a ZRC, send a message asking to t
 
 The current ZRC editors are
 
-` * Jacob Johannsen (@jjcnn)`
+- Jacob Johannsen ([**@jjcnn**](https://github.com/jjcnn)).
 
 ` * Vaivaswatha Nagaraj (@vaivaswatha)`
 
