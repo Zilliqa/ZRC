@@ -58,10 +58,10 @@ transition approve(to: ByStr20, tokenId: Uint256)
 | @param | `to` | `ByStr20` | Address to be approved for the given token id. |
 | @param | `tokenId` | `Uint256` | Id of the token to be approved. |
 
-|  | Name | Description
-|--|--|--|
-| eventName | `ApproveSuccess` | emit event if the call is successful. |
-| eventName | `ApproveFailure` | emit event if the call is unsuccessful. |
+|  | Name | Description | Event Parameters
+|--|--|--|--|
+| eventName | `ApproveSuccess` | emit event if the call is successful. | `from`: `ByStr20`, `approvedTo`: `ByStr20`, `token`: `Uint256` |
+| eventName | `ApproveFailure` | emit event if the call is unsuccessful. | `code`: `code_failure` or `code_not_authorized` |
 
 <br/>
 
@@ -77,10 +77,10 @@ transition setApprovalForAll(to: ByStr20, approved: Bool)
 | @param | `to` | `ByStr20` | Address to be set or unset as operator. |
 | @param | `approved` | `Bool` | Status of the approval to be set. |
 
-|  | Name | Description
-|--|--|--|
-| eventName | `SetApprovalForAllSuccess` | emit event if the call is successful. |
-| eventName | `SetApprovalForAllFailure` | emit event if the call is unsuccessful. |
+|  | Name | Description | Event Parameters
+|--|--|--|--|
+| eventName | `SetApprovalForAllSuccess` | emit event if the call is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `status`: `Bool` |
+| eventName | `SetApprovalForAllFailure` | emit event if the call is unsuccessful. | `code`: `code_failure` or `code_not_authorized` |
 
 <br/>
 
@@ -97,10 +97,10 @@ transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
 | @param | `to` | `ByStr20` | Recipient address of the token. |
 | @param | `tokenId` | `Uint256` | Id of the token to be transferred. |
 
-|  | Name | Description
-|--|--|--|
-| eventName | `TransferSuccess` | emit event if the call is successful. |
-| eventName | `TransferFailure` | emit event if the call is unsuccessful. |
+|  | Name | Description | Event Parameters
+|--|--|--|--|
+| eventName | `TransferSuccess` | emit event if the call is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token`:  `Uint256` |
+| eventName | `TransferFailure` | emit event if the call is unsuccessful. | `code`: `code_failure` or `code_not_authorized` |
 
 <br/>
 
@@ -115,10 +115,10 @@ transition balanceOf(address: ByStr20)
 |--|--|--|--|
 | @param | `address` | `ByStr20` | Address of an owner. |
 
-|  | Name | Description
-|--|--|--|
-| eventName | `BalanceOfSuccess` | emit event if the call is successful. |
-| eventName | `BalanceOfFailure` | emit event if the call is unsuccessful. |
+|  | Name | Description | Event Parameters
+|--|--|--|--|
+| eventName | `BalanceOfSuccess` | emit event if the call is successful. | `bal`:  `Uint128` |
+| eventName | `BalanceOfFailure` | emit event if the call is unsuccessful. | `code`: `code_failure` or `code_not_authorized` |
 
 <br/>
 
@@ -134,10 +134,10 @@ transition mint(to: ByStr20, tokenId: String)
 | @param | `to` | `ByStr20` | Address of the token recipient. |
 | @param | `tokenId` | `Uint256` | Token id of the new token. |
 
-|  | Name | Description
-|--|--|--|
-| eventName | `MintSuccess` | emit event if the call is successful. |
-| eventName | `MintFailure` | emit event if the call is unsuccessful. |
+|  | Name | Description | Event Parameters
+|--|--|--|--|
+| eventName | `MintSuccess` | emit event if the call is successful. | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256` |
+| eventName | `MintFailure` | emit event if the call is unsuccessful. | `code`: `code_failure` or `code_not_authorized` |
 
 <br/>
 
