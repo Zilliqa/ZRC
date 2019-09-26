@@ -122,22 +122,25 @@ transition balanceOf(address: ByStr20)
 
 <br/>
 
-**5. Mint()**
+**5. TransferSingle()**
 
 ```ocaml
 (* Mint new tokens *)
-transition mint(to: ByStr20, tokenId: String)
+transition transferSingle(operator: ByStr20, from: ByStr20, to: ByStr20, tokenId: String, value: Uint128)
 ```
 
 |  | Name | Type| Description
 |--|--|--|--|
-| @param | `to` | `ByStr20` | Address of the token recipient. |
+| @param | `operator` | `ByStr20` | Address of an account that is approved to make the transfer. |
+| @param | `from` | `ByStr20` | Address of the holder whose balance is decreased. |
+| @param | `to` | `ByStr20` | Address of the recipient whose balance is increased. |
 | @param | `tokenId` | `Uint256` | Token id of the new token. |
+| @param | `value` | `Uint128` | Number of tokens the holder balance is decreased by and match what the recipient balance is increased by. |
 
 |  | Name | Description | Event Parameters
 |--|--|--|--|
-| eventName | `MintSuccess` | emit event if the call is successful. | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256` |
-| eventName | `MintFailure` | emit event if the call is unsuccessful. | `code`: `code_failure` or `code_not_authorized` |
+| eventName | `TransferSingleSuccess` | emit event if the call is successful. | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256` |
+| eventName | `TransferSingleFailure` | emit event if the call is unsuccessful. | `code`: `code_failure` or `code_not_authorized` |
 
 <br/>
 
