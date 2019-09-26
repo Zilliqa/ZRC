@@ -21,7 +21,7 @@ A standard for NFT can serve as an interface for game creators to create kitties
 
 The NFT contract specification as described below: 
 1) the global error codes to be declared in the library part of the contract. 
-2) the names and types of the immutable and mutable variables (aka `fields`). 
+2) the names and types of the mutable variables (aka `fields`). 
 3) the transitions that will allow changing the values of the mutable variables. 
 4) the events to be emitted by them.
 
