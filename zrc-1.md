@@ -125,7 +125,7 @@ transition balanceOf(address: ByStr20)
 **5. TransferSingle()**
 
 ```ocaml
-(* Mint new tokens *)
+(* Mint or Burn tokens *)
 transition transferSingle(operator: ByStr20, from: ByStr20, to: ByStr20, tokenId: String, value: Uint128)
 ```
 
