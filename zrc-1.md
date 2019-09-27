@@ -135,7 +135,7 @@ transition transferSingle(operator: ByStr20, from: ByStr20, to: ByStr20, tokenId
 | @param | `from` | `ByStr20` | Address of the holder whose balance is decreased. |
 | @param | `to` | `ByStr20` | Address of the recipient whose balance is increased. |
 | @param | `tokenId` | `Uint256` | Token id of the new token. |
-| @param | `value` | `Uint128` | Number of tokens the holder balance is decreased by and match what the recipient balance is increased by. |
+| @param | `value` | `Uint128` | Number of tokens the holder balance is decreased by and match what the recipient balance is increased by. `operatorApprovals` store the mapping between the owner to the operators that he has approved. |
 
 |  | Name | Description | Event Parameters
 |--|--|--|--|
