@@ -131,7 +131,7 @@ transition transferSingle(operator: ByStr20, from: ByStr20, to: ByStr20, tokenId
 
 |  | Name | Type| Description
 |--|--|--|--|
-| @param | `operator` | `ByStr20` | Address of an account that is approved to make the transfer. |
+| @param | `operator` | `ByStr20` | Address of an account that is approved to make the transfer. Token owners can assign other people to be an operator of their token. Once assigned, the operators can make any transfer for the token owner on his behalf.  |
 | @param | `from` | `ByStr20` | Address of the holder whose balance is decreased. |
 | @param | `to` | `ByStr20` | Address of the recipient whose balance is increased. |
 | @param | `tokenId` | `Uint256` | Token id of the new token. |
