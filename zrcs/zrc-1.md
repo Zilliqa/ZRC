@@ -39,6 +39,7 @@ The NFT contract must define the following global constants in the library part 
 | `code_token_exists`| `Uint32` | `6` | Emit when trying to create a token that already exists.
 | `code_unexpected_error` | `Uint32` | `9` | Emit when the transition call runs into an unexpected error. 
 
+
 ### B. Fields
 
 | Name | Type | Description
@@ -150,7 +151,9 @@ transition transferSingle(operator: ByStr20, from: ByStr20, to: ByStr20, tokenId
 
 ## V. Existing Implementation(s)
 
+
 * [NonfungibleToken](https://github.com/Zilliqa/ZRC/blob/patch-zrc1-1/reference/nonfungible-token.scilla)
+
 
 <br/>
 
