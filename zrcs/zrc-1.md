@@ -42,10 +42,10 @@ The NFT contract must define the following global constants in the library part 
 | `code_success` | `Uint32` | `0` | Emit when the transition call is successful. 
 | `code_failure` | `Uint32` | `1` | Emit when the transition call is unsuccessful. 
 | `code_not_authorized` | `Uint32` | `2` | Emit when the transition call is unauthorized for a given user. 
-| `code_not_found` | `Uint32` | `4` | Emit when a value is missing.
-| `code_bad_request` | `Uint32` | `5` | Emit when the transition call is somehow incorrect.
-| `code_token_exists`| `Uint32` | `6` | Emit when trying to create a token that already exists.
-| `code_unexpected_error` | `Uint32` | `9` | Emit when the transition call runs into an unexpected error. 
+| `code_not_found` | `Uint32` | `3` | Emit when a value is missing.
+| `code_bad_request` | `Uint32` | `4` | Emit when the transition call is somehow incorrect.
+| `code_token_exists`| `Uint32` | `5` | Emit when trying to create a token that already exists.
+| `code_unexpected_error` | `Uint32` | `6` | Emit when the transition call runs into an unexpected error. 
 
 ### C. Immutable Variables
 
