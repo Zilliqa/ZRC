@@ -21,11 +21,19 @@ A standard for NFT can serve as an interface for game creators to create kitties
 
 The NFT contract specification as described below: 
 1) the global error codes to be declared in the library part of the contract. 
-2) the names and types of the mutable variables (aka `fields`). 
+2) the names and types of the immutable and (i.e `contractOwner`) mutable variables (aka `fields`). 
 3) the transitions that will allow changing the values of the mutable variables. 
 4) the events to be emitted by them.
 
-### A. Error Codes
+### A. Roles
+
+| Name | Description
+|--|--|
+| Contract Owner | The owner of the contract initialized by the creator of the contract. |
+| Token Holder | Address of a token holder.  |
+| Operator | Address of an account that is approved to make transfers on behalf of a token holder. A token holder can assign other people to be an operator of their tokens. Once assigned, the operators can make any transfer for the token holder on her behalf. `operatorApprovals` store the mapping between the holder to the operators that she has approved. |
+
+### B. Error Codes
 
 The NFT contract must define the following global constants in the library part of the contract code. These constants will be used as error codes in events.
 
@@ -39,7 +47,7 @@ The NFT contract must define the following global constants in the library part 
 | `code_token_exists`| `Uint32` | `6` | Emit when trying to create a token that already exists.
 | `code_unexpected_error` | `Uint32` | `9` | Emit when the transition call runs into an unexpected error. 
 
-### B. Immutable Variables
+### C. Immutable Variables
 
 | Name |  Type |Description
 |--|--|--|
@@ -47,7 +55,7 @@ The NFT contract must define the following global constants in the library part 
 | `name` | `String` | The name of the non-fungible token. |
 | `symbol` | `String` | The symbol of the non-fungible token. |
 
-### C. Mutable Fields
+### D. Mutable Fields
 
 | Name | Type | Description
 |--|--|--|
@@ -56,7 +64,7 @@ The NFT contract must define the following global constants in the library part 
 | `tokenApprovals` | `Map Uint256 ByStr20 = Emp Uint256 ByStr20` | Mapping between tokenId to approved address. Token owner can approve an address to transfer a particular token (given a tokenId) to other addresses. |
 | `operatorApprovals` | `Map ByStr20 (Map ByStr20 Bool) = Emp ByStr20 (Map ByStr20 Bool)` | Mapping from owner to operator approvals. |
 
-### D. Transitions
+### E. Transitions
 
 **1. Approve()**
 
@@ -105,7 +113,7 @@ transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
 
 |  | Name | Type| Description
 |--|--|--|--|
-| @param | `from` | `ByStr20` | Current owner of the token. |
+| @param | `from` | `ByStr20` | Current holder of the token. |
 | @param | `to` | `ByStr20` | Recipient address of the token. |
 | @param | `tokenId` | `Uint256` | Id of the token to be transferred. |
 
@@ -143,7 +151,7 @@ transition transferSingle(operator: ByStr20, from: ByStr20, to: ByStr20, tokenId
 
 |  | Name | Type| Description
 |--|--|--|--|
-| @param | `operator` | `ByStr20` | Address of an account that is approved to make the transfer. Token owners can assign other people to be an operator of their token. Once assigned, the operators can make any transfer for the token owner on his behalf. `operatorApprovals` store the mapping between the owner to the operators that he has approved. |
+| @param | `operator` | `ByStr20` | Address of an account that is approved to make the transfer. Token owners can assign other people to be an operator of their token. Once assigned, the operators can make any transfer for the token owner on his behalf. `operatorApprovals` store the mapping between the owner to the operators that he/she has approved. |
 | @param | `from` | `ByStr20` | Address of the holder whose balance is decreased. |
 | @param | `to` | `ByStr20` | Address of the recipient whose balance is increased. |
 | @param | `tokenId` | `Uint256` | Token id of the new token. |
