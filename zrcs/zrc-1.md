@@ -66,7 +66,7 @@ The NFT contract must define the following global constants in the library part 
 
 ### E. Transitions
 
-**1. Approve()**
+**1. Approve**
 
 ```ocaml
 (* Approves an address to transfer the given token ID *)
@@ -85,7 +85,7 @@ transition approve(to: ByStr20, tokenId: Uint256)
 
 <br/>
 
-**2. ApprovalForAll()**
+**2. ApprovalForAll**
 
 ```ocaml
 (* Sets or unsets the approval of a given operator *)
@@ -104,7 +104,7 @@ transition setApprovalForAll(to: ByStr20, approved: Bool)
 
 <br/>
 
-**3. TransferFrom()**
+**3. TransferFrom**
 
 ```ocaml
 (* Transfer the ownership of a given token ID to another address *)
@@ -124,7 +124,7 @@ transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
 
 <br/>
 
-**4. BalanceOf()**
+**4. BalanceOf**
 
 ```ocaml
 (* Count the number of NFTs assigned to an owner *)
@@ -142,7 +142,7 @@ transition balanceOf(address: ByStr20)
 
 <br/>
 
-**5. TransferSingle()**
+**5. TransferSingle**
 
 ```ocaml
 (* Mint or Burn tokens *)
