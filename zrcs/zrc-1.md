@@ -160,7 +160,7 @@ transition transferSingle(operator: ByStr20, from: ByStr20, to: ByStr20, tokenId
 |  | Name | Description | Event Parameters
 |--|--|--|--|
 | eventName | `TransferSingleSuccess` | event is successful. | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256` |
-| eventName | `TransferSingleFailure` | event is not successful. | emit `code: code_token_exists` if the token already exists;<br/>emit `code: code_not_authorized` if the transition is called by the wrong user. |
+| eventName | `TransferSingleFailure` | event is not successful. | emit `code: code_token_exists` if the token already exists.<br/>emit `code: code_not_authorized` if the transition is called by the wrong user. |
 
 <br/>
 
