@@ -39,8 +39,15 @@ The NFT contract must define the following global constants in the library part 
 | `code_token_exists`| `Uint32` | `6` | Emit when trying to create a token that already exists.
 | `code_unexpected_error` | `Uint32` | `9` | Emit when the transition call runs into an unexpected error. 
 
+### B. Immutable Variables
 
-### B. Fields
+| Name |  Type |Description
+|--|--|--|
+| `contractOwner` | `ByStr20` | The owner of the contract initialized by the creator of the contract. |
+| `name` | `String` | The name of the non-fungible token. |
+| `symbol` | `String` | The symbol of the non-fungible token. |
+
+### C. Mutable Fields
 
 | Name | Type | Description
 |--|--|--|
@@ -49,7 +56,7 @@ The NFT contract must define the following global constants in the library part 
 | `tokenApprovals` | `Map Uint256 ByStr20 = Emp Uint256 ByStr20` | Mapping between tokenId to approved address. Token owner can approve an address to transfer a particular token (given a tokenId) to other addresses. |
 | `operatorApprovals` | `Map ByStr20 (Map ByStr20 Bool) = Emp ByStr20 (Map ByStr20 Bool)` | Mapping from owner to operator approvals. |
 
-### C. Transitions
+### D. Transitions
 
 **1. Approve()**
 
