@@ -124,25 +124,7 @@ transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
 
 <br/>
 
-**4. BalanceOf**
-
-```ocaml
-(* Count the number of NFTs assigned to an owner *)
-transition balanceOf(address: ByStr20)
-```
-
-|  | Name | Type| Description
-|--|--|--|--|
-| @param | `address` | `ByStr20` | Address of an owner. |
-
-|  | Name | Description | Event Parameters
-|--|--|--|--|
-| eventName | `BalanceOfSuccess` | event is successful. | `bal`: `Uint128` |
-| eventName | `BalanceOfFailure` | event is not successful. | emit `code: code_unexpected_error` if there's an issue withe token holder's balance. |
-
-<br/>
-
-**5. TransferSingle**
+**4. TransferSingle**
 
 ```ocaml
 (* Mint or Burn tokens *)
@@ -161,6 +143,24 @@ transition transferSingle(operator: ByStr20, from: ByStr20, to: ByStr20, tokenId
 |--|--|--|--|
 | eventName | `TransferSingleSuccess` | event is successful. | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256` |
 | eventName | `TransferSingleFailure` | event is not successful. | emit `code: code_token_exists` if the token already exists.<br/>emit `code: code_not_authorized` if the transition is called by the wrong user. |
+
+<br/>
+
+**5. BalanceOf**
+
+```ocaml
+(* Count the number of NFTs assigned to an owner *)
+transition balanceOf(address: ByStr20)
+```
+
+|  | Name | Type| Description
+|--|--|--|--|
+| @param | `address` | `ByStr20` | Address of an owner. |
+
+|  | Name | Description | Event Parameters
+|--|--|--|--|
+| eventName | `BalanceOfSuccess` | event is successful. | `bal`: `Uint128` |
+| eventName | `BalanceOfFailure` | event is not successful. | emit `code: code_unexpected_error` if there's an issue withe token holder's balance. |
 
 <br/>
 
