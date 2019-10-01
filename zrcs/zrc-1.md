@@ -81,7 +81,7 @@ transition approve(to: ByStr20, tokenId: Uint256)
 |  | Name | Description | Event Parameters
 |--|--|--|--|
 | eventName | `ApproveSuccess` | emit event if the call is successful. | `from`: `ByStr20`, `approvedTo`: `ByStr20`, `token`: `Uint256` |
-| eventName | `ApproveFailure` | emit event if the call is unsuccessful. | `code`: `code_failure` or `code_not_authorized` |
+| eventName | `ApproveFailure` | emit event if the call is unsuccessful. | `code`:  Emit `code_not_found` if token is not found; Emit `code_not_authorized` if the transition is called by the wrong user. |
 
 <br/>
 
@@ -100,7 +100,7 @@ transition setApprovalForAll(to: ByStr20, approved: Bool)
 |  | Name | Description | Event Parameters
 |--|--|--|--|
 | eventName | `SetApprovalForAllSuccess` | emit event if the call is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `status`: `Bool` |
-| eventName | `SetApprovalForAllFailure` | emit event if the call is unsuccessful. | `code`: `code_failure` or `code_not_authorized` |
+| eventName | `SetApprovalForAllFailure` | emit event if the call is unsuccessful. | `code`: Emit `code_not_authorized` if the transition is called by the wrong user. |
 
 <br/>
 
@@ -120,7 +120,7 @@ transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
 |  | Name | Description | Event Parameters
 |--|--|--|--|
 | eventName | `TransferSuccess` | emit event if the call is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token`:  `Uint256` |
-| eventName | `TransferFailure` | emit event if the call is unsuccessful. | `code`: `code_failure` or `code_not_authorized` |
+| eventName | `TransferFailure` | emit event if the call is unsuccessful. | `code`: Emit `code_bad_request` if `from` address is not the same as the token holder; Emit `code_unexpected_error` if there's an issue withe token holder's balance; Emitv `code_not_authorized` if the transition is called by the wrong user. |
 
 <br/>
 
@@ -138,7 +138,7 @@ transition balanceOf(address: ByStr20)
 |  | Name | Description | Event Parameters
 |--|--|--|--|
 | eventName | `BalanceOfSuccess` | emit event if the call is successful. | `bal`:  `Uint128` |
-| eventName | `BalanceOfFailure` | emit event if the call is unsuccessful. | `code`: `code_failure` or `code_not_authorized` |
+| eventName | `BalanceOfFailure` | emit event if the call is unsuccessful. | Emit `code_unexpected_error` if there's an issue withe token holder's balance. |
 
 <br/>
 
@@ -160,7 +160,7 @@ transition transferSingle(operator: ByStr20, from: ByStr20, to: ByStr20, tokenId
 |  | Name | Description | Event Parameters
 |--|--|--|--|
 | eventName | `TransferSingleSuccess` | emit event if the call is successful. | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256` |
-| eventName | `TransferSingleFailure` | emit event if the call is unsuccessful. | `code`: `code_failure` or `code_not_authorized` |
+| eventName | `TransferSingleFailure` | emit event if the call is unsuccessful. | `code`: Emit `code_token_exists` if the token already exists; Emit `code_not_authorized` if the transition is called by the wrong user. |
 
 <br/>
 
