@@ -30,8 +30,8 @@ The NFT contract specification describes:
 | Name | Description
 |--|--|
 | Contract Owner | The owner of the contract initialized by the creator of the contract. |
-| Token Holder | Address of a token holder.  |
-| Operator | Address of an account that is approved to make transfers on behalf of a token holder. A token holder can assign other people to be an operator of their tokens. Once assigned, the operators can make any transfer for the token holder on her behalf. |
+| Token Owner | A user (identified by her address) that owns a token.  |
+| Operator | A user (identified) by an address that is approved to make transfers on behalf of a token owner. A token owner can assign other people to be an operator of their tokens. Once assigned, the operators can make any transfer for the token owner on her behalf. |
 
 ### B. Error Codes
 
