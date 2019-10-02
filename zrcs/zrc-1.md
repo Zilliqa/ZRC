@@ -31,7 +31,7 @@ The NFT contract specification describes:
 |--|--|
 | Contract Owner | The owner of the contract initialized by the creator of the contract. |
 | Token Holder | Address of a token holder.  |
-| Operator | Address of an account that is approved to make transfers on behalf of a token holder. A token holder can assign other people to be an operator of their tokens. Once assigned, the operators can make any transfer for the token holder on her behalf. `operatorApprovals` store the mapping between the holder to the operators that she has approved. |
+| Operator | Address of an account that is approved to make transfers on behalf of a token holder. A token holder can assign other people to be an operator of their tokens. Once assigned, the operators can make any transfer for the token holder on her behalf. |
 
 ### B. Error Codes
 
