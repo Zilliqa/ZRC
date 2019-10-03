@@ -119,7 +119,7 @@ transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
 
 |  | Name | Description | Event Parameters
 |--|--|--|--|
-| eventName | `TransferSuccess` | event is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token`:  `Uint256` |
+| eventName | `TransferFromSuccess` | event is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token`:  `Uint256` |
 | eventName | `Error` | event is not successful. | emit `code_bad_request` if `from` address is not the same as the token holder.<br/>emit `code_unexpected_error` if there's an issue withe token holder's balance.<br/>emit `code_not_authorized` if the transition is called by the wrong user. |
 
 <br/>
