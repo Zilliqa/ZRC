@@ -22,26 +22,26 @@ let isApprovedOrOwner =
 
 (* Error events *)
 type Error =
-  | code_success
-  | code_failure
-  | code_not_authorized
-  | code_not_found
-  | code_bad_request
-  | code_token_exists
-  | code_unexpected_error
+  | CodeSuccess
+  | CodeFailure
+  | CodeNotAuthorized
+  | CodeNotFound
+  | CodeBadRequest
+  | CodeTokenExists
+  | CodeUnexpectedError
 
 let makeErrorEvent =
   fun (location : String) =>
   fun (result : Result) =>
     let result_code = 
       match result with
-      | code_success => Uint32 0
-      | code_failure => Uint32 1
-      | code_not_authorized => Uint32 2
-      | code_not_found => Uint32 3
-      | code_bad_request => Uint32 4
-      | code_token_exists => Uint32 5
-      | code_unexpected_error => Uint32 6
+      | CodeSuccess          => Int32 -1
+      | CodeFailure          => Int32 -2
+      | CodeNotAuthorized    => Int32 -3
+      | CodeNotFound         => Int32 -4
+      | CodeBadRequest       => Int32 -5
+      | CodeTokenExists      => Int32 -6
+      | CodeUnexpectedError  => Int32 -7
       end
     in
     { _eventname : "Error"; raisedAt : location; code : code }
@@ -72,6 +72,12 @@ field tokenApprovals: Map Uint256 ByStr20 = Emp Uint256 ByStr20
 field operatorApprovals: Map ByStr20 (Map ByStr20 Bool) 
                             = Emp ByStr20 (Map ByStr20 Bool)
 
+(* Emit Errors *)
+procedure MakeError (err : Error)
+  e = mk_error_event err;
+  event e
+end
+
 (* @notice Count all NFTs assigned to an owner *)
 transition balanceOf(address: ByStr20) 
     optionBal <- ownedTokenCount[address];
@@ -92,8 +98,9 @@ transition ownerOf(tokenId: Uint256)
         e = {_eventname: "ownerOf"; id: tokenId; owner: val};
         event e
     | None =>
-        e = let raisedAt = "ownerOf" in makeErrorEvent raisedAt code_not_found;
-        event e
+        (* Address of token holder not found *)
+        err = CodeNotFound;
+        MakeError err
     end
 end
 
@@ -112,8 +119,8 @@ transition transferSingle(to: ByStr20, tokenId: Uint256)
         match tokenExist with
         | True =>
             (* Token exists, return error code *)
-            e = let raisedAt = "mint" in makeErrorEvent raisedAt code_token_exists;
-            event e
+            err = CodeTokenExists;
+            MakeError err
         | False =>
             (* Mint token *)
             tokenOwnerMap[tokenId] := to;
@@ -136,8 +143,8 @@ transition transferSingle(to: ByStr20, tokenId: Uint256)
         end
     | False =>
         (* Unauthorized transaction - sender is not the contract owner*)
-        e = let raisedAt = "mint" in makeErrorEvent raisedAt code_not_authorized;
-        event e
+        err = CodeNotAuthorized;
+        MakeError err
     end
 
     
@@ -154,9 +161,8 @@ transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
     match getTokenOwner with
     | None =>
         (* Token not found *)
-        e = let raisedAt = "transferFrom" in makeErrorEvent raisedAt code_not_found;
-        event e
-        
+        err = CodeNotFound;
+        MakeError err  
     | Some tokenOwner =>
         checkOwner = builtin eq tokenOwner _sender;
         getApproved <- tokenApprovals[tokenId];
@@ -173,8 +179,8 @@ transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
         match isFromTokenOwner with
         | False =>
             (* From address is not the same as the tokenOwner    *)
-            e = let raisedAt = "transferFrom" in makeErrorEvent raisedAt code_bad_request;
-            event e
+            err = CodeBadRequest;
+            MakeError err
         | True => 
             (* isApprovedOrOwner checks if any of the three conditions are met *)
             isAuthorized = isApprovedOrOwner checkOwner checkApproved checkApprovedForAll;
@@ -199,8 +205,8 @@ transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
                     newBal  = let one = Uint256 1 in builtin sub prevBal one;
                     ownedTokenCount[from] := newBal
                 | None =>
-                    e = let raisedAt = "transferFrom" in makeErrorEvent raisedAt code_unexpected_error;
-                    event e
+                    err = CodeUnexpectedError;
+                    MakeError err 
                 end;
 
                 (* add one to the new token owner *)
@@ -217,8 +223,8 @@ transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
                 event e
             | False =>
                 (* Unauthorized transaction *)
-                e = let raisedAt = "transferFrom" in makeErrorEvent raisedAt code_not_authorized;
-                event e
+                err = CodeNotAuthorized;
+                MakeError err
             end
         end
     end
@@ -238,8 +244,8 @@ transition approve(to: ByStr20, tokenId: Uint256)
     match getTokenOwner with
     | None =>
         (* Token not found *)
-        e = let raisedAt = "approve" in makeErrorEvent raisedAt code_not_found;
-        event e
+        err = CodeNotFound;
+        MakeError err
     | Some tokenOwner =>
         getApprovedForAll <- operatorApprovals[tokenOwner][_sender];
         checkApprovedForAll = match getApprovedForAll with | Some True => True | _ => False end;
@@ -254,8 +260,8 @@ transition approve(to: ByStr20, tokenId: Uint256)
             event e
         | False =>
             (* Unauthorized transaction *)
-            e = let raisedAt = "approve" in makeErrorEvent raisedAt code_not_authorized;
-            event e
+             err = CodeNotAuthorized;
+            MakeError err
         end
     end
 end
@@ -278,8 +284,8 @@ transition setApprovalForAll(to: ByStr20, approved: Bool)
         e = {_eventname: "setApprovalForAll successful"; from: _sender; recipient: to; status: approvedStr};
         event e
     | False =>
-        e = let raisedAt = "setApprovalForAll" in makeErrorEvent raisedAt code_not_authorized;
-        event e
+        err = CodeNotAuthorized;
+        MakeError err
     end
 end
 
