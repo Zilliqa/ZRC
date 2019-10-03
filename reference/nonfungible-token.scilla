@@ -21,19 +21,30 @@ let isApprovedOrOwner =
         orb isOwnerOrApproved isApprovedForAll
 
 (* Error events *)
-let makeErrorEvent =
-    fun (location: String) =>
-    fun (errorCode: Uint32) =>
-        {_eventname: "Error"; raisedAt: location; code: errorCode }
+type Error =
+  | code_success
+  | code_failure
+  | code_not_authorized
+  | code_not_found
+  | code_bad_request
+  | code_token_exists
+  | code_unexpected_error
 
-(* Error codes *)
-let code_success = Uint32 0
-let code_failure = Uint32 1
-let code_not_authorized = Uint32 2
-let code_not_found = Uint32 4
-let code_bad_request = Uint32 5
-let code_token_exists = Uint32 6
-let code_unexpected_error = Uint32 9
+let makeErrorEvent =
+  fun (location : String) =>
+  fun (result : Result) =>
+    let result_code = 
+      match result with
+      | code_success => Uint32 0
+      | code_failure => Uint32 1
+      | code_not_authorized => Uint32 2
+      | code_not_found => Uint32 3
+      | code_bad_request => Uint32 4
+      | code_token_exists => Uint32 5
+      | code_unexpected_error => Uint32 6
+      end
+    in
+    { _eventname : "Error"; raisedAt : location; code : code }
 
 
 (***************************************************)
