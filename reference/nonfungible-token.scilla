@@ -85,24 +85,10 @@ transition balanceOf(address: ByStr20)
     | Some bal => bal
     | None => Uint256 0
     end;
-    e = {_eventname: "balanceOf"; bal: balance};
+    e = {_eventname: "BalanceOfSuccess"; bal: balance};
     event e
 end
 
-
-(* Get the owner of a particular tokenId *)
-transition ownerOf(tokenId: Uint256) 
-    someVal <- tokenOwnerMap[tokenId];
-    match someVal with
-    | Some val =>
-        e = {_eventname: "ownerOf"; id: tokenId; owner: val};
-        event e
-    | None =>
-        (* Address of token holder not found *)
-        err = CodeNotFound;
-        MakeError err
-    end
-end
 
 (* @dev:    Mint new tokens. Only `contractOwner` can mint the token*)
 (* @param:  to - address of the token recipient                     *)
@@ -138,7 +124,7 @@ transition transferSingle(to: ByStr20, tokenId: Uint256)
             end;
 
             (* Emit success event *)
-            e = {_eventname: "Mint successful"; by: _sender; recipient: to; token: tokenId};
+            e = {_eventname: "TransferSingleSuccess"; by: _sender; recipient: to; token: tokenId};
             event e
         end
     | False =>
@@ -219,7 +205,7 @@ transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
                 | None => one
                 end;
                 ownedTokenCount[to] := newVal; 
-                e = {_eventname: "transferFrom successful"; from: _sender; recipient: to; token: tokenId}; 
+                e = {_eventname: "TransferFromSuccess"; from: _sender; recipient: to; token: tokenId}; 
                 event e
             | False =>
                 (* Unauthorized transaction *)
@@ -256,7 +242,7 @@ transition approve(to: ByStr20, tokenId: Uint256)
             (* add to token approval mapping *)
             tokenApprovals[tokenId] := to;
             (* Emit event *)
-            e = {_eventname: "Approve successful"; from: _sender; approvedTo: to; token: tokenId};
+            e = {_eventname: "ApproveSuccess"; from: _sender; approvedTo: to; token: tokenId};
             event e
         | False =>
             (* Unauthorized transaction *)
@@ -281,7 +267,7 @@ transition setApprovalForAll(to: ByStr20, approved: Bool)
         operatorApprovals[_sender][to] := approved;
         (* Stringify boolean value to be emitted in the event *)
         approvedStr = bool_to_string approved;
-        e = {_eventname: "setApprovalForAll successful"; from: _sender; recipient: to; status: approvedStr};
+        e = {_eventname: "SetApprovalForAllSuccess"; from: _sender; recipient: to; status: approvedStr};
         event e
     | False =>
         err = CodeNotAuthorized;
