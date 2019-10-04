@@ -79,7 +79,7 @@ transition approve(to: ByStr20, tokenId: Uint256)
 |  | Name | Description | Event Parameters
 |--|--|--|--|
 | eventName | `ApproveSuccess` | event is successful. | `from`: `ByStr20`, `approvedTo`: `ByStr20`, `token`: `Uint256`, where `from` is the address of the caller, and `approvedTo` is argument `to` to the transition. |
-| eventName | `Error` | event is not successful. | emit `CodeNotFound` if token is not found.<br/>emit `code_not_authorized` if the transition is called by the wrong user. |
+| eventName | `Error` | event is not successful. | emit `CodeNotFound` if token is not found.<br/>emit `CodeNotAuthorized` if the transition is called by the wrong user. |
 
 <br/>
 
