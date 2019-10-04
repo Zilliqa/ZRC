@@ -160,7 +160,7 @@ transition balanceOf(address: ByStr20)
 |  | Name | Description | Event Parameters
 |--|--|--|--|
 | eventName | `BalanceOfSuccess` | event is successful. | `bal`: `Uint128` |
-| eventName | `Error` | event is not successful. | emit `code_unexpected_error` if there's an issue withe token holder's balance. |
+| eventName | `Error` | event is not successful. | emit `code_unexpected_error` if there's an issue with the token owner's balance. |
 
 <br/>
 
