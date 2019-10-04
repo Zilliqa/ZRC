@@ -28,6 +28,8 @@ The NFT contract specification describes:
 
 ### A. Roles
 
+The contract's transitions are accessible on a role basis.
+
 | Name | Description
 |--|--|
 | Contract Owner | The owner of the contract initialized by the creator of the contract. |
