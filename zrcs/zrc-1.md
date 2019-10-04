@@ -149,13 +149,13 @@ transition transferSingle(operator: ByStr20, from: ByStr20, to: ByStr20, tokenId
 **5. BalanceOf**
 
 ```ocaml
-(* Count the number of NFTs assigned to an owner *)
+(* Count the number of NFTs assigned to a token owner *)
 transition balanceOf(address: ByStr20)
 ```
 
 |  | Name | Type| Description
 |--|--|--|--|
-| @param | `address` | `ByStr20` | Address of an owner. |
+| @param | `address` | `ByStr20` | Address of a token owner. |
 
 |  | Name | Description | Event Parameters
 |--|--|--|--|
