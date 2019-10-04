@@ -118,7 +118,7 @@ transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
 |  | Name | Description | Event Parameters
 |--|--|--|--|
 | eventName | `TransferFromSuccess` | event is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token`:  `Uint256`, where, `from` is the same as the argument `from`, `recipient` is the `to` argument and `token` is the `tokenID` argument of the transition. |
-| eventName | `Error` | event is not successful. | emit `CodeBadRequest` if `from` address is not the same as the token holder.<br/>emit `CodeUnexpectedError` if there's an issue withe token holder's balance.<br/>emit `CodeNotAuthorized` if the transition is called by the wrong user. |
+| eventName | `Error` | event is not successful. | emit `CodeBadRequest` if `from` address is not the same as the token owner.<br/>emit `CodeUnexpectedError` if there's an issue with the token holder's balance.<br/>emit `CodeNotAuthorized` if the transition is called by the wrong user. |
 
 <br/>
 
@@ -140,7 +140,7 @@ transition transferSingle(operator: ByStr20, from: ByStr20, to: ByStr20, tokenId
 |  | Name | Description | Event Parameters
 |--|--|--|--|
 | eventName | `TransferSingleSuccess` | event is successful. | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the argument `to` and `token` is the `tokenID` argument of the transition. |
-| eventName | `Error` | event is not successful. | emit `CodeTokenExists` if the token already exists.<br/>emit `CodeNotAuthorized` if the transition is called by a user who is not the contract owner. |
+| eventName | `Error` | event is not successful. | emit `CodeTokenExists` if the token already exists.<br/>emit `CodeNotAuthorized` if the transition is called by a user who is not the contract owner. Note that only the `contractOwner` is allowed to call this transition. |
 
 <br/>
 
