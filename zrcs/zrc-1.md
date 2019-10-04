@@ -140,7 +140,7 @@ transition transferSingle(operator: ByStr20, from: ByStr20, to: ByStr20, tokenId
 |  | Name | Description | Event Parameters
 |--|--|--|--|
 | eventName | `TransferSingleSuccess` | event is successful. | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the argument `to` and `token` is the `tokenID` argument of the transition. |
-| eventName | `Error` | event is not successful. | emit `CodeTokenExists` if the token already exists.<br/>emit `CodeNotAuthorized` if the transition is called by the wrong user. |
+| eventName | `Error` | event is not successful. | emit `CodeTokenExists` if the token already exists.<br/>emit `CodeNotAuthorized` if the transition is called by the a non-contract owner. |
 
 <br/>
 
@@ -157,8 +157,7 @@ transition balanceOf(address: ByStr20)
 
 |  | Name | Description | Event Parameters
 |--|--|--|--|
-| eventName | `BalanceOfSuccess` | event is successful. | `bal`: `Uint128` |
-| eventName | `Error` | event is not successful. | emit `CodeUnexpectedError` if there's an issue with the token owner's balance. |
+| eventName | `BalanceOfSuccess` | event is successful. | `bal`: `Uint128`, which returns the number of tokens owned by a given address. If the user does not own any tokens, then the value returned is `0`. |
 
 <br/>
 
