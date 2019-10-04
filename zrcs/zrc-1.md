@@ -167,7 +167,7 @@ transition balanceOf(address: ByStr20)
 ## V. Existing Implementation(s)
 
 
-* [NonfungibleToken](https://github.com/Zilliqa/ZRC/blob/patch-zrc1-1/reference/nonfungible-token.scilla)
+* [NonfungibleToken](https://github.com/Zilliqa/ZRC/blob/master/zrcs/zrc-1.md)
 
 
 <br/>
