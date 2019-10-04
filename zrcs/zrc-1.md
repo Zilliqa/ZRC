@@ -97,7 +97,7 @@ transition setApprovalForAll(to: ByStr20, approved: Bool)
 
 |  | Name | Description | Event Parameters
 |--|--|--|--|
-| eventName | `SetApprovalForAllSuccess` | event is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `status`: `Bool` |
+| eventName | `SetApprovalForAllSuccess` | event is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `status`: `Bool`, where, `from` is the caller, `recipient` is the `to` argument and `status` is the `approved` argument of the transition.  |
 | eventName | `Error` | event is not successful. | emit `CodeNotAuthorized` if the transition is called by the wrong user, i.e., the caller attempting to approve herself. |
 
 <br/>
