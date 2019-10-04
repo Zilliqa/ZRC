@@ -47,6 +47,8 @@ The NFT contract must define the following constants for use as error codes for 
 
 ### C. Immutable Variables
 
+Immutable variables are the contract’s initial parameters whose values are defined when the contract is deployed, and cannot be modified afterwards.
+
 | Name |  Type |Description
 |--|--|--|
 | `contractOwner` | `ByStr20` | The owner of the contract initialized by the creator of the contract. |
@@ -54,6 +56,8 @@ The NFT contract must define the following constants for use as error codes for 
 | `symbol` | `String` | The symbol of the non-fungible token. |
 
 ### D. Mutable Fields
+
+Mutable variables represent the mutable state of the contract. They are also called fields. They are declared after the immutable variables, with each declaration prefixed with the keyword `field`.
 
 | Name | Type | Description
 |--|--|--|
@@ -63,6 +67,8 @@ The NFT contract must define the following constants for use as error codes for 
 | `operatorApprovals` | `Map ByStr20 (Map ByStr20 Bool) = Emp ByStr20 (Map ByStr20 Bool)` | Mapping from token owner to operator approvals. |
 
 ### E. Transitions
+
+The transitions of a contract define the public interface for the contract, are defined with the keyword `transition` followed by the parameters to be passed. The definition ends with the `end` keyword.
 
 **1. Approve**
 
