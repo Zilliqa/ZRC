@@ -126,12 +126,11 @@ transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
 
 ```ocaml
 (* Mint new tokens. Only contractOwner can mint new tokens. *)
-transition transferSingle(from: ByStr20, to: ByStr20, tokenId: Uint128)
+transition transferSingle(to: ByStr20, tokenId: Uint256)
 ```
 
 |  | Name | Type| Description
 |--|--|--|--|
-| @param | `from` | `ByStr20` | Address of the holder whose balance is decreased. |
 | @param | `to` | `ByStr20` | Address of the recipient whose balance is increased. |
 | @param | `tokenId` | `Uint256` | Token id of the new token. |
 
