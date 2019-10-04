@@ -39,11 +39,11 @@ The NFT contract must define the following constants for use as error codes for 
 
 | Name | Type | Code | Description
 |--|--|--|--|
-| `code_not_authorized` | `Int32` | `-1` | Emit when the transition call is unauthorized for a given user.
-| `code_not_found` | `Int32` | `-2` | Emit when a value is missing.
-| `code_bad_request` | `Int32` | `-3` | Emit when the transition call is somehow incorrect.
-| `code_token_exists`| `Int32` | `-4` | Emit when trying to create a token that already exists.
-| `code_unexpected_error` | `Int32` | `-5` | Emit when the transition call runs into an unexpected error.
+| `CodeNoAuthorized` | `Int32` | `-1` | Emit when the transition call is unauthorized for a given user.
+| `CodeNotFound` | `Int32` | `-2` | Emit when a value is missing.
+| `CodeBadRequest` | `Int32` | `-3` | Emit when the transition call is somehow incorrect.
+| `CodeTokenExists`| `Int32` | `-4` | Emit when trying to create a token that already exists.
+| `CodeUnexpectedError` | `Int32` | `-5` | Emit when the transition call runs into an unexpected error.
 
 ### C. Immutable Variables
 
@@ -78,8 +78,8 @@ transition approve(to: ByStr20, tokenId: Uint256)
 
 |  | Name | Description | Event Parameters
 |--|--|--|--|
-| eventName | `ApproveSuccess` | event is successful. | `from`: `ByStr20`, `approvedTo`: `ByStr20`, `token`: `Uint256` |
-| eventName | `Error` | event is not successful. | emit `code_not_found` if token is not found.<br/>emit `code_not_authorized` if the transition is called by the wrong user. |
+| eventName | `ApproveSuccess` | event is successful. | `from`: `ByStr20`, `approvedTo`: `ByStr20`, `token`: `Uint256`, where `from` is the address of the caller, and `approvedTo` is argument `to` to the transition. |
+| eventName | `Error` | event is not successful. | emit `CodeNotFound` if token is not found.<br/>emit `code_not_authorized` if the transition is called by the wrong user. |
 
 <br/>
 
@@ -98,7 +98,7 @@ transition setApprovalForAll(to: ByStr20, approved: Bool)
 |  | Name | Description | Event Parameters
 |--|--|--|--|
 | eventName | `SetApprovalForAllSuccess` | event is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `status`: `Bool` |
-| eventName | `Error` | event is not successful. | emit `code_not_authorized` if the transition is called by the wrong user. |
+| eventName | `Error` | event is not successful. | emit `CodeNotAuthorized` if the transition is called by the wrong user, i.e., the caller attempting to approve herself. |
 
 <br/>
 
@@ -117,8 +117,8 @@ transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
 
 |  | Name | Description | Event Parameters
 |--|--|--|--|
-| eventName | `TransferFromSuccess` | event is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token`:  `Uint256` |
-| eventName | `Error` | event is not successful. | emit `code_bad_request` if `from` address is not the same as the token holder.<br/>emit `code_unexpected_error` if there's an issue withe token holder's balance.<br/>emit `code_not_authorized` if the transition is called by the wrong user. |
+| eventName | `TransferFromSuccess` | event is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token`:  `Uint256`, where, `from` is the same as the argument `from`, `recipient` is the `to` argument and `token` is the `tokenID` argument of the transition. |
+| eventName | `Error` | event is not successful. | emit `CodeBadRequest` if `from` address is not the same as the token holder.<br/>emit `CodeUnexpectedError` if there's an issue withe token holder's balance.<br/>emit `CodeNotAuthorized` if the transition is called by the wrong user. |
 
 <br/>
 
@@ -139,8 +139,8 @@ transition transferSingle(operator: ByStr20, from: ByStr20, to: ByStr20, tokenId
 
 |  | Name | Description | Event Parameters
 |--|--|--|--|
-| eventName | `TransferSingleSuccess` | event is successful. | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256` |
-| eventName | `Error` | event is not successful. | emit `code_token_exists` if the token already exists.<br/>emit `code_not_authorized` if the transition is called by the wrong user. |
+| eventName | `TransferSingleSuccess` | event is successful. | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the argument `to` and `token` is the `tokenID` argument of the transition. |
+| eventName | `Error` | event is not successful. | emit `CodeTokenExists` if the token already exists.<br/>emit `CodeNotAuthorized` if the transition is called by the wrong user. |
 
 <br/>
 
@@ -158,7 +158,7 @@ transition balanceOf(address: ByStr20)
 |  | Name | Description | Event Parameters
 |--|--|--|--|
 | eventName | `BalanceOfSuccess` | event is successful. | `bal`: `Uint128` |
-| eventName | `Error` | event is not successful. | emit `code_unexpected_error` if there's an issue with the token owner's balance. |
+| eventName | `Error` | event is not successful. | emit `CodeUnexpectedError` if there's an issue with the token owner's balance. |
 
 <br/>
 
