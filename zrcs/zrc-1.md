@@ -35,17 +35,15 @@ The NFT contract specification describes:
 
 ### B. Error Codes
 
-The NFT contract must define the following global constants in the library part of the contract code. These constants will be used as error codes in events.
+The NFT contract must define the following constants for use as error codes for the `Error` event.
 
 | Name | Type | Code | Description
 |--|--|--|--|
-| `code_success` | `Int32` | `-1` | Emit when the transition call is successful. 
-| `code_failure` | `Int32` | `-2` | Emit when the transition call is unsuccessful. 
-| `code_not_authorized` | `Int32` | `-3` | Emit when the transition call is unauthorized for a given user. 
-| `code_not_found` | `Int32` | `-4` | Emit when a value is missing.
-| `code_bad_request` | `Int32` | `-5` | Emit when the transition call is somehow incorrect.
-| `code_token_exists`| `Int32` | `-6` | Emit when trying to create a token that already exists.
-| `code_unexpected_error` | `Int32` | `-7` | Emit when the transition call runs into an unexpected error. 
+| `code_not_authorized` | `Int32` | `-1` | Emit when the transition call is unauthorized for a given user.
+| `code_not_found` | `Int32` | `-2` | Emit when a value is missing.
+| `code_bad_request` | `Int32` | `-3` | Emit when the transition call is somehow incorrect.
+| `code_token_exists`| `Int32` | `-4` | Emit when trying to create a token that already exists.
+| `code_unexpected_error` | `Int32` | `-5` | Emit when the transition call runs into an unexpected error.
 
 ### C. Immutable Variables
 

@@ -22,8 +22,6 @@ let isApprovedOrOwner =
 
 (* Error events *)
 type Error =
-  | CodeSuccess
-  | CodeFailure
   | CodeNotAuthorized
   | CodeNotFound
   | CodeBadRequest
@@ -31,20 +29,17 @@ type Error =
   | CodeUnexpectedError
 
 let makeErrorEvent =
-  fun (location : String) =>
-  fun (result : Result) =>
+  fun (result : Error) =>
     let result_code = 
       match result with
-      | CodeSuccess          => Int32 -1
-      | CodeFailure          => Int32 -2
-      | CodeNotAuthorized    => Int32 -3
-      | CodeNotFound         => Int32 -4
-      | CodeBadRequest       => Int32 -5
-      | CodeTokenExists      => Int32 -6
-      | CodeUnexpectedError  => Int32 -7
+      | CodeNotAuthorized    => Int32 -1
+      | CodeNotFound         => Int32 -2
+      | CodeBadRequest       => Int32 -3
+      | CodeTokenExists      => Int32 -4
+      | CodeUnexpectedError  => Int32 -5
       end
     in
-    { _eventname : "Error"; raisedAt : location; code : code }
+    { _eventname : "Error"; code : result_code }
 
 
 (***************************************************)
@@ -74,7 +69,7 @@ field operatorApprovals: Map ByStr20 (Map ByStr20 Bool)
 
 (* Emit Errors *)
 procedure MakeError (err : Error)
-  e = mk_error_event err;
+  e = makeErrorEvent err;
   event e
 end
 
@@ -132,8 +127,6 @@ transition transferSingle(to: ByStr20, tokenId: Uint256)
         err = CodeNotAuthorized;
         MakeError err
     end
-
-    
 end
 
 (* @dev Transfer the ownership of a given token ID to another address *)
