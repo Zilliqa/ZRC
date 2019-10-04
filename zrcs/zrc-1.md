@@ -72,7 +72,7 @@ A non-fungible token contract requires the following five transitions. They are 
 
 **1. Approve**
 
-Can be called by any token owner.
+Can only be called by a token owner or an approved operator.
 
 ```ocaml
 (* Approves an address to transfer the given token ID *)
@@ -93,7 +93,7 @@ transition approve(to: ByStr20, tokenId: Uint256)
 
 **2. ApprovalForAll**
 
-Can only be called by Operators.
+Can only be called by an approved operator.
 
 ```ocaml
 (* Sets or unsets the approval of a given operator *)
@@ -114,7 +114,7 @@ transition setApprovalForAll(to: ByStr20, approved: Bool)
 
 **3. TransferFrom**
 
-Can be called by any token owner.
+Can only be called by a token owner.
 
 ```ocaml
 (* Transfer the ownership of a given token ID to another address *)
