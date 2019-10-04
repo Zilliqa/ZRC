@@ -74,12 +74,12 @@ transition approve(to: ByStr20, tokenId: Uint256)
 |  | Name | Type| Description
 |--|--|--|--|
 | @param | `to` | `ByStr20` | Address to be approved for the given token id. |
-| @param | `tokenId` | `Uint256` | Id of the token to be approved. |
+| @param | `tokenId` | `Uint256` | ID of the token to be approved. |
 
 |  | Name | Description | Event Parameters
 |--|--|--|--|
 | eventName | `ApproveSuccess` | event is successful. | `from`: `ByStr20`, `approvedTo`: `ByStr20`, `token`: `Uint256`, where `from` is the address of the caller, and `approvedTo` is argument `to` to the transition. |
-| eventName | `Error` | event is not successful. | emit `CodeNotFound` if token is not found.<br/>emit `CodeNotAuthorized` if the transition is called by the wrong user. |
+| eventName | `Error` | event is not successful. | emit `CodeNotFound` if token doesn't exist.<br/>emit `CodeNotAuthorized` if the transition is called by a user who is not authorized to approve. Only the token owner and the approved operators are allowed to call this transition. |
 
 <br/>
 
