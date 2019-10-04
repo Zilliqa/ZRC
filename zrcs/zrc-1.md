@@ -93,8 +93,8 @@ transition approve(to: ByStr20, tokenId: Uint256)
 **2. ApprovalForAll**
 
 ```ocaml
-(* Sets or unsets the approval of a given operator *)
-(* Can only be called by an approved operator.     *)
+(* Sets or unsets the approval of a given operator                  *)
+(* Can only be called by a token holder, but cannot approve herself *)
 transition setApprovalForAll(to: ByStr20, approved: Bool)
 ```
 
@@ -173,6 +173,7 @@ transition balanceOf(address: ByStr20)
 
 
 * [NonfungibleToken](https://github.com/Zilliqa/ZRC/blob/master/reference/nonfungible-token.scilla)
+* For more information, question, or suggestion on the implementation, please join our conversation on [Discord](https://discord.gg/8tpGXrB)
 
 
 <br/>
