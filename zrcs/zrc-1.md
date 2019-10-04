@@ -171,7 +171,7 @@ transition balanceOf(address: ByStr20)
 
 ## V. Existing Implementation(s)
 
-For questions on the implementation, please join the conversation on our [Discord Server](https://discord.gg/8tpGXrB).
+For questions on the implementation, please join the conversation on our [Discord Server](https://discord.gg/a65rMgk).
 
 * [NonfungibleToken](https://github.com/Zilliqa/ZRC/blob/master/reference/nonfungible-token.scilla)
 
