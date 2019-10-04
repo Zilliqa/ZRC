@@ -72,6 +72,8 @@ A non-fungible token contract requires the following five transitions. They are 
 
 **1. Approve**
 
+Can be called by any token owner.
+
 ```ocaml
 (* Approves an address to transfer the given token ID *)
 transition approve(to: ByStr20, tokenId: Uint256)
@@ -91,6 +93,8 @@ transition approve(to: ByStr20, tokenId: Uint256)
 
 **2. ApprovalForAll**
 
+Can only be called by Operators.
+
 ```ocaml
 (* Sets or unsets the approval of a given operator *)
 transition setApprovalForAll(to: ByStr20, approved: Bool)
@@ -109,6 +113,8 @@ transition setApprovalForAll(to: ByStr20, approved: Bool)
 <br/>
 
 **3. TransferFrom**
+
+Can be called by any token owner.
 
 ```ocaml
 (* Transfer the ownership of a given token ID to another address *)
@@ -130,6 +136,8 @@ transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
 
 **4. TransferSingle**
 
+Can only be called by the contract owner.
+
 ```ocaml
 (* Mint new tokens. Only contractOwner can mint new tokens. *)
 transition transferSingle(to: ByStr20, tokenId: Uint256)
@@ -148,6 +156,8 @@ transition transferSingle(to: ByStr20, tokenId: Uint256)
 <br/>
 
 **5. BalanceOf**
+
+Can be called by anyone.
 
 ```ocaml
 (* Count the number of NFTs assigned to a token owner *)
