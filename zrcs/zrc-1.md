@@ -140,7 +140,7 @@ transition transferSingle(operator: ByStr20, from: ByStr20, to: ByStr20, tokenId
 |  | Name | Description | Event Parameters
 |--|--|--|--|
 | eventName | `TransferSingleSuccess` | event is successful. | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the argument `to` and `token` is the `tokenID` argument of the transition. |
-| eventName | `Error` | event is not successful. | emit `CodeTokenExists` if the token already exists.<br/>emit `CodeNotAuthorized` if the transition is called by the a non-contract owner. |
+| eventName | `Error` | event is not successful. | emit `CodeTokenExists` if the token already exists.<br/>emit `CodeNotAuthorized` if the transition is called by a user who is not the contract owner. |
 
 <br/>
 
