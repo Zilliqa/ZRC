@@ -125,17 +125,15 @@ transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
 **4. TransferSingle**
 
 ```ocaml
-(* Mint or Burn tokens *)
-transition transferSingle(operator: ByStr20, from: ByStr20, to: ByStr20, tokenId: String, value: Uint128)
+(* Mint new tokens. Only contractOwner can mint new tokens. *)
+transition transferSingle(from: ByStr20, to: ByStr20, tokenId: Uint128)
 ```
 
 |  | Name | Type| Description
 |--|--|--|--|
-| @param | `operator` | `ByStr20` | Address of an account that is approved to make the transfer. Token owners can assign other people to be an operator of their token. Once assigned, the operators can make any transfer for the token owner on his behalf. `operatorApprovals` store the mapping between the owner to the operators that he/she has approved. |
 | @param | `from` | `ByStr20` | Address of the holder whose balance is decreased. |
 | @param | `to` | `ByStr20` | Address of the recipient whose balance is increased. |
 | @param | `tokenId` | `Uint256` | Token id of the new token. |
-| @param | `value` | `Uint128` | Number of tokens the holder balance is decreased by and match what the recipient balance is increased by. |
 
 |  | Name | Description | Event Parameters
 |--|--|--|--|
