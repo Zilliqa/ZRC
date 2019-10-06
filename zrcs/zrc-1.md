@@ -42,7 +42,7 @@ The NFT contract must define the following constants for use as error codes for 
 
 | Name | Type | Code | Description
 |--|--|--|--|
-| `CodeNoAuthorized` | `Int32` | `-1` | Emit when the transition call is unauthorized for a given user.
+| `CodeNotAuthorized` | `Int32` | `-1` | Emit when the transition call is unauthorized for a given user.
 | `CodeNotFound` | `Int32` | `-2` | Emit when a value is missing.
 | `CodeBadRequest` | `Int32` | `-3` | Emit when the transition call is somehow incorrect.
 | `CodeTokenExists`| `Int32` | `-4` | Emit when trying to create a token that already exists.
