@@ -76,14 +76,14 @@ A non-fungible token contract requires the following five transitions. They are 
 **1. Approve**
 
 ```ocaml
-(* Approves an address to transfer the given token ID.          *)
+(* Approves an address to transfer the given tokenId.           *)
 (* Can only be called by a token owner or an approved operator. *)
 transition approve(to: ByStr20, tokenId: Uint256)
 ```
 
 |  | Name | Type| Description
 |--|--|--|--|
-| @param | `to` | `ByStr20` | Address to be approved for the given token id. |
+| @param | `to` | `ByStr20` | Address to be approved for the given tokenId. |
 | @param | `tokenId` | `Uint256` | ID of the token to be approved. |
 
 |  | Name | Description | Event Parameters
@@ -116,7 +116,7 @@ transition setApprovalForAll(to: ByStr20, approved: Bool)
 **3. TransferFrom**
 
 ```ocaml
-(* Transfer the ownership of a given token ID to another address *)
+(* Transfer the ownership of a given tokenId to another address  *)
 (* Can only be called by a token owner.                          *)
 transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
 ```
@@ -129,7 +129,7 @@ transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
 
 |  | Name | Description | Event Parameters
 |--|--|--|--|
-| eventName | `TransferFromSuccess` | event is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token`:  `Uint256`, where, `from` is the same as the argument `from`, `recipient` is the `to` argument and `token` is the `tokenID` argument of the transition. |
+| eventName | `TransferFromSuccess` | event is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token`:  `Uint256`, where, `from` is the same as the argument `from`, `recipient` is the `to` argument and `token` is the `tokenId` argument of the transition. |
 | eventName | `Error` | event is not successful. | emit `CodeBadRequest` if `from` address is not the same as the token owner.<br/>emit `CodeUnexpectedError` if there's an issue with the token holder's balance.<br/>emit `CodeNotAuthorized` if the transition is called by the wrong user. |
 
 <br/>
@@ -149,7 +149,7 @@ transition transferSingle(to: ByStr20, tokenId: Uint256)
 
 |  | Name | Description | Event Parameters
 |--|--|--|--|
-| eventName | `TransferSingleSuccess` | event is successful. | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the argument `to` and `token` is the `tokenID` argument of the transition. |
+| eventName | `TransferSingleSuccess` | event is successful. | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the argument `to` and `token` is the `tokenId` argument of the transition. |
 | eventName | `Error` | event is not successful. | emit `CodeTokenExists` if the token already exists.<br/>emit `CodeNotAuthorized` if the transition is called by a user who is not the contract owner. Note that only the `contractOwner` is allowed to call this transition. |
 
 <br/>
