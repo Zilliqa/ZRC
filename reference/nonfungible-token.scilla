@@ -258,9 +258,7 @@ transition setApprovalForAll(to: ByStr20, approved: Bool)
     | True =>
         (* Check if sender has an existing record on the operatorApproval *)
         operatorApprovals[_sender][to] := approved;
-        (* Stringify boolean value to be emitted in the event *)
-        approvedStr = bool_to_string approved;
-        e = {_eventname: "SetApprovalForAllSuccess"; from: _sender; recipient: to; status: approvedStr};
+        e = {_eventname: "SetApprovalForAllSuccess"; from: _sender; recipient: to; status: approved};
         event e
     | False =>
         err = CodeNotAuthorized;
