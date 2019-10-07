@@ -55,6 +55,7 @@ contract NonfungibleToken
 
 (* Mapping between tokenId to token owner *)
 field tokenOwners: Map Uint256 ByStr20 = Emp Uint256 ByStr20
+
 (* Mapping from owner to number of owned tokens *)
 field ownedTokenCount: Map ByStr20 Uint256 = Emp ByStr20 Uint256
 
