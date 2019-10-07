@@ -168,7 +168,7 @@ transition balanceOf(address: ByStr20)
 
 |  | Name | Description | Event Parameters
 |--|--|--|--|
-| eventName | `BalanceOfSuccess` | event is successful. | `bal`: `Uint128`, which returns the number of tokens owned by a given address. If the user does not own any tokens, then the value returned is `0`. |
+| eventName | `BalanceOfSuccess` | event is successful. | `bal`: `Uint128`, which returns the number of tokens owned by a given address. If the user does not own any tokens, then the value returned is `0`. `address`: `ByStr20`, address of a token owner. |
 
 <br/>
 
