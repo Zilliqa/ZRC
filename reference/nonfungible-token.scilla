@@ -55,7 +55,7 @@ contract NonfungibleToken
 (* mutable fields *)
 
 (* Mapping between tokenId to token owner *)
-field tokenOwnerMap: Map Uint256 ByStr20 = Emp Uint256 ByStr20
+field tokenOwners: Map Uint256 ByStr20 = Emp Uint256 ByStr20
 (* Mapping from owner to number of owned tokens *)
 field ownedTokenCount: Map ByStr20 Uint256 = Emp ByStr20 Uint256
 
@@ -96,7 +96,7 @@ transition transferSingle(to: ByStr20, tokenId: Uint256)
     match isAuthorized with
     | True =>
         (* Check if token exists *)
-        tokenExist <- exists tokenOwnerMap[tokenId];
+        tokenExist <- exists tokenOwners[tokenId];
         match tokenExist with
         | True =>
             (* Token exists, return error code *)
@@ -104,7 +104,7 @@ transition transferSingle(to: ByStr20, tokenId: Uint256)
             MakeError err
         | False =>
             (* Mint token *)
-            tokenOwnerMap[tokenId] := to;
+            tokenOwners[tokenId] := to;
             (* add to owner count *)
             userCnt <- ownedTokenCount[to];
             match userCnt with
@@ -136,7 +136,7 @@ end
 transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
 
     (* Get tokenOwner ByStr20 *)
-    getTokenOwner <- tokenOwnerMap[tokenId];
+    getTokenOwner <- tokenOwners[tokenId];
     match getTokenOwner with
     | None =>
         (* Token not found *)
@@ -174,8 +174,8 @@ transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
                 | False =>
                 end;
 
-                (* Change tokenOwnerMap *)
-                tokenOwnerMap[tokenId] := to;
+                (* Change tokenOwners *)
+                tokenOwners[tokenId] := to;
 
                  (*subtract one from previous token owner *)
                 somePrevBal <- ownedTokenCount[from];
@@ -219,7 +219,7 @@ end
 transition approve(to: ByStr20, tokenId: Uint256)
 
     (* Get tokenOwner ByStr20 *)
-    getTokenOwner <- tokenOwnerMap[tokenId];
+    getTokenOwner <- tokenOwners[tokenId];
     match getTokenOwner with
     | None =>
         (* Token not found *)
