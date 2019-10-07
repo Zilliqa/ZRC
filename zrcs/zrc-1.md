@@ -60,7 +60,7 @@ A non-fungible token contract takes three initial parameters whose values are de
 
 ### D. Mutable Fields
 
-A non-fungible token contract requires the following four fields. They are declared after the immutable variables, with each declaration prefixed with the keyword `field`.
+A non-fungible token contract requires the following four fields:
 
 | Name | Type | Description
 |--|--|--|
@@ -71,7 +71,7 @@ A non-fungible token contract requires the following four fields. They are decla
 
 ### E. Transitions
 
-A non-fungible token contract requires the following five transitions. They are defined with the keyword `transition` followed by the parameters to be passed. The definition ends with the `end` keyword.
+A non-fungible token contract requires the following five transitions:
 
 **1. Approve**
 
