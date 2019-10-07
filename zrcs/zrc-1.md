@@ -113,12 +113,12 @@ transition setApprovalForAll(to: ByStr20, approved: Bool)
 
 <br/>
 
-**3. TransferFrom**
+**3. Transfer**
 
 ```ocaml
 (* Transfer the ownership of a given tokenId to another address  *)
 (* Can only be called by a token owner.                          *)
-transition transferFrom(from: ByStr20, to: ByStr20, tokenId: Uint256)
+transition transfer(from: ByStr20, to: ByStr20, tokenId: Uint256)
 ```
 
 |  | Name | Type| Description
