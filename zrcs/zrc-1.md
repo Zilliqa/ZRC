@@ -64,7 +64,7 @@ A non-fungible token contract requires the following four fields:
 
 | Name | Type | Description
 |--|--|--|
-| `tokenOwnerMap` | `Map Uint256 ByStr20 = Emp Uint256 ByStr20` | Mapping between `tokenId` (that identifies each token) to its owner. |
+| `tokenOwners` | `Map Uint256 ByStr20 = Emp Uint256 ByStr20` | Mapping between `tokenId` (that identifies each token) to its owner. |
 | `ownedTokenCount` | `Map ByStr20 Uint256 = Emp ByStr20 Uint256` | Mapping from token owner to number of owned tokens. |
 | `tokenApprovals` | `Map Uint256 ByStr20 = Emp Uint256 ByStr20` | Mapping between tokenId to approved address. Token owner can approve an address (as an operator) to transfer a particular token (given a tokenId) to other addresses. |
 | `operatorApprovals` | `Map ByStr20 (Map ByStr20 Bool) = Emp ByStr20 (Map ByStr20 Bool)` | Mapping from token owner to operator approvals. |
