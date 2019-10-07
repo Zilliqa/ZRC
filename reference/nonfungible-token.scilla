@@ -96,7 +96,7 @@ transition transferSingle(to: ByStr20, tokenId: Uint256)
   match isAuthorized with
   | True =>
     (* Check if token exists *)
-    tokenExist <- exists tokenOwnerMap[tokenId];
+    tokenExist <- exists tokenOwners[tokenId];
     match tokenExist with
     | True =>
       (* Token exists, return error code *)
@@ -104,7 +104,7 @@ transition transferSingle(to: ByStr20, tokenId: Uint256)
       MakeError err
     | False =>
       (* Mint token *)
-      tokenOwnerMap[tokenId] := to;
+      tokenOwners[tokenId] := to;
       (* Add to owner count *)
       userCnt <- ownedTokenCount[to];
       match userCnt with
