@@ -76,7 +76,7 @@ procedure MakeError(err : Error)
 end
 
 (* @notice: Count all NFTs assigned to a tokenOwner *)
-transition balanceOf(address: ByStr20) 
+transition balanceOf(address: ByStr20)
   optionBal <- ownedTokenCount[address];
   balance = 
     match optionBal with
@@ -196,7 +196,7 @@ transition transfer(to: ByStr20, tokenId: Uint256)
     getTokenOwner <- tokenOwners[tokenId];
     match getTokenOwner with
     | None =>
-      (* Token do not exists, return error code *)
+      (* Token does not exists, return error code *)
       err = CodeNotFound;
       MakeError err
     | Some tokenOwner =>
