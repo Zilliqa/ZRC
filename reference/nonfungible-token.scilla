@@ -24,7 +24,7 @@ let isApprovedOrOwner =
 
 (* Error events *)
 type Error =
-  | CodeNotAuthorized
+  | CodeNotAuthorised
   | CodeNotFound
   | CodeTokenExists
   | CodeUnexpectedError
@@ -34,7 +34,7 @@ let makeErrorEvent =
   fun (result : Error) =>
     let result_code = 
       match result with
-      | CodeNotAuthorized    => Int32 -1
+      | CodeNotAuthorised    => Int32 -1
       | CodeNotFound         => Int32 -2
       | CodeTokenExists      => Int32 -3
       | CodeUnexpectedError  => Int32 -4
@@ -125,7 +125,7 @@ transition mint(to: ByStr20, tokenId: Uint256)
         event e
       | False =>
         (* Unauthorized transaction*)
-        err = CodeNotAuthorized;
+        err = CodeNotAuthorised;
         MakeError err
       end
     | True =>
@@ -160,7 +160,7 @@ transition burn(tokenId: Uint256)
     match isAuthorised with
     | False =>
       (* Unauthorized transaction *)
-      err = CodeNotAuthorized;
+      err = CodeNotAuthorised;
       MakeError err
     | True =>
       (* Destroy existing token *)
@@ -220,7 +220,7 @@ transition transfer(to: ByStr20, tokenId: Uint256)
       match isAuthorised with
       | False =>
         (* Unauthorized transaction*)
-        err = CodeNotAuthorized;
+        err = CodeNotAuthorised;
         MakeError err
       | True =>
         (* Change tokenOwner for that tokenId *)
@@ -285,7 +285,7 @@ transition approve(to: ByStr20, tokenId: Uint256)
       event e
     | False =>
       (* Unauthorized transaction *)
-      err = CodeNotAuthorized;
+      err = CodeNotAuthorised;
       MakeError err
     end
   end
@@ -307,7 +307,7 @@ transition setApprovalForAll(to: ByStr20, approved: Bool)
     e = {_eventname: "SetApprovalForAllSuccess"; by: _sender; recipient: to; status: approvedStr};
     event e
   | False =>
-    err = CodeNotAuthorized;
+    err = CodeNotAuthorised;
     MakeError err
   end
 end
