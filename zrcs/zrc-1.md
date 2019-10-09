@@ -41,8 +41,6 @@ The NFT contract must define the following constants for use as error codes for 
 | `CodeNotAuthorised`   | `Int32` | `-1` | Emit when the transition call is unauthorised for a given user. |
 | `CodeNotFound`        | `Int32` | `-2` | Emit when a value is missing.                                   |
 | `CodeTokenExists`     | `Int32` | `-3` | Emit when trying to create a token that already exists.         |
-| `CodeUnexpectedError` | `Int32` | `-4` | Emit when the transition call runs into an unexpected error.    |
-| `CodeNotValid`        | `Int32` | `-5` | Emit when the transition call is invalid.                       |
 
 ### C. Immutable Variables
 
@@ -69,7 +67,8 @@ The NFT contract must define the following constants for use as error codes for 
 (* @dev:    Mint new tokens. Only contractOwner can mint. *)
 (* @param:  to      - Address of the token recipient      *)
 (* @param:  tokenId - ID of the new token minted          *)
-(* Returns error message CodeTokenExists if token exists  *)
+(* Returns error message CodeTokenExists if token exists. *)
+(* Revert transition if invalid recipient contract.       *)
 transition mint(to: ByStr20, tokenId: Uint256)
 ```
 
@@ -81,7 +80,7 @@ transition mint(to: ByStr20, tokenId: Uint256)
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                                                                                                 |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | eventName | `MintSuccess` | Minting is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the `to` address the token is sent, and `token` is the `tokenId` of the token minted.                                                                                                           |
-| eventName | `Error`       | Minting is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>- emit `CodeNotValid` if `to` address is same as this contract's address.<br> **NOTE:** Only the `contractOwner` is allowed to call this transition. |
+| eventName | `Error`       | Minting is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only the `contractOwner` is allowed to call this transition. |
 
 #### 2. Burn
 
@@ -147,6 +146,8 @@ transition setApprovalForAll(to: ByStr20, approved: Bool)
 (* @dev: Transfer the ownership of a given tokenId to another address *)
 (* @param: to      - Recipient address for the token                  *)
 (* @param: tokenId - ID of the token to be transferred                *)
+(* Returns error message CodeNotFound if token does not exists        *)
+(* Revert transition if invalid recipient contract.                   *)
 transition transfer(to: ByStr20, tokenId: Uint256)
 ```
 
@@ -158,7 +159,7 @@ transition transfer(to: ByStr20, tokenId: Uint256)
 |           | Name                  | Description                 | Event Parameters                                                                                                                                                                                                                                                                                                                                        |
 | --------- | --------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | eventName | `TransferFromSuccess` | Transfer is successful.     | `from`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `from` is the caller of the transition, `recipient` is the `to` address and `token` is the `tokenID` of the token that is transferred.                                                                                                                                            |
-| eventName | `Error`               | Transfer is not successful. | - emit `CodeNotValid` if `to` address is this contract's address.<br>- emit `CodeNotFound` if the token does not exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user that is not authorised.<br>**NOTE:** Only either `tokenOwner`, `tokenApproval` or `operator` tied to that `tokenOwner` address can invoke this transition. |
+| eventName | `Error`               | Transfer is not successful. | - emit `CodeNotFound` if the token does not exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user that is not authorised.<br>**NOTE:** Only either `tokenOwner`, `tokenApproval` or `operator` tied to that `tokenOwner` address can invoke this transition. |
 
 #### 6. BalanceOf
 
