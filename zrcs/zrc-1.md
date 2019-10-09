@@ -25,12 +25,12 @@ The NFT contract specification describes:
 
 ### A. Roles
 
-| Name            | Description                                                                                                                                                                                                                      |     |
-| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
-| `contractOwner` | The owner of the contract initialized by the creator of the contract.                                                                                                                                                            |
-| `tokenOwner`    | A user (identified by an address) that owns a token tied to a tokenId.                                                                                                                                                           |
-| `tokenApproval` | A user (identified by an address) that can transfer a token tied to a tokenId on behalf of the `tokenOwner`.                                                                                                                     |
-| `operator`      | A user (identified by an address) that is approved to operate all and any tokens owned by another user (identified by another address). The operators can make any transfer, approve, or burn the tokens on behalf of that user. |
+| Name              | Description                                                                                                                                                                                                                      |     |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| `contractOwner`   | The owner of the contract initialized by the creator of the contract.                                                                                                                                                            |
+| `tokenOwner`      | A user (identified by an address) that owns a token tied to a tokenId.                                                                                                                                                           |
+| `approvedSpender` | A user (identified by an address) that can transfer a token tied to a tokenId on behalf of the `tokenOwner`.                                                                                                                     |
+| `operator`        | A user (identified by an address) that is approved to operate all and any tokens owned by another user (identified by another address). The operators can make any transfer, approve, or burn the tokens on behalf of that user. |
 
 ### B. Error Codes
 
@@ -86,7 +86,7 @@ transition mint(to: ByStr20, tokenId: Uint256)
 #### 2. Burn
 
 ```ocaml
-(* @dev:    Burn existing tokens. Only tokenOwner or approved Operator can burn a token *)
+(* @dev:    Burn existing tokens. Only tokenOwner or approved operator can burn a token *)
 (* @param:  tokenId - ID of the new token destroyed                                     *)
 (* Returns error message CodeNotFound if token does not exists                          *)
 transition burn(tokenId: Uint256)
@@ -96,16 +96,16 @@ transition burn(tokenId: Uint256)
 | ------ | --------- | --------- | ----------------------------------- |
 | @param | `tokenId` | `Uint256` | Token id of the token to be burned. |
 
-|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                                             |
-| --------- | ------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `BurnSuccess` | Burning is successful.     | `by`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller and `token` is the `tokenID` of the token that has been burned.                                                                                                                    |
-| eventName | `Error`       | Burning is not successful. | - emit `CodeNotFound` if the token does not exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only either the `tokenOwner` or approved `operator`s is allowed to call this transition. |
+|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                                               |
+| --------- | ------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `BurnSuccess` | Burning is successful.     | `by`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller and `token` is the `tokenID` of the token that has been burned.                                                                                                                      |
+| eventName | `Error`       | Burning is not successful. | - emit `CodeNotFound` if the token does not exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only either the `tokenOwner` or approved `operator`(s) is allowed to call this transition. |
 
 #### 3. Approve
 
 ```ocaml
 (* @dev: Approves another address the ability to transfer the given tokenId *)
-(* There can only be one approved address per token at a given time         *)
+(* There can only be one approvedSpender per token at a given time          *)
 (* Absence of entry in tokenApproval indicates there is no approved address *)
 (* param: to      - Address to be approved for the given tokenId            *)
 (* param: tokenId - ID of the token to be approved                          *)
@@ -117,10 +117,10 @@ transition approve(to: ByStr20, tokenId: Uint256)
 | @param | `to`      | `ByStr20` | Address to be approved for the given token id. |
 | @param | `tokenId` | `Uint256` | ID of the token to be approved.                |
 
-|           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                            |
-| --------- | ---------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `ApproveSuccess` | Approval is successful.     | `from`: `ByStr20`, `approvedTo`: `ByStr20`, `token`: `Uint256`, where `from` is the address of the caller, and `approvedTo` is argument `to` to the transition.                                                                                             |
-| eventName | `Error`          | Approval is not successful. | - emit `CodeNotFound` if token doesn't exist.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not authorized to approve. <br>**NOTE:** Only either the `tokenOwner` or approved `operator`s are allowed to call this transition. |
+|           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
+| --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `ApproveSuccess` | Approval is successful.     | `from`: `ByStr20`, `approvedTo`: `ByStr20`, `token`: `Uint256`, where `from` is the address of the caller, and `approvedTo` is argument `to` to the transition.                                                                                               |
+| eventName | `Error`          | Approval is not successful. | - emit `CodeNotFound` if token doesn't exist.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not authorized to approve. <br>**NOTE:** Only either the `tokenOwner` or approved `operator`(s) are allowed to call this transition. |
 
 #### 4. SetApprovalForAll
 
@@ -157,10 +157,10 @@ transition transfer(to: ByStr20, tokenId: Uint256)
 | @param | `to`      | `ByStr20` | Recipient address of the token.    |
 | @param | `tokenId` | `Uint256` | Id of the token to be transferred. |
 
-|           | Name                  | Description                 | Event Parameters                                                                                                                                                                                                                                                                   |
-| --------- | --------------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `TransferFromSuccess` | Transfer is successful.     | `from`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `from` is the caller of the transition, `recipient` is the `to` address and `token` is the `tokenID` of the token that is transferred.                                                                       |
-| eventName | `Error`               | Transfer is not successful. | - emit `CodeNotFound` if the token does not exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user that is not authorised.<br>**NOTE:** Only either `tokenOwner`, `tokenApproval` or `operator` tied to that `tokenOwner` address can invoke this transition. |
+|           | Name                  | Description                 | Event Parameters                                                                                                                                                                                                                                                                        |
+| --------- | --------------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `TransferFromSuccess` | Transfer is successful.     | `from`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `from` is the caller of the transition, `recipient` is the `to` address and `token` is the `tokenID` of the token that is transferred.                                                                            |
+| eventName | `Error`               | Transfer is not successful. | - emit `CodeNotFound` if the token does not exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user that is not authorised.<br>**NOTE:** Only either `tokenOwner`, `approvedSpender` or an `operator` tied to that `tokenOwner` address can invoke this transition. |
 
 #### 6. BalanceOf
 

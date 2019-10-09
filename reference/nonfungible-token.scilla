@@ -148,7 +148,7 @@ transition mint(to: ByStr20, tokenId: Uint256)
   end
 end
 
-(* @dev:    Burn existing tokens. Only tokenOwner or approved Operator can burn a token *)
+(* @dev:    Burn existing tokens. Only tokenOwner or approved operator can burn a token *)
 (* @param:  tokenId - ID of the new token destroyed                                     *)
 (* Returns error message CodeNotFound if token does not exists                          *)
 transition burn(tokenId: Uint256)
@@ -263,7 +263,7 @@ transition transfer(to: ByStr20, tokenId: Uint256)
 end
 
 (* @dev: Approves another address the ability to transfer the given tokenId *)
-(* There can only be one approved address per token at a given time         *)
+(* There can only be one approvedSpender per token at a given time          *)
 (* Absence of entry in tokenApproval indicates there is no approved address *)
 (* param: to      - Address to be approved for the given tokenId            *)
 (* param: tokenId - ID of the token to be approved                          *)
