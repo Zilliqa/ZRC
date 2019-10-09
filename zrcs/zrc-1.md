@@ -99,7 +99,7 @@ transition burn(tokenId: Uint256)
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                                         |
 | --------- | ------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | eventName | `BurnSuccess` | Burning is successful.     | `by`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller and `token` is the `tokenID` of the token that has been burned.                                                                                                                |
-| eventName | `Error`       | Burning is not successful. | - emit `CodeNotFound` if the token does not exists.<br>- emit `CodeNotAuthorized` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only the `tokenOwner` or an approved `operator`s is allowed to call this transition. |
+| eventName | `Error`       | Burning is not successful. | - emit `CodeNotFound` if the token does not exists.<br>- emit `CodeNotAuthorized` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only either the `tokenOwner` or approved `operator`s is allowed to call this transition. |
 
 #### 3. Approve
 
@@ -120,7 +120,7 @@ transition approve(to: ByStr20, tokenId: Uint256)
 |           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                        |
 | --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | eventName | `ApproveSuccess` | Approval is successful.     | `from`: `ByStr20`, `approvedTo`: `ByStr20`, `token`: `Uint256`, where `from` is the address of the caller, and `approvedTo` is argument `to` to the transition.                                                                                         |
-| eventName | `Error`          | Approval is not successful. | - emit `CodeNotFound` if token doesn't exist.<br>- emit `CodeNotAuthorized` if the transition is called by a user who is not authorized to approve. <br>**NOTE:** Only the `tokenOwner` or an approved `operator`s are allowed to call this transition. |
+| eventName | `Error`          | Approval is not successful. | - emit `CodeNotFound` if token doesn't exist.<br>- emit `CodeNotAuthorized` if the transition is called by a user who is not authorized to approve. <br>**NOTE:** Only either the `tokenOwner` or approved `operator`s are allowed to call this transition. |
 
 #### 4. SetApprovalForAll
 
