@@ -100,7 +100,7 @@ transition mint(to: ByStr20, tokenId: Uint256)
     err = CodeTokenExists;
     MakeError err
   | False =>
-    (* Prevent transferring of NFT to _this_address *)
+    (* Prevent transferring of NFT to the current contract address *)
     isContractAddress = builtin eq to _this_address;
     match isContractAddress with
     | False =>
@@ -124,7 +124,7 @@ transition mint(to: ByStr20, tokenId: Uint256)
         e = {_eventname: "MintSuccess"; by: _sender; recipient: to; token: tokenId};
         event e
       | False =>
-        (* Unauthorized transaction*)
+        (* Unauthorised transaction*)
         err = CodeNotAuthorised;
         MakeError err
       end
@@ -143,7 +143,7 @@ transition burn(tokenId: Uint256)
   getTokenOwner <- tokenOwners[tokenId];
   match getTokenOwner with
   | None =>
-    (* Token do not exists, return error code *)
+    (* Token do not exist, return error code *)
     err = CodeNotFound;
     MakeError err
   | Some tokenOwner =>
@@ -155,11 +155,11 @@ transition burn(tokenId: Uint256)
       | None => False
       | Some val => val
       end;
-    (* Check if sender is an authorised personnel *)
+    (* Check if sender is an authorised *)
     isAuthorised = orb isOwner isApprovedForAll;
     match isAuthorised with
     | False =>
-      (* Unauthorized transaction *)
+      (* Unauthorised transaction *)
       err = CodeNotAuthorised;
       MakeError err
     | True =>
@@ -188,7 +188,7 @@ end
 (* @param: to      - Recipient address for the token                  *)
 (* @param: tokenId - ID of the token to be transferred                *)
 transition transfer(to: ByStr20, tokenId: Uint256)
-  (* Prevent transferring of NFT to _this_address *)
+  (* Prevent transferring of NFT to the current contract address *)
   isContractAddress = builtin eq to _this_address;
   match isContractAddress with
   | False =>
@@ -219,7 +219,7 @@ transition transfer(to: ByStr20, tokenId: Uint256)
       isAuthorised = isApprovedOrOwner isOwner isApproved isApprovedForAll;
       match isAuthorised with
       | False =>
-        (* Unauthorized transaction*)
+        (* Unauthorised transaction*)
         err = CodeNotAuthorised;
         MakeError err
       | True =>
@@ -275,8 +275,8 @@ transition approve(to: ByStr20, tokenId: Uint256)
       | Some val => val
       | None => False
       end;
-    isAuthorized = orb isOwner isApprovedForAll;
-    match isAuthorized with
+    isAuthorised = orb isOwner isApprovedForAll;
+    match isAuthorised with
     | True =>
       (* Add to tokenApproval mapping *)
       tokenApprovals[tokenId] := to;
@@ -284,7 +284,7 @@ transition approve(to: ByStr20, tokenId: Uint256)
       e = {_eventname: "ApproveSuccess"; from: _sender; approvedTo: to; token: tokenId};
       event e
     | False =>
-      (* Unauthorized transaction *)
+      (* Unauthorised transaction *)
       err = CodeNotAuthorised;
       MakeError err
     end
