@@ -41,6 +41,7 @@ The NFT contract must define the following constants for use as error codes for 
 | `CodeNotAuthorised`   | `Int32` | `-1` | Emit when the transition call is unauthorised for a given user. |
 | `CodeNotFound`        | `Int32` | `-2` | Emit when a value is missing.                                   |
 | `CodeTokenExists`     | `Int32` | `-3` | Emit when trying to create a token that already exists.         |
+| `CodeUnexpectedError` | `Int32` | `-4` | Emit when the transition call runs into an unexpected error.    |
 
 ### C. Immutable Variables
 
@@ -77,9 +78,9 @@ transition mint(to: ByStr20, tokenId: Uint256)
 | @param | `to`      | `ByStr20` | Address of the recipient whose balance is increased. |
 | @param | `tokenId` | `Uint256` | Token id of the new to be minted.                    |
 
-|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                                                                                                 |
-| --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `MintSuccess` | Minting is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the `to` address the token is sent, and `token` is the `tokenId` of the token minted.                                                                                                           |
+|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
+| --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `MintSuccess` | Minting is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the `to` address the token is sent, and `token` is the `tokenId` of the token minted.                             |
 | eventName | `Error`       | Minting is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only the `contractOwner` is allowed to call this transition. |
 
 #### 2. Burn
@@ -95,9 +96,9 @@ transition burn(tokenId: Uint256)
 | ------ | --------- | --------- | ----------------------------------- |
 | @param | `tokenId` | `Uint256` | Token id of the token to be burned. |
 
-|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                                         |
-| --------- | ------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `BurnSuccess` | Burning is successful.     | `by`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller and `token` is the `tokenID` of the token that has been burned.                                                                                                                |
+|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                                             |
+| --------- | ------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| eventName | `BurnSuccess` | Burning is successful.     | `by`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller and `token` is the `tokenID` of the token that has been burned.                                                                                                                    |
 | eventName | `Error`       | Burning is not successful. | - emit `CodeNotFound` if the token does not exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only either the `tokenOwner` or approved `operator`s is allowed to call this transition. |
 
 #### 3. Approve
@@ -116,9 +117,9 @@ transition approve(to: ByStr20, tokenId: Uint256)
 | @param | `to`      | `ByStr20` | Address to be approved for the given token id. |
 | @param | `tokenId` | `Uint256` | ID of the token to be approved.                |
 
-|           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                        |
-| --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `ApproveSuccess` | Approval is successful.     | `from`: `ByStr20`, `approvedTo`: `ByStr20`, `token`: `Uint256`, where `from` is the address of the caller, and `approvedTo` is argument `to` to the transition.                                                                                         |
+|           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                            |
+| --------- | ---------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `ApproveSuccess` | Approval is successful.     | `from`: `ByStr20`, `approvedTo`: `ByStr20`, `token`: `Uint256`, where `from` is the address of the caller, and `approvedTo` is argument `to` to the transition.                                                                                             |
 | eventName | `Error`          | Approval is not successful. | - emit `CodeNotFound` if token doesn't exist.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not authorized to approve. <br>**NOTE:** Only either the `tokenOwner` or approved `operator`s are allowed to call this transition. |
 
 #### 4. SetApprovalForAll
@@ -156,9 +157,9 @@ transition transfer(to: ByStr20, tokenId: Uint256)
 | @param | `to`      | `ByStr20` | Recipient address of the token.    |
 | @param | `tokenId` | `Uint256` | Id of the token to be transferred. |
 
-|           | Name                  | Description                 | Event Parameters                                                                                                                                                                                                                                                                                                                                        |
-| --------- | --------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `TransferFromSuccess` | Transfer is successful.     | `from`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `from` is the caller of the transition, `recipient` is the `to` address and `token` is the `tokenID` of the token that is transferred.                                                                                                                                            |
+|           | Name                  | Description                 | Event Parameters                                                                                                                                                                                                                                                                   |
+| --------- | --------------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `TransferFromSuccess` | Transfer is successful.     | `from`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `from` is the caller of the transition, `recipient` is the `to` address and `token` is the `tokenID` of the token that is transferred.                                                                       |
 | eventName | `Error`               | Transfer is not successful. | - emit `CodeNotFound` if the token does not exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user that is not authorised.<br>**NOTE:** Only either `tokenOwner`, `tokenApproval` or `operator` tied to that `tokenOwner` address can invoke this transition. |
 
 #### 6. BalanceOf

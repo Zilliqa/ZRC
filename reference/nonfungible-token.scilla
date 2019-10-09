@@ -11,6 +11,7 @@ let one_msg =
   let nil_msg = Nil {Message} in
   Cons {Message} msg nil_msg
 
+let zero = Uint256 0
 let one = Uint256 1
 
 let addOwnerCount = 
@@ -25,8 +26,14 @@ let subOwnerCount =
 fun (someCurrentCount: Option Uint256) =>
   match someCurrentCount with
   | Some currentCount =>
-    builtin add currentCount one
-  | None => let zero = Uint256 0 in zero
+    let is_zero = builtin eq currentCount zero in
+    match is_zero with
+    | True => None { Uint256 }
+    | False => 
+      let new_count = builtin sub currentCount one in
+      Some { Uint256 } new_count
+    end
+  | None => None { Uint256 }
   end
 
 (* Check if a sender is an operator of the owner, approved for the given ID *)
@@ -43,6 +50,7 @@ type Error =
   | CodeNotAuthorised
   | CodeNotFound
   | CodeTokenExists
+  | CodeUnexpectedError
 
 let makeErrorEvent =
   fun (result : Error) =>
@@ -51,6 +59,7 @@ let makeErrorEvent =
       | CodeNotAuthorised    => Int32 -1
       | CodeNotFound         => Int32 -2
       | CodeTokenExists      => Int32 -3
+      | CodeUnexpectedError  => Int32 -4
       end
     in
     { _eventname : "Error"; code : result_code }
@@ -172,11 +181,17 @@ transition burn(tokenId: Uint256)
       delete tokenApprovals[tokenId];
       (* Deduct from token owner count *)
       someCurrentCount <- ownedTokenCount[tokenOwner];
-      newCount = subOwnerCount someCurrentCount;
-      ownedTokenCount[tokenOwner] := newCount;
-      (* Emit success event *)
-      e = {_eventname: "BurnSuccess"; by: _sender; token: tokenId};
-      event e
+      someNewCount = subOwnerCount someCurrentCount;
+      match someNewCount with
+      | None => 
+        err = CodeUnexpectedError;
+        MakeError err
+      | Some newCount =>
+        ownedTokenCount[tokenOwner] := newCount;
+        (* Emit success event *)
+        e = {_eventname: "BurnSuccess"; by: _sender; token: tokenId};
+        event e
+      end
     end
   end
 end
@@ -224,8 +239,14 @@ transition transfer(to: ByStr20, tokenId: Uint256)
       delete tokenApprovals[tokenId];
       (* Subtract one from previous token owner's count *)
       someFromCount <- ownedTokenCount[tokenOwner];
-      newFromCount = subOwnerCount someFromCount;
-      ownedTokenCount[tokenOwner] := newFromCount;
+      someNewFromCount = subOwnerCount someFromCount;
+      match someNewFromCount with
+      | None => 
+        err = CodeUnexpectedError;
+        MakeError err
+      | Some newFromCount => 
+        ownedTokenCount[tokenOwner] := newFromCount
+      end;
       (* Add one to the new token owner's count *)
       someToCount <- ownedTokenCount[to];
       newToCount = addOwnerCount someToCount;
