@@ -1,7 +1,7 @@
 
 |  ZRC | Title | Status| Type | Author | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd)
 |--|--|--|--| -- | -- | -- |
-| 0  | ZRC Purpose and Guidelines | Draft | Meta  | Amrit Kumar <amrit@zilliqa.com> | 2019-09-20 | 2019-09-20 
+| 0  | ZRC Purpose and Guidelines | Implemented | Meta  | Amrit Kumar <amrit@zilliqa.com> | 2019-09-20 | 2019-09-20 
 
 ## What is a ZRC?
 
