@@ -4,8 +4,9 @@ The Zilliqa Reference Contracts (ZRCs) are the contract standards for the Zilliq
 # Contributing
 1. Review [ZRC-0](https://github.com/Zilliqa/ZRC/blob/master/zrcs/zrc-0.md).
 2. Fork the repository by clicking "Fork" in the top right.
-3. Add your ZRC to your fork of the repository. There is a template ZRC [here](https://github.com/Zilliqa/ZRC/blob/master/zrcs/zrc-1.md).
-4. Submit a Pull Request to [Zilliqa's ZRC repository](https://github.com/Zilliqa/ZRC).
+3. Open an issue outling components of the ZRC.
+4. Add your ZRC to your fork of the repository. There is a template ZRC [here](https://github.com/Zilliqa/ZRC/blob/master/zrcs/zrc-1.md).
+5. Submit a Pull Request to [Zilliqa's ZRC repository](https://github.com/Zilliqa/ZRC).
 
 Your first PR should be a first draft of the final ZRC. An editor will manually review the first PR for a new ZRC and assign it a number before merging it. Make sure you include a `discussions-to header` with the URL to a discussion forum or open GitHub issue where people can discuss the ZRC as a whole.
 
