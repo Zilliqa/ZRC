@@ -155,13 +155,13 @@ transition OperatorBurn(from: ByStr20, amount: Uint256)
 (* @param:  amount             *)
 (* Returns error message CodeTokenExists if token exists. *)
 (* Revert transition if invalid recipient contract.       *)
-transition mint(to: ByStr20, amount: Uint256)
+transition Mint(to: ByStr20, amount: Uint256)
 ```
 
 |        | Name      | Type      | Description                                          |
 | ------ | --------- | --------- | ---------------------------------------------------- |
 | @param | `to`      | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `amount` | `Uint256` | Token id of the new to be minted.                    |
+| @param | `amount`  | `Uint256` | Token id of the new to be minted.                    |
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -181,7 +181,7 @@ transition OperatorMint(to: ByStr20, amount: Uint256)
 |        | Name       | Type      | Description                             |
 | ------ | ---------- | --------- | --------------------------------------- |
 | @param | `to`       | `ByStr20` | Address to be set or unset as operator. |
-| @param | `amount` | `Bool`    | Status of the approval to be set.       |
+| @param | `amount`   | `Bool`    | Status of the approval to be set.       |
 
 |           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
 | --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -193,19 +193,17 @@ transition OperatorMint(to: ByStr20, amount: Uint256)
 
 ```ocaml
 (* @dev: Sets or unsets the approval of a given operator           *)
-(* @param: to       - Address to be set or unset as operator       *)
-(* @param: approved - Status of approval to be set for the address *)
-transition setApprovalForAll(to: ByStr20, approved: Bool)
+(* @param: operator               *)
+transition AuthorizeOperator(operator: ByStr20)
 ```
 
 |        | Name       | Type      | Description                             |
 | ------ | ---------- | --------- | --------------------------------------- |
-| @param | `to`       | `ByStr20` | Address to be set or unset as operator. |
-| @param | `approved` | `Bool`    | Status of the approval to be set.       |
+| @param | `operator` | `ByStr20` | Address to be set or unset as operator. |
 
 |           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
 | --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `SetApprovalForAllSuccess` | Set approval for all is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `status`: `Bool`, where, `by` is the caller, `recipient` is the `to` address to be set approval status for, and `status` is the `approved` status after execution of this transition. |
+| eventName | `AuthorizeOperatorSuccess` | Set approval for all is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `status`: `Bool`, where, `by` is the caller, `recipient` is the `to` address to be set approval status for, and `status` is the `approved` status after execution of this transition. |
 | eventName | `Error`                    | Set approval for all is not successful. | - emit `CodeNotAuthorised` if the transition is called by the wrong user, i.e., the caller attempting to approve herself.                                                                                                      |
 
 
@@ -213,19 +211,17 @@ transition setApprovalForAll(to: ByStr20, approved: Bool)
 
 ```ocaml
 (* @dev: Sets or unsets the approval of a given operator           *)
-(* @param: to       - Address to be set or unset as operator       *)
-(* @param: approved - Status of approval to be set for the address *)
-transition setApprovalForAll(to: ByStr20, approved: Bool)
+(* @param: operator               *)
+transition RevokeOperator(operator: ByStr20)
 ```
 
 |        | Name       | Type      | Description                             |
 | ------ | ---------- | --------- | --------------------------------------- |
-| @param | `to`       | `ByStr20` | Address to be set or unset as operator. |
-| @param | `approved` | `Bool`    | Status of the approval to be set.       |
+| @param | `operator` | `ByStr20` | Address to be set or unset as operator. |
 
 |           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
 | --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `SetApprovalForAllSuccess` | Set approval for all is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `status`: `Bool`, where, `by` is the caller, `recipient` is the `to` address to be set approval status for, and `status` is the `approved` status after execution of this transition. |
+| eventName | `RevokeOperatorSuccess` | Set approval for all is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `status`: `Bool`, where, `by` is the caller, `recipient` is the `to` address to be set approval status for, and `status` is the `approved` status after execution of this transition. |
 | eventName | `Error`                    | Set approval for all is not successful. | - emit `CodeNotAuthorised` if the transition is called by the wrong user, i.e., the caller attempting to approve herself.                                                                                                      |
 
 
