@@ -4,11 +4,11 @@
 
 ## I. What are Fungible Tokens?
 
-A Fungible Token is an open standard to create ...
+Fungibility is the essential feature of any currency, and is the property of a good or a commodity whose individual units are essentially interchangeable, and each of its parts is indistinguishable from another part. The Fungible Token is an open standard to create currencies.
 
 ## II. Abstract
 
-ZRC-2 defines a minimum interface a smart contract must implement to allow tokens to be managed, tracked, owned, and traded.
+ZRC-2 defines a minimum interface a smart contract must implement to allow fungible tokens to be managed, tracked, owned, and traded.
 
 ## III. Motivation
 
