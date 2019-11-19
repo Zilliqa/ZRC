@@ -130,11 +130,9 @@ transition Burn(amount: Uint256)
 #### 4. OperatorBurn
 
 ```ocaml
-(* @dev: Approves another address the ability to transfer the given tokenId *)
-(* There can only be one approvedSpender per token at a given time          *)
-(* Absence of entry in tokenApproval indicates there is no approved address *)
-(* param: to      - Address to be approved for the given tokenId            *)
-(* param: tokenId - ID of the token to be approved                          *)
+(* @dev:                            *)
+(* param: to                        *)
+(* param:                           *)
 transition OperatorBurn(from: ByStr20, amount: Uint256)
 ```
 
@@ -145,7 +143,7 @@ transition OperatorBurn(from: ByStr20, amount: Uint256)
 
 |           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
 | --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `ApproveSuccess` | Approval is successful.     | `from`: `ByStr20`, `approvedTo`: `ByStr20`, `token`: `Uint256`, where `from` is the address of the caller, and `approvedTo` is argument `to` to the transition.                                                                                               |
+| eventName | `OperatorBurnSuccess` | Approval is successful.     | `from`: `ByStr20`, `approvedTo`: `ByStr20`, `token`: `Uint256`, where `from` is the address of the caller, and `approvedTo` is argument `to` to the transition.                                                                                               |
 | eventName | `Error`          | Approval is not successful. | - emit `CodeNotFound` if token doesn't exist.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not authorized to approve. <br>**NOTE:** Only either the `tokenOwner` or approved `operator`(s) are allowed to call this transition. |
 
 
@@ -153,17 +151,17 @@ transition OperatorBurn(from: ByStr20, amount: Uint256)
 
 ```ocaml
 (* @dev:    Mint new tokens. Only contractOwner can mint. *)
-(* @param:  to      - Address of the token recipient      *)
-(* @param:  tokenId - ID of the new token minted          *)
+(* @param:  to                 *)
+(* @param:  amount             *)
 (* Returns error message CodeTokenExists if token exists. *)
 (* Revert transition if invalid recipient contract.       *)
-transition mint(to: ByStr20, tokenId: Uint256)
+transition mint(to: ByStr20, amount: Uint256)
 ```
 
 |        | Name      | Type      | Description                                          |
 | ------ | --------- | --------- | ---------------------------------------------------- |
 | @param | `to`      | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `tokenId` | `Uint256` | Token id of the new to be minted.                    |
+| @param | `amount` | `Uint256` | Token id of the new to be minted.                    |
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -175,19 +173,19 @@ transition mint(to: ByStr20, tokenId: Uint256)
 
 ```ocaml
 (* @dev: Sets or unsets the approval of a given operator           *)
-(* @param: to       - Address to be set or unset as operator       *)
-(* @param: approved - Status of approval to be set for the address *)
-transition setApprovalForAll(to: ByStr20, approved: Bool)
+(* @param: to            *)
+(* @param: amount        *)
+transition OperatorMint(to: ByStr20, amount: Uint256)
 ```
 
 |        | Name       | Type      | Description                             |
 | ------ | ---------- | --------- | --------------------------------------- |
 | @param | `to`       | `ByStr20` | Address to be set or unset as operator. |
-| @param | `approved` | `Bool`    | Status of the approval to be set.       |
+| @param | `amount` | `Bool`    | Status of the approval to be set.       |
 
 |           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
 | --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `SetApprovalForAllSuccess` | Set approval for all is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `status`: `Bool`, where, `by` is the caller, `recipient` is the `to` address to be set approval status for, and `status` is the `approved` status after execution of this transition. |
+| eventName | `OperatorMintAllSuccess` | Set approval for all is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `status`: `Bool`, where, `by` is the caller, `recipient` is the `to` address to be set approval status for, and `status` is the `approved` status after execution of this transition. |
 | eventName | `Error`                    | Set approval for all is not successful. | - emit `CodeNotAuthorised` if the transition is called by the wrong user, i.e., the caller attempting to approve herself.                                                                                                      |
 
 
