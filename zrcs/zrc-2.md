@@ -56,9 +56,9 @@ The fungible token contract must define the following constants for use as error
 
 | Name                | Type                                                              | Description                                                                                                                                                           |
 | ------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `balancesMap`     | `Map ByStr20 Uint256 = Emp ByStr20 Uint256`                       | Mapping between token owner to number of owned tokens.                                                                                                  |
+| `balancesMap`     | `Map ByStr20 Uint128 = Emp ByStr20 Uint128`                       | Mapping between token owner to number of owned tokens.                                                                                                  |
 | `operatorsMap`    | `Map ByStr20 (Map ByStr20 Bool) = Emp ByStr20 (Map ByStr20 Bool)`                       | MMapping between token owner to approved address. Token owner can approve an address (as an operator) to transfer tokens to other addresses.   |
-| `allowancesMap` | `Map ByStr20 (Map ByStr20 Uint256) = Emp ByStr20 (Map ByStr20 Uint256)` |    Mapping between token owner to approved address. Token owner can give an address an allowance of tokens to transfer tokens to other addresses.                                                                                                                  |
+| `allowancesMap` | `Map ByStr20 (Map ByStr20 Uint128) = Emp ByStr20 (Map ByStr20 Uint128)` |    Mapping between token owner to approved address. Token owner can give an address an allowance of tokens to transfer tokens to other addresses.                                                                                                                  |
 
 ### E. Transitions
 
@@ -71,14 +71,14 @@ The fungible token contract must define the following constants for use as error
 (* @param:  amount               *)
 (* Returns error message CodeTokenExists if token exists. *)
 (* Revert transition if invalid recipient contract.       *)
-transition Send(address: ByStr20, recipient: ByStr20, amount: Uint256)
+transition Send(address: ByStr20, recipient: ByStr20, amount: Uint128)
 ```
 
 |        | Name      | Type      | Description                                          |
 | ------ | --------- | --------- | ---------------------------------------------------- |
-| @param | `address`      | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `recipient`      | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `amount` | `Uint256` | Token id of the new to be minted.                    |
+| @param | `address`  | `ByStr20` | Address of the recipient whose balance is increased. |
+| @param | `recipient`| `ByStr20` | Address of the recipient whose balance is increased. |
+| @param | `amount`   | `Uint128` | Token id of the new to be minted.                    |
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -94,14 +94,14 @@ transition Send(address: ByStr20, recipient: ByStr20, amount: Uint256)
 (* @param:  amount           *)
 (* Returns error message CodeTokenExists if token exists. *)
 (* Revert transition if invalid recipient contract.       *)
-transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint256)
+transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
 ```
 
 |        | Name      | Type      | Description                                          |
 | ------ | --------- | --------- | ---------------------------------------------------- |
-| @param | `from`      | `ByStr20` | Address of the recipient whose balance is increased. |
+| @param | `from`    | `ByStr20` | Address of the recipient whose balance is increased. |
 | @param | `to`      | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `amount` | `Uint256` | Token id of the new to be minted.                    |
+| @param | `amount`  | `Uint128` | Token id of the new to be minted.                    |
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -114,12 +114,12 @@ transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint256)
 (* @dev:    Burn existing tokens. Only tokenOwner or approved operator can burn a token *)
 (* @param:  amount - number of tokens to be destroyed                                   *)
 (* Returns error message CodeNotFound if token does not exists                          *)
-transition Burn(amount: Uint256)
+transition Burn(amount: Uint128)
 ```
 
 |        | Name      | Type      | Description                         |
 | ------ | --------- | --------- | ----------------------------------- |
-| @param | `amount` | `Uint256` | Number of tokens to be burned. |
+| @param | `amount`  | `Uint128` | Number of tokens to be burned. |
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                                               |
 | --------- | ------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -132,14 +132,14 @@ transition Burn(amount: Uint256)
 ```ocaml
 (* @dev:                            *)
 (* param: to                        *)
-(* param:                           *)
-transition OperatorBurn(from: ByStr20, amount: Uint256)
+(* param: amount                    *)
+transition OperatorBurn(from: ByStr20, amount: Uint128)
 ```
 
 |        | Name      | Type      | Description                                    |
 | ------ | --------- | --------- | ---------------------------------------------- |
 | @param | `to`      | `ByStr20` | Address to be approved for the given token id. |
-| @param | `tokenId` | `Uint256` | ID of the token to be approved.                |
+| @param | `tokenId` | `Uint128` | ID of the token to be approved.                |
 
 |           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
 | --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -161,7 +161,7 @@ transition Mint(to: ByStr20, amount: Uint256)
 |        | Name      | Type      | Description                                          |
 | ------ | --------- | --------- | ---------------------------------------------------- |
 | @param | `to`      | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `amount`  | `Uint256` | Token id of the new to be minted.                    |
+| @param | `amount`  | `Uint128` | Token id of the new to be minted.                    |
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -181,7 +181,7 @@ transition OperatorMint(to: ByStr20, amount: Uint256)
 |        | Name       | Type      | Description                             |
 | ------ | ---------- | --------- | --------------------------------------- |
 | @param | `to`       | `ByStr20` | Address to be set or unset as operator. |
-| @param | `amount`   | `Bool`    | Status of the approval to be set.       |
+| @param | `amount`   | `Uint128`    | Status of the approval to be set.       |
 
 |           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
 | --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -228,20 +228,20 @@ transition RevokeOperator(operator: ByStr20)
 #### 9. IsOperatorFor
 
 ```ocaml
-(* @dev: Sets or unsets the approval of a given operator           *)
-(* @param: to       - Address to be set or unset as operator       *)
-(* @param: approved - Status of approval to be set for the address *)
-transition setApprovalForAll(to: ByStr20, approved: Bool)
+(* @dev:                    *)
+(* @param: operator         *)
+(* @param: tokenHolder      *)
+transition IsOperatorFor(operator: ByStr20, tokenHolder: ByStr20)
 ```
 
 |        | Name       | Type      | Description                             |
 | ------ | ---------- | --------- | --------------------------------------- |
-| @param | `to`       | `ByStr20` | Address to be set or unset as operator. |
-| @param | `approved` | `Bool`    | Status of the approval to be set.       |
+| @param | `operator`    | `ByStr20` | Address to be set or unset as operator. |
+| @param | `tokenHolder` | `ByStr20` | Status of the approval to be set.       |
 
 |           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
 | --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `SetApprovalForAllSuccess` | Set approval for all is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `status`: `Bool`, where, `by` is the caller, `recipient` is the `to` address to be set approval status for, and `status` is the `approved` status after execution of this transition. |
+| eventName | `IsOperatorForSuccess` | Set approval for all is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `status`: `Bool`, where, `by` is the caller, `recipient` is the `to` address to be set approval status for, and `status` is the `approved` status after execution of this transition. |
 | eventName | `Error`                    | Set approval for all is not successful. | - emit `CodeNotAuthorised` if the transition is called by the wrong user, i.e., the caller attempting to approve herself.                                                                                                      |
 
 
@@ -249,19 +249,12 @@ transition setApprovalForAll(to: ByStr20, approved: Bool)
 
 ```ocaml
 (* @dev: Sets or unsets the approval of a given operator           *)
-(* @param: to       - Address to be set or unset as operator       *)
-(* @param: approved - Status of approval to be set for the address *)
-transition setApprovalForAll(to: ByStr20, approved: Bool)
+transition DefaultOperators()
 ```
-
-|        | Name       | Type      | Description                             |
-| ------ | ---------- | --------- | --------------------------------------- |
-| @param | `to`       | `ByStr20` | Address to be set or unset as operator. |
-| @param | `approved` | `Bool`    | Status of the approval to be set.       |
 
 |           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
 | --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `SetApprovalForAllSuccess` | Set approval for all is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `status`: `Bool`, where, `by` is the caller, `recipient` is the `to` address to be set approval status for, and `status` is the `approved` status after execution of this transition. |
+| eventName | `DefaultOperatorsSuccess` | Set approval for all is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `status`: `Bool`, where, `by` is the caller, `recipient` is the `to` address to be set approval status for, and `status` is the `approved` status after execution of this transition. |
 | eventName | `Error`                    | Set approval for all is not successful. | - emit `CodeNotAuthorised` if the transition is called by the wrong user, i.e., the caller attempting to approve herself.                                                                                                      |
 
 
@@ -269,17 +262,17 @@ transition setApprovalForAll(to: ByStr20, approved: Bool)
 
 ```ocaml
 (* @dev: Transfer the ownership of a given tokenId to another address *)
-(* @param: to      - Recipient address for the token                  *)
-(* @param: tokenId - ID of the token to be transferred                *)
+(* @param: to                     *)
+(* @param: amount                 *)
 (* Returns error message CodeNotFound if token does not exists        *)
 (* Revert transition if invalid recipient contract.                   *)
-transition transfer(to: ByStr20, tokenId: Uint256)
+transition Transfer(to: ByStr20, amount: Uint256)
 ```
 
 |        | Name      | Type      | Description                        |
 | ------ | --------- | --------- | ---------------------------------- |
 | @param | `to`      | `ByStr20` | Recipient address of the token.    |
-| @param | `tokenId` | `Uint256` | Id of the token to be transferred. |
+| @param | `amount`  | `Uint128` | Id of the token to be transferred. |
 
 |           | Name                  | Description                 | Event Parameters                                                                                                                                                                                                                                                                        |
 | --------- | --------------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
