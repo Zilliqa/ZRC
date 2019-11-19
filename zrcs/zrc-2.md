@@ -65,57 +65,61 @@ The fungible token contract must define the following constants for use as error
 #### 1. Send
 
 ```ocaml
-(* @dev:    Mint new tokens. Only contractOwner can mint. *)
-(* @param:  to      - Address of the token recipient      *)
-(* @param:  tokenId - ID of the new token minted          *)
+(* @dev:                         *)
+(* @param:  address              *)
+(* @param:  recipient            *)
+(* @param:  amount               *)
 (* Returns error message CodeTokenExists if token exists. *)
 (* Revert transition if invalid recipient contract.       *)
-transition mint(to: ByStr20, tokenId: Uint256)
+transition Send(address: ByStr20, recipient: ByStr20, amount: Uint256)
 ```
 
 |        | Name      | Type      | Description                                          |
 | ------ | --------- | --------- | ---------------------------------------------------- |
-| @param | `to`      | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `tokenId` | `Uint256` | Token id of the new to be minted.                    |
+| @param | `address`      | `ByStr20` | Address of the recipient whose balance is increased. |
+| @param | `recipient`      | `ByStr20` | Address of the recipient whose balance is increased. |
+| @param | `amount` | `Uint256` | Token id of the new to be minted.                    |
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `MintSuccess` | Minting is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the `to` address the token is sent, and `token` is the `tokenId` of the token minted.                             |
+| eventName | `SendSuccess` | Minting is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the `to` address the token is sent, and `token` is the `tokenId` of the token minted.                             |
 | eventName | `Error`       | Minting is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only the `contractOwner` is allowed to call this transition. |
 
 #### 2. OperatorSend
 
 ```ocaml
-(* @dev:    Mint new tokens. Only contractOwner can mint. *)
-(* @param:  to      - Address of the token recipient      *)
-(* @param:  tokenId - ID of the new token minted          *)
+(* @dev:                     *)
+(* @param:  from             *)
+(* @param:  to               *)
+(* @param:  amount           *)
 (* Returns error message CodeTokenExists if token exists. *)
 (* Revert transition if invalid recipient contract.       *)
-transition mint(to: ByStr20, tokenId: Uint256)
+transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint256)
 ```
 
 |        | Name      | Type      | Description                                          |
 | ------ | --------- | --------- | ---------------------------------------------------- |
+| @param | `from`      | `ByStr20` | Address of the recipient whose balance is increased. |
 | @param | `to`      | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `tokenId` | `Uint256` | Token id of the new to be minted.                    |
+| @param | `amount` | `Uint256` | Token id of the new to be minted.                    |
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `MintSuccess` | Minting is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the `to` address the token is sent, and `token` is the `tokenId` of the token minted.                             |
+| eventName | `OperatorSendSuccess` | Minting is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the `to` address the token is sent, and `token` is the `tokenId` of the token minted.                             |
 | eventName | `Error`       | Minting is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only the `contractOwner` is allowed to call this transition. |
 
 #### 3. Burn
 
 ```ocaml
 (* @dev:    Burn existing tokens. Only tokenOwner or approved operator can burn a token *)
-(* @param:  tokenId - ID of the new token destroyed                                     *)
+(* @param:  amount - number of tokens to be destroyed                                   *)
 (* Returns error message CodeNotFound if token does not exists                          *)
-transition burn(tokenId: Uint256)
+transition Burn(amount: Uint256)
 ```
 
 |        | Name      | Type      | Description                         |
 | ------ | --------- | --------- | ----------------------------------- |
-| @param | `tokenId` | `Uint256` | Token id of the token to be burned. |
+| @param | `amount` | `Uint256` | Number of tokens to be burned. |
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                                               |
 | --------- | ------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -131,7 +135,7 @@ transition burn(tokenId: Uint256)
 (* Absence of entry in tokenApproval indicates there is no approved address *)
 (* param: to      - Address to be approved for the given tokenId            *)
 (* param: tokenId - ID of the token to be approved                          *)
-transition approve(to: ByStr20, tokenId: Uint256)
+transition OperatorBurn(from: ByStr20, amount: Uint256)
 ```
 
 |        | Name      | Type      | Description                                    |
