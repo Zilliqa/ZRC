@@ -56,9 +56,9 @@ The fungible token contract must define the following constants for use as error
 
 | Name                | Type                                                              | Description                                                                                                                                                           |
 | ------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `balancesMap`     | `Map Uint256 ByStr20 = Emp Uint256 ByStr20`                       | Mapping between `tokenId` (that identifies each token) to its owner.                                                                                                  |
-| `operatorsMap`    | `Map Uint256 ByStr20 = Emp Uint256 ByStr20`                       | Mapping between tokenId to approved address. Token owner can approve an address (as an operator) to transfer a particular token (given a tokenId) to other addresses. |
-| `allowancesMap` | `Map ByStr20 (Map ByStr20 Bool) = Emp ByStr20 (Map ByStr20 Bool)` | Mapping from token owner to operator approvals.                                                                                                                       |
+| `balancesMap`     | `Map ByStr20 Uint256 = Emp ByStr20 Uint256`                       | Mapping between `tokenId` (that identifies each token) to its owner.                                                                                                  |
+| `operatorsMap`    | `Map ByStr20 (Map ByStr20 Bool) = Emp ByStr20 (Map ByStr20 Bool)`                       | Mapping between tokenId to approved address. Token owner can approve an address (as an operator) to transfer a particular token (given a tokenId) to other addresses. |
+| `allowancesMap` | `Map ByStr20 (Map ByStr20 Uint256) = Emp ByStr20 (Map ByStr20 Uint256)` | Mapping from token owner to operator approvals.                                                                                                                       |
 
 ### E. Transitions
 
