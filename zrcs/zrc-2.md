@@ -155,7 +155,7 @@ transition OperatorBurn(from: ByStr20, amount: Uint128)
 (* @param:  amount             *)
 (* Returns error message CodeTokenExists if token exists. *)
 (* Revert transition if invalid recipient contract.       *)
-transition Mint(to: ByStr20, amount: Uint256)
+transition Mint(to: ByStr20, amount: Uint128)
 ```
 
 |        | Name      | Type      | Description                                          |
@@ -181,7 +181,7 @@ transition OperatorMint(to: ByStr20, amount: Uint256)
 |        | Name       | Type      | Description                             |
 | ------ | ---------- | --------- | --------------------------------------- |
 | @param | `to`       | `ByStr20` | Address to be set or unset as operator. |
-| @param | `amount`   | `Uint128`    | Status of the approval to be set.       |
+| @param | `amount`   | `Uint128` | Status of the approval to be set.       |
 
 |           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
 | --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -266,7 +266,7 @@ transition DefaultOperators()
 (* @param: amount                 *)
 (* Returns error message CodeNotFound if token does not exists        *)
 (* Revert transition if invalid recipient contract.                   *)
-transition Transfer(to: ByStr20, amount: Uint256)
+transition Transfer(to: ByStr20, amount: Uint128)
 ```
 
 |        | Name      | Type      | Description                        |
@@ -276,67 +276,69 @@ transition Transfer(to: ByStr20, amount: Uint256)
 
 |           | Name                  | Description                 | Event Parameters                                                                                                                                                                                                                                                                        |
 | --------- | --------------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `TransferFromSuccess` | Transfer is successful.     | `from`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `from` is the caller of the transition, `recipient` is the `to` address and `token` is the `tokenID` of the token that is transferred.                                                                            |
+| eventName | `TransferSuccess` | Transfer is successful.     | `from`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `from` is the caller of the transition, `recipient` is the `to` address and `token` is the `tokenID` of the token that is transferred.                                                                            |
 | eventName | `Error`               | Transfer is not successful. | - emit `CodeNotFound` if the token does not exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user that is not authorised.<br>**NOTE:** Only either `tokenOwner`, `approvedSpender` or an `operator` tied to that `tokenOwner` address can invoke this transition. |
 
 #### 12. TansferFrom
 
 ```ocaml
-(* @dev: Approves another address the ability to transfer the given tokenId *)
+(* @dev:                    *)
 (* There can only be one approvedSpender per token at a given time          *)
 (* Absence of entry in tokenApproval indicates there is no approved address *)
-(* param: to      - Address to be approved for the given tokenId            *)
-(* param: tokenId - ID of the token to be approved                          *)
-transition approve(to: ByStr20, tokenId: Uint256)
+(* param: from              *)
+(* param: to                *)
+(* param: amount            *)
+transition TansferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
 ```
 
 |        | Name      | Type      | Description                                    |
 | ------ | --------- | --------- | ---------------------------------------------- |
-| @param | `to`      | `ByStr20` | Address to be approved for the given token id. |
-| @param | `tokenId` | `Uint256` | ID of the token to be approved.                |
+| @param | `from`    | `ByStr20` | Address to be approved for the given token id. |
+| @param | `to`      | `ByStr20` | ID of the token to be approved.                |
+| @param | `amount`  | `Uint128` | ID of the token to be approved.                |
 
 |           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
 | --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `ApproveSuccess` | Approval is successful.     | `from`: `ByStr20`, `approvedTo`: `ByStr20`, `token`: `Uint256`, where `from` is the address of the caller, and `approvedTo` is argument `to` to the transition.                                                                                               |
+| eventName | `TansferFromSuccess` | Approval is successful.     | `from`: `ByStr20`, `approvedTo`: `ByStr20`, `token`: `Uint256`, where `from` is the address of the caller, and `approvedTo` is argument `to` to the transition.                                                                                               |
 | eventName | `Error`          | Approval is not successful. | - emit `CodeNotFound` if token doesn't exist.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not authorized to approve. <br>**NOTE:** Only either the `tokenOwner` or approved `operator`(s) are allowed to call this transition. |
 
 #### 13. Allowance
 
 ```ocaml
-(* @dev: Approves another address the ability to transfer the given tokenId *)
+(* @dev:                                    *)
 (* There can only be one approvedSpender per token at a given time          *)
 (* Absence of entry in tokenApproval indicates there is no approved address *)
-(* param: to      - Address to be approved for the given tokenId            *)
-(* param: tokenId - ID of the token to be approved                          *)
-transition approve(to: ByStr20, tokenId: Uint256)
+(* param: tokenHolder                       *)
+(* param: spender                           *)
+transition Allowance(tokenHolder: ByStr20, spender: ByStr20)
 ```
 
 |        | Name      | Type      | Description                                    |
 | ------ | --------- | --------- | ---------------------------------------------- |
-| @param | `to`      | `ByStr20` | Address to be approved for the given token id. |
-| @param | `tokenId` | `Uint256` | ID of the token to be approved.                |
+| @param | `tokenHolder` | `ByStr20` | Address to be approved for the given token id. |
+| @param | `spender`     | `ByStr20` | ID of the token to be approved.                |
 
 |           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
 | --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `ApproveSuccess` | Approval is successful.     | `from`: `ByStr20`, `approvedTo`: `ByStr20`, `token`: `Uint256`, where `from` is the address of the caller, and `approvedTo` is argument `to` to the transition.                                                                                               |
+| eventName | `AllowanceSuccess` | Approval is successful.     | `from`: `ByStr20`, `approvedTo`: `ByStr20`, `token`: `Uint256`, where `from` is the address of the caller, and `approvedTo` is argument `to` to the transition.                                                                                               |
 | eventName | `Error`          | Approval is not successful. | - emit `CodeNotFound` if token doesn't exist.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not authorized to approve. <br>**NOTE:** Only either the `tokenOwner` or approved `operator`(s) are allowed to call this transition. |
 
 
 #### 14. Approve
 
 ```ocaml
-(* @dev: Approves another address the ability to transfer the given tokenId *)
+(* @dev: Approves another address the ability to transfer tokens *)
 (* There can only be one approvedSpender per token at a given time          *)
 (* Absence of entry in tokenApproval indicates there is no approved address *)
-(* param: to      - Address to be approved for the given tokenId            *)
-(* param: tokenId - ID of the token to be approved                          *)
-transition approve(to: ByStr20, tokenId: Uint256)
+(* param: spender                         *)
+(* param: amount                          *)
+transition Approve(spender: ByStr20, amount: Uint128)
 ```
 
 |        | Name      | Type      | Description                                    |
 | ------ | --------- | --------- | ---------------------------------------------- |
-| @param | `to`      | `ByStr20` | Address to be approved for the given token id. |
-| @param | `tokenId` | `Uint256` | ID of the token to be approved.                |
+| @param | `spender` | `ByStr20` | Address to be approved for the given token id. |
+| @param | `amount`  | `Uint128` | Amount of tokens to be approved.               |
 
 |           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
 | --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -348,22 +350,18 @@ transition approve(to: ByStr20, tokenId: Uint256)
 
 ```ocaml
 (* @notice: Count all NFTs assigned to a tokenOwner *)
-transition balanceOf(address: ByStr20)
+transition TotalSupply()
 ```
-
-|        | Name      | Type      | Description               |
-| ------ | --------- | --------- | ------------------------- |
-| @param | `address` | `ByStr20` | Address of a token owner. |
 
 |           | Name               | Description                        | Event Parameters                                                                                                                                    |
 | --------- | ------------------ | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `BalanceOfSuccess` | Counting of balance is successful. | `bal`: `Uint128`, which returns the number of tokens owned by a given address. If the user does not own any tokens, then the value returned is `0`. |
+| eventName | `TotalSupplySuccess` | Counting of balance is successful. | `bal`: `Uint128`, which returns the number of tokens owned by a given address. If the user does not own any tokens, then the value returned is `0`. |
 
 #### 16. BalanceOf
 
 ```ocaml
 (* @notice: Count all NFTs assigned to a tokenOwner *)
-transition balanceOf(address: ByStr20)
+transition BalanceOf(address: ByStr20)
 ```
 
 |        | Name      | Type      | Description               |
