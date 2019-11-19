@@ -12,7 +12,7 @@ ZRC-2 defines a minimum interface a smart contract must implement to allow fungi
 
 ## III. Motivation
 
-A standard for fungible tokens can serve as an interface for ...
+A standard for fungible tokens can serve as an interface for developers to create currencies, utility tokens or stable coins. Generally, fungible tokens can be used to represent interchangeable, identical and divisable assets as tokens.
 
 ## IV. Specification
 
