@@ -60,7 +60,97 @@ The fungible token contract must define the following constants for use as error
 | `operatorsMap`    | `Map ByStr20 (Map ByStr20 Bool) = Emp ByStr20 (Map ByStr20 Bool)`                       | MMapping between token owner to approved address. Token owner can approve an address (as an operator) to transfer tokens to other addresses.   |
 | `allowancesMap` | `Map ByStr20 (Map ByStr20 Uint128) = Emp ByStr20 (Map ByStr20 Uint128)` |    Mapping between token owner to approved address. Token owner can give an address an allowance of tokens to transfer tokens to other addresses.                                                                                                                  |
 
-### E. Transitions
+### E. Procedures
+
+#### 1. ProcedureMint
+
+```ocaml
+(* @dev:                         *)
+(* @param: operator             *)
+(* @param: tokenHolder          *)
+(* @param: amount               *)
+transition ProcedureMint(operator: ByStr20, tokenHolder: ByStr20, amount: Uint25) 
+```
+
+|        | Name      | Type      | Description                                          |
+| ------ | --------- | --------- | ---------------------------------------------------- |
+| @param | `operator`    | `ByStr20` | Address of the recipient whose balance is increased. |
+| @param | `tokenHolder` | `ByStr20` | Address of the recipient whose balance is increased. |
+| @param | `amount`      | `Uint128` | Token id of the new to be minted.                    |
+
+|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
+| --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `ProcedureMintSuccess` | Minting is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the `to` address the token is sent, and `token` is the `tokenId` of the token minted.                             |
+| eventName | `Error`       | Minting is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only the `contractOwner` is allowed to call this transition. |
+
+#### 2. ProcedureBurn
+
+```ocaml
+(* @dev:                         *)
+(* @param: operator              *)
+(* @param: from                  *)
+(* @param: amount                *)
+(* Returns error message CodeTokenExists if token exists. *)
+(* Revert transition if invalid recipient contract.       *)
+transition ProcedureBurn(operator: ByStr20, from: ByStr20, amount: Uint128)
+```
+
+|        | Name      | Type      | Description                                          |
+| ------ | --------- | --------- | ---------------------------------------------------- |
+| @param | `operator` | `ByStr20` | Address of the recipient whose balance is increased. |
+| @param | `from`     | `ByStr20` | Address of the recipient whose balance is increased. |
+| @param | `amount`   | `Uint128` | Token id of the new to be minted.                    |
+
+|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
+| --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `SendSuccess` | Minting is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the `to` address the token is sent, and `token` is the `tokenId` of the token minted.                             |
+| eventName | `Error`       | Minting is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only the `contractOwner` is allowed to call this transition. |
+
+#### 3. ProcedureMove
+
+```ocaml
+(* @dev:                         *)
+(* @param: operator              *)
+(* @param: recipient            *)
+(* @param: amount               *)
+(* Returns error message CodeTokenExists if token exists. *)
+(* Revert transition if invalid recipient contract.       *)
+transition ProcedureMove(operator: ByStr20, from: ByStr20, to: ByStr20, amount: Uint128)
+```
+
+|        | Name      | Type      | Description                                          |
+| ------ | --------- | --------- | ---------------------------------------------------- |
+| @param | `address`  | `ByStr20` | Address of the recipient whose balance is increased. |
+| @param | `recipient`| `ByStr20` | Address of the recipient whose balance is increased. |
+| @param | `amount`   | `Uint128` | Token id of the new to be minted.                    |
+
+|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
+| --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `ProcedureMoveSuccess` | Minting is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the `to` address the token is sent, and `token` is the `tokenId` of the token minted.                             |
+| eventName | `Error`       | Minting is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only the `contractOwner` is allowed to call this transition. |
+
+#### 4. ProcedureApprove
+
+```ocaml
+(* @dev:                         *)
+(* @param: tokenHolder           *)
+(* @param: spender               *)
+(* @param: amount                *)
+transition ProcedureApprove(tokenHolder: ByStr20, spender: ByStr20, amount: Uint128)
+```
+
+|        | Name      | Type      | Description                                          |
+| ------ | --------- | --------- | ---------------------------------------------------- |
+| @param | `address`  | `ByStr20` | Address of the recipient whose balance is increased. |
+| @param | `recipient`| `ByStr20` | Address of the recipient whose balance is increased. |
+| @param | `amount`   | `Uint128` | Token id of the new to be minted.                    |
+
+|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
+| --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `ProcedureApproveSuccess` | Minting is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the `to` address the token is sent, and `token` is the `tokenId` of the token minted.                             |
+| eventName | `Error`       | Minting is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only the `contractOwner` is allowed to call this transition. |
+
+### F. Transitions
 
 #### 1. Send
 
