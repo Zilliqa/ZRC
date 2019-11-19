@@ -69,7 +69,7 @@ The fungible token contract must define the following constants for use as error
 (* @param: operator             *)
 (* @param: tokenHolder          *)
 (* @param: amount               *)
-transition ProcedureMint(operator: ByStr20, tokenHolder: ByStr20, amount: Uint25) 
+transition ProcedureMint(operator: ByStr20, tokenHolder: ByStr20, amount: Uint128) 
 ```
 
 |        | Name      | Type      | Description                                          |
