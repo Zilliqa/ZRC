@@ -154,19 +154,17 @@ transition ProcedureApprove(tokenHolder: ByStr20, spender: ByStr20, amount: Uint
 
 ```ocaml
 (* @dev:                         *)
-(* @param:  address              *)
-(* @param:  recipient            *)
-(* @param:  amount               *)
-(* Returns error message CodeTokenExists if token exists. *)
-(* Revert transition if invalid recipient contract.       *)
-transition Send(address: ByStr20, recipient: ByStr20, amount: Uint128)
+(* @param from:       Address of the sender whose balance is decreased.    *)
+(* @param recipient:  Address of the recipient whose balance is increased. *)
+(* @param amount:     Amount of tokens to be sent.                         *)
+transition Send(from: ByStr20, recipient: ByStr20, amount: Uint128)
 ```
 
-|        | Name      | Type      | Description                                          |
-| ------ | --------- | --------- | ---------------------------------------------------- |
-| @param | `address`  | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `recipient`| `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `amount`   | `Uint128` | Token id of the new to be minted.                    |
+|        | Name        | Type      | Description                                          |
+| ------ | ----------- | --------- | ---------------------------------------------------- |
+| @param | `from`      | `ByStr20` | Address of the sender whose balance is decreased.    |
+| @param | `recipient` | `ByStr20` | Address of the recipient whose balance is increased. |
+| @param | `amount`    | `Uint128` | Amount of tokens to be sent.                         |
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -177,19 +175,17 @@ transition Send(address: ByStr20, recipient: ByStr20, amount: Uint128)
 
 ```ocaml
 (* @dev:                     *)
-(* @param:  from             *)
-(* @param:  to               *)
-(* @param:  amount           *)
-(* Returns error message CodeTokenExists if token exists. *)
-(* Revert transition if invalid recipient contract.       *)
+(* @param from:       Address of the sender whose balance is decreased.    *)
+(* @param recipient:  Address of the recipient whose balance is increased. *)
+(* @param amount:     Amount of tokens to be sent.                         *)
 transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
 ```
 
-|        | Name      | Type      | Description                                          |
-| ------ | --------- | --------- | ---------------------------------------------------- |
-| @param | `from`    | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `to`      | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `amount`  | `Uint128` | Token id of the new to be minted.                    |
+|        | Name        | Type      | Description                                          |
+| ------ | ----------- | --------- | ---------------------------------------------------- |
+| @param | `from`      | `ByStr20` | Address of the sender whose balance is decreased.    |
+| @param | `recipient` | `ByStr20` | Address of the recipient whose balance is increased. |
+| @param | `amount`    | `Uint128` | Amount of tokens to be sent.                         |
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
