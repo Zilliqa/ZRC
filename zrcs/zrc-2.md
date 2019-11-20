@@ -130,10 +130,10 @@ transition ProcedureMove(operator: ByStr20, from: ByStr20, to: ByStr20, amount: 
 #### 4. ProcedureApprove
 
 ```ocaml
-(* @dev:               Approves another address to spend a given amount of tokens. *)
-(* @param tokenHolder: Address of the token holder.                                *)
-(* @param spender:     Address to be set as a spender.                             *)
-(* @param amount:      Amount of tokens allowed to be spend.                       *)
+(* @dev:    Approves another address to spend a given amount of tokens. *)
+(* @param tokenHolder: Address of the token holder.                     *)
+(* @param spender:     Address to be set as a spender.                  *)
+(* @param amount:      Amount of tokens allowed to be spend.            *)
 transition ProcedureApprove(tokenHolder: ByStr20, spender: ByStr20, amount: Uint128)
 ```
 
