@@ -4,7 +4,7 @@
 
 ## I. What are Fungible Tokens?
 
-The Fungible Token is an open standard for creating currencies, with fungibility being the property of a good or a commodity whose individual units are essentially interchangeable, and each of its parts is indistinguishable from another part.
+The Fungible Token is an open standard for creating currencies. Fungibility is the property of a good or a commodity whose individual units are essentially interchangeable, and each of its parts is indistinguishable from another part.
 
 ## II. Abstract
 
@@ -65,18 +65,18 @@ The fungible token contract must define the following constants for use as error
 #### 1. ProcedureMint
 
 ```ocaml
-(* @dev:                         *)
-(* @param: operator             *)
-(* @param: tokenHolder          *)
-(* @param: amount               *)
+(* @dev: Mint new tokens. Only contractOwner can mint.                          *)
+(* @param operator       Address approved by the contract owner to mint tokens. *)
+(* @param tokenHolder    Address of the recipient whose balance is increased.   *)
+(* @param amount         Amount of tokens to be minted.                         *)
 transition ProcedureMint(operator: ByStr20, tokenHolder: ByStr20, amount: Uint128) 
 ```
 
 |        | Name      | Type      | Description                                          |
 | ------ | --------- | --------- | ---------------------------------------------------- |
-| @param | `operator`    | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `tokenHolder` | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `amount`      | `Uint128` | Token id of the new to be minted.                    |
+| @param | `operator`    | `ByStr20` | Address approved by the contract owner to mint tokens. |
+| @param | `tokenHolder` | `ByStr20` | Address of the recipient whose balance is increased.   |
+| @param | `amount`      | `Uint128` | Amount of tokens to be minted.                         |
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -86,20 +86,18 @@ transition ProcedureMint(operator: ByStr20, tokenHolder: ByStr20, amount: Uint12
 #### 2. ProcedureBurn
 
 ```ocaml
-(* @dev:                         *)
-(* @param: operator              *)
-(* @param: from                  *)
-(* @param: amount                *)
-(* Returns error message CodeTokenExists if token exists. *)
-(* Revert transition if invalid recipient contract.       *)
+(* @dev: Burn existing tokens. Only tokenOwner or approved operator can burn tokens. *)
+(* @param: operator   Address approved by the contract owner to burn tokens.         *)
+(* @param: from       Address of the sender whose balance is decreased.              *)
+(* @param amount      Amount of tokens to be burn.                                   *)
 transition ProcedureBurn(operator: ByStr20, from: ByStr20, amount: Uint128)
 ```
 
 |        | Name      | Type      | Description                                          |
 | ------ | --------- | --------- | ---------------------------------------------------- |
-| @param | `operator` | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `from`     | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `amount`   | `Uint128` | Token id of the new to be minted.                    |
+| @param | `operator` | `ByStr20` | Address approved by the contract owner to burn tokens. |
+| @param | `from`     | `ByStr20` | Address of the sender whose balance is decreased.      |
+| @param | `amount`   | `Uint128` | Amount of tokens to be burn.                           |
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
