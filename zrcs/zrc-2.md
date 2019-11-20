@@ -4,7 +4,7 @@
 
 ## I. What are Fungible Tokens?
 
-The Fungible Token is an open standard to create currencies, with fungibility being the property of a good or a commodity whose individual units are essentially interchangeable, and each of its parts is indistinguishable from another part.
+The Fungible Token is an open standard for creating currencies, with fungibility being the property of a good or a commodity whose individual units are essentially interchangeable, and each of its parts is indistinguishable from another part.
 
 ## II. Abstract
 
@@ -464,7 +464,7 @@ transition BalanceOf(address: ByStr20)
 
 ## V. Existing Implementation(s)
 
-- [Non-Fungible Token](https://github.com/Zilliqa/ZRC/blob/master/reference/nonfungible-token.scilla)
+- TBA
 
 ## VI. Copyright
 
