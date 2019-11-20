@@ -65,10 +65,10 @@ The fungible token contract must define the following constants for use as error
 #### 1. ProcedureMint
 
 ```ocaml
-(* @dev: Mint new tokens. Only contractOwner can mint.                          *)
-(* @param operator       Address approved by the contract owner to mint tokens. *)
-(* @param tokenHolder    Address of the recipient whose balance is increased.   *)
-(* @param amount         Amount of tokens to be minted.                         *)
+(* @dev:                  Mint new tokens. Only contractOwner can mint.          *)
+(* @param operator:       Address approved by the contract owner to mint tokens. *)
+(* @param tokenHolder:    Address of the recipient whose balance is increased.   *)
+(* @param amount:         Amount of tokens to be minted.                         *)
 transition ProcedureMint(operator: ByStr20, tokenHolder: ByStr20, amount: Uint128) 
 ```
 
@@ -87,14 +87,14 @@ transition ProcedureMint(operator: ByStr20, tokenHolder: ByStr20, amount: Uint12
 
 ```ocaml
 (* @dev: Burn existing tokens. Only tokenOwner or approved operator can burn tokens. *)
-(* @param: operator   Address approved by the contract owner to burn tokens.         *)
-(* @param: from       Address of the sender whose balance is decreased.              *)
-(* @param amount      Amount of tokens to be burn.                                   *)
+(* @param operator:   Address approved by the contract owner to burn tokens.         *)
+(* @param from:       Address of the sender whose balance is decreased.              *)
+(* @param amount:     Amount of tokens to be burn.                                   *)
 transition ProcedureBurn(operator: ByStr20, from: ByStr20, amount: Uint128)
 ```
 
-|        | Name      | Type      | Description                                          |
-| ------ | --------- | --------- | ---------------------------------------------------- |
+|        | Name       | Type      | Description                                          |
+| ------ | ---------- | --------- | ---------------------------------------------------- |
 | @param | `operator` | `ByStr20` | Address approved by the contract owner to burn tokens. |
 | @param | `from`     | `ByStr20` | Address of the sender whose balance is decreased.      |
 | @param | `amount`   | `Uint128` | Amount of tokens to be burn.                           |
@@ -107,20 +107,20 @@ transition ProcedureBurn(operator: ByStr20, from: ByStr20, amount: Uint128)
 #### 3. ProcedureMove
 
 ```ocaml
-(* @dev:                         *)
-(* @param: operator              *)
-(* @param: recipient            *)
-(* @param: amount               *)
-(* Returns error message CodeTokenExists if token exists. *)
-(* Revert transition if invalid recipient contract.       *)
+(* @dev:              Transfer the ownership of a given amount of token.         *)
+(* @param operator:   Address approved by the token holder to transfer tokens.   *)
+(* @param from:       Address of the sender whose balance is decreased.          *)
+(* @param to:         Address of the reciever whose balance is increased.        *)
+(* @param amount:     Amount of tokens to be transferred.                        *)
 transition ProcedureMove(operator: ByStr20, from: ByStr20, to: ByStr20, amount: Uint128)
 ```
 
-|        | Name      | Type      | Description                                          |
-| ------ | --------- | --------- | ---------------------------------------------------- |
-| @param | `address`  | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `recipient`| `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `amount`   | `Uint128` | Token id of the new to be minted.                    |
+|        | Name       | Type      | Description                                          |
+| ------ | ---------- | --------- | ---------------------------------------------------- |
+| @param | `operator` | `ByStr20` | Address of the sender whose balance is decreased.    |
+| @param | `from`     | `ByStr20` | Address of the recipient whose balance is increased. |
+| @param | `to`       | `ByStr20` | Address of the reciever whose balance is increased.  |
+| @param | `amount`   | `Uint128` | Amount of tokens to be transferred.                  |
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -130,18 +130,18 @@ transition ProcedureMove(operator: ByStr20, from: ByStr20, to: ByStr20, amount: 
 #### 4. ProcedureApprove
 
 ```ocaml
-(* @dev:                         *)
-(* @param: tokenHolder           *)
-(* @param: spender               *)
-(* @param: amount                *)
+(* @dev:               Approves another address to spend a given amount of tokens. *)
+(* @param tokenHolder: Address of the token holder.                                *)
+(* @param spender:     Address to be set as a spender.                             *)
+(* @param amount:      Amount of tokens allowed to be spend.                       *)
 transition ProcedureApprove(tokenHolder: ByStr20, spender: ByStr20, amount: Uint128)
 ```
 
-|        | Name      | Type      | Description                                          |
-| ------ | --------- | --------- | ---------------------------------------------------- |
-| @param | `address`  | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `recipient`| `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `amount`   | `Uint128` | Token id of the new to be minted.                    |
+|        | Name          | Type      | Description                           |
+| ------ | ------------- | --------- | ------------------------------------- |
+| @param | `tokenHolder` | `ByStr20` | Address of the token holder.          |
+| @param | `spender`     | `ByStr20` | Address to be set as a spender.       |
+| @param | `amount`      | `Uint128` | Amount of tokens allowed to be spend. |
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
