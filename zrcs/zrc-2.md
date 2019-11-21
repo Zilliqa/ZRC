@@ -311,16 +311,16 @@ transition RevokeOperator(operator: ByStr20)
 #### 9. IsOperatorFor
 
 ```ocaml
-(* @dev:                    *)
-(* @param: operator         *)
-(* @param: tokenHolder      *)
+(* @dev: Cheks if a given address is an operator for a token owner.  *)
+(* @param operator:     Address of a potential operator.             *)
+(* @param tokenHolder:  Address of a token holder.                   *)
 transition IsOperatorFor(operator: ByStr20, tokenHolder: ByStr20)
 ```
 
-|        | Name       | Type      | Description                             |
-| ------ | ---------- | --------- | --------------------------------------- |
-| @param | `operator`    | `ByStr20` | Address to be set or unset as operator. |
-| @param | `tokenHolder` | `ByStr20` | Status of the approval to be set.       |
+|        | Name          | Type      | Description                          |
+| ------ | ------------- | --------- | ------------------------------------ |
+| @param | `operator`    | `ByStr20` | Address of a potential operator.     |
+| @param | `tokenHolder` | `ByStr20` | Address of a token ownwer.           |
 
 |           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
 | --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -331,7 +331,7 @@ transition IsOperatorFor(operator: ByStr20, tokenHolder: ByStr20)
 #### 10. DefaultOperators
 
 ```ocaml
-(* @dev: Sets or unsets the approval of a given operator           *)
+(* @dev: lists the token default operators. *)
 transition DefaultOperators()
 ```
 
@@ -344,18 +344,16 @@ transition DefaultOperators()
 #### 11. Transfer
 
 ```ocaml
-(* @dev: Transfer the ownership of a given tokenId to another address *)
-(* @param: to                     *)
-(* @param: amount                 *)
-(* Returns error message CodeNotFound if token does not exists        *)
-(* Revert transition if invalid recipient contract.                   *)
+(* @dev: Transfer the ownership of a given amount of tokens to another address *)
+(* @param to:        Address of the recipient whose balance is increased.      *)
+(* @param amount:    Number of tokens to be transferred.                       *)
 transition Transfer(to: ByStr20, amount: Uint128)
 ```
 
 |        | Name      | Type      | Description                        |
 | ------ | --------- | --------- | ---------------------------------- |
-| @param | `to`      | `ByStr20` | Recipient address of the token.    |
-| @param | `amount`  | `Uint128` | Id of the token to be transferred. |
+| @param | `to`      | `ByStr20` | Address of the recipient whose balance is increased. |
+| @param | `amount`  | `Uint128` | Number of tokens to be transferred.                  |
 
 |           | Name                  | Description                 | Event Parameters                                                                                                                                                                                                                                                                        |
 | --------- | --------------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -365,20 +363,20 @@ transition Transfer(to: ByStr20, amount: Uint128)
 #### 12. TansferFrom
 
 ```ocaml
-(* @dev:                    *)
+(* @dev:                                                                    *)
 (* There can only be one approvedSpender per token at a given time          *)
 (* Absence of entry in tokenApproval indicates there is no approved address *)
-(* param: from              *)
-(* param: to                *)
-(* param: amount            *)
+(* param from:    Address of the sender whose balance is deccreased.        *)
+(* param to:      Address of the recipient whose balance is increased.      *)
+(* param amount:  Number of tokens to be transferred.                       *)
 transition TansferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
 ```
 
-|        | Name      | Type      | Description                                    |
-| ------ | --------- | --------- | ---------------------------------------------- |
-| @param | `from`    | `ByStr20` | Address to be approved for the given token id. |
-| @param | `to`      | `ByStr20` | ID of the token to be approved.                |
-| @param | `amount`  | `Uint128` | ID of the token to be approved.                |
+|        | Name      | Type      | Description                                          |
+| ------ | --------- | --------- | ---------------------------------------------------- |
+| @param | `from`    | `ByStr20` | Address of the sender whose balance is deccreased.   |
+| @param | `to`      | `ByStr20` | Address of the recipient whose balance is increased. |
+| @param | `amount`  | `Uint128` | Number of tokens to be transferred.                  |
 
 |           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
 | --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -388,18 +386,16 @@ transition TansferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
 #### 13. Allowance
 
 ```ocaml
-(* @dev:                                    *)
-(* There can only be one approvedSpender per token at a given time          *)
-(* Absence of entry in tokenApproval indicates there is no approved address *)
-(* param: tokenHolder                       *)
-(* param: spender                           *)
+(* @dev:                                                  *)
+(* param tokenHolder:  Address of a token holder.         *)
+(* param spender:      Address to be set as a spender.    *)
 transition Allowance(tokenHolder: ByStr20, spender: ByStr20)
 ```
 
 |        | Name      | Type      | Description                                    |
 | ------ | --------- | --------- | ---------------------------------------------- |
-| @param | `tokenHolder` | `ByStr20` | Address to be approved for the given token id. |
-| @param | `spender`     | `ByStr20` | ID of the token to be approved.                |
+| @param | `tokenHolder` | `ByStr20` | Address of a token owner.                               |
+| @param | `spender`     | `ByStr20` | Address to be set as a spender for a given token owner. |
 
 |           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
 | --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -410,18 +406,19 @@ transition Allowance(tokenHolder: ByStr20, spender: ByStr20)
 #### 14. Approve
 
 ```ocaml
-(* @dev: Approves another address the ability to transfer tokens *)
-(* There can only be one approvedSpender per token at a given time          *)
-(* Absence of entry in tokenApproval indicates there is no approved address *)
-(* param: spender                         *)
-(* param: amount                          *)
-transition Approve(spender: ByStr20, amount: Uint128)
+(* @dev: Approves another address the ability to transfer tokens            *)
+(* There can only be one approved spender per token at a given time         *)
+(* param tokenHolder:  Address of a token holder.                           *)
+(* param spender:      Address to be set as a spender.                      *)
+(* param amount:       Number of tokens to be approved for a given spender. *)
+transition Approve(tokenHolder: ByStr20, spender: ByStr20, amount: Uint128)
 ```
 
-|        | Name      | Type      | Description                                    |
-| ------ | --------- | --------- | ---------------------------------------------- |
-| @param | `spender` | `ByStr20` | Address to be approved for the given token id. |
-| @param | `amount`  | `Uint128` | Amount of tokens to be approved.               |
+|        | Name      | Type      | Description                                          |
+| ------ | --------- | --------- | ---------------------------------------------------- |
+| @param | `amount`  | `ByStr20` | Address of a token owner.                            |  
+| @param | `spender` | `ByStr20` | Address to be approved for the given token id.       |
+| @param | `amount`  | `Uint128` | Number of tokens to be approved for a given spender. |
 
 |           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
 | --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
