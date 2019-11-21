@@ -195,15 +195,16 @@ transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
 #### 3. Burn
 
 ```ocaml
-(* @dev:    Burn existing tokens. Only tokenOwner or approved operator can burn a token *)
-(* @param:  amount - number of tokens to be destroyed                                   *)
-(* Returns error message CodeNotFound if token does not exists                          *)
-transition Burn(amount: Uint128)
+(* @dev: Burn existing tokens. Only tokenOwner or approved operator can burn a token *)
+(* @param from:                             Address holding the tokens to be burned. *)
+(* @param amount:                           Number of tokens to be destroyed.        *)
+transition Burn(from: ByStr20, amount: Uint128)
 ```
 
-|        | Name      | Type      | Description                         |
-| ------ | --------- | --------- | ----------------------------------- |
-| @param | `amount`  | `Uint128` | Number of tokens to be burned. |
+|        | Name      | Type      | Description                              |
+| ------ | --------- | --------- | ---------------------------------------- |
+| @param | `from`    | `ByStr20` | Address holding the tokens to be burned. |
+| @param | `amount`  | `Uint128` | Number of tokens to be burned.           |
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                                               |
 | --------- | ------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -214,16 +215,16 @@ transition Burn(amount: Uint128)
 #### 4. OperatorBurn
 
 ```ocaml
-(* @dev:                            *)
-(* param: to                        *)
-(* param: amount                    *)
+(* @dev: Burn existing tokens. Only tokenOwner or approved operator can burn a token *)
+(* @param from:                             Address holding the tokens to be burned. *)
+(* @param amount:                           Number of tokens to be destroyed.        *)
 transition OperatorBurn(from: ByStr20, amount: Uint128)
 ```
 
 |        | Name      | Type      | Description                                    |
 | ------ | --------- | --------- | ---------------------------------------------- |
-| @param | `to`      | `ByStr20` | Address to be approved for the given token id. |
-| @param | `tokenId` | `Uint128` | ID of the token to be approved.                |
+| @param | `from`    | `ByStr20` | Address holding the tokens to be burned.       |
+| @param | `amount`  | `Uint128` | Number of tokens to be burned.                 |
 
 |           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
 | --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
