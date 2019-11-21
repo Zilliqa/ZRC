@@ -235,18 +235,16 @@ transition OperatorBurn(from: ByStr20, amount: Uint128)
 #### 5. Mint
 
 ```ocaml
-(* @dev:    Mint new tokens. Only contractOwner can mint. *)
-(* @param:  to                 *)
-(* @param:  amount             *)
-(* Returns error message CodeTokenExists if token exists. *)
-(* Revert transition if invalid recipient contract.       *)
+(* @dev:    Mint new tokens. Only contractOwner can mint.              *)
+(* @param to:     Address of the recipient whose balance is increased. *)
+(* @param amount: Number of tokens to be burned.                       *)
 transition Mint(to: ByStr20, amount: Uint128)
 ```
 
 |        | Name      | Type      | Description                                          |
 | ------ | --------- | --------- | ---------------------------------------------------- |
 | @param | `to`      | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `amount`  | `Uint128` | Token id of the new to be minted.                    |
+| @param | `amount`  | `Uint128` | Number of tokens to be minted.                       |
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -257,16 +255,16 @@ transition Mint(to: ByStr20, amount: Uint128)
 #### 6. OperatorMint
 
 ```ocaml
-(* @dev: Sets or unsets the approval of a given operator           *)
-(* @param: to            *)
-(* @param: amount        *)
+(* @dev:    Mint new tokens. Only contractOwner can mint.              *)
+(* @param to:     Address of the recipient whose balance is increased. *)
+(* @param amount: Number of tokens to be burned.                       *)
 transition OperatorMint(to: ByStr20, amount: Uint256)
 ```
 
-|        | Name       | Type      | Description                             |
-| ------ | ---------- | --------- | --------------------------------------- |
-| @param | `to`       | `ByStr20` | Address to be set or unset as operator. |
-| @param | `amount`   | `Uint128` | Status of the approval to be set.       |
+|        | Name      | Type      | Description                                         |
+| ------ | --------- | --------- | --------------------------------------------------- |
+| @param | `to`      | `ByStr20` | Address of the recipient whose balance is increased.|
+| @param | `amount`  | `Uint128` | Number of tokens to be minted.                      |
 
 |           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
 | --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -277,14 +275,14 @@ transition OperatorMint(to: ByStr20, amount: Uint256)
 #### 7. AuthorizeOperator
 
 ```ocaml
-(* @dev: Sets or unsets the approval of a given operator           *)
-(* @param: operator               *)
+(* @dev: Sets or unsets the approval of a given operator    *)
+(* @param operator:         Address to be set  as operator. *)
 transition AuthorizeOperator(operator: ByStr20)
 ```
 
-|        | Name       | Type      | Description                             |
-| ------ | ---------- | --------- | --------------------------------------- |
-| @param | `operator` | `ByStr20` | Address to be set or unset as operator. |
+|        | Name       | Type      | Description                    |
+| ------ | ---------- | --------- | ------------------------------ |
+| @param | `operator` | `ByStr20` | Address to be set as operator. |
 
 |           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
 | --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -295,14 +293,14 @@ transition AuthorizeOperator(operator: ByStr20)
 #### 8. RevokeOperator
 
 ```ocaml
-(* @dev: Sets or unsets the approval of a given operator           *)
-(* @param: operator               *)
+(* @dev: Sets or unsets the approval of a given operator     *)
+(* @param operator:         Address to be unset as operator. *)
 transition RevokeOperator(operator: ByStr20)
 ```
 
-|        | Name       | Type      | Description                             |
-| ------ | ---------- | --------- | --------------------------------------- |
-| @param | `operator` | `ByStr20` | Address to be set or unset as operator. |
+|        | Name       | Type      | Description                      |
+| ------ | ---------- | --------- | -------------------------------- |
+| @param | `operator` | `ByStr20` | Address to be unset as operator. |
 
 |           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
 | --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
