@@ -26,7 +26,7 @@ The fungible token contract specification describes:
 ### A. Roles
 
 | Name              | Description                                                                                                                                                                                                                      |     |
-| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |--|
 | `contractOwner`   | The owner of the contract initialized by the creator of the contract.                                                                                                                                                            |
 | `tokenOwner`      | A user (identified by an address) that owns a token tied to a tokenId.                                                                                                                                                           |
 | `approvedSpender` | A user (identified by an address) that can transfer a token tied to a tokenId on behalf of the `tokenOwner`.                                                                                                                     |
