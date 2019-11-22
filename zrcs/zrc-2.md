@@ -58,97 +58,9 @@ The fungible token contract must define the following constants for use as error
 | ------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `balancesMap`     | `Map ByStr20 Uint128 = Emp ByStr20 Uint128`                       | Mapping between token owner to number of owned tokens.                                                                                                  |
 | `operatorsMap`    | `Map ByStr20 (Map ByStr20 Bool) = Emp ByStr20 (Map ByStr20 Bool)`                       | MMapping between token owner to approved address. Token owner can approve an address (as an operator) to transfer tokens to other addresses.   |
-| `allowancesMap` | `Map ByStr20 (Map ByStr20 Uint128) = Emp ByStr20 (Map ByStr20 Uint128)` |    Mapping between token owner to approved address. Token owner can give an address an allowance of tokens to transfer tokens to other addresses.                                                                                                                  |
+| `allowancesMap` | `Map ByStr20 (Map ByStr20 Uint128) = Emp ByStr20 (Map ByStr20 Uint128)` |    Mapping between token owner to approved address. Token owner can give an address an allowance of tokens to transfer tokens to other addresses.       |                                                                                                           
 
-### E. Procedures
-
-#### 1. ProcedureMint
-
-```ocaml
-(* @dev: Mint new tokens. Only contract owner or approved operator can mint tokens.  *)
-(* @param operator:       Address approved by the contract owner to mint tokens.     *)
-(* @param tokenHolder:    Address of the recipient whose balance is increased.       *)
-(* @param amount:         Amount of tokens to be minted.                             *)
-transition ProcedureMint(operator: ByStr20, tokenHolder: ByStr20, amount: Uint128) 
-```
-
-|        | Name      | Type      | Description                                          |
-| ------ | --------- | --------- | ---------------------------------------------------- |
-| @param | `operator`    | `ByStr20` | Address approved by the contract owner to mint tokens. |
-| @param | `tokenHolder` | `ByStr20` | Address of the recipient whose balance is increased.   |
-| @param | `amount`      | `Uint128` | Amount of tokens to be minted.                         |
-
-|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
-| --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `ProcedureMintSuccess` | Minting is successful.     | `operator`: `ByStr20`, `tokenHolder` : `ByStr20`, and `amount`: `Uint128`.  |
-| eventName | `Error`       | Minting is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner or an approved operator. |
-
-#### 2. ProcedureBurn
-
-```ocaml
-(* @dev: Burn existing tokens. Only contract owner or approved operator can burn tokens. *)
-(* @param operator:   Address approved by the contract owner to burn tokens.             *)
-(* @param from:       Address of the sender whose balance is decreased.                  *)
-(* @param amount:     Amount of tokens to be burn.                                       *)
-transition ProcedureBurn(operator: ByStr20, from: ByStr20, amount: Uint128)
-```
-
-|        | Name       | Type      | Description                                          |
-| ------ | ---------- | --------- | ---------------------------------------------------- |
-| @param | `operator` | `ByStr20` | Address approved by the contract owner to burn tokens. |
-| @param | `from`     | `ByStr20` | Address of the sender whose balance is decreased.      |
-| @param | `amount`   | `Uint128` | Amount of tokens to be burn.                           |
-
-|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
-| --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `ProcedureBurnSuccess` | Burning is successful.     | `operator`: `ByStr20`, `from`: `ByStr20`, and `amount`: `Uint128`.                             |
-| eventName | `Error`       | Burning is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner or an approved operator. |
-
-#### 3. ProcedureMove
-
-```ocaml
-(* @dev: Move a given amount of token from one address to another.               *)
-(* @param operator:   Address approved by the token holder to transfer tokens.   *)
-(* @param from:       Address of the sender whose balance is decreased.          *)
-(* @param to:         Address of the reciever whose balance is increased.        *)
-(* @param amount:     Amount of tokens to be transferred.                        *)
-transition ProcedureMove(operator: ByStr20, from: ByStr20, to: ByStr20, amount: Uint128)
-```
-
-|        | Name       | Type      | Description                                          |
-| ------ | ---------- | --------- | ---------------------------------------------------- |
-| @param | `operator` | `ByStr20` | Address of the sender whose balance is decreased.    |
-| @param | `from`     | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `to`       | `ByStr20` | Address of the reciever whose balance is increased.  |
-| @param | `amount`   | `Uint128` | Amount of tokens to be transferred.                  |
-
-|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
-| --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `ProcedureMoveSuccess` | Moving is successful.     | `operator`: `ByStr20`, `from`: `ByStr20`, `to`: `ByStr20`, and `amount`: `Uint128`.                             |
-| eventName | `Error`       | Moving is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the token holder or an approved operator. |
-
-#### 4. ProcedureApprove
-
-```ocaml
-(* @dev: Approves another address to spend a given amount of tokens. *)
-(* @param tokenHolder:  Address of the token holder.                 *)
-(* @param spender:      Address to be set as a spender.              *)
-(* @param amount:       Amount of tokens allowed to be spend.        *)
-transition ProcedureApprove(tokenHolder: ByStr20, spender: ByStr20, amount: Uint128)
-```
-
-|        | Name          | Type      | Description                           |
-| ------ | ------------- | --------- | ------------------------------------- |
-| @param | `tokenHolder` | `ByStr20` | Address of the token holder.          |
-| @param | `spender`     | `ByStr20` | Address to be set as a spender.       |
-| @param | `amount`      | `Uint128` | Amount of tokens allowed to be spend. |
-
-|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
-| --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `ProcedureApproveSuccess` | Approving is successful.     | `tokenHolder`: `ByStr20`, `spender`: `ByStr20`, and `amount`: `Uint128`.                             |
-| eventName | `Error`       | Approving is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the token holder. |
-
-### F. Transitions
+### E. Transitions
 
 #### 1. Send
 
