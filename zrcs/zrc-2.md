@@ -81,7 +81,7 @@ transition ProcedureMint(operator: ByStr20, tokenHolder: ByStr20, amount: Uint12
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | eventName | `ProcedureMintSuccess` | Minting is successful.     | `operator`: `ByStr20`, `tokenHolder` : `ByStr20`, and `amount`: `Uint128`.  |
-| eventName | `Error`       | Minting is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner or an approved operator. |
+| eventName | `Error`       | Minting is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner or an approved operator. |
 
 #### 2. ProcedureBurn
 
@@ -102,7 +102,7 @@ transition ProcedureBurn(operator: ByStr20, from: ByStr20, amount: Uint128)
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | eventName | `ProcedureBurnSuccess` | Burning is successful.     | `operator`: `ByStr20`, `from`: `ByStr20`, and `amount`: `Uint128`.                             |
-| eventName | `Error`       | Burning is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner or an approved operator. |
+| eventName | `Error`       | Burning is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner or an approved operator. |
 
 #### 3. ProcedureMove
 
@@ -124,8 +124,8 @@ transition ProcedureMove(operator: ByStr20, from: ByStr20, to: ByStr20, amount: 
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `ProcedureMoveSuccess` | Moving is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the `to` address the token is sent, and `token` is the `tokenId` of the token minted.                             |
-| eventName | `Error`       | Moving is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only the `contractOwner` is allowed to call this transition. |
+| eventName | `ProcedureMoveSuccess` | Moving is successful.     | `operator`: `ByStr20`, `from`: `ByStr20`, `to`: `ByStr20`, and `amount`: `Uint128`.                             |
+| eventName | `Error`       | Moving is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the token holder or an approved operator. |
 
 #### 4. ProcedureApprove
 
@@ -145,8 +145,8 @@ transition ProcedureApprove(tokenHolder: ByStr20, spender: ByStr20, amount: Uint
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `ProcedureApproveSuccess` | Approving is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the `to` address the token is sent, and `token` is the `tokenId` of the token minted.                             |
-| eventName | `Error`       | Approving is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only the `contractOwner` is allowed to call this transition. |
+| eventName | `ProcedureApproveSuccess` | Approving is successful.     | `tokenHolder`: `ByStr20`, `spender`: `ByStr20`, and `amount`: `Uint128`.                             |
+| eventName | `Error`       | Approving is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the token holder. |
 
 ### F. Transitions
 
