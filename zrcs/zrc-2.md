@@ -153,7 +153,7 @@ transition ProcedureApprove(tokenHolder: ByStr20, spender: ByStr20, amount: Uint
 #### 1. Send
 
 ```ocaml
-(* @dev: Moves amount tokens from the caller’s address to the recipient. *)
+(* @dev: Moves amount tokens from the caller’s address to the recipient.   *)
 (* @param from:       Address of the sender whose balance is decreased.    *)
 (* @param recipient:  Address of the recipient whose balance is increased. *)
 (* @param amount:     Amount of tokens to be sent.                         *)
@@ -168,8 +168,8 @@ transition Send(from: ByStr20, recipient: ByStr20, amount: Uint128)
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `SendSuccess` | Sending is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the `to` address the token is sent, and `token` is the `tokenId` of the token minted.                             |
-| eventName | `Error`       | Sending is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only the `contractOwner` is allowed to call this transition. |
+| eventName | `SendSuccess` | Sending is successful.     | `from`: `ByStr20`, `recipient`: `ByStr20`, and `amount`: `Uint128`.                             |
+| eventName | `Error`       | Sending is not successful. | TBD. |
 
 #### 2. OperatorSend
 
@@ -189,8 +189,8 @@ transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `OperatorSendSuccess` | Sending is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the `to` address the token is sent, and `token` is the `tokenId` of the token minted.                             |
-| eventName | `Error`       | Sending is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only the `contractOwner` is allowed to call this transition. |
+| eventName | `OperatorSendSuccess` | Sending is successful.     | `from`: `ByStr20`, `to`: `ByStr20`, and `amount`: `Uint128`.                             |
+| eventName | `Error`       | Sending is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not an approved operator. |
 
 #### 3. Burn
 
@@ -208,8 +208,8 @@ transition Burn(from: ByStr20, amount: Uint128)
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                                               |
 | --------- | ------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `BurnSuccess` | Burning is successful.     | `by`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller and `token` is the `tokenID` of the token that has been burned.                                                                                                                      |
-| eventName | `Error`       | Burning is not successful. | - emit `CodeNotFound` if the token does not exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only either the `tokenOwner` or approved `operator`(s) is allowed to call this transition. |
+| eventName | `BurnSuccess` | Burning is successful.     | `from`: `ByStr20`, and `amount`: `Uint128`.                                                                                                                      |
+| eventName | `Error`       | Burning is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only the `tokenOwner` is allowed to call this transition. |
 
 
 #### 4. OperatorBurn
@@ -228,8 +228,8 @@ transition OperatorBurn(from: ByStr20, amount: Uint128)
 
 |           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
 | --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `OperatorBurnSuccess` | Burning is successful.     | `from`: `ByStr20`, `approvedTo`: `ByStr20`, `token`: `Uint256`, where `from` is the address of the caller, and `approvedTo` is argument `to` to the transition.                                                                                               |
-| eventName | `Error`          | Burning is not successful. | - emit `CodeNotFound` if token doesn't exist.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not authorized to approve. <br>**NOTE:** Only either the `tokenOwner` or approved `operator`(s) are allowed to call this transition. |
+| eventName | `OperatorBurnSuccess` | Burning is successful.     | `from`: `ByStr20`, and `amount`: `Uint128`.                                                                                               |
+| eventName | `Error`          | Burning is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not authorized. <br>**NOTE:** Only the approved `operator`(s) are allowed to call this transition. |
 
 
 #### 5. Mint
