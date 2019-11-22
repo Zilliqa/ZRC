@@ -65,10 +65,10 @@ The fungible token contract must define the following constants for use as error
 #### 1. ProcedureMint
 
 ```ocaml
-(* @dev: Mint new tokens. Only tokenOwner or approved operator can mint tokens.  *)
-(* @param operator:       Address approved by the contract owner to mint tokens. *)
-(* @param tokenHolder:    Address of the recipient whose balance is increased.   *)
-(* @param amount:         Amount of tokens to be minted.                         *)
+(* @dev: Mint new tokens. Only contract owner or approved operator can mint tokens.  *)
+(* @param operator:       Address approved by the contract owner to mint tokens.     *)
+(* @param tokenHolder:    Address of the recipient whose balance is increased.       *)
+(* @param amount:         Amount of tokens to be minted.                             *)
 transition ProcedureMint(operator: ByStr20, tokenHolder: ByStr20, amount: Uint128) 
 ```
 
@@ -80,16 +80,16 @@ transition ProcedureMint(operator: ByStr20, tokenHolder: ByStr20, amount: Uint12
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `ProcedureMintSuccess` | Minting is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the `to` address the token is sent, and `token` is the `tokenId` of the token minted.                             |
-| eventName | `Error`       | Minting is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only the `contractOwner` is allowed to call this transition. |
+| eventName | `ProcedureMintSuccess` | Minting is successful.     | `operator`: `ByStr20`, `tokenHolder` : `ByStr20`, and `amount`: `Uint128`.  |
+| eventName | `Error`       | Minting is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner or an approved operator. |
 
 #### 2. ProcedureBurn
 
 ```ocaml
-(* @dev: Burn existing tokens. Only tokenOwner or approved operator can burn tokens. *)
-(* @param operator:   Address approved by the contract owner to burn tokens.         *)
-(* @param from:       Address of the sender whose balance is decreased.              *)
-(* @param amount:     Amount of tokens to be burn.                                   *)
+(* @dev: Burn existing tokens. Only contract owner or approved operator can burn tokens. *)
+(* @param operator:   Address approved by the contract owner to burn tokens.             *)
+(* @param from:       Address of the sender whose balance is decreased.                  *)
+(* @param amount:     Amount of tokens to be burn.                                       *)
 transition ProcedureBurn(operator: ByStr20, from: ByStr20, amount: Uint128)
 ```
 
@@ -101,8 +101,8 @@ transition ProcedureBurn(operator: ByStr20, from: ByStr20, amount: Uint128)
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `ProcedureBurnSuccess` | Burning is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the `to` address the token is sent, and `token` is the `tokenId` of the token minted.                             |
-| eventName | `Error`       | Burning is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only the `contractOwner` is allowed to call this transition. |
+| eventName | `ProcedureBurnSuccess` | Burning is successful.     | `operator`: `ByStr20`, `from`: `ByStr20`, and `amount`: `Uint128`.                             |
+| eventName | `Error`       | Burning is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner or an approved operator. |
 
 #### 3. ProcedureMove
 
