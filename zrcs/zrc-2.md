@@ -65,7 +65,7 @@ The fungible token contract must define the following constants for use as error
 #### 1. ProcedureMint
 
 ```ocaml
-(* @dev: Mint new tokens. Only tokenOwner or approved operator can mint tokens. *)
+(* @dev: Mint new tokens. Only tokenOwner or approved operator can mint tokens.  *)
 (* @param operator:       Address approved by the contract owner to mint tokens. *)
 (* @param tokenHolder:    Address of the recipient whose balance is increased.   *)
 (* @param amount:         Amount of tokens to be minted.                         *)
