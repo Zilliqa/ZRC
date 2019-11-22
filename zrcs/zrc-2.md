@@ -215,9 +215,9 @@ transition Burn(from: ByStr20, amount: Uint128)
 #### 4. OperatorBurn
 
 ```ocaml
-(* @dev: Burn existing tokens. Only approved operator can burn a token.              *)
-(* @param from:                             Address holding the tokens to be burned. *)
-(* @param amount:                           Number of tokens to be destroyed.        *)
+(* @dev: Burn existing tokens. Only approved operator can burn a token. *)
+(* @param from:                Address holding the tokens to be burned. *)
+(* @param amount:              Number of tokens to be destroyed.        *)
 transition OperatorBurn(from: ByStr20, amount: Uint128)
 ```
 
@@ -248,7 +248,7 @@ transition Mint(to: ByStr20, amount: Uint128)
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `MintSuccess` | Minting is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the `to` address the token is sent, and `token` is the `tokenId` of the token minted.                             |
+| eventName | `MintSuccess` | Minting is successful.     | `to`: `ByStr20`, and `amount`: `Uint128`.                             |
 | eventName | `Error`       | Minting is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only the `contractOwner` is allowed to call this transition. |
 
 
@@ -268,8 +268,8 @@ transition OperatorMint(to: ByStr20, amount: Uint256)
 
 |           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
 | --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `OperatorMintAllSuccess` | Minting is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `status`: `Bool`, where, `by` is the caller, `recipient` is the `to` address to be set approval status for, and `status` is the `approved` status after execution of this transition. |
-| eventName | `Error`                    | Minting is not successful. | - emit `CodeNotAuthorised` if the transition is called by the wrong user, i.e., the caller attempting to approve herself.                                                                                                      |
+| eventName | `OperatorMintAllSuccess` | Minting is successful.     | `to`: `ByStr20`, and `amount`: `Uint128`. |
+| eventName | `Error`                    | Minting is not successful. | - emit `CodeNotAuthorised` if the transition is not called by an approved operator.                                                                                                      |
 
 
 #### 7. AuthorizeOperator
