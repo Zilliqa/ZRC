@@ -344,9 +344,9 @@ transition DefaultOperators()
 #### 11. Transfer
 
 ```ocaml
-(* @dev: Move a given amount of tokens from one address another.          *)
-(* @param to:        Address of the recipient whose balance is increased. *)
-(* @param amount:    Number of tokens to be transferred.                  *)
+(* @dev: Move a given amount of tokens from one address another.       *)
+(* @param to:     Address of the recipient whose balance is increased. *)
+(* @param amount: Number of tokens to be transferred.                  *)
 transition Transfer(to: ByStr20, amount: Uint128)
 ```
 
@@ -357,8 +357,8 @@ transition Transfer(to: ByStr20, amount: Uint128)
 
 |           | Name                  | Description                 | Event Parameters                                                                                                                                                                                                                                                                        |
 | --------- | --------------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `TransferSuccess` | Transfering is successful.     | `from`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `from` is the caller of the transition, `recipient` is the `to` address and `token` is the `tokenID` of the token that is transferred.                                                                            |
-| eventName | `Error`               | Transfering is not successful. | - emit `CodeNotFound` if the token does not exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user that is not authorised.<br>**NOTE:** Only either `tokenOwner`, `approvedSpender` or an `operator` tied to that `tokenOwner` address can invoke this transition. |
+| eventName | `TransferSuccess` | Transfering is successful.     | `to`: `ByStr20`, and `amount`: `Uint128`.                                                                            |
+| eventName | `Error`               | Transfering is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user that is not authorised.<br>**NOTE:** Only `tokenOwner` address can invoke this transition. |
 
 #### 12. TansferFrom
 
@@ -378,15 +378,15 @@ transition TansferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
 
 |           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
 | --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `TansferFromSuccess` | Approval is successful.     | `from`: `ByStr20`, `approvedTo`: `ByStr20`, `token`: `Uint256`, where `from` is the address of the caller, and `approvedTo` is argument `to` to the transition.                                                                                               |
-| eventName | `Error`          | Approval is not successful. | - emit `CodeNotFound` if token doesn't exist.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not authorized to approve. <br>**NOTE:** Only either the `tokenOwner` or approved `operator`(s) are allowed to call this transition. |
+| eventName | `TansferFromSuccess` | Approval is successful.     | `from`: `ByStr20`, `to`: `ByStr20`, and `amount`: `Uint128`.                                                                                               |
+| eventName | `Error`          | Approval is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not authorized to approve. <br>**NOTE:** Only either the `tokenOwner` or approved `operator`(s) are allowed to call this transition. |
 
 #### 13. Allowance
 
 ```ocaml
-(* @dev: Returns thenumber of tokens spender is allowed to spend on behalf of owner. *)
-(* param tokenHolder:  Address of a token holder.                                    *)
-(* param spender:      Address to be set as a spender.                               *)
+(* @dev: Returns the number of tokens spender is allowed to spend on behalf of owner. *)
+(* param tokenHolder:  Address of a token holder.                                     *)
+(* param spender:      Address to be set as a spender.                                *)
 transition Allowance(tokenHolder: ByStr20, spender: ByStr20)
 ```
 
@@ -397,8 +397,8 @@ transition Allowance(tokenHolder: ByStr20, spender: ByStr20)
 
 |           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
 | --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `AllowanceSuccess` | Allowing is successful.     | `from`: `ByStr20`, `approvedTo`: `ByStr20`, `token`: `Uint256`, where `from` is the address of the caller, and `approvedTo` is argument `to` to the transition.                                                                                               |
-| eventName | `Error`          | Allowing is not successful. | - emit `CodeNotFound` if token doesn't exist.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not authorized to approve. <br>**NOTE:** Only either the `tokenOwner` or approved `operator`(s) are allowed to call this transition. |
+| eventName | `AllowanceSuccess` | Allowing is successful.     | `tokenHolder`: `ByStr20`, and `spender`: `ByStr20`.                                                                                               |
+| eventName | `Error`          | Allowing is not successful. | TBA. |
 
 
 #### 14. Approve
@@ -420,8 +420,8 @@ transition Approve(tokenHolder: ByStr20, spender: ByStr20, amount: Uint128)
 
 |           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
 | --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `ApproveSuccess` | Approving is successful.     | `from`: `ByStr20`, `approvedTo`: `ByStr20`, `token`: `Uint256`, where `from` is the address of the caller, and `approvedTo` is argument `to` to the transition.                                                                                               |
-| eventName | `Error`          | Approving is not successful. | - emit `CodeNotFound` if token doesn't exist.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not authorized to approve. <br>**NOTE:** Only either the `tokenOwner` or approved `operator`(s) are allowed to call this transition. |
+| eventName | `ApproveSuccess` | Approving is successful.     | `tokenHolder`: `ByStr20`, `spender`: `ByStr20`, and `amount`: `Uint128`.                                                                                               |
+| eventName | `Error`          | Approving is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not authorized to approve. <br>**NOTE:** Only the `tokenOwner` or approved is allowed to call this transition. |
 
 
 #### 15. TotalSupply
