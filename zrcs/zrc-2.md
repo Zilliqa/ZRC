@@ -107,7 +107,7 @@ transition ProcedureBurn(operator: ByStr20, from: ByStr20, amount: Uint128)
 #### 3. ProcedureMove
 
 ```ocaml
-(* @dev: Move a given amount of token from one address to another. *)
+(* @dev: Move a given amount of token from one address to another.               *)
 (* @param operator:   Address approved by the token holder to transfer tokens.   *)
 (* @param from:       Address of the sender whose balance is decreased.          *)
 (* @param to:         Address of the reciever whose balance is increased.        *)
@@ -175,9 +175,9 @@ transition Send(from: ByStr20, recipient: ByStr20, amount: Uint128)
 
 ```ocaml
 (* @dev: Moves amount tokens from sender to recipient. The caller must be an operator of sender. *)
-(* @param sender:     Address of the sender whose balance is decreased.    *)
-(* @param recipient:  Address of the recipient whose balance is increased. *)
-(* @param amount:     Amount of tokens to be sent.                         *)
+(* @param sender:     Address of the sender whose balance is decreased.                          *)
+(* @param recipient:  Address of the recipient whose balance is increased.                       *)
+(* @param amount:     Amount of tokens to be sent.                                               *)
 transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
 ```
 
@@ -215,7 +215,7 @@ transition Burn(from: ByStr20, amount: Uint128)
 #### 4. OperatorBurn
 
 ```ocaml
-(* @dev: Burn existing tokens. Only approved operator can burn a token. *)
+(* @dev: Burn existing tokens. Only approved operator can burn a token.              *)
 (* @param from:                             Address holding the tokens to be burned. *)
 (* @param amount:                           Number of tokens to be destroyed.        *)
 transition OperatorBurn(from: ByStr20, amount: Uint128)
@@ -235,7 +235,7 @@ transition OperatorBurn(from: ByStr20, amount: Uint128)
 #### 5. Mint
 
 ```ocaml
-(* @dev: Mint new tokens. Only contractOwner can mint. *)
+(* @dev: Mint new tokens. Only contractOwner can mint.                 *)
 (* @param to:     Address of the recipient whose balance is increased. *)
 (* @param amount: Number of tokens to be burned.                       *)
 transition Mint(to: ByStr20, amount: Uint128)
@@ -255,7 +255,7 @@ transition Mint(to: ByStr20, amount: Uint128)
 #### 6. OperatorMint
 
 ```ocaml
-(* @dev: Mint new tokens. Only approved operator can mint tokens. *)
+(* @dev: Mint new tokens. Only approved operator can mint tokens.      *)
 (* @param to:     Address of the recipient whose balance is increased. *)
 (* @param amount: Number of tokens to be burned.                       *)
 transition OperatorMint(to: ByStr20, amount: Uint256)
@@ -275,7 +275,7 @@ transition OperatorMint(to: ByStr20, amount: Uint256)
 #### 7. AuthorizeOperator
 
 ```ocaml
-(* @dev: Make an address an operator of the caller. *)
+(* @dev: Make an address an operator of the caller.                           *)
 (* @param operator: Address to be set as operator. Cannot be calling address. *)
 transition AuthorizeOperator(operator: ByStr20)
 ```
@@ -312,8 +312,8 @@ transition RevokeOperator(operator: ByStr20)
 
 ```ocaml
 (* @dev: Returns true if an address is an operator of tokenHolder. All addresses are their own operator. *)
-(* @param operator:     Address of a potential operator. *)
-(* @param tokenHolder:  Address of a token holder.       *)
+(* @param operator:     Address of a potential operator.                                                 *)
+(* @param tokenHolder:  Address of a token holder.                                                       *)
 transition IsOperatorFor(operator: ByStr20, tokenHolder: ByStr20)
 ```
 
@@ -344,7 +344,7 @@ transition DefaultOperators()
 #### 11. Transfer
 
 ```ocaml
-(* @dev: Move a given amount of tokens from one address another. *)
+(* @dev: Move a given amount of tokens from one address another.          *)
 (* @param to:        Address of the recipient whose balance is increased. *)
 (* @param amount:    Number of tokens to be transferred.                  *)
 transition Transfer(to: ByStr20, amount: Uint128)
@@ -364,9 +364,9 @@ transition Transfer(to: ByStr20, amount: Uint128)
 
 ```ocaml
 (* @dev: Move a given amount of tokens from one address another using the allowance mechanism. *)
-(* param from:    Address of the sender whose balance is deccreased.   *)
-(* param to:      Address of the recipient whose balance is increased. *)
-(* param amount:  Number of tokens to be transferred.                  *)
+(* param from:    Address of the sender whose balance is deccreased.                           *)
+(* param to:      Address of the recipient whose balance is increased.                         *)
+(* param amount:  Number of tokens to be transferred.                                          *)
 transition TansferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
 ```
 
@@ -385,8 +385,8 @@ transition TansferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
 
 ```ocaml
 (* @dev: Returns thenumber of tokens spender is allowed to spend on behalf of owner. *)
-(* param tokenHolder:  Address of a token holder.      *)
-(* param spender:      Address to be set as a spender. *)
+(* param tokenHolder:  Address of a token holder.                                    *)
+(* param spender:      Address to be set as a spender.                               *)
 transition Allowance(tokenHolder: ByStr20, spender: ByStr20)
 ```
 
