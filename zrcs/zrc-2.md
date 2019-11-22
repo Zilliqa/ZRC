@@ -286,8 +286,8 @@ transition AuthorizeOperator(operator: ByStr20)
 
 |           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
 | --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `AuthorizeOperatorSuccess` | Authorizing is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `status`: `Bool`, where, `by` is the caller, `recipient` is the `to` address to be set approval status for, and `status` is the `approved` status after execution of this transition. |
-| eventName | `Error`                    | Authorizing is not successful. | - emit `CodeNotAuthorised` if the transition is called by the wrong user, i.e., the caller attempting to approve herself.                                                                                                      |
+| eventName | `AuthorizeOperatorSuccess` | Authorizing is successful.     | `operator`: `ByStr20`. |
+| eventName | `Error`                    | Authorizing is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the token holder.                                                                                                      |
 
 
 #### 8. RevokeOperator
@@ -304,8 +304,8 @@ transition RevokeOperator(operator: ByStr20)
 
 |           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
 | --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `RevokeOperatorSuccess` | Revoking is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `status`: `Bool`, where, `by` is the caller, `recipient` is the `to` address to be set approval status for, and `status` is the `approved` status after execution of this transition. |
-| eventName | `Error`                    | Revoking is not successful. | - emit `CodeNotAuthorised` if the transition is called by the wrong user, i.e., the caller attempting to approve herself.                                                                                                      |
+| eventName | `RevokeOperatorSuccess` | Revoking is successful.     | `operator`: `ByStr20`. |
+| eventName | `Error`                    | Revoking is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the token holder.                                                                                                      |
 
 
 #### 9. IsOperatorFor
@@ -324,8 +324,8 @@ transition IsOperatorFor(operator: ByStr20, tokenHolder: ByStr20)
 
 |           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
 | --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `IsOperatorForSuccess` | Listing operators is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `status`: `Bool`, where, `by` is the caller, `recipient` is the `to` address to be set approval status for, and `status` is the `approved` status after execution of this transition. |
-| eventName | `Error`                    | Listing operators is not successful. | - emit `CodeNotAuthorised` if the transition is called by the wrong user, i.e., the caller attempting to approve herself.                                                                                                      |
+| eventName | `IsOperatorForSuccess` | Listing operators is successful.     | `operator`: `ByStr20`, and `tokenHolder`: `ByStr20`. |
+| eventName | `Error`                    | Listing operators is not successful. | TBA.                                                                                                      |
 
 
 #### 10. DefaultOperators
@@ -337,8 +337,8 @@ transition DefaultOperators()
 
 |           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
 | --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `DefaultOperatorsSuccess` | Listing default operators is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `status`: `Bool`, where, `by` is the caller, `recipient` is the `to` address to be set approval status for, and `status` is the `approved` status after execution of this transition. |
-| eventName | `Error`                    | Listing default operators is not successful. | - emit `CodeNotAuthorised` if the transition is called by the wrong user, i.e., the caller attempting to approve herself.                                                                                                      |
+| eventName | `DefaultOperatorsSuccess` | Listing default operators is successful.     | TBA. |
+| eventName | `Error`                    | Listing default operators is not successful. | TBA.                                                                                                      |
 
 
 #### 11. Transfer
