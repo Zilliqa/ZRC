@@ -50,6 +50,79 @@ procedure MakeError(err : Error)
   event e
 end
 
+(* Transitions *)
+
+(* @dev: Moves amount tokens from the caller’s address to the recipient.   *)
+(* @param from:       Address of the sender whose balance is decreased.    *)
+(* @param recipient:  Address of the recipient whose balance is increased. *)
+(* @param amount:     Amount of tokens to be sent.                         *)
+transition Send(from: ByStr20, recipient: ByStr20, amount: Uint128)
+end
+
+(* @dev: Moves amount tokens from sender to recipient. The caller must be an operator of sender. *)
+(* @param sender:     Address of the sender whose balance is decreased.                          *)
+(* @param recipient:  Address of the recipient whose balance is increased.                       *)
+(* @param amount:     Amount of tokens to be sent.                                               *)
+transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
+end
+
+(* @dev: Burn existing tokens. Only tokenOwner or approved operator can burn a token *)
+(* @param from:                             Address holding the tokens to be burned. *)
+(* @param amount:                           Number of tokens to be destroyed.        *)
+transition Burn(from: ByStr20, amount: Uint128)
+end
+
+(* @dev: Burn existing tokens. Only approved operator can burn a token. *)
+(* @param from:                Address holding the tokens to be burned. *)
+(* @param amount:              Number of tokens to be destroyed.        *)
+transition OperatorBurn(from: ByStr20, amount: Uint128)
+end
+
+(* @dev: Mint new tokens. Only contractOwner can mint.                 *)
+(* @param to:     Address of the recipient whose balance is increased. *)
+(* @param amount: Number of tokens to be burned.                       *)
+transition Mint(to: ByStr20, amount: Uint128)
+end
+
+(* @dev: Mint new tokens. Only approved operator can mint tokens.      *)
+(* @param to:     Address of the recipient whose balance is increased. *)
+(* @param amount: Number of tokens to be burned.                       *)
+transition OperatorMint(to: ByStr20, amount: Uint256)
+end
+
+(* @dev: Make an address an operator of the caller.                           *)
+(* @param operator: Address to be set as operator. Cannot be calling address. *)
+transition AuthorizeOperator(operator: ByStr20)
+end
+
+(* @dev: Revoke an address from being an operator of the caller. *)
+(* @param operator:         Address to be unset as operator.     *)
+transition RevokeOperator(operator: ByStr20)
+end
+
+(* @dev: Returns true if an address is an operator of tokenHolder. All addresses are their own operator. *)
+(* @param operator:     Address of a potential operator.                                                 *)
+(* @param tokenHolder:  Address of a token holder.                                                       *)
+transition IsOperatorFor(operator: ByStr20, tokenHolder: ByStr20)
+end
+
+(* @dev: Returns the list of default operators. These addresses are operators for all token holders. *)
+transition DefaultOperators()
+end
+
+(* @dev: Move a given amount of tokens from one address another.       *)
+(* @param to:     Address of the recipient whose balance is increased. *)
+(* @param amount: Number of tokens to be transferred.                  *)
+transition Transfer(to: ByStr20, amount: Uint128)
+end
+
+(* @dev: Move a given amount of tokens from one address another using the allowance mechanism. *)
+(* param from:    Address of the sender whose balance is deccreased.                           *)
+(* param to:      Address of the recipient whose balance is increased.                         *)
+(* param amount:  Number of tokens to be transferred.                                          *)
+transition TansferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
+end
+
 (* @dev: Returns the number of tokens spender is allowed to spend on behalf of owner. *)
 (* param tokenHolder:  Address of a token holder.                                     *)
 (* param spender:      Address to be set as a spender.                                *)
@@ -70,12 +143,4 @@ end
 
 (* @dev: Returns the amount of tokens owned by address. *)
 transition balanceOf(address: ByStr20)
-  optionBal <- ownedTokenCount[address];
-  balance = 
-    match optionBal with
-    | Some bal => bal
-    | None => Uint256 0
-    end;
-  e = {_eventname: "BalanceOfSuccess"; bal: balance};
-  event e
 end
