@@ -50,7 +50,20 @@ field operatorsMap: Map ByStr20 (Map ByStr20 Bool) = Emp ByStr20 (Map ByStr20 Bo
 
 field allowancesMap: Map ByStr20 (Map ByStr20 Uint128) = Emp ByStr20 (Map ByStr20 Uint128)
 
-(* Emit Errors *)
+(* Procedures *)
+
+procedure ProcedureMint(operator: ByStr20, tokenHolder: ByStr20, amount: Uint128) 
+end
+
+procedure ProcedureBurn(operator: ByStr20, from: ByStr20, amount: Uint128)
+end
+
+procedure ProcedureMove(operator: ByStr20, from: ByStr20, to: ByStr20, amount: Uint128)
+end
+
+procedure ProcedureApprove(tokenHolder: ByStr20, spender: ByStr20, amount: Uint128)
+end
+
 procedure MakeError(err : Error)
   e = makeErrorEvent err;
   event e
