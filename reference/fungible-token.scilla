@@ -44,6 +44,12 @@ contract FungibleToken
 
 (* Mutable fields *)
 
+field balancesMap: Map ByStr20 Uint128 = Emp ByStr20 Uint128
+
+field operatorsMap: Map ByStr20 (Map ByStr20 Bool) = Emp ByStr20 (Map ByStr20 Bool)
+
+field allowancesMap: Map ByStr20 (Map ByStr20 Uint128) = Emp ByStr20 (Map ByStr20 Uint128)
+
 (* Emit Errors *)
 procedure MakeError(err : Error)
   e = makeErrorEvent err;
