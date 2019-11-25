@@ -10,8 +10,6 @@ let one_msg =
   fun (msg : Message) => 
   let nil_msg = Nil {Message} in
   Cons {Message} msg nil_msg
-  
-  
 
 (* Error events *)
 type Error =
@@ -45,7 +43,32 @@ contract FungibleToken
 )
 
 (* Mutable fields *)
-(* @notice: Count all NFTs assigned to a tokenOwner *)
+
+(* Emit Errors *)
+procedure MakeError(err : Error)
+  e = makeErrorEvent err;
+  event e
+end
+
+(* @dev: Returns the number of tokens spender is allowed to spend on behalf of owner. *)
+(* param tokenHolder:  Address of a token holder.                                     *)
+(* param spender:      Address to be set as a spender.                                *)
+transition Allowance(tokenHolder: ByStr20, spender: ByStr20)
+end
+
+(* @dev: Sets amount as the allowance of spender over the caller’s tokens.  *)
+(* There can only be one approved spender per token at a given time         *)
+(* param tokenHolder:  Address of a token holder.                           *)
+(* param spender:      Address to be set as a spender.                      *)
+(* param amount:       Number of tokens to be approved for a given spender. *)
+transition Approve(tokenHolder: ByStr20, spender: ByStr20, amount: Uint128)
+end
+
+(* @dev: Returns the amount of tokens in existence. *)
+transition TotalSupply()
+end
+
+(* @dev: Returns the amount of tokens owned by address. *)
 transition balanceOf(address: ByStr20)
   optionBal <- ownedTokenCount[address];
   balance = 
