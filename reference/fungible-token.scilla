@@ -52,18 +52,23 @@ field allowancesMap: Map ByStr20 (Map ByStr20 Uint128) = Emp ByStr20 (Map ByStr2
 
 (* Procedures *)
 
+(* Mint Tokens *)
 procedure ProcedureMint(operator: ByStr20, tokenHolder: ByStr20, amount: Uint128) 
 end
 
+(* Burn Tokens *)
 procedure ProcedureBurn(operator: ByStr20, from: ByStr20, amount: Uint128)
 end
 
+(* Move Tokens *)
 procedure ProcedureMove(operator: ByStr20, from: ByStr20, to: ByStr20, amount: Uint128)
 end
 
+(* Approve Spender *)
 procedure ProcedureApprove(tokenHolder: ByStr20, spender: ByStr20, amount: Uint128)
 end
 
+(* Emit Errors *)
 procedure MakeError(err : Error)
   e = makeErrorEvent err;
   event e
