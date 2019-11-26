@@ -50,6 +50,7 @@ The fungible token contract must define the following constants for use as error
 | `contractOwner` | `ByStr20` | The owner of the contract initialized by the creator of the contract. |
 | `name`          | `String`  | The name of the fungible token.                                   |
 | `symbol`        | `String`  | The symbol of the fungible token.                                 |
+| `total_tokens`  | `Uint128` | The total amount of tokens.                                       |
 | `decimals`      | `Uint32`  | The number of decimal places a token can be divided by.           |
 
 ### D. Mutable Fields
