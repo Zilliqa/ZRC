@@ -39,7 +39,7 @@ contract FungibleToken
 (contractOwner: ByStr20,
   name : String,
   symbol: String,
-  total_tokens : Uint128,
+  total_tokens: Uint128,
   decimals: Uint32
 )
 
