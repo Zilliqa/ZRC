@@ -57,15 +57,15 @@ field allowancesMap: Map ByStr20 (Map ByStr20 Uint128)
 (* Procedures *)
 
 (* Mint Tokens *)
-procedure ProcedureMint(operator: ByStr20, tokenHolder: ByStr20, amount: Uint128) 
+procedure ProcedureMint(to: ByStr20, amount: Uint128) 
 end
 
 (* Burn Tokens *)
-procedure ProcedureBurn(operator: ByStr20, from: ByStr20, amount: Uint128)
+procedure ProcedureBurn(from: ByStr20, amount: Uint128)
 end
 
 (* Move Tokens *)
-procedure ProcedureMove(operator: ByStr20, from: ByStr20, to: ByStr20, amount: Uint128)
+procedure ProcedureMove(from: ByStr20, to: ByStr20, amount: Uint128)
 end
 
 (* Approve Spender *)
@@ -88,11 +88,11 @@ transition Send(from: ByStr20, recipient: ByStr20, amount: Uint128)
 end
 
 (* @dev: Moves amount tokens from sender to recipient.                     *)
-(* The caller must be an operator of sender.                               *)
+(* @param caller:     Address must be an operator of sender.               *)
 (* @param sender:     Address of the sender whose balance is decreased.    *)
 (* @param recipient:  Address of the recipient whose balance is increased. *)
 (* @param amount:     Amount of tokens to be sent.                         *)
-transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
+transition OperatorSend(caller: ByStr20, sender: ByStr20, to: ByStr20, amount: Uint128)
 end
 
 (* @dev: Burn existing tokens. Only tokenOwner or approved operator can burn a token *)
@@ -102,9 +102,10 @@ transition Burn(from: ByStr20, amount: Uint128)
 end
 
 (* @dev: Burn existing tokens. Only approved operator can burn a token. *)
-(* @param from:                Address holding the tokens to be burned. *)
-(* @param amount:              Number of tokens to be destroyed.        *)
-transition OperatorBurn(from: ByStr20, amount: Uint128)
+(* @param caller:     Address must be an operator of sender.            *)
+(* @param from:       Address holding the tokens to be burned.          *)
+(* @param amount:     Number of tokens to be destroyed.                 *)
+transition OperatorBurn(caller: ByStr20, from: ByStr20, amount: Uint128)
 end
 
 (* @dev: Mint new tokens. Only contractOwner can mint.                 *)
@@ -114,9 +115,10 @@ transition Mint(to: ByStr20, amount: Uint128)
 end
 
 (* @dev: Mint new tokens. Only approved operator can mint tokens.      *)
+(* @param caller: Address must be an approved operator                 *)
 (* @param to:     Address of the recipient whose balance is increased. *)
 (* @param amount: Number of tokens to be burned.                       *)
-transition OperatorMint(to: ByStr20, amount: Uint256)
+transition OperatorMint(caller: ByStr20, to: ByStr20, amount: Uint256)
 end
 
 (* @dev: Make an address an operator of the caller.                           *)
