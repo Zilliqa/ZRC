@@ -39,6 +39,7 @@ contract FungibleToken
 (contractOwner: ByStr20,
   name : String,
   symbol: String,
+  total_tokens : Uint128,
   decimals: Uint32
 )
 
@@ -169,6 +170,8 @@ end
 
 (* @dev: Returns the amount of tokens in existence. *)
 transition TotalSupply()
+  e = {_eventname : "TotalSupply"; caller : _sender; balance : total_tokens};
+  event e
 end
 
 (* @dev: Returns the amount of tokens owned by address. *)
