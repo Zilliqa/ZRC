@@ -83,10 +83,11 @@ end
 transition Send(from: ByStr20, recipient: ByStr20, amount: Uint128)
 end
 
-(* @dev: Moves amount tokens from sender to recipient. The caller must be an operator of sender. *)
-(* @param sender:     Address of the sender whose balance is decreased.                          *)
-(* @param recipient:  Address of the recipient whose balance is increased.                       *)
-(* @param amount:     Amount of tokens to be sent.                                               *)
+(* @dev: Moves amount tokens from sender to recipient.                     *)
+(* The caller must be an operator of sender.                               *)
+(* @param sender:     Address of the sender whose balance is decreased.    *)
+(* @param recipient:  Address of the recipient whose balance is increased. *)
+(* @param amount:     Amount of tokens to be sent.                         *)
 transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
 end
 
@@ -124,13 +125,15 @@ end
 transition RevokeOperator(operator: ByStr20)
 end
 
-(* @dev: Returns true if an address is an operator of tokenHolder. All addresses are their own operator. *)
-(* @param operator:     Address of a potential operator.                                                 *)
-(* @param tokenHolder:  Address of a token holder.                                                       *)
+(* @dev: Returns true if an address is an operator of tokenHolder. *)
+(* All addresses are their own operator.                           *)
+(* @param operator:     Address of a potential operator.           *)
+(* @param tokenHolder:  Address of a token holder.                 *)
 transition IsOperatorFor(operator: ByStr20, tokenHolder: ByStr20)
 end
 
-(* @dev: Returns the list of default operators. These addresses are operators for all token holders. *)
+(* @dev: Returns the list of default operators.         *)
+(* These addresses are operators for all token holders. *)
 transition DefaultOperators()
 end
 
