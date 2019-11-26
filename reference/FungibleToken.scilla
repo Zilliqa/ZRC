@@ -3,7 +3,7 @@ scilla_version 0
 (***************************************************)
 (*               Associated library                *)
 (***************************************************)
-import BoolUtils
+import BoolUtils ListUtils
 library FungibleToken
 
 let one_msg = 
