@@ -173,4 +173,12 @@ end
 
 (* @dev: Returns the amount of tokens owned by address. *)
 transition balanceOf(address: ByStr20)
+  optionBal <- balancesMap[address];
+  balance = 
+    match optionBal with
+    | Some bal => bal
+    | None => Uint256 0
+    end;
+  e = {_eventname: "BalanceOfSuccess"; bal: balance};
+  event e
 end
