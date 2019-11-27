@@ -4,11 +4,11 @@
 
 ## I. What are Fungible Tokens?
 
-The Fungible Token is an open standard for creating currencies. Fungibility is the property of a good or a commodity whose individual units are essentially interchangeable, and each of its parts is indistinguishable from another part.
+The Fungible Token is an open standard for creating currencies. Fungibility is the property of goods or commodities whose individual units are essentially interchangeable, and each of its parts is indistinguishable from another part.
 
 ## II. Abstract
 
-ZRC-2 defines a minimum interface a smart contract must implement to allow fungible tokens to be managed, tracked, owned, and traded.
+ZRC-2 defines a minimum interface that a smart contract must implement to allow fungible tokens to be managed, tracked, owned, and traded.
 
 ## III. Motivation
 
@@ -28,7 +28,7 @@ The fungible token contract specification describes:
 | Name              | Description                                                                                                                                                                                                                      |     |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |--|
 | `contractOwner`   | The owner of the contract initialized by the creator of the contract.                                                                                                                                                            |
-| `tokenOwner`      | A user (identified by an address) that owns a token tied to a tokenId.                                                                                                                                                           |
+| `tokenOwner`      | A user (identified by an address) that owns tokens.                                                                                                                                                                              |
 | `approvedSpender` | A user (identified by an address) that can transfer a token tied to a tokenId on behalf of the `tokenOwner`.                                                                                                                     |
 | `operator`        | A user (identified by an address) that is approved to operate all and any tokens owned by another user (identified by another address). The operators can make any transfer, approve, or burn the tokens on behalf of that user. |
 
@@ -109,20 +109,20 @@ transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
 
 ```ocaml
 (* @dev: Burn existing tokens. Only tokenOwner or approved operator can burn a token *)
-(* @param from:                             Address holding the tokens to be burned. *)
+(* @param burn_account:                     Address holding the tokens to be burned. *)
 (* @param amount:                           Number of tokens to be destroyed.        *)
-transition Burn(from: ByStr20, amount: Uint128)
+transition Burn(burn_account: ByStr20, amount: Uint128)
 ```
 
-|        | Name      | Type      | Description                              |
-| ------ | --------- | --------- | ---------------------------------------- |
-| @param | `from`    | `ByStr20` | Address holding the tokens to be burned. |
-| @param | `amount`  | `Uint128` | Number of tokens to be burned.           |
+|        | Name           | Type      | Description                              |
+| ------ | -------------- | --------- | ---------------------------------------- |
+| @param | `burn_account` | `ByStr20` | Address holding the tokens to be burned. |
+| @param | `amount`       | `Uint128` | Number of tokens to be burned.           |
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                                               |
 | --------- | ------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | eventName | `BurnSuccess` | Burning is successful.     | `from`: `ByStr20`, and `amount`: `Uint128`.                                                                                                                      |
-| eventName | `Error`       | Burning is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only the `tokenOwner` is allowed to call this transition. |
+| eventName | `Error`       | Burning is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the token owner.<br>**NOTE:** Only the `tokenOwner` is allowed to call this transition. |
 
 
 #### 4. OperatorBurn
@@ -148,16 +148,16 @@ transition OperatorBurn(from: ByStr20, amount: Uint128)
 #### 5. Mint
 
 ```ocaml
-(* @dev: Mint new tokens. Only contractOwner can mint.                 *)
-(* @param to:     Address of the recipient whose balance is increased. *)
-(* @param amount: Number of tokens to be burned.                       *)
-transition Mint(to: ByStr20, amount: Uint128)
+(* @dev: Mint new tokens. Only contractOwner can mint.                        *)
+(* @param recipient:     Address of the recipient whose balance is increased. *)
+(* @param amount:        Number of tokens to be burned.                       *)
+transition Mint(recipient: ByStr20, amount: Uint128)
 ```
 
-|        | Name      | Type      | Description                                          |
-| ------ | --------- | --------- | ---------------------------------------------------- |
-| @param | `to`      | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `amount`  | `Uint128` | Number of tokens to be minted.                       |
+|        | Name        | Type      | Description                                          |
+| ------ | ----------- | --------- | ---------------------------------------------------- |
+| @param | `recipient` | `ByStr20` | Address of the recipient whose balance is increased. |
+| @param | `amount`    | `Uint128` | Number of tokens to be minted.                       |
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
