@@ -224,20 +224,20 @@ transition RevokeOperator(operator: ByStr20)
 #### 9. IsOperatorFor
 
 ```ocaml
-(* @dev: Returns true if an address is an operator of tokenHolder. All addresses are their own operator. *)
-(* @param operator:     Address of a potential operator.                                                 *)
-(* @param tokenHolder:  Address of a token holder.                                                       *)
-transition IsOperatorFor(operator: ByStr20, tokenHolder: ByStr20)
+(* @dev: Returns true if an address is an operator of tokenOwner. All addresses are their own operator. *)
+(* @param operator:    Address of a potential operator.                                                 *)
+(* @param tokenOwner:  Address of a token holder.                                                       *)
+transition IsOperatorFor(operator: ByStr20, tokenOwner: ByStr20)
 ```
 
 |        | Name          | Type      | Description                          |
 | ------ | ------------- | --------- | ------------------------------------ |
 | @param | `operator`    | `ByStr20` | Address of a potential operator.     |
-| @param | `tokenHolder` | `ByStr20` | Address of a token ownwer.           |
+| @param | `tokenOwner`  | `ByStr20` | Address of a token ownwer.           |
 
 |           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
 | --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `IsOperatorForSuccess` | Listing operators is successful.     | `operator`: `ByStr20`, and `tokenHolder`: `ByStr20`. |
+| eventName | `IsOperatorForSuccess` | Listing operators is successful.     | `operator`: `ByStr20`, and `tokenOwner`: `ByStr20`. |
 | eventName | `Error`                    | Listing operators is not successful. | TBA.                                                                                                      |
 
 
@@ -298,19 +298,19 @@ transition TansferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
 
 ```ocaml
 (* @dev: Returns the number of tokens spender is allowed to spend on behalf of owner. *)
-(* param tokenHolder:  Address of a token holder.                                     *)
+(* param tokenOwner:   Address of a token holder.                                     *)
 (* param spender:      Address to be set as a spender.                                *)
-transition Allowance(tokenHolder: ByStr20, spender: ByStr20)
+transition Allowance(tokenOwner: ByStr20, spender: ByStr20)
 ```
 
 |        | Name      | Type      | Description                                    |
 | ------ | --------- | --------- | ---------------------------------------------- |
-| @param | `tokenHolder` | `ByStr20` | Address of a token owner.                               |
-| @param | `spender`     | `ByStr20` | Address to be set as a spender for a given token owner. |
+| @param | `tokenOwner` | `ByStr20` | Address of a token owner.                               |
+| @param | `spender`    | `ByStr20` | Address to be set as a spender for a given token owner. |
 
 |           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
 | --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `AllowanceSuccess` | Allowing is successful.     | `tokenHolder`: `ByStr20`, and `spender`: `ByStr20`.                                                                                               |
+| eventName | `AllowanceSuccess` | Allowing is successful.     | `tokenOwner`: `ByStr20`, and `spender`: `ByStr20`.                                                                                               |
 | eventName | `Error`          | Allowing is not successful. | TBA. |
 
 
@@ -319,21 +319,21 @@ transition Allowance(tokenHolder: ByStr20, spender: ByStr20)
 ```ocaml
 (* @dev: Sets amount as the allowance of spender over the caller’s tokens.  *)
 (* There can only be one approved spender per token at a given time         *)
-(* param tokenHolder:  Address of a token holder.                           *)
+(* param tokenOwner:   Address of a token holder.                           *)
 (* param spender:      Address to be set as a spender.                      *)
 (* param amount:       Number of tokens to be approved for a given spender. *)
-transition Approve(tokenHolder: ByStr20, spender: ByStr20, amount: Uint128)
+transition Approve(tokenOwner: ByStr20, spender: ByStr20, amount: Uint128)
 ```
 
-|        | Name      | Type      | Description                                          |
-| ------ | --------- | --------- | ---------------------------------------------------- |
-| @param | `amount`  | `ByStr20` | Address of a token owner.                            |  
-| @param | `spender` | `ByStr20` | Address to be approved for the given token id.       |
-| @param | `amount`  | `Uint128` | Number of tokens to be approved for a given spender. |
+|        | Name         | Type      | Description                                          |
+| ------ | ------------ | --------- | ---------------------------------------------------- |
+| @param | `tokenOwner` | `ByStr20` | Address of a token owner.                            |  
+| @param | `spender`    | `ByStr20` | Address to be approved for the given token id.       |
+| @param | `amount`     | `Uint128` | Number of tokens to be approved for a given spender. |
 
 |           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
 | --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `ApproveSuccess` | Approving is successful.     | `tokenHolder`: `ByStr20`, `spender`: `ByStr20`, and `amount`: `Uint128`.                                                                                               |
+| eventName | `ApproveSuccess` | Approving is successful.     | `tokenOwner`: `ByStr20`, `spender`: `ByStr20`, and `amount`: `Uint128`.                                                                                               |
 | eventName | `Error`          | Approving is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not authorized to approve. <br>**NOTE:** Only the `tokenOwner` or approved is allowed to call this transition. |
 
 
