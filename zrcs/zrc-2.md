@@ -29,7 +29,7 @@ The fungible token contract specification describes:
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |--|
 | `contractOwner`   | The owner of the contract initialized by the creator of the contract.                                                                                                                                                            |
 | `tokenOwner`      | A user (identified by an address) that owns tokens.                                                                                                                                                                              |
-| `approvedSpender` | A user (identified by an address) that can transfer a token tied to a tokenId on behalf of the `tokenOwner`.                                                                                                                     |
+| `approvedSpender` | A user (identified by an address) that can transfer tokens on behalf of the `tokenOwner`.                                                                                                                     |
 | `operator`        | A user (identified by an address) that is approved to operate all and any tokens owned by another user (identified by another address). The operators can make any transfer, approve, or burn the tokens on behalf of that user. |
 
 ### B. Error Codes
