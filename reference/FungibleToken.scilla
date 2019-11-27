@@ -123,7 +123,7 @@ end
 (* @param caller: Address must be an approved operator                 *)
 (* @param to:     Address of the recipient whose balance is increased. *)
 (* @param amount: Number of tokens to be burned.                       *)
-transition OperatorMint(caller: ByStr20, to: ByStr20, amount: Uint256)
+transition OperatorMint(caller: ByStr20, to: ByStr20, amount: Uint128)
   ProcedureMint to amount
 end
 
