@@ -85,6 +85,7 @@ end
 (* @param recipient:  Address of the recipient whose balance is increased. *)
 (* @param amount:     Amount of tokens to be sent.                         *)
 transition Send(from: ByStr20, recipient: ByStr20, amount: Uint128)
+  ProcedureMove from recipient amount
 end
 
 (* @dev: Moves amount tokens from sender to recipient.                     *)
@@ -93,12 +94,14 @@ end
 (* @param recipient:  Address of the recipient whose balance is increased. *)
 (* @param amount:     Amount of tokens to be sent.                         *)
 transition OperatorSend(caller: ByStr20, sender: ByStr20, to: ByStr20, amount: Uint128)
+  ProcedureMove sender to amount
 end
 
 (* @dev: Burn existing tokens. Only tokenOwner or approved operator can burn a token *)
 (* @param from:                             Address holding the tokens to be burned. *)
 (* @param amount:                           Number of tokens to be destroyed.        *)
 transition Burn(from: ByStr20, amount: Uint128)
+  ProcedureBurn from amount
 end
 
 (* @dev: Burn existing tokens. Only approved operator can burn a token. *)
@@ -106,12 +109,14 @@ end
 (* @param from:       Address holding the tokens to be burned.          *)
 (* @param amount:     Number of tokens to be destroyed.                 *)
 transition OperatorBurn(caller: ByStr20, from: ByStr20, amount: Uint128)
+  ProcedureBurn from amount
 end
 
 (* @dev: Mint new tokens. Only contractOwner can mint.                 *)
 (* @param to:     Address of the recipient whose balance is increased. *)
 (* @param amount: Number of tokens to be burned.                       *)
 transition Mint(to: ByStr20, amount: Uint128)
+ ProcedureMint to amount
 end
 
 (* @dev: Mint new tokens. Only approved operator can mint tokens.      *)
@@ -119,6 +124,7 @@ end
 (* @param to:     Address of the recipient whose balance is increased. *)
 (* @param amount: Number of tokens to be burned.                       *)
 transition OperatorMint(caller: ByStr20, to: ByStr20, amount: Uint256)
+  ProcedureMint to amount
 end
 
 (* @dev: Make an address an operator of the caller.                           *)
@@ -168,6 +174,7 @@ end
 (* param spender:      Address to be set as a spender.                      *)
 (* param amount:       Number of tokens to be approved for a given spender. *)
 transition Approve(tokenHolder: ByStr20, spender: ByStr20, amount: Uint128)
+  ProcedureApprove tokenHolder spender amount
 end
 
 (* @dev: Returns the amount of tokens in existence. *)
