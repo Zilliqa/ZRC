@@ -182,7 +182,7 @@ transition balanceOf(address: ByStr20)
   balance = 
     match optionBal with
     | Some bal => bal
-    | None => Uint256 0
+    | None => Uint128 0
     end;
   e = {_eventname: "BalanceOfSuccess"; bal: balance};
   event e
