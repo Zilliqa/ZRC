@@ -18,7 +18,7 @@ type Error =
   | CodeTokenExists
   | CodeUnexpectedError
 
-let makeErrorEvent =
+let makeError =
   fun (result : Error) =>
     let result_code = 
       match result with
@@ -74,7 +74,7 @@ end
 
 (* Emit Errors *)
 procedure MakeError(err : Error)
-  e = makeErrorEvent err;
+  e = makeError err;
   event e
 end
 
@@ -130,6 +130,16 @@ end
 (* @dev: Make an address an operator of the caller.                           *)
 (* @param operator: Address to be set as operator. Cannot be calling address. *)
 transition AuthorizeOperator(operator: ByStr20)
+  is_sender = builtin eq operator _sender;
+  match is_sender with
+  | True =>
+    (* Operator is calling address, return error code *)
+    err = CodeNotAuthorised;
+    MakeError err
+  | False =>
+    e = {_eventname : "AuthorizeOperatorSuccess"; operator : operator};
+    event e
+  end
 end
 
 (* @dev: Revoke an address from being an operator of the caller. *)
