@@ -165,6 +165,17 @@ end
 (* @param operator:     Address of a potential operator.           *)
 (* @param tokenHolder:  Address of a token holder.                 *)
 transition IsOperatorFor(operator: ByStr20, tokenHolder: ByStr20)
+  getOperator <- operatorsMap[tokenHolder][operator];
+    match getOperator with
+  | None =>
+    (* Operator not found *)
+    isOperator <- builtin bool_to_string False
+    e = {_eventname : "RevokeOperatorSuccess"; tokenHolder: tokenHolder; operator : operator; isOperator : isOperator};
+    event e
+end
+  | Some v =>
+    e = {_eventname : "RevokeOperatorSuccess"; operator : operator};
+    event e
 end
 
 (* @dev: Returns the list of default operators.         *)
