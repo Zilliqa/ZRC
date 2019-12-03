@@ -237,8 +237,8 @@ transition IsOperatorFor(operator: ByStr20, tokenOwner: ByStr20)
 
 |           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
 | --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `IsOperatorForSuccess` | Listing operators is successful.     | `operator`: `ByStr20`, and `tokenOwner`: `ByStr20`. |
-| eventName | `Error`                    | Listing operators is not successful. | TBA.                                                                                                      |
+| eventName | `IsOperatorForSuccess` | Checking operator is successful.     | `operator`: `ByStr20`, and `tokenOwner`: `ByStr20`. |
+| eventName | `Error`                    | Checking operator is not successful. | TBA.                                                                                                      |
 
 
 #### 10. DefaultOperators
