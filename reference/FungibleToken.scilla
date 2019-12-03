@@ -154,7 +154,7 @@ transition RevokeOperator(operator: ByStr20)
     err = CodeNotFound;
     MakeError err
   | Some v =>
-    builtin remove getOperator operatorsMap;
+    delete operatorsMap[_sender][operator];
     e = {_eventname : "RevokeOperatorSuccess"; operator : operator};
     event e
   end
