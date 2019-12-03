@@ -137,7 +137,8 @@ transition AuthorizeOperator(operator: ByStr20)
     err = CodeNotAuthorised;
     MakeError err
   | False =>
-    operatorsMap[_sender][operator] := true;
+    authorize = True;
+    operatorsMap[_sender][operator] := authorize;
     e = {_eventname : "AuthorizeOperatorSuccess"; operator : operator};
     event e
   end
