@@ -147,6 +147,17 @@ end
 (* @dev: Revoke an address from being an operator of the caller. *)
 (* @param operator:         Address to be unset as operator.     *)
 transition RevokeOperator(operator: ByStr20)
+  getOperator <- operatorsMap[_sender][operator];
+  match getOperator with
+  | None =>
+    (* Operator to be removed not found *)
+    err = CodeNotFound;
+    MakeError err
+  | Some v =>
+    builtin remove getOperator operatorsMap;
+    e = {_eventname : "RevokeOperatorSuccess"; operator : operator};
+    event e
+  end
 end
 
 (* @dev: Returns true if an address is an operator of tokenHolder. *)
