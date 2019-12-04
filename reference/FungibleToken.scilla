@@ -172,8 +172,14 @@ transition IsOperatorFor(operator: ByStr20, tokenHolder: ByStr20)
     e = {_eventname : "IsOperatorForSuccess"; tokenHolder: tokenHolder; operator : operator; isOperator : "False"};
     event e
   | Some v =>
-    e = {_eventname : "IsOperatorForSuccess"; tokenHolder: tokenHolder; operator : operator;  isOperator : "True"};
-    event e
+    match v with
+    | True =>
+      e = {_eventname : "IsOperatorForSuccess"; tokenHolder: tokenHolder; operator : operator;  isOperator : "True"};
+      event e
+    | False =>
+      e = {_eventname : "IsOperatorForSuccess"; tokenHolder: tokenHolder; operator : operator;  isOperator : "False"};
+      event e
+    end
   end
 end
 
