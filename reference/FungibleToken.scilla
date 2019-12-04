@@ -29,16 +29,7 @@ let makeError =
       end
     in
     { _eventname : "Error"; code : result_code }
-    
-let min_int =
-  fun (a : Uint128) => fun (b : Uint128) =>
-  let alt = builtin lt a b in
-  match alt with
-  | True =>
-    a
-  | False =>
-    b
-  end
+
 
 let le_int =
   fun (a : Uint128) => fun (b : Uint128) =>
