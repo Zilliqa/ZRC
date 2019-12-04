@@ -105,7 +105,8 @@ procedure ProcedureMove(from: ByStr20, to: ByStr20, amount: Uint128)
       | Some x => builtin add x amount
       | None => amount
       end;
-  	  balancesMap[to] := new_to_bal;
+      
+      balancesMap[to] := new_to_bal;
       e = {_eventname : "TransferSuccess"; sender : from; recipient : to; amount : amount};
       event e
     | False =>
