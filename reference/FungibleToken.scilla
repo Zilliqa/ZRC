@@ -192,6 +192,7 @@ end
 (* @param to:     Address of the recipient whose balance is increased. *)
 (* @param amount: Number of tokens to be transferred.                  *)
 transition Transfer(to: ByStr20, amount: Uint128)
+  ProcedureMove _sender to amount
 end
 
 (* @dev: Move a given amount of tokens from one address another using the allowance mechanism. *)
@@ -199,6 +200,7 @@ end
 (* param to:      Address of the recipient whose balance is increased.                         *)
 (* param amount:  Number of tokens to be transferred.                                          *)
 transition TansferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
+  ProcedureMove from to amount
 end
 
 (* @dev: Returns the number of tokens spender is allowed to spend on behalf of owner. *)
