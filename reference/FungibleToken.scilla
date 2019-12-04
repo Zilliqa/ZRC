@@ -169,13 +169,12 @@ transition IsOperatorFor(operator: ByStr20, tokenHolder: ByStr20)
     match getOperator with
   | None =>
     (* Operator not found *)
-    isOperator <- builtin bool_to_string False
-    e = {_eventname : "RevokeOperatorSuccess"; tokenHolder: tokenHolder; operator : operator; isOperator : isOperator};
+    e = {_eventname : "IsOperatorForSuccess"; tokenHolder: tokenHolder; operator : operator; isOperator : "False"};
     event e
-end
   | Some v =>
-    e = {_eventname : "RevokeOperatorSuccess"; operator : operator};
+    e = {_eventname : "IsOperatorForSuccess"; tokenHolder: tokenHolder; operator : operator;  isOperator : "True"};
     event e
+  end
 end
 
 (* @dev: Returns the list of default operators.         *)
