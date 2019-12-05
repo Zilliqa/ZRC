@@ -73,6 +73,13 @@ field allowancesMap: Map ByStr20 (Map ByStr20 Uint128)
 
 (* Mint Tokens *)
 procedure ProcedureMint(to: ByStr20, amount: Uint128) 
+  tokenOwners[tokenId] := to;
+  currentTokenCount <- balancesMap[to];
+  newCount = builtin add amount currentTokenCount;
+  balancesMap[to] := newCount;
+
+  e = {_eventname: "ProcedureMintSuccess"; recipient: to; amount: amount; newbalance: newCount};
+  event e;
 end
 
 (* Burn Tokens *)
