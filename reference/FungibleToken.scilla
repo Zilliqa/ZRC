@@ -58,7 +58,7 @@ contract FungibleToken
 
 (* Mutable fields *)
 
-field total_tokens : Uint128
+field total_tokens : Uint128 = Uint128 0
 
 field balancesMap: Map ByStr20 Uint128 
   = Emp ByStr20 Uint128
@@ -265,7 +265,8 @@ end
 
 (* @dev: Returns the amount of tokens in existence. *)
 transition TotalSupply()
-  e = {_eventname : "TotalSupply"; caller : _sender; balance : total_tokens};
+  tokens <- total_tokens;
+  e = {_eventname : "TotalSupply"; caller : _sender; balance : tokens};
   event e
 end
 
