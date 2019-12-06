@@ -206,11 +206,24 @@ transition Burn(from: ByStr20, amount: Uint128)
 end
 
 (* @dev: Burn existing tokens. Only approved operator can burn a token. *)
-(* @param caller:     Address must be an operator of sender.            *)
-(* @param from:       Address holding the tokens to be burned.          *)
+(* @param caller:     Address must be an operator of tokenOwner.        *)
+(* @param tokenOwner:       Address holding the tokens to be burned.    *)
 (* @param amount:     Number of tokens to be destroyed.                 *)
-transition OperatorBurn(caller: ByStr20, from: ByStr20, amount: Uint128)
-  ProcedureBurn from amount
+transition OperatorBurn(caller: ByStr20, tokenOwner: ByStr20, amount: Uint128)
+  (* Check if caller is tokenOwner approvedForAll operator *)
+  someOperator <- operatorsMap[tokenOwner][caller];
+  isApproved = 
+    match someOperator with
+    | Some value => value
+    | None => False
+    end;
+  match isApproved with
+    | False =>
+      err = CodeNotAuthorised;
+      MakeError err
+    | True =>
+      ProcedureBurn tokenOwner amount
+   end
 end
 
 (* @dev: Mint new tokens. Only contractOwner can mint.                 *)
