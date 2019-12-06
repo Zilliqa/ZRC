@@ -71,6 +71,12 @@ field allowancesMap: Map ByStr20 (Map ByStr20 Uint128)
 
 (* Procedures *)
 
+(* Emit Errors *)
+procedure MakeError(err : Error)
+  e = makeError err;
+  event e
+end
+
 (* Mint Tokens *)
 procedure ProcedureMint(to: ByStr20, amount: Uint128) 
   optionBal <- balancesMap[to];
@@ -81,14 +87,31 @@ procedure ProcedureMint(to: ByStr20, amount: Uint128)
   end;
   newCount = builtin add amount balance;
   balancesMap[to] := newCount;
-
-  e = {_eventname: "ProcedureMintSuccess"; recipient: to; amount: amount; newbalance: newCount};
+  e = {_eventname: "ProcedureMintSuccess"; recipient: to; amount: amount};
   event e
 end
 
 (* Burn Tokens *)
 procedure ProcedureBurn(from: ByStr20, amount: Uint128)
-    
+  optionBal <- balancesMap[from];
+  match optionBal with
+  | None => 
+    err = CodeUnexpectedError;
+    MakeError err
+  | Some userTokens =>
+    can_burn = le_int amount userTokens;
+    match can_burn with
+    | False =>
+      err = CodeUnexpectedError;
+      MakeError err
+    | True =>
+      (* subtract amount from 'from' *)
+      new_user_bal = builtin sub userTokens amount;
+      balancesMap[from] := new_user_bal;
+      e = {_eventname: "ProcedureBurnSuccess"; from: from; amount: amount};
+      event e  
+      end
+   end
 end
 
 (* Move Tokens *)
@@ -127,12 +150,6 @@ end
 
 (* Approve Spender *)
 procedure ProcedureApprove(tokenHolder: ByStr20, spender: ByStr20, amount: Uint128)
-end
-
-(* Emit Errors *)
-procedure MakeError(err : Error)
-  e = makeError err;
-  event e
 end
 
 (* Transitions *)
