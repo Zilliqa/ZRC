@@ -88,6 +88,7 @@ end
 
 (* Burn Tokens *)
 procedure ProcedureBurn(from: ByStr20, amount: Uint128)
+    
 end
 
 (* Move Tokens *)
