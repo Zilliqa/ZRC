@@ -159,7 +159,14 @@ end
 (* @param recipient:  Address of the recipient whose balance is increased. *)
 (* @param amount:     Amount of tokens to be sent.                         *)
 transition Send(from: ByStr20, recipient: ByStr20, amount: Uint128)
-  ProcedureMove from recipient amount
+  isSender = builtin eq _sender from;
+    match isSender with
+    | False =>
+      err = CodeNotAuthorised;
+      MakeError err
+    | True =>
+      ProcedureMove from recipient amount
+    end
 end
 
 (* @dev: Moves amount tokens from sender to recipient.                     *)
