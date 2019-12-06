@@ -195,7 +195,14 @@ end
 (* @param from:    Address holding the tokens to be burned. *)
 (* @param amount:  Number of tokens to be destroyed.        *)
 transition Burn(from: ByStr20, amount: Uint128)
-  ProcedureBurn from amount
+    isSender = builtin eq _sender from;
+    match isSender with
+    | False =>
+      err = CodeNotAuthorised;
+      MakeError err
+    | True =>
+      ProcedureBurn from amount
+    end
 end
 
 (* @dev: Burn existing tokens. Only approved operator can burn a token. *)
