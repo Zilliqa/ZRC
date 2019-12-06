@@ -163,12 +163,25 @@ transition Send(from: ByStr20, recipient: ByStr20, amount: Uint128)
 end
 
 (* @dev: Moves amount tokens from sender to recipient.                     *)
-(* @param caller:     Address must be an operator of sender.               *)
-(* @param sender:     Address of the sender whose balance is decreased.    *)
+(* @param caller:     Address must be an operator of tokenOwner.           *)
+(* @param tokenOwner: Address of the sender whose balance is decreased.    *)
 (* @param recipient:  Address of the recipient whose balance is increased. *)
 (* @param amount:     Amount of tokens to be sent.                         *)
-transition OperatorSend(caller: ByStr20, sender: ByStr20, to: ByStr20, amount: Uint128)
-  ProcedureMove sender to amount
+transition OperatorSend(caller: ByStr20, tokenOwner: ByStr20, to: ByStr20, amount: Uint128)
+  (* Check if caller is tokenOwner approvedForAll operator *)
+  someOperator <- operatorsMap[tokenOwner][caller];
+  isApproved = 
+    match someOperator with
+    | Some value => value
+    | None => False
+    end;
+  match isApproved with
+    | False =>
+      err = CodeNotAuthorised;
+      MakeError err
+    | True =>
+      ProcedureMove tokenOwner to amount
+   end
 end
 
 (* @dev: Burn existing tokens. Only tokenOwner or approved operator can burn a token *)
