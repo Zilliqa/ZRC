@@ -184,9 +184,9 @@ transition OperatorSend(caller: ByStr20, tokenOwner: ByStr20, to: ByStr20, amoun
    end
 end
 
-(* @dev: Burn existing tokens. Only tokenOwner or approved operator can burn a token *)
-(* @param from:                             Address holding the tokens to be burned. *)
-(* @param amount:                           Number of tokens to be destroyed.        *)
+(* @dev: Burn existing tokens. Only tokenOwner.             *)
+(* @param from:    Address holding the tokens to be burned. *)
+(* @param amount:  Number of tokens to be destroyed.        *)
 transition Burn(from: ByStr20, amount: Uint128)
   ProcedureBurn from amount
 end
