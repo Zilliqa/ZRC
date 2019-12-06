@@ -230,7 +230,14 @@ end
 (* @param to:     Address of the recipient whose balance is increased. *)
 (* @param amount: Number of tokens to be burned.                       *)
 transition Mint(to: ByStr20, amount: Uint128)
- ProcedureMint to amount
+  isOwner = builtin eq _sender contractOwner;
+   match isOwner with
+    | False =>
+      err = CodeNotAuthorised;
+      MakeError err
+    | True =>
+      ProcedureMint to amount
+    end
 end
 
 (* @dev: Mint new tokens. Only approved operator can mint tokens.      *)
