@@ -149,7 +149,7 @@ procedure ProcedureMove(from: ByStr20, to: ByStr20, amount: Uint128)
 end
 
 (* Approve Spender *)
-procedure ProcedureApprove(tokenHolder: ByStr20, spender: ByStr20, amount: Uint128)
+procedure ProcedureApprove(spender: ByStr20, amount: Uint128)
 end
 
 (* Transitions *)
@@ -362,12 +362,18 @@ transition Allowance(tokenHolder: ByStr20, spender: ByStr20)
 end
 
 (* @dev: Sets amount as the allowance of spender over the caller’s tokens.  *)
-(* There can only be one approved spender per token at a given time         *)
-(* param tokenHolder:  Address of a token holder.                           *)
 (* param spender:      Address to be set as a spender.                      *)
 (* param amount:       Number of tokens to be approved for a given spender. *)
-transition Approve(tokenHolder: ByStr20, spender: ByStr20, amount: Uint128)
-  ProcedureApprove tokenHolder spender amount
+transition Approve(spender: ByStr20, amount: Uint128)
+  (* Checks if the _sender is approving himself *)
+  isOwner = builtin eq _sender spender;
+    match isOwner with
+  | True =>
+    err = CodeNotAuthorised;
+    MakeError err
+  | False =>
+    ProcedureApprove spender amount
+  end
 end
 
 (* @dev: Returns the amount of tokens in existence. *)
