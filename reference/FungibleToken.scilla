@@ -349,6 +349,16 @@ end
 (* param tokenHolder:  Address of a token holder.                                     *)
 (* param spender:      Address to be set as a spender.                                *)
 transition Allowance(tokenHolder: ByStr20, spender: ByStr20)
+  optionalAllowance <- allowancesMap[tokenHolder][spender];
+  match optionalAllowance with
+  | None =>
+    (* No Allowance is set up with spender *)
+    err = CodeNotFound;
+    MakeError err
+  | Some v =>
+    e = {_eventname : "AllowanceSuccess"; tokenHolder: tokenHolder; spender : spender;  allowance : v};
+    event e
+  end
 end
 
 (* @dev: Sets amount as the allowance of spender over the caller’s tokens.  *)
