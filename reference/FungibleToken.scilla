@@ -150,6 +150,9 @@ end
 
 (* Approve Spender *)
 procedure ProcedureApprove(spender: ByStr20, amount: Uint128)
+  allowancesMap[_sender][spender] := amount;
+  e = {_eventname : "ProcedureApproveSuccess"; sender : _sender; spender: spender; amount : amount};
+  event e
 end
 
 (* Transitions *)
