@@ -358,6 +358,8 @@ end
 (* @dev: Returns the list of default operators.         *)
 (* These addresses are operators for all token holders. *)
 transition DefaultOperators()
+  e = {_eventname : "DefaultOperatorsSuccess"; list: default_operators };
+  event e
 end
 
 (* @dev: Move a given amount of tokens from one address another.       *)
