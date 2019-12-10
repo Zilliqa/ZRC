@@ -44,6 +44,15 @@ let le_int =
       end
     end
     
+(* A util function to test equality *)
+let f_eq =
+  fun (a : ByStr20) =>
+  fun (b : ByStr20) =>
+    builtin eq a b
+
+(* Instantiate a type function to test membership in a list *)
+let isDefaultOperator = @list_mem ByStr20
+    
 
 (***************************************************)
 (*             The contract definition             *)
@@ -159,6 +168,37 @@ procedure ProcedureApprove(spender: ByStr20, amount: Uint128)
 end
 
 (* Transitions *)
+
+(* Re-authorize a default operator *)
+(* @param operator: Address of the operator to be re-authorized. *)
+transition reauthorizeDefaultOperator(operator : ByStr20)  
+  isDefaultOperator = isDefaultOperator f_eq operator default_operators;
+  match isDefaultOperator with
+  | False =>
+    err = CodeNotFound;
+    MakeError err
+  | True  => 
+    delete revokedDefaultOperators[_sender][operator];
+    e = { _eventname : "ReAuthorizedDefaultOperatorSuccess"; operator : operator; sender : _sender};
+    event e
+  end
+end
+
+(* Revoke a default operator *)
+(* @param operator:  Address of the operator to be revoked. *)
+transition revokeDefaultOperator(operator : ByStr20)
+  isDefaultOperator =  isDefaultOperator f_eq operator default_operators;
+  match isDefaultOperator with
+  | False =>
+    err = CodeNotFound;
+    MakeError err
+  | True  => 
+    verdad = True;
+    revokedDefaultOperators[_sender][operator] := verdad;
+    e = {_eventname : "RevokedDefaultOperatorSuccess"; operator : operator; sender : _sender};
+    event e
+    end
+end
 
 (* @dev: Moves amount tokens from the caller’s address to the recipient.   *)
 (* @param from:       Address of the sender whose balance is decreased.    *)
