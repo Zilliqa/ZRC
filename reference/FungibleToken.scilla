@@ -241,7 +241,7 @@ end
 (* @param from:    Address holding the tokens to be burned. *)
 (* @param amount:  Number of tokens to be destroyed.        *)
 transition Burn(from: ByStr20, amount: Uint128)
-    isSender = builtin eq _sender from;
+    isSender = builtin eq _sender contractOwner;
     match isSender with
     | False =>
       err = CodeNotAuthorised;
@@ -252,18 +252,14 @@ transition Burn(from: ByStr20, amount: Uint128)
 end
 
 (* @dev: Burn existing tokens. Only approved operator can burn a token. *)
-(* @param caller:     Address must be an operator of tokenOwner.        *)
-(* @param tokenOwner:       Address holding the tokens to be burned.    *)
+(* @param tokenOwner: Address holding the tokens to be burned.          *)
 (* @param amount:     Number of tokens to be destroyed.                 *)
 transition OperatorBurn(caller: ByStr20, tokenOwner: ByStr20, amount: Uint128)
   (* Check if caller is tokenOwner approvedForAll operator *)
-  someOperator <- operatorsMap[tokenOwner][caller];
-  isApproved = 
-    match someOperator with
-    | Some value => value
-    | None => False
-    end;
-  match isApproved with
+  isDefaultOperator = isDefaultOperator f_eq caller default_operators;
+  isRevokedOperator <- exists revokedDefaultOperators[tokenOwner][caller];
+  isAllowed = let isNotRevokedOperator = negb isRevokedOperator in andb  isNotRevokedOperator isDefaultOperator;
+  match isAllowed with
     | False =>
       err = CodeNotAuthorised;
       MakeError err
@@ -291,14 +287,10 @@ end
 (* @param to:     Address of the recipient whose balance is increased. *)
 (* @param amount: Number of tokens to be burned.                       *)
 transition OperatorMint(caller: ByStr20, to: ByStr20, amount: Uint128)
-  (* Check if caller is tokenOwner approvedForAll operator *)
-  someOperator <- operatorsMap[to][caller];
-  isApproved = 
-    match someOperator with
-    | Some value => value
-    | None => False
-    end;
-  match isApproved with
+  isDefaultOperator = isDefaultOperator f_eq caller default_operators;
+  isRevokedOperator <- exists revokedDefaultOperators[to][caller];
+  isAllowed = let isNotRevokedOperator = negb isRevokedOperator in andb  isNotRevokedOperator isDefaultOperator;
+  match isAllowed with
     | False =>
       err = CodeNotAuthorised;
       MakeError err
