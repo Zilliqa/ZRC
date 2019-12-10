@@ -53,12 +53,15 @@ contract FungibleToken
 (contractOwner: ByStr20,
   name : String,
   symbol: String,
-  decimals: Uint32
+  decimals: Uint32,
+  default_operators : List ByStr20
 )
 
 (* Mutable fields *)
 
 field total_tokens : Uint128 = Uint128 0
+
+field revokedDefaultOperators : Map ByStr20 (Map ByStr20 Bool) = Emp ByStr20 (Map ByStr20 Bool)
 
 field balancesMap: Map ByStr20 Uint128 
   = Emp ByStr20 Uint128
