@@ -65,7 +65,7 @@ The fungible token contract must define the following constants for use as error
 
 ### E. Transitions
 
-#### 1. Send
+#### 1. ReauthorizeDefaultOperator
 
 ```ocaml
 (* @dev: Moves amount tokens from the caller’s address to the recipient.   *)
@@ -86,7 +86,49 @@ transition Send(from: ByStr20, recipient: ByStr20, amount: Uint128)
 | eventName | `SendSuccess` | Sending is successful.     | `from`: `ByStr20`, `recipient`: `ByStr20`, and `amount`: `Uint128`.                             |
 | eventName | `Error`       | Sending is not successful. | TBD. |
 
-#### 2. OperatorSend
+#### 2. RevokeDefaultOperator
+
+```ocaml
+(* @dev: Moves amount tokens from the caller’s address to the recipient.   *)
+(* @param from:       Address of the sender whose balance is decreased.    *)
+(* @param recipient:  Address of the recipient whose balance is increased. *)
+(* @param amount:     Amount of tokens to be sent.                         *)
+transition Send(from: ByStr20, recipient: ByStr20, amount: Uint128)
+```
+
+|        | Name        | Type      | Description                                          |
+| ------ | ----------- | --------- | ---------------------------------------------------- |
+| @param | `from`      | `ByStr20` | Address of the sender whose balance is decreased.    |
+| @param | `recipient` | `ByStr20` | Address of the recipient whose balance is increased. |
+| @param | `amount`    | `Uint128` | Amount of tokens to be sent.                         |
+
+|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
+| --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `SendSuccess` | Sending is successful.     | `from`: `ByStr20`, `recipient`: `ByStr20`, and `amount`: `Uint128`.                             |
+| eventName | `Error`       | Sending is not successful. | TBD. |
+
+#### 3. Send
+
+```ocaml
+(* @dev: Moves amount tokens from the caller’s address to the recipient.   *)
+(* @param from:       Address of the sender whose balance is decreased.    *)
+(* @param recipient:  Address of the recipient whose balance is increased. *)
+(* @param amount:     Amount of tokens to be sent.                         *)
+transition Send(from: ByStr20, recipient: ByStr20, amount: Uint128)
+```
+
+|        | Name        | Type      | Description                                          |
+| ------ | ----------- | --------- | ---------------------------------------------------- |
+| @param | `from`      | `ByStr20` | Address of the sender whose balance is decreased.    |
+| @param | `recipient` | `ByStr20` | Address of the recipient whose balance is increased. |
+| @param | `amount`    | `Uint128` | Amount of tokens to be sent.                         |
+
+|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
+| --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `SendSuccess` | Sending is successful.     | `from`: `ByStr20`, `recipient`: `ByStr20`, and `amount`: `Uint128`.                             |
+| eventName | `Error`       | Sending is not successful. | TBD. |
+
+#### 4. OperatorSend
 
 ```ocaml
 (* @dev: Moves amount tokens from sender to recipient. The caller must be an operator of sender. *)
@@ -107,7 +149,7 @@ transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
 | eventName | `OperatorSendSuccess` | Sending is successful.     | `from`: `ByStr20`, `to`: `ByStr20`, and `amount`: `Uint128`.                             |
 | eventName | `Error`       | Sending is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not an approved operator. |
 
-#### 3. Burn
+#### 5. Burn
 
 ```ocaml
 (* @dev: Burn existing tokens. Only tokenOwner or approved operator can burn a token *)
@@ -127,7 +169,7 @@ transition Burn(burn_account: ByStr20, amount: Uint128)
 | eventName | `Error`       | Burning is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the token owner.<br>**NOTE:** Only the `tokenOwner` is allowed to call this transition. |
 
 
-#### 4. OperatorBurn
+#### 6. OperatorBurn
 
 ```ocaml
 (* @dev: Burn existing tokens. Only approved operator can burn a token. *)
@@ -147,7 +189,7 @@ transition OperatorBurn(from: ByStr20, amount: Uint128)
 | eventName | `Error`          | Burning is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not authorized. <br>**NOTE:** Only the approved `operator`(s) are allowed to call this transition. |
 
 
-#### 5. Mint
+#### 7. Mint
 
 ```ocaml
 (* @dev: Mint new tokens. Only contractOwner can mint.                        *)
@@ -167,7 +209,7 @@ transition Mint(recipient: ByStr20, amount: Uint128)
 | eventName | `Error`       | Minting is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only the `contractOwner` is allowed to call this transition. |
 
 
-#### 6. OperatorMint
+#### 8. OperatorMint
 
 ```ocaml
 (* @dev: Mint new tokens. Only approved operator can mint tokens.      *)
@@ -187,7 +229,7 @@ transition OperatorMint(to: ByStr20, amount: Uint256)
 | eventName | `Error`                    | Minting is not successful. | - emit `CodeNotAuthorised` if the transition is not called by an approved operator.                                                                                                      |
 
 
-#### 7. AuthorizeOperator
+#### 9. AuthorizeOperator
 
 ```ocaml
 (* @dev: Make an address an operator of the caller.                           *)
@@ -205,7 +247,7 @@ transition AuthorizeOperator(operator: ByStr20)
 | eventName | `Error`                    | Authorizing is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the token holder.                                                                                                      |
 
 
-#### 8. RevokeOperator
+#### 10. RevokeOperator
 
 ```ocaml
 (* @dev: Revoke an address from being an operator of the caller. *)
@@ -223,7 +265,7 @@ transition RevokeOperator(operator: ByStr20)
 | eventName | `Error`                    | Revoking is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the token holder.                                                                                                      |
 
 
-#### 9. IsOperatorFor
+#### 11. IsOperatorFor
 
 ```ocaml
 (* @dev: Returns true if an address is an operator of tokenOwner. All addresses are their own operator. *)
@@ -243,7 +285,7 @@ transition IsOperatorFor(operator: ByStr20, tokenOwner: ByStr20)
 | eventName | `Error`                    | Checking operator is not successful. | TBA.                                                                                                      |
 
 
-#### 10. DefaultOperators
+#### 12. DefaultOperators
 
 ```ocaml
 (* @dev: Returns the list of default operators. These addresses are operators for all token holders. *)
@@ -256,7 +298,7 @@ transition DefaultOperators()
 | eventName | `Error`                    | Listing default operators is not successful. | TBA.                                                                                                      |
 
 
-#### 11. Transfer
+#### 13. Transfer
 
 ```ocaml
 (* @dev: Move a given amount of tokens from one address another.       *)
@@ -275,7 +317,7 @@ transition Transfer(to: ByStr20, amount: Uint128)
 | eventName | `TransferSuccess` | Transfering is successful.     | `to`: `ByStr20`, and `amount`: `Uint128`.                                                                            |
 | eventName | `Error`               | Transfering is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user that is not authorised.<br>**NOTE:** Only `tokenOwner` address can invoke this transition. |
 
-#### 12. TansferFrom
+#### 14. TansferFrom
 
 ```ocaml
 (* @dev: Move a given amount of tokens from one address another using the allowance mechanism. *)
@@ -296,7 +338,7 @@ transition TansferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
 | eventName | `TansferFromSuccess` | Approval is successful.     | `from`: `ByStr20`, `to`: `ByStr20`, and `amount`: `Uint128`.                                                                                               |
 | eventName | `Error`          | Approval is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not authorized to approve. <br>**NOTE:** Only either the `tokenOwner` or approved `operator`(s) are allowed to call this transition. |
 
-#### 13. Allowance
+#### 15. Allowance
 
 ```ocaml
 (* @dev: Returns the number of tokens spender is allowed to spend on behalf of owner. *)
@@ -316,7 +358,7 @@ transition Allowance(tokenOwner: ByStr20, spender: ByStr20)
 | eventName | `Error`          | Allowing is not successful. | TBA. |
 
 
-#### 14. Approve
+#### 16. Approve
 
 ```ocaml
 (* @dev: Sets amount as the allowance of spender over the caller’s tokens.  *)
@@ -339,7 +381,7 @@ transition Approve(tokenOwner: ByStr20, spender: ByStr20, amount: Uint128)
 | eventName | `Error`          | Approving is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not authorized to approve. <br>**NOTE:** Only the `tokenOwner` or approved is allowed to call this transition. |
 
 
-#### 15. TotalSupply
+#### 17. TotalSupply
 
 ```ocaml
 (* @dev: Returns the amount of tokens in existence. *)
@@ -350,7 +392,7 @@ transition TotalSupply()
 | --------- | ------------------ | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | eventName | `TotalSupplySuccess` | Counting of supply is successful. | `bal`: `Uint128`, which returns the number of tokens owned by a given address. If the user does not own any tokens, then the value returned is `0`. |
 
-#### 16. BalanceOf
+#### 18. BalanceOf
 
 ```ocaml
 (* @dev: Returns the amount of tokens owned by address. *)
