@@ -70,7 +70,7 @@ The fungible token contract must define the following constants for use as error
 ```ocaml
 (* @dev: Re-authorize a default operator               *)
 (* @param operator: Amount of tokens to be sent.       *)
-transition reauthorizeDefaultOperator(operator : ByStr20)  
+transition ReauthorizeDefaultOperator(operator : ByStr20)  
 ```
 
 |        | Name        | Type      | Description                                          |
@@ -87,7 +87,7 @@ transition reauthorizeDefaultOperator(operator : ByStr20)
 ```ocaml
 (* @dev: Revoke a default operator.              *)
 (* @param operator: Amount of tokens to be sent. *)
-transition revokeDefaultOperator(operator : ByStr20)
+transition RevokeDefaultOperator(operator : ByStr20)
 ```
 
 |        | Name        | Type      | Description                                          |
