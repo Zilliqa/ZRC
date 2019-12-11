@@ -212,13 +212,15 @@ transition Mint(recipient: ByStr20, amount: Uint128)
 
 ```ocaml
 (* @dev: Mint new tokens. Only approved operator can mint tokens.         *)
+(* @param operator:   Address must be an operator of tokenOwner.          *)
 (* @param recipient: Address of the recipient whose balance is increased. *)
 (* @param amount:    Number of tokens to be burned.                       *)
-transition OperatorMint(to: ByStr20, amount: Uint256)
+transition OperatorMint(operator: ByStr20, recipient: ByStr20, amount: Uint128)
 ```
 
 |        | Name         | Type      | Description                                         |
 | ------ | ------------ | --------- | --------------------------------------------------- |
+| @param | `operator`   | `ByStr20` | Address of a default operator.                      |
 | @param | `recipient`  | `ByStr20` | Address of the recipient whose balance is increased.|
 | @param | `amount`     | `Uint128` | Number of tokens to be minted.                      |
 
