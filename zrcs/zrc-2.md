@@ -295,8 +295,7 @@ transition DefaultOperators()
 
 |           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
 | --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `DefaultOperatorsSuccess` | Listing default operators is successful.     | TBA. |
-| eventName | `Error`                    | Listing default operators is not successful. | TBA.                                                                                                      |
+| eventName | `DefaultOperatorsSuccess` | Listing default operators is successful.     | `list`: `List ByStr20` |
 
 
 #### 13. Transfer
@@ -364,21 +363,19 @@ transition Allowance(tokenOwner: ByStr20, spender: ByStr20)
 ```ocaml
 (* @dev: Sets amount as the allowance of spender over the caller’s tokens.  *)
 (* There can only be one approved spender per token at a given time         *)
-(* param tokenOwner:   Address of a token holder.                           *)
-(* param spender:      Address to be set as a spender.                      *)
-(* param amount:       Number of tokens to be approved for a given spender. *)
-transition Approve(tokenOwner: ByStr20, spender: ByStr20, amount: Uint128)
+(* param spender: Address to be set as a spender.                           *)
+(* param amount:  Number of tokens to be approved for a given spender.      *)
+transition Approve(spender: ByStr20, amount: Uint128)
 ```
 
 |        | Name         | Type      | Description                                          |
-| ------ | ------------ | --------- | ---------------------------------------------------- |
-| @param | `tokenOwner` | `ByStr20` | Address of a token owner.                            |  
+| ------ | ------------ | --------- | ---------------------------------------------------- | 
 | @param | `spender`    | `ByStr20` | Address to be approved for the given token id.       |
 | @param | `amount`     | `Uint128` | Number of tokens to be approved for a given spender. |
 
 |           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
 | --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `ApproveSuccess` | Approving is successful.     | `tokenOwner`: `ByStr20`, `spender`: `ByStr20`, and `amount`: `Uint128`.                                                                                               |
+| eventName | `ApproveSuccess` | Approving is successful.     | `spender`: `ByStr20`, and `amount`: `Uint128`.                                                                                               |
 | eventName | `Error`          | Approving is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not authorized to approve. <br>**NOTE:** Only the `tokenOwner` or approved is allowed to call this transition. |
 
 
