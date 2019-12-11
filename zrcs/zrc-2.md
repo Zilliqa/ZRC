@@ -68,44 +68,37 @@ The fungible token contract must define the following constants for use as error
 #### 1. ReauthorizeDefaultOperator
 
 ```ocaml
-(* @dev: Moves amount tokens from the caller’s address to the recipient.   *)
-(* @param from:       Address of the sender whose balance is decreased.    *)
-(* @param recipient:  Address of the recipient whose balance is increased. *)
-(* @param amount:     Amount of tokens to be sent.                         *)
-transition Send(from: ByStr20, recipient: ByStr20, amount: Uint128)
+(* @dev: Re-authorize a default operator               *)
+(* @param operator: Amount of tokens to be sent.       *)
+transition reauthorizeDefaultOperator(operator : ByStr20)  
 ```
 
 |        | Name        | Type      | Description                                          |
 | ------ | ----------- | --------- | ---------------------------------------------------- |
-| @param | `from`      | `ByStr20` | Address of the sender whose balance is decreased.    |
-| @param | `recipient` | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `amount`    | `Uint128` | Amount of tokens to be sent.                         |
+| @param | `operator`  | `ByStr20` | Address of the default operator to be reauthorized.  |
+
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `SendSuccess` | Sending is successful.     | `from`: `ByStr20`, `recipient`: `ByStr20`, and `amount`: `Uint128`.                             |
-| eventName | `Error`       | Sending is not successful. | TBD. |
+| eventName | `ReAuthorizedDefaultOperatorSuccess` | Re-authorizing is successful.     | `operator`: `ByStr20`, `recipient`: `ByStr20`, and `sender` : `_sender`.                             |
 
 #### 2. RevokeDefaultOperator
 
 ```ocaml
-(* @dev: Moves amount tokens from the caller’s address to the recipient.   *)
-(* @param from:       Address of the sender whose balance is decreased.    *)
-(* @param recipient:  Address of the recipient whose balance is increased. *)
-(* @param amount:     Amount of tokens to be sent.                         *)
-transition Send(from: ByStr20, recipient: ByStr20, amount: Uint128)
+(* @dev: Revoke a default operator.              *)
+(* @param operator: Amount of tokens to be sent. *)
+transition revokeDefaultOperator(operator : ByStr20)
 ```
 
 |        | Name        | Type      | Description                                          |
 | ------ | ----------- | --------- | ---------------------------------------------------- |
-| @param | `from`      | `ByStr20` | Address of the sender whose balance is decreased.    |
-| @param | `recipient` | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `amount`    | `Uint128` | Amount of tokens to be sent.                         |
+| @param | `operator`      | `ByStr20` | Address of the default operator to be revoked.   |
+
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `SendSuccess` | Sending is successful.     | `from`: `ByStr20`, `recipient`: `ByStr20`, and `amount`: `Uint128`.                             |
-| eventName | `Error`       | Sending is not successful. | TBD. |
+| eventName | `RevokedDefaultOperatorSuccess` | Revoking is successful.     | `operator`: `ByStr20`, `recipient`: `ByStr20`, and `sender` : `_sender`.                             |
+
 
 #### 3. Send
 
