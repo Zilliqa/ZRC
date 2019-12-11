@@ -216,13 +216,12 @@ transition Send(from: ByStr20, recipient: ByStr20, amount: Uint128)
 end
 
 (* @dev: Moves amount tokens from sender to recipient.                     *)
-(* @param caller:     Address must be an operator of tokenOwner.           *)
+(* @param operator:   Address must be an operator of tokenOwner.           *)
 (* @param tokenOwner: Address of the sender whose balance is decreased.    *)
 (* @param recipient:  Address of the recipient whose balance is increased. *)
 (* @param amount:     Amount of tokens to be sent.                         *)
-transition OperatorSend(caller: ByStr20, tokenOwner: ByStr20, to: ByStr20, amount: Uint128)
-  (* Check if caller is tokenOwner approvedForAll operator *)
-  someOperator <- operatorsMap[tokenOwner][caller];
+transition OperatorSend(operator: ByStr20, tokenOwner: ByStr20, to: ByStr20, amount: Uint128)
+  someOperator <- operatorsMap[tokenOwner][operator];
   isApproved = 
     match someOperator with
     | Some value => value
@@ -247,17 +246,16 @@ transition Burn(burn_account: ByStr20, amount: Uint128)
       err = CodeNotAuthorised;
       MakeError err
     | True =>
-      ProcedureBurn from amount
+      ProcedureBurn burn_account amount
     end
 end
 
 (* @dev: Burn existing tokens. Only approved operator can burn a token. *)
 (* @param tokenOwner: Address holding the tokens to be burned.          *)
 (* @param amount:     Number of tokens to be destroyed.                 *)
-transition OperatorBurn(caller: ByStr20, tokenOwner: ByStr20, amount: Uint128)
-  (* Check if caller is tokenOwner approvedForAll operator *)
-  isDefaultOperator = isDefaultOperator f_eq caller default_operators;
-  isRevokedOperator <- exists revokedDefaultOperators[tokenOwner][caller];
+transition OperatorBurn(operator: ByStr20, tokenOwner: ByStr20, amount: Uint128)
+  isDefaultOperator = isDefaultOperator f_eq operator default_operators;
+  isRevokedOperator <- exists revokedDefaultOperators[tokenOwner][operator];
   isAllowed = let isNotRevokedOperator = negb isRevokedOperator in andb  isNotRevokedOperator isDefaultOperator;
   match isAllowed with
     | False =>
@@ -268,34 +266,34 @@ transition OperatorBurn(caller: ByStr20, tokenOwner: ByStr20, amount: Uint128)
    end
 end
 
-(* @dev: Mint new tokens. Only contractOwner can mint.                 *)
-(* @param to:     Address of the recipient whose balance is increased. *)
-(* @param amount: Number of tokens to be burned.                       *)
-transition Mint(to: ByStr20, amount: Uint128)
+(* @dev: Mint new tokens. Only contractOwner can mint.                    *)
+(* @param recipient: Address of the recipient whose balance is increased. *)
+(* @param amount:   Number of tokens to be burned.                        *)
+transition Mint(recipient: ByStr20, amount: Uint128)
   isOwner = builtin eq _sender contractOwner;
    match isOwner with
     | False =>
       err = CodeNotAuthorised;
       MakeError err
     | True =>
-      ProcedureMint to amount
+      ProcedureMint recipient amount
     end
 end
 
-(* @dev: Mint new tokens. Only approved operator can mint tokens.      *)
-(* @param caller: Address must be an approved operator                 *)
-(* @param to:     Address of the recipient whose balance is increased. *)
-(* @param amount: Number of tokens to be burned.                       *)
-transition OperatorMint(caller: ByStr20, to: ByStr20, amount: Uint128)
-  isDefaultOperator = isDefaultOperator f_eq caller default_operators;
-  isRevokedOperator <- exists revokedDefaultOperators[to][caller];
+(* @dev: Mint new tokens. Only approved operator can mint tokens.         *)
+(* @param operator:  Address must be an operator of `to`.                 *)
+(* @param recipient: Address of the recipient whose balance is increased. *)
+(* @param amount:    Number of tokens to be burned.                       *)
+transition OperatorMint(operator: ByStr20, recipient: ByStr20, amount: Uint128)
+  isDefaultOperator = isDefaultOperator f_eq operator default_operators;
+  isRevokedOperator <- exists revokedDefaultOperators[recipient][operator];
   isAllowed = let isNotRevokedOperator = negb isRevokedOperator in andb  isNotRevokedOperator isDefaultOperator;
   match isAllowed with
     | False =>
       err = CodeNotAuthorised;
       MakeError err
     | True =>
-      ProcedureMint to amount
+      ProcedureMint recipient amount
    end
 end
 
