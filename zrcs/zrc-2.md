@@ -81,6 +81,7 @@ transition ReauthorizeDefaultOperator(operator : ByStr20)
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | eventName | `ReAuthorizedDefaultOperatorSuccess` | Re-authorizing is successful.     | `operator`: `ByStr20`, `recipient`: `ByStr20`, and `sender` : `_sender`.                             |
+| eventName | `Error`       | Re-authorizing is successful. | - emit `CodeNotFound` if the default operator is not found. |
 
 #### 2. RevokeDefaultOperator
 
@@ -98,6 +99,7 @@ transition RevokeDefaultOperator(operator : ByStr20)
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | eventName | `RevokedDefaultOperatorSuccess` | Revoking is successful.     | `operator`: `ByStr20`, `recipient`: `ByStr20`, and `sender` : `_sender`.                             |
+| eventName | `Error`       | Revoking is not successful. | - emit `CodeNotFound` if the default operator is not found. |
 
 
 #### 3. Send
@@ -119,7 +121,7 @@ transition Send(from: ByStr20, recipient: ByStr20, amount: Uint128)
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | eventName | `SendSuccess` | Sending is successful.     | `from`: `ByStr20`, `recipient`: `ByStr20`, and `amount`: `Uint128`.                             |
-| eventName | `Error`       | Sending is not successful. | TBD. |
+| eventName | `Error`       | Sending is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner. |
 
 #### 4. OperatorSend
 
@@ -179,7 +181,7 @@ transition OperatorBurn(from: ByStr20, amount: Uint128)
 |           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
 | --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | eventName | `OperatorBurnSuccess` | Burning is successful.     | `from`: `ByStr20`, and `amount`: `Uint128`.                                                                                               |
-| eventName | `Error`          | Burning is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not authorized. <br>**NOTE:** Only the approved `operator`(s) are allowed to call this transition. |
+| eventName | `Error`          | Burning is not successful. | - emit `CodeNotAuthorised` if the transition is called by an operator who is not authorized. |
 
 
 #### 7. Mint
