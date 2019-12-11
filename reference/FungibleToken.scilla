@@ -237,10 +237,10 @@ transition OperatorSend(caller: ByStr20, tokenOwner: ByStr20, to: ByStr20, amoun
    end
 end
 
-(* @dev: Burn existing tokens. Only tokenOwner.             *)
-(* @param from:    Address holding the tokens to be burned. *)
-(* @param amount:  Number of tokens to be destroyed.        *)
-transition Burn(from: ByStr20, amount: Uint128)
+(* @dev: Burn existing tokens. Only tokenOwner.                  *)
+(* @param burn_account: Address holding the tokens to be burned. *)
+(* @param amount:       Number of tokens to be destroyed.        *)
+transition Burn(burn_account: ByStr20, amount: Uint128)
     isSender = builtin eq _sender contractOwner;
     match isSender with
     | False =>
