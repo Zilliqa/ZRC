@@ -126,18 +126,20 @@ transition Send(from: ByStr20, recipient: ByStr20, amount: Uint128)
 #### 4. OperatorSend
 
 ```ocaml
-(* @dev: Moves amount tokens from sender to recipient. The caller must be an operator of sender. *)
-(* @param sender:     Address of the sender whose balance is decreased.                          *)
-(* @param recipient:  Address of the recipient whose balance is increased.                       *)
-(* @param amount:     Amount of tokens to be sent.                                               *)
-transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
+(* @dev: Moves amount tokens from sender to recipient. The caller must be an operator of tokenOwner. *)
+(* @param operator:   Address of an operator approved by tokenOwner.                                 *)
+(* @param tokenOwner: Address of the sender whose balance is decreased.                              *)
+(* @param recipient:  Address of the recipient whose balance is increased.                           *)
+(* @param amount:     Amount of tokens to be sent.                                                   *)
+transition OperatorSend(operator: ByStr20, tokenOwner: ByStr20, recipient: ByStr20, amount: Uint128)
 ```
 
-|        | Name        | Type      | Description                                          |
-| ------ | ----------- | --------- | ---------------------------------------------------- |
-| @param | `sender`    | `ByStr20` | Address of the sender whose balance is decreased.    |
-| @param | `recipient` | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `amount`    | `Uint128` | Amount of tokens to be sent.                         |
+|        | Name         | Type      | Description                                          |
+| ------ | ------------ | --------- | ---------------------------------------------------- |
+| @param | `operator`   | `ByStr20` | Address of an operator approved by `tokenOwner`.     |
+| @param | `tokenOwner` | `ByStr20` | Address of the sender whose balance is decreased.    |
+| @param | `recipient`  | `ByStr20` | Address of the recipient whose balance is increased. |
+| @param | `amount`     | `Uint128` | Amount of tokens to be sent.                         |
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -167,20 +169,22 @@ transition Burn(burn_account: ByStr20, amount: Uint128)
 #### 6. OperatorBurn
 
 ```ocaml
-(* @dev: Burn existing tokens. Only approved operator can burn a token. *)
-(* @param from:                Address holding the tokens to be burned. *)
-(* @param amount:              Number of tokens to be destroyed.        *)
-transition OperatorBurn(from: ByStr20, amount: Uint128)
+(* @dev: Burn existing tokens. Onlya  default operator can burn a token.  *)
+(* @param operator:   Address must be an operator of tokenOwner.          *)
+(* @param tokenOwner: Address holding the tokens to be burned.            *)
+(* @param amount:     Number of tokens to be destroyed.                   *)
+transition OperatorBurn(operator: ByStr20, from: ByStr20, amount: Uint128)
 ```
 
-|        | Name      | Type      | Description                                    |
-| ------ | --------- | --------- | ---------------------------------------------- |
-| @param | `from`    | `ByStr20` | Address holding the tokens to be burned.       |
-| @param | `amount`  | `Uint128` | Number of tokens to be burned.                 |
+|        | Name         | Type      | Description                                    |
+| ------ | ------------ | --------- | ---------------------------------------------- |
+| @param | `operator`   | `ByStr20` | Address of a default operator.                 |
+| @param | `tokenOwner` | `ByStr20` | Address holding the tokens to be burned.       |
+| @param | `amount`     | `Uint128` | Number of tokens to be burned.                 |
 
 |           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
 | --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `OperatorBurnSuccess` | Burning is successful.     | `from`: `ByStr20`, and `amount`: `Uint128`.                                                                                               |
+| eventName | `OperatorBurnSuccess` | Burning is successful.     | `operator`: `ByStr20`, `tokenOwner`: `ByStr20`, and `amount`: `Uint128`.                                                                                               |
 | eventName | `Error`          | Burning is not successful. | - emit `CodeNotAuthorised` if the transition is called by an operator who is not authorized. |
 
 
@@ -200,27 +204,27 @@ transition Mint(recipient: ByStr20, amount: Uint128)
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `MintSuccess` | Minting is successful.     | `to`: `ByStr20`, and `amount`: `Uint128`.                             |
+| eventName | `MintSuccess` | Minting is successful.     | `recipient`: `ByStr20`, and `amount`: `Uint128`.                             |
 | eventName | `Error`       | Minting is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only the `contractOwner` is allowed to call this transition. |
 
 
 #### 8. OperatorMint
 
 ```ocaml
-(* @dev: Mint new tokens. Only approved operator can mint tokens.      *)
-(* @param to:     Address of the recipient whose balance is increased. *)
-(* @param amount: Number of tokens to be burned.                       *)
+(* @dev: Mint new tokens. Only approved operator can mint tokens.         *)
+(* @param recipient: Address of the recipient whose balance is increased. *)
+(* @param amount:    Number of tokens to be burned.                       *)
 transition OperatorMint(to: ByStr20, amount: Uint256)
 ```
 
-|        | Name      | Type      | Description                                         |
-| ------ | --------- | --------- | --------------------------------------------------- |
-| @param | `to`      | `ByStr20` | Address of the recipient whose balance is increased.|
-| @param | `amount`  | `Uint128` | Number of tokens to be minted.                      |
+|        | Name         | Type      | Description                                         |
+| ------ | ------------ | --------- | --------------------------------------------------- |
+| @param | `recipient`  | `ByStr20` | Address of the recipient whose balance is increased.|
+| @param | `amount`     | `Uint128` | Number of tokens to be minted.                      |
 
 |           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
 | --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `OperatorMintAllSuccess` | Minting is successful.     | `to`: `ByStr20`, and `amount`: `Uint128`. |
+| eventName | `OperatorMintAllSuccess` | Minting is successful.     | `recipient`: `ByStr20`, and `amount`: `Uint128`. |
 | eventName | `Error`                    | Minting is not successful. | - emit `CodeNotAuthorised` if the transition is not called by an approved operator.                                                                                                      |
 
 
