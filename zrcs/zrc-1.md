@@ -1,6 +1,6 @@
 | ZRC | Title                            | Status | Type     | Author                             | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
 | --- | -------------------------------- | ------ | -------- | ---------------------------------- | -------------------- | -------------------- |
-| 1   | Standard for Non Fungible Tokens | Ready  | Standard | Gareth Mensah <gareth@zilliqa.com> | 2019-09-28           | 2019-10-09           |
+| 1   | Standard for Non Fungible Tokens | Ready  | Standard | Gareth Mensah <gareth@zilliqa.com>, Edison Lim <edison@aqilliz.com> | 2019-09-28           | 2019-10-09           |
 
 ## I. What are Non Fungible Tokens?
 
