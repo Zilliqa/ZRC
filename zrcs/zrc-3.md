@@ -1,7 +1,7 @@
 
 |  ZRC | Title | Status| Type | Author | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd)
 |--|--|--|--| -- | -- | -- |
-| 3  | Standard for Operated Meta Transactions in Fungible Token Contracts | Draft | Standard | Cameron Sajedi <cameron@starlingfoundries.com> | 2019-10-15 | 2019-10-15 
+| 3  | Standard for Operated Meta Transactions in Fungible Token Contracts | Draft | Standard | Cameron Sajedi <cameron@starlingfoundries.com> | 2019-10-15 | 2019-12-19 
 
 
 ## I. What are Meta Transactions?
