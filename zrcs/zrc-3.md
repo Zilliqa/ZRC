@@ -39,7 +39,7 @@ The reference Meta Transactions contract specification describes:
 
 ### B. Error Codes
 
-The NFT contract must define the following constants for use as error codes for the `Error` event.
+The contract must define the following constants for use as error codes for the `Error` event.
 
 | Name | Type | Code | Description
 |--|--|--|--|
@@ -48,6 +48,8 @@ The NFT contract must define the following constants for use as error codes for 
 | `CodeBadRequest` | `Int32` | `-3` | Emit when the transition call is somehow incorrect.
 | `CodeTokenExists`| `Int32` | `-4` | Emit when trying to create a token that already exists.
 | `CodeUnexpectedError` | `Int32` | `-5` | Emit when the transition call runs into an unexpected error.
+| `CodeNonceError` | `Int32` | `-6` | Emit when the transition call tries to use a nonce lower than the accounts present nonce.
+
 
 ### C. Immutable Variables
 
