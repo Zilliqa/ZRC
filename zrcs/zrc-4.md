@@ -1,12 +1,12 @@
 
 |  ZRC | Title | Status| Type | Author | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd)
 |--|--|--|--| -- | -- | -- |
-| 2  | Standard for Operated Meta Transactions in Token Contracts | Draft | Standard | Cameron Sajedi <cameron@starlingfoundries.com> | 2019-10-15 | 2019-10-15 
+| 4  | Standard for operated scarce badges | Draft | Standard | Cameron Sajedi <cameron@starlingfoundries.com> | 2019-10-15 | 2019-10-15 
 
 
-## I. What are Meta Transactions?
+## I. What are Badges for?
 
-Meta Transactions are an emerging standard across smart contract platforms for smoothing the experience of onboarding new users.This is done by enabling an off-chain operator node to act as an intermediary, accepting signed checks for token transfers and paying the fee to engage the transfer on the signatory's behalf.
+Badges can be used in a distributed or non-distributed context to represent access, achievments, inclusion in a group, etc. This badge standard is based on the OpenProofs standard, which was abandoned while incomplete. The goal is to enable a NFT-style controlled badge that can only be issued by a permissioned node, and cannot be transfered by the holder, it can only be burned. 
 ## II. Abstract 
 
 ZRC-2 defines a minimum interface a smart contract must implement to allow a token of any type to be transfered via delegation to a pre-arranged operator server which can pay gas fees on that user's behalf. This may be easily extended to cases where access control or authority must be represented by this off-chain server as well. 
