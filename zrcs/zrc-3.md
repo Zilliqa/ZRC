@@ -134,21 +134,19 @@ transition Send(from: ByStr20, recipient: ByStr20, amount: Uint128)
 
 ```ocaml
 (* @dev: Moves amount tokens from sender to recipient. The caller must be an teller for the tokenOwner. *)
-(* @param teller:   Address of an teller approved by tokenOwner.                                 *)
 (* @param tokenOwner: Address of the sender whose balance is decreased.                              *)
 (* @param recipient:  Address of the recipient whose balance is increased.                           *)
 (* @param amount:     Amount of tokens to be sent.                                                   *)
-transition TellerSend(teller: ByStr20, tokenOwner: ByStr20, recipient: ByStr20, amount: Uint128)
+transition TellerSend(tokenOwner: ByStr20, recipient: ByStr20, amount: Uint128, checkHash: ByStrX, checkSig: ByStr33, tip: Uint128)
 ```
 
 |        | Name         | Type      | Description                                          |
 | ------ | ------------ | --------- | ---------------------------------------------------- |
-| @param | `teller`   | `ByStr20` | Address of an teller approved by `tokenOwner`.     |
 | @param | `tokenOwner` | `ByStr20` | Address of the sender whose balance is decreased.    |
 | @param | `recipient`  | `ByStr20` | Address of the recipient whose balance is increased. |
 | @param | `amount`     | `Uint128` | Amount of tokens to be sent.                         |
-| @param | `checkhash` | `byStrX` | The concatenated hashes of the metacheck fields to validate|
-| @param | `checksig` | `byStr33` | The tokenOwner's signature of checkhash to validate the check | 
+| @param | `checkHash` | `ByStrX` | The concatenated hashes of the metacheck fields to validate|
+| @param | `checkSig` | `ByStr33` | The tokenOwner's signature of checkhash to validate the check | 
 | @param | `tip`     | `Uint128` | Amount of tokens to transfer from sender to teller for service.|
 
 
