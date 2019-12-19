@@ -47,8 +47,8 @@ The contract must define the following constants for use as error codes for the 
 | `CodeNotFound` | `Int32` | `-2` | Emit when a value is missing.
 | `CodeBadRequest` | `Int32` | `-3` | Emit when the transition call is somehow incorrect.
 | `CodeTokenExists`| `Int32` | `-4` | Emit when trying to create a token that already exists.
-| `CodeUnexpectedError` | `Int32` | `-5` | Emit when the transition call runs into an unexpected error.
-| `CodeNonceError` | `Int32` | `-6` | Emit when the transition call tries to use a nonce lower than the accounts present nonce.
+| `CodeNonceError` | `Int32` | `-5` | Emit when the transition call tries to use a nonce lower than the accounts present nonce.
+| `CodeUnexpectedError` | `Int32` | `-6` | Emit when the transition call runs into an unexpected error.
 
 
 ### C. Immutable Variables
@@ -135,11 +135,15 @@ transition Send(from: ByStr20, recipient: ByStr20, amount: Uint128)
 #### 4. SendCheck
 
 ```ocaml
-(* @dev: Moves amount tokens from sender to recipient. The caller must be an teller for the tokenOwner. *)
-(* @param tokenOwner: Address of the sender whose balance is decreased.                              *)
-(* @param recipient:  Address of the recipient whose balance is increased.                           *)
-(* @param amount:     Amount of tokens to be sent.                                                   *)
-transition TellerSend(tokenOwner: ByStr20, recipient: ByStr20, amount: Uint128, checkHash: ByStrX, checkSig: ByStr33, tip: Uint128)
+(* @dev: Moves amount tokens from sender to recipient via metatransaction. *)
+(* @param tokenOwner: Address of the sender whose balance is decreased.    *)
+(* @param recipient:  Address of the recipient whose balance is increased. *)
+(* @param amount:     Amount of tokens to be sent.                         *)
+(* @param checkHash:  teller-supplied hash of the metatransaction check.   *)
+(* @param checkSig:   Signature of checkHash - supplied by the tokenOwer.  *)
+(* @param tip:        Amount of tokens tokenOwner allocated for the teller *)
+(* @param nonce:      The account-specific nonce to use for transaction    *)
+transition SendCheck(tokenOwner: ByStr20, recipient: ByStr20, amount: Uint128, checkHash:ByStr, checkSig: ByStr64, tip: Uint128, nonce: Uint128)
 ```
 
 |        | Name         | Type      | Description                                          |
@@ -150,6 +154,7 @@ transition TellerSend(tokenOwner: ByStr20, recipient: ByStr20, amount: Uint128, 
 | @param | `checkHash` | `ByStrX` | The concatenated hashes of the metacheck fields to validate|
 | @param | `checkSig` | `ByStr33` | The tokenOwner's signature of checkhash to validate the check | 
 | @param | `tip`     | `Uint128` | Amount of tokens to transfer from sender to teller for service.|
+| @param | `nonce`     | `Uint128` | The client-supplied and client-signed account specific nonce.|
 
 
 
