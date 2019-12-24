@@ -119,7 +119,7 @@ transition Send(recipient: ByStr20, amount: Uint128)
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | eventName | `SendSuccess` | Sending is successful.     | `from`: `ByStr20` which should be `_sender`, `recipient`: `ByStr20`, and `amount`: `Uint128`.                             |
-| eventName | `Error`       | Sending is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner. |
+| eventName | `Error`       | Sending is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the token owner. |
 
 #### 4. OperatorSend
 
