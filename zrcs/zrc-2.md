@@ -105,22 +105,20 @@ transition RevokeDefaultOperator(operator : ByStr20)
 #### 3. Send
 
 ```ocaml
-(* @dev: Moves amount tokens from the caller’s address to the recipient.   *)
-(* @param from:       Address of the sender whose balance is decreased.    *)
+(* @dev: Moves amount tokens from _sender to the recipient.                *)
 (* @param recipient:  Address of the recipient whose balance is increased. *)
 (* @param amount:     Amount of tokens to be sent.                         *)
-transition Send(from: ByStr20, recipient: ByStr20, amount: Uint128)
+transition Send(recipient: ByStr20, amount: Uint128)
 ```
 
 |        | Name        | Type      | Description                                          |
 | ------ | ----------- | --------- | ---------------------------------------------------- |
-| @param | `from`      | `ByStr20` | Address of the sender whose balance is decreased.    |
 | @param | `recipient` | `ByStr20` | Address of the recipient whose balance is increased. |
 | @param | `amount`    | `Uint128` | Amount of tokens to be sent.                         |
 
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `SendSuccess` | Sending is successful.     | `from`: `ByStr20`, `recipient`: `ByStr20`, and `amount`: `Uint128`.                             |
+| eventName | `SendSuccess` | Sending is successful.     | `from`: `ByStr20` which should be `_sender`, `recipient`: `ByStr20`, and `amount`: `Uint128`.                             |
 | eventName | `Error`       | Sending is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner. |
 
 #### 4. OperatorSend
