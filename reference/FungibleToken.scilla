@@ -201,18 +201,10 @@ transition revokeDefaultOperator(operator : ByStr20)
 end
 
 (* @dev: Moves amount tokens from the caller’s address to the recipient.   *)
-(* @param from:       Address of the sender whose balance is decreased.    *)
 (* @param recipient:  Address of the recipient whose balance is increased. *)
 (* @param amount:     Amount of tokens to be sent.                         *)
-transition Send(from: ByStr20, recipient: ByStr20, amount: Uint128)
-  isSender = builtin eq _sender from;
-    match isSender with
-    | False =>
-      err = CodeNotAuthorised;
-      MakeError err
-    | True =>
-      ProcedureMove from recipient amount
-    end
+transition Send(recipient: ByStr20, amount: Uint128)
+  ProcedureMove _sender recipient amount
 end
 
 (* @dev: Moves amount tokens from sender to recipient.                     *)
