@@ -327,7 +327,7 @@ transition TansferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
 
 |        | Name      | Type      | Description                                          |
 | ------ | --------- | --------- | ---------------------------------------------------- |
-| @param | `from`    | `ByStr20` | Address of the sender whose balance is deccreased.   |
+| @param | `from`    | `ByStr20` | Address of the sender whose balance is decreased.   |
 | @param | `to`      | `ByStr20` | Address of the recipient whose balance is increased. |
 | @param | `amount`  | `Uint128` | Number of tokens to be transferred.                  |
 
