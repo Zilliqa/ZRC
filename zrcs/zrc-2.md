@@ -86,17 +86,15 @@ transition Send(recipient: ByStr20, amount: Uint128)
 #### 2. OperatorSend
 
 ```ocaml
-(* @dev: Moves amount tokens from tokenOwner to recipient. The caller must be an operator of tokenOwner. *)
-(* @param operator:   Address of an operator approved by tokenOwner.                                 *)
+(* @dev: Moves amount tokens from tokenOwner to recipient. _sender must be an operator of tokenOwner.*)
 (* @param tokenOwner: Address of the sender whose balance is decreased.                              *)
 (* @param recipient:  Address of the recipient whose balance is increased.                           *)
 (* @param amount:     Amount of tokens to be sent.                                                   *)
-transition OperatorSend(operator: ByStr20, tokenOwner: ByStr20, recipient: ByStr20, amount: Uint128)
+transition OperatorSend(tokenOwner: ByStr20, recipient: ByStr20, amount: Uint128)
 ```
 
 |        | Name         | Type      | Description                                          |
 | ------ | ------------ | --------- | ---------------------------------------------------- |
-| @param | `operator`   | `ByStr20` | Address of an operator approved by `tokenOwner`.     |
 | @param | `tokenOwner` | `ByStr20` | Address of the sender whose balance is decreased.    |
 | @param | `recipient`  | `ByStr20` | Address of the recipient whose balance is increased. |
 | @param | `amount`     | `Uint128` | Amount of tokens to be sent.                         |
