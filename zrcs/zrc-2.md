@@ -191,7 +191,7 @@ transition OperatorBurn(operator: ByStr20, from: ByStr20, amount: Uint128)
 ```ocaml
 (* @dev: Mint new tokens. Only contractOwner can mint.                        *)
 (* @param recipient:     Address of the recipient whose balance is increased. *)
-(* @param amount:        Number of tokens to be burned.                       *)
+(* @param amount:        Number of tokens to be minted.                       *)
 transition Mint(recipient: ByStr20, amount: Uint128)
 ```
 
