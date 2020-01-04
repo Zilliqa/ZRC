@@ -212,7 +212,7 @@ transition Mint(recipient: ByStr20, amount: Uint128)
 (* @dev: Mint new tokens. Only approved operator can mint tokens.         *)
 (* @param operator:   Address must be an operator of tokenOwner.          *)
 (* @param recipient: Address of the recipient whose balance is increased. *)
-(* @param amount:    Number of tokens to be burned.                       *)
+(* @param amount:    Number of tokens to be minted.                       *)
 transition OperatorMint(operator: ByStr20, recipient: ByStr20, amount: Uint128)
 ```
 
