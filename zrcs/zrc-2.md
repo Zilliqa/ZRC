@@ -30,7 +30,7 @@ The fungible token contract specification describes:
 | `contractOwner`   | The owner of the contract initialized by the creator of the contract.                                                                                                                                                            |
 | `tokenOwner`      | A user (identified by an address) that owns tokens.                                                                                                                                                                              |
 | `approvedSpender` | A user (identified by an address) that can transfer tokens on behalf of the `tokenOwner`.                                                                                                                     |
-| `operator`        | A user (identified by an address) that is approved to operate all and any tokens owned by another user (identified by another address). The operators can make any transfer, approve, or burn the tokens on behalf of that user. |
+| `operator`        | A user (identified by an address) that is approved to operate all and any tokens owned by another user (identified by another address). |
 
 ### B. Error Codes
 
@@ -50,7 +50,6 @@ The fungible token contract must define the following constants for use as error
 | `contractOwner`      | `ByStr20`     | The owner of the contract initialized by the creator of the contract. |
 | `name`               | `String`      | The name of the fungible token.                                       |
 | `symbol`             | `String`      | The symbol of the fungible token.                                     |
-| `default_operators`  | `List ByStr20`| The adddresses set of default operators for all token holders.        |
 | `decimals`           | `Uint32`      | The number of decimal places a token can be divided by.               |
 
 ### D. Mutable Fields
@@ -58,7 +57,6 @@ The fungible token contract must define the following constants for use as error
 | Name                | Type                                                              | Description                                                                                                                                                           |
 | ------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `total_tokens` | `Uint128 = Uint128 0` |    Total amount of tokens.       |
-| `revokedDefaultOperators` | `Map ByStr20 (Map ByStr20 Bool) = Emp ByStr20 (Map ByStr20 Bool)` |    Mapping of `default_operators` that have been revoked by token hodlers.       |
 | `balancesMap`     | `Map ByStr20 Uint128 = Emp ByStr20 Uint128`                       | Mapping between token owner to number of owned tokens.                                                                                                  |
 | `operatorsMap`    | `Map ByStr20 (Map ByStr20 Bool) = Emp ByStr20 (Map ByStr20 Bool)`                       | Mapping from token owner to designated operators. Token owner can approve an address as an operator (as per the definition of operator given above).   |
 | `allowancesMap` | `Map ByStr20 (Map ByStr20 Uint128) = Emp ByStr20 (Map ByStr20 Uint128)` |    Mapping from token owner to approved spender address. Token owner can give an address an allowance of tokens to transfer tokens to other addresses.       |                                                                                                           
