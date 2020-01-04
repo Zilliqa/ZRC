@@ -81,7 +81,7 @@ transition ReauthorizeDefaultOperator(operator : ByStr20)
 |           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
 | --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | eventName | `ReAuthorizedDefaultOperatorSuccess` | Re-authorizing is successful.     | `operator`: `ByStr20`, `recipient`: `ByStr20`, and `sender` : `_sender`.                             |
-| eventName | `Error`       | Re-authorizing is successful. | - emit `CodeNotFound` if the default operator is not found. |
+| eventName | `Error`       | Re-authorizing is not successful. | - emit `CodeNotFound` if the default operator is not found. |
 
 #### 2. RevokeDefaultOperator
 
