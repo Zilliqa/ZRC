@@ -318,7 +318,7 @@ transition Transfer(to: ByStr20, amount: Uint128)
 #### 14. TansferFrom
 
 ```ocaml
-(* @dev: Move a given amount of tokens from one address another using the allowance mechanism. *)
+(* @dev: Move a given amount of tokens from one address to another using the allowance mechanism. The caller must be an `approvedSpender`. *)
 (* param from:    Address of the sender whose balance is deccreased.                           *)
 (* param to:      Address of the recipient whose balance is increased.                         *)
 (* param amount:  Number of tokens to be transferred.                                          *)
