@@ -65,44 +65,8 @@ The fungible token contract must define the following constants for use as error
 
 ### E. Transitions
 
-#### 1. ReauthorizeDefaultOperator
 
-```ocaml
-(* @dev: Re-authorize a default operator               *)
-(* @param operator: Amount of tokens to be sent.       *)
-transition ReauthorizeDefaultOperator(operator : ByStr20)  
-```
-
-|        | Name        | Type      | Description                                          |
-| ------ | ----------- | --------- | ---------------------------------------------------- |
-| @param | `operator`  | `ByStr20` | Address of the default operator to be reauthorized.  |
-
-
-|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
-| --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `ReAuthorizedDefaultOperatorSuccess` | Re-authorizing is successful.     | `operator`: `ByStr20`, `recipient`: `ByStr20`, and `sender` : `_sender`.                             |
-| eventName | `Error`       | Re-authorizing is not successful. | - emit `CodeNotFound` if the default operator is not found. |
-
-#### 2. RevokeDefaultOperator
-
-```ocaml
-(* @dev: Revoke a default operator.              *)
-(* @param operator: Amount of tokens to be sent. *)
-transition RevokeDefaultOperator(operator : ByStr20)
-```
-
-|        | Name        | Type      | Description                                          |
-| ------ | ----------- | --------- | ---------------------------------------------------- |
-| @param | `operator`      | `ByStr20` | Address of the default operator to be revoked.   |
-
-
-|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
-| --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `RevokedDefaultOperatorSuccess` | Revoking is successful.     | `operator`: `ByStr20`, `recipient`: `ByStr20`, and `sender` : `_sender`.                             |
-| eventName | `Error`       | Revoking is not successful. | - emit `CodeNotFound` if the default operator is not found. |
-
-
-#### 3. Send
+#### 1. Send
 
 ```ocaml
 (* @dev: Moves amount tokens from _sender to the recipient.                *)
@@ -121,7 +85,7 @@ transition Send(recipient: ByStr20, amount: Uint128)
 | eventName | `SendSuccess` | Sending is successful.     | `from`: `ByStr20` which should be `_sender`, `recipient`: `ByStr20`, and `amount`: `Uint128`.                             |
 | eventName | `Error`       | Sending is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the token owner. |
 
-#### 4. OperatorSend
+#### 2. OperatorSend
 
 ```ocaml
 (* @dev: Moves amount tokens from tokenOwner to recipient. The caller must be an operator of tokenOwner. *)
@@ -144,91 +108,8 @@ transition OperatorSend(operator: ByStr20, tokenOwner: ByStr20, recipient: ByStr
 | eventName | `OperatorSendSuccess` | Sending is successful.     | `from`: `ByStr20`, `to`: `ByStr20`, and `amount`: `Uint128`.                             |
 | eventName | `Error`       | Sending is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not an approved operator. |
 
-#### 5. Burn
 
-```ocaml
-(* @dev: Burn existing tokens. Only tokenOwner or approved operator can burn a token *)
-(* @param burn_account:                     Address holding the tokens to be burned. *)
-(* @param amount:                           Number of tokens to be destroyed.        *)
-transition Burn(burn_account: ByStr20, amount: Uint128)
-```
-
-|        | Name           | Type      | Description                              |
-| ------ | -------------- | --------- | ---------------------------------------- |
-| @param | `burn_account` | `ByStr20` | Address holding the tokens to be burned. |
-| @param | `amount`       | `Uint128` | Number of tokens to be burned.           |
-
-|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                                               |
-| --------- | ------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `BurnSuccess` | Burning is successful.     | `from`: `ByStr20`, and `amount`: `Uint128`.                                                                                                                      |
-| eventName | `Error`       | Burning is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the token owner.<br>**NOTE:** Only the `tokenOwner` is allowed to call this transition. |
-
-
-#### 6. OperatorBurn
-
-```ocaml
-(* @dev: Burn existing tokens. Onlya  default operator can burn a token.  *)
-(* @param operator:   Address must be an operator of tokenOwner.          *)
-(* @param tokenOwner: Address holding the tokens to be burned.            *)
-(* @param amount:     Number of tokens to be destroyed.                   *)
-transition OperatorBurn(operator: ByStr20, from: ByStr20, amount: Uint128)
-```
-
-|        | Name         | Type      | Description                                    |
-| ------ | ------------ | --------- | ---------------------------------------------- |
-| @param | `operator`   | `ByStr20` | Address of a default operator.                 |
-| @param | `tokenOwner` | `ByStr20` | Address holding the tokens to be burned.       |
-| @param | `amount`     | `Uint128` | Number of tokens to be burned.                 |
-
-|           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
-| --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `OperatorBurnSuccess` | Burning is successful.     | `operator`: `ByStr20`, `tokenOwner`: `ByStr20`, and `amount`: `Uint128`.                                                                                               |
-| eventName | `Error`          | Burning is not successful. | - emit `CodeNotAuthorised` if the transition is called by an operator who is not authorized. |
-
-
-#### 7. Mint
-
-```ocaml
-(* @dev: Mint new tokens. Only contractOwner can mint.                        *)
-(* @param recipient:     Address of the recipient whose balance is increased. *)
-(* @param amount:        Number of tokens to be minted.                       *)
-transition Mint(recipient: ByStr20, amount: Uint128)
-```
-
-|        | Name        | Type      | Description                                          |
-| ------ | ----------- | --------- | ---------------------------------------------------- |
-| @param | `recipient` | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `amount`    | `Uint128` | Number of tokens to be minted.                       |
-
-|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
-| --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `MintSuccess` | Minting is successful.     | `recipient`: `ByStr20`, and `amount`: `Uint128`.                             |
-| eventName | `Error`       | Minting is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only the `contractOwner` is allowed to call this transition. |
-
-
-#### 8. OperatorMint
-
-```ocaml
-(* @dev: Mint new tokens. Only approved operator can mint tokens.         *)
-(* @param operator:   Address must be an operator of tokenOwner.          *)
-(* @param recipient: Address of the recipient whose balance is increased. *)
-(* @param amount:    Number of tokens to be minted.                       *)
-transition OperatorMint(operator: ByStr20, recipient: ByStr20, amount: Uint128)
-```
-
-|        | Name         | Type      | Description                                         |
-| ------ | ------------ | --------- | --------------------------------------------------- |
-| @param | `operator`   | `ByStr20` | Address of a default operator.                      |
-| @param | `recipient`  | `ByStr20` | Address of the recipient whose balance is increased.|
-| @param | `amount`     | `Uint128` | Number of tokens to be minted.                      |
-
-|           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
-| --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `OperatorMintAllSuccess` | Minting is successful.     | `recipient`: `ByStr20`, and `amount`: `Uint128`. |
-| eventName | `Error`                    | Minting is not successful. | - emit `CodeNotAuthorised` if the transition is not called by an approved operator.                                                                                                      |
-
-
-#### 9. AuthorizeOperator
+#### 3. AuthorizeOperator
 
 ```ocaml
 (* @dev: Make an address an operator of the caller.                           *)
@@ -246,7 +127,7 @@ transition AuthorizeOperator(operator: ByStr20)
 | eventName | `Error`                    | Authorizing is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the token holder.                                                                                                      |
 
 
-#### 10. RevokeOperator
+#### 4. RevokeOperator
 
 ```ocaml
 (* @dev: Revoke an address from being an operator of the caller. *)
@@ -264,7 +145,7 @@ transition RevokeOperator(operator: ByStr20)
 | eventName | `Error`                    | Revoking is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the token holder.                                                                                                      |
 
 
-#### 11. IsOperatorFor
+#### 5. IsOperatorFor
 
 ```ocaml
 (* @dev: Returns true if an address is an operator of tokenOwner. All addresses are their own operator. *)
@@ -284,19 +165,7 @@ transition IsOperatorFor(operator: ByStr20, tokenOwner: ByStr20)
 | eventName | `Error`                    | Checking operator is not successful. | TBA.                                                                                                      |
 
 
-#### 12. DefaultOperators
-
-```ocaml
-(* @dev: Returns the list of default operators. These addresses are operators for all token holders. *)
-transition DefaultOperators()
-```
-
-|           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
-| --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `DefaultOperatorsSuccess` | Listing default operators is successful.     | `list`: `List ByStr20` |
-
-
-#### 13. Transfer
+#### 6. Transfer
 
 ```ocaml
 (* @dev: Move a given amount of tokens from one address another.       *)
@@ -315,7 +184,7 @@ transition Transfer(to: ByStr20, amount: Uint128)
 | eventName | `TransferSuccess` | Transfering is successful.     | `to`: `ByStr20`, and `amount`: `Uint128`.                                                                            |
 | eventName | `Error`               | Transfering is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user that is not authorised.<br>**NOTE:** Only `tokenOwner` address can invoke this transition. |
 
-#### 14. TansferFrom
+#### 7. TansferFrom
 
 ```ocaml
 (* @dev: Move a given amount of tokens from one address to another using the allowance mechanism. The caller must be an `approvedSpender`. *)
@@ -336,7 +205,7 @@ transition TansferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
 | eventName | `TansferFromSuccess` | Approval is successful.     | `from`: `ByStr20`, `to`: `ByStr20`, and `amount`: `Uint128`.                                                                                               |
 | eventName | `Error`          | Approval is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not authorized to approve. <br>**NOTE:** Only either the `tokenOwner`, `approvedSpender` or authorized `operator`s are allowed to call this transition. |
 
-#### 15. Allowance
+#### 8. Allowance
 
 ```ocaml
 (* @dev: Returns the number of tokens spender is allowed to spend on behalf of owner. *)
@@ -356,7 +225,7 @@ transition Allowance(tokenOwner: ByStr20, spender: ByStr20)
 | eventName | `Error`          | Allowing is not successful. | TBA. |
 
 
-#### 16. Approve
+#### 9. Approve
 
 ```ocaml
 (* @dev: Sets amount as the allowance of spender over the caller’s tokens.  *)
@@ -377,7 +246,7 @@ transition Approve(spender: ByStr20, amount: Uint128)
 | eventName | `Error`          | Approving is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not authorized to approve. <br>**NOTE:** Only the `tokenOwner`  is allowed to call this transition. |
 
 
-#### 17. TotalSupply
+#### 10. TotalSupply
 
 ```ocaml
 (* @dev: Returns the amount of tokens in existence. *)
