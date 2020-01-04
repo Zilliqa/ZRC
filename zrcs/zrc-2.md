@@ -60,7 +60,7 @@ The fungible token contract must define the following constants for use as error
 | `total_tokens` | `Uint128 = Uint128 0` |    Total amount of tokens.       |
 | `revokedDefaultOperators` | `Map ByStr20 (Map ByStr20 Bool) = Emp ByStr20 (Map ByStr20 Bool)` |    Mapping of `default_operators` that have been revoked by token hodlers.       |
 | `balancesMap`     | `Map ByStr20 Uint128 = Emp ByStr20 Uint128`                       | Mapping between token owner to number of owned tokens.                                                                                                  |
-| `operatorsMap`    | `Map ByStr20 (Map ByStr20 Bool) = Emp ByStr20 (Map ByStr20 Bool)`                       | Mapping between token owner to approved address. Token owner can approve an address (as an operator) to transfer tokens to other addresses.   |
+| `operatorsMap`    | `Map ByStr20 (Map ByStr20 Bool) = Emp ByStr20 (Map ByStr20 Bool)`                       | Mapping from token owner to designated operators. Token owner can approve an address as an operator (as per the definition of operator given above).   |
 | `allowancesMap` | `Map ByStr20 (Map ByStr20 Uint128) = Emp ByStr20 (Map ByStr20 Uint128)` |    Mapping from token owner to approved spender address. Token owner can give an address an allowance of tokens to transfer tokens to other addresses.       |                                                                                                           
 
 ### E. Transitions
