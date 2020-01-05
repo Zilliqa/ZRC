@@ -157,8 +157,7 @@ transition IsOperatorFor(operator: ByStr20, tokenOwner: ByStr20)
 
 |           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
 | --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `IsOperatorForSuccess` | Checking operator is successful.     | `operator`: `ByStr20`, and `tokenOwner`: `ByStr20`. |
-| eventName | `Error`                    | Checking operator is not successful. | TBA.                                                                                                      |
+| eventName | `IsOperatorForSuccess` | Checking if operator is successful.  | `operator`: `ByStr20`, and `tokenOwner`: `ByStr20`. |
 
 
 #### 6. Transfer
