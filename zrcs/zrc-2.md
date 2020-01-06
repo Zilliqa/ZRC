@@ -1,6 +1,6 @@
-| ZRC | Title                        | Status | Type  | Author                                                                                                               | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
-| --- | ---------------------------- | ------ | ----- | -------------------------------------------------------------------------------------------------------------------- | -------------------- | -------------------- |
-| 1   | Standard for Fungible Tokens | Draft  | Ready | Gareth Mensah <gareth@zilliqa.com>, Vaivaswatha Nagaraj <vaivaswatha@zilliqa.com>, Chua Han Wen <hanwen@zilliqa.com> | 2019-11-18           | 2020-01-06           |
+| ZRC | Title                        | Status | Type  | Author                                                                                                                       | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
+| --- | ---------------------------- | ------ | ----- | ---------------------------------------------------------------------------------------------------------------------------- | -------------------- | -------------------- |
+| 1   | Standard for Fungible Tokens | Draft  | Ready | Gareth Mensah <gareth@zilliqa.com> <br> Vaivaswatha Nagaraj <vaivaswatha@zilliqa.com> <br> Chua Han Wen <hanwen@zilliqa.com> | 2019-11-18           | 2020-01-06           |
 
 ## I. What are Fungible Tokens?
 
