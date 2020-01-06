@@ -1,0 +1,430 @@
+scilla_version 0
+
+(***************************************************)
+(*               Associated library                *)
+(***************************************************)
+import BoolUtils ListUtils IntUtils
+library FungibleToken
+
+let one_msg = 
+  fun (msg : Message) => 
+  let nil_msg = Nil {Message} in
+  Cons {Message} msg nil_msg
+
+(* Error events *)
+type Error =
+  | CodeNotAuthorized
+  | CodeNotFound
+  | CodeNotAllowed
+
+let makeError =
+  fun (result : Error) =>
+    let result_code = 
+      match result with
+      | CodeNotAuthorized    => Int32 -1
+      | CodeNotFound         => Int32 -2
+      | CodeNotAllowed      => Int32 -3
+      end
+    in
+    { _eventname : "Error"; code : result_code }
+
+
+let le_int =
+  fun (a : Uint128) => fun (b : Uint128) =>
+    let x = builtin lt a b in
+    match x with
+    | True => True
+    | False =>
+      let y = builtin eq a b in
+      match y with
+      | True => True
+      | False => False
+      end
+    end
+
+let min_int =
+  fun (a : Uint128) => fun (b : Uint128) =>
+  let min = builtin lt a b in
+  match min with
+  | True =>
+    a
+  | False =>
+    b
+  end
+    
+(* A util function to test equality *)
+let f_eq =
+  fun (a : ByStr20) =>
+  fun (b : ByStr20) =>
+    builtin eq a b
+
+(* Instantiate a type function to test membership in a list *)
+let is_default_operator = @list_mem ByStr20
+    
+
+(***************************************************)
+(*             The contract definition             *)
+(***************************************************)
+
+contract FungibleToken
+(contract_owner: ByStr20,
+  name : String,
+  symbol: String,
+  decimals: Uint32,
+  default_operators : List ByStr20
+)
+
+(* Mutable fields *)
+
+field total_tokens : Uint128 = Uint128 0
+
+field balances_map: Map ByStr20 Uint128 
+  = Emp ByStr20 Uint128
+
+field operators_map: Map ByStr20 (Map ByStr20 Bool) 
+  = Emp ByStr20 (Map ByStr20 Bool)
+
+field revoked_default_operators : Map ByStr20 (Map ByStr20 Bool) 
+  = Emp ByStr20 (Map ByStr20 Bool)
+
+field allowances_map: Map ByStr20 (Map ByStr20 Uint128) 
+  = Emp ByStr20 (Map ByStr20 Uint128)
+
+(* Procedures *)
+
+(* Emit Errors *)
+procedure MakeError(err : Error)
+  e = makeError err;
+  event e
+end
+
+(* Mint Tokens *)
+procedure ProcedureMint(recipient: ByStr20, amount: Uint128) 
+  get_bal <- balances_map[recipient];
+  balance = 
+    match get_bal with
+    | Some bal => bal
+    | None => Uint128 0
+    end;
+  new_balance = builtin add amount balance;
+  balances_map[recipient] := new_balance;
+  current_total_tokens <- total_tokens;
+  new_total_tokens = builtin add current_total_tokens amount;
+  total_tokens := new_total_tokens;
+  e = {_eventname: "MintSuccess"; recipient: recipient; minted_amount: amount; new_total_tokens: new_total_tokens};
+  event e
+end
+
+(* Burn Tokens *)
+procedure ProcedureBurn(from: ByStr20, amount: Uint128)
+  get_bal <- balances_map[from];
+  match get_bal with
+  | None => 
+    err = CodeNotAllowed;
+    MakeError err
+  | Some bal =>
+    can_burn = le_int amount bal;
+    match can_burn with
+    | False =>
+      err = CodeNotAllowed;
+      MakeError err
+    | True =>
+      (* Subtract amount from 'from' *)
+      new_balance = builtin sub bal amount;
+      balances_map[from] := new_balance;
+      current_total_tokens <- total_tokens;
+      new_total_tokens = builtin sub current_total_tokens amount;
+      total_tokens := new_total_tokens;
+      e = {_eventname: "BurnSuccess"; from: from; amount: amount};
+      event e  
+      end
+   end
+end
+
+(* Move Tokens *)
+procedure ProcedureMove(from: ByStr20, to: ByStr20, amount: Uint128)
+  get_from_bal <- balances_map[from];
+  match get_from_bal with
+  | Some bal =>
+    can_do = le_int amount bal;
+    match can_do with
+    | True =>
+      (* Subtract amount from _sender and add it to "to" address *)
+      new_sender_bal = builtin sub bal amount;
+      balances_map[from] := new_sender_bal;
+
+      (* Adds amount to "to" address *)
+      get_to_bal <- balances_map[to];
+      new_to_bal = match get_to_bal with
+      | Some bal => builtin add bal amount
+      | None => amount
+      end;
+      
+      balances_map[to] := new_to_bal;
+      e = {_eventname : "MoveSuccess"; sender : from; recipient : to; amount : amount};
+      event e
+    | False =>
+      (* Balance not sufficient *)
+      err = CodeNotAuthorized;
+      MakeError err
+    end
+  | None =>
+    err = CodeNotFound;
+    MakeError err
+  end
+end
+
+(* Approve Spender *)
+procedure ProcedureApprove(spender: ByStr20, amount: Uint128)
+  allowances_map[_sender][spender] := amount;
+  e = {_eventname : "ApproveSuccess"; sender : _sender; spender: spender; amount : amount};
+  event e
+end
+
+(* Transitions *)
+
+(* @dev: Moves amount tokens from _sender to the recipient. Used by token_owner *)
+(* @param recipient:  Address of the recipient whose balance is increased.      *)
+(* @param amount:     Amount of tokens to be sent.                              *)
+transition Send(to: ByStr20, amount: Uint128)
+  ProcedureMove _sender to amount
+end
+
+(* @dev: Moves amount tokens from token_owner to recipient. _sender must be an operator of token_owner. *)
+(* @param operator:    Address of the operator who is tied to the token owner's assets.                 *)
+(* @param from:        Address of the token_owner whose balance is decreased.                           *)
+(* @param to:          Address of the recipient whose balance is increased.                             *)
+(* @param amount:      Amount of tokens to be sent.                                                     *)
+transition OperatorSend(operator: ByStr20, from: ByStr20, to: ByStr20, amount: Uint128)
+  get_operator <- operators_map[from][operator];
+  is_operator_approved = 
+    match get_operator with
+    | Some value => value
+    | None => False
+    end;
+  is_default_operator = is_default_operator f_eq operator default_operators;
+  is_revoked_operator <- exists revoked_default_operators[from][operator];
+  is_default_operator_approved = let is_not_revoked_operator = 
+    negb is_revoked_operator in andb is_not_revoked_operator is_default_operator;
+  is_approved = orb is_operator_approved is_default_operator_approved;
+  match is_approved with
+    | False =>
+      err = CodeNotAuthorized;
+      MakeError err
+    | True =>
+      ProcedureMove from to amount
+   end
+end
+
+(* @dev: Move a given amount of tokens from one address to another using the allowance mechanism. The caller must be an approved_spender. *)
+(* @param spender: Address of the spender who is tied to the token_owner's assets and have spending allowances allocated by token_owner.  *)
+(* @param from:    Address of the token_owner whose balance is deccreased.                                                                *)
+(* @param to:      Address of the recipient whose balance is increased.                                                                   *)
+(* @param amount:  Amount of tokens to be transferred.                                                                                    *)
+transition TransferFrom(spender: ByStr20, from: ByStr20, to: ByStr20, amount: Uint128)
+  get_bal <- balances_map[from];
+  match get_bal with
+  | None => 
+    err = CodeNotFound;
+    MakeError err
+  | Some bal =>
+    get_spender_allowed <- allowances_map[from][spender];
+    match get_spender_allowed with
+    | None =>
+      err = CodeNotAuthorized;
+      MakeError err
+    | Some allowed =>
+      min = min_int bal allowed;
+      can_do = uint128_le amount min;
+      match can_do with
+      | True =>
+        new_from_bal = builtin sub bal amount;
+        balances_map[from] := new_from_bal;
+        to_bal <- balances_map[to];
+        match to_bal with
+        | Some to_bal =>
+          new_to_bal = builtin add to_bal amount;
+          balances_map[to] := new_to_bal
+        | None =>
+          balances_map[to] := amount
+        end;
+        new_allowed = builtin sub allowed amount;
+        allowances_map[from][spender] := new_allowed;
+        e = {_eventname : "TransferFromSuccess"; recipient : to; sender : from; spender : spender; amount : amount};
+        event e
+      | False =>
+        err = CodeNotAllowed;
+        MakeError err
+      end
+    end
+  end
+end
+
+(* @dev: Optional transition. Mint new tokens. Only contract_owner can mint. *)
+(* @param recipient: Address of the recipient whose balance is to increase.  *)
+(* @param amount:    Number of tokens to be minted.                          *)
+transition Mint(recipient: ByStr20, amount: Uint128)
+  is_owner = builtin eq _sender contract_owner;
+   match is_owner with
+    | False =>
+      err = CodeNotAuthorized;
+      MakeError err
+    | True =>
+      ProcedureMint recipient amount
+    end
+end
+
+(* @dev: Optional transition. Burn existing tokens. Only contract_owner can burn. *)
+(* @param burn_account: Address of the token_owner whose balance is to decrease.  *)
+(* @param amount:       Number of tokens to be burned.                            *)
+transition Burn(burn_account: ByStr20, amount: Uint128)
+  is_owner = builtin eq _sender contract_owner;
+    match is_owner with
+    | False =>
+      err = CodeNotAuthorized;
+      MakeError err
+    | True =>
+      ProcedureBurn burn_account amount
+    end
+end
+
+(* @dev: Make an address an operator of the caller.                           *)
+(* @param operator: Address to be set as operator. Cannot be calling address. *)
+transition AuthorizeOperator(operator: ByStr20)
+  is_sender = builtin eq operator _sender;
+  match is_sender with
+  | True =>
+    (* Operator is authorizing self, return error code *)
+    err = CodeNotAuthorized;
+    MakeError err
+  | False =>
+    authorize = True;
+    operators_map[_sender][operator] := authorize;
+    e = {_eventname : "AuthorizeOperatorSuccess"; operator : operator};
+    event e
+  end
+end
+
+(* @dev: Revoke an address from being an operator of the caller. *)
+(* @param operator: Address to be removed as operator.           *)
+transition RevokeOperator(operator: ByStr20)
+  get_operator <- operators_map[_sender][operator];
+  match get_operator with
+  | None =>
+    (* Operator to be removed not found *)
+    err = CodeNotFound;
+    MakeError err
+  | Some status =>
+    delete operators_map[_sender][operator];
+    e = {_eventname : "RevokeOperatorSuccess"; operator : operator};
+    event e
+  end
+end
+
+(* @dev: Revoke a default operator from being an operator of the caller *)
+(* @param operator:  Address of the default operator to be revoked.     *)
+transition RevokeDefaultOperator(operator : ByStr20)
+  is_default_operator =  is_default_operator f_eq operator default_operators;
+  match is_default_operator with
+  | False =>
+    err = CodeNotFound;
+    MakeError err
+  | True  => 
+    verdad = True;
+    revoked_default_operators[_sender][operator] := verdad;
+    e = {_eventname : "RevokedDefaultOperatorSuccess"; revoked_operator : operator; revoker : _sender};
+    event e
+    end
+end
+
+(* @dev: Re-authorize a default operator as an operator of the caller    *)
+(* @param operator: Address of the default operator to be re-authorized. *)
+transition ReAuthorizeDefaultOperator(operator : ByStr20)
+is_default_operator = is_default_operator f_eq operator default_operators;
+  match is_default_operator with
+  | False =>
+    err = CodeNotFound;
+    MakeError err
+  | True  => 
+    delete revoked_default_operators[_sender][operator];
+    e = { _eventname : "ReAuthorizedDefaultOperatorSuccess"; revoked_operator : operator; revoker : _sender};
+    event e
+  end
+end
+
+(* @dev: Returns true if an address is an operator or default operator of a token_owner. *)
+(* @param operator:    Address of a potential operator.                                  *)
+(* @param token_owner: Address of a token_owner.                                         *)
+transition IsOperatorFor(token_owner: ByStr20, operator: ByStr20)
+  get_operator <- operators_map[token_owner][operator];
+  is_operator_approved = 
+    match get_operator with
+    | None => False
+    | Some status => status
+    end;
+  is_default_operator = is_default_operator f_eq operator default_operators;
+  is_revoked_operator <- exists revoked_default_operators[token_owner][operator];
+  is_default_operator_approved = let is_not_revoked_operator = 
+    negb is_revoked_operator in andb is_not_revoked_operator is_default_operator;
+  
+  is_approved = orb is_operator_approved is_default_operator_approved;
+  match is_approved with
+  | False =>
+    err = CodeNotAuthorized;
+    MakeError err
+  | True =>
+    e = {_eventname : "IsOperatorForSuccess"; token_owner: token_owner; operator : operator};
+    event e
+  end
+end
+
+(* @dev: Sets amount as the allowance of spender over the caller’s tokens. Only token_owner allowed to invoke. *)
+(* param spender:      Address to be set as an approved_spender.                                               *)
+(* param amount:       Number of tokens to be set as allowance for the approved_spender.                       *)
+transition Approve(spender: ByStr20, amount: Uint128)
+  (* Checks if the _sender is approving himself *)
+  is_owner = builtin eq _sender spender;
+  match is_owner with
+  | True =>
+    err = CodeNotAuthorized;
+    MakeError err
+  | False =>
+    ProcedureApprove spender amount
+  end
+end
+
+(* @dev: Returns the number of tokens an approved_spender is allowed to spend on behalf of the token_owner. *)
+(* param token_owner:  Address of a token_owner.                                                            *)
+(* param spender:      Address of the approved_spender.                                                     *)
+transition Allowance(token_owner: ByStr20, spender: ByStr20)
+  get_allowance <- allowances_map[token_owner][spender];
+  match get_allowance with
+  | None =>
+    (* approved_spender does not exists *)
+    err = CodeNotFound;
+    MakeError err
+  | Some val =>
+    e = {_eventname : "Allowance"; token_owner: token_owner; spender : spender;  allowance : val};
+    event e
+  end
+end
+
+
+(* @dev: Returns the total amount of tokens in existence. *)
+transition TotalSupply()
+  current_supply <- total_tokens;
+  e = {_eventname : "TotalSupply"; total_supply : current_supply};
+  event e
+end
+
+(* @dev: Returns the amount of tokens owned by an address. *)
+transition BalanceOf(address: ByStr20)
+  get_bal <- balances_map[address];
+  balance = 
+    match get_bal with
+    | Some bal => bal
+    | None => Uint128 0
+    end;
+  e = {_eventname: "BalanceOf"; balance: balance};
+  event e
+end
