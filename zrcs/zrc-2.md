@@ -29,7 +29,7 @@ The fungible token contract specification describes:
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
 | `contract_owner`   | The owner of the contract initialized by the creator of the contract.                                                           |
 | `token_owner`      | A user (identified by an address) that owns tokens.                                                                             |
-| `approved_spender` | A user (identified by an address) that can transfer tokens on behalf of the token_owner.                                       |
+| `approved_spender` | A user (identified by an address) that can transfer tokens on behalf of the token_owner.                                        |
 | `operator`         | A user (identified by an address) that is approved to operate all tokens owned by another user (identified by another address). |
 | `default_operator` | A special user (identified by an address) that is approved to operate all tokens owned by all users (identified by addresses).  |
 
@@ -45,13 +45,13 @@ The fungible token contract must define the following constants for use as error
 
 ### C. Immutable Variables
 
-| Name                | Type           | Description                                                              |
-| ------------------- | -------------- | ------------------------------------------------------------------------ |
-| `contract_owner`    | `ByStr20`      | The owner of the contract initialized by the creator of the contract.    |
-| `name`              | `String`       | The name of the fungible token.                                          |
-| `symbol`            | `String`       | The symbol of the fungible token.                                        |
-| `decimals`          | `Uint32`       | The number of decimal places a token can be divided by.                  |
-| `default_operators` | `List ByStr20` | The list of default operator initialized by the creator of the contract. |
+| Name                | Type           | Description                                                               |
+| ------------------- | -------------- | ------------------------------------------------------------------------- |
+| `contract_owner`    | `ByStr20`      | The owner of the contract initialized by the creator of the contract.     |
+| `name`              | `String`       | The name of the fungible token.                                           |
+| `symbol`            | `String`       | The symbol of the fungible token.                                         |
+| `decimals`          | `Uint32`       | The number of decimal places a token can be divided by.                   |
+| `default_operators` | `List ByStr20` | The list of default operators initialized by the creator of the contract. |
 
 ### D. Mutable Fields
 
@@ -109,19 +109,17 @@ transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
 
 ```ocaml
 (* @dev: Move a given amount of tokens from one address to another using the allowance mechanism. The caller must be an approved_spender. *)
-(* @param spender: Address of the spender who is tied to the token_owner's assets and have spending allowances allocated by token_owner.  *)
-(* @param from:    Address of the token_owner whose balance is decreased.                                                                *)
+(* @param from:    Address of the token_owner whose balance is decreased.                                                                 *)
 (* @param to:      Address of the recipient whose balance is increased.                                                                   *)
 (* @param amount:  Amount of tokens to be transferred.                                                                                    *)
 transition TransferFrom(spender: ByStr20, from: ByStr20, to: ByStr20, amount: Uint128)
 ```
 
-|        | Name      | Type      | Description                                                                                                           |
-| ------ | --------- | --------- | --------------------------------------------------------------------------------------------------------------------- |
-| @param | `spender` | `ByStr20` | Address of the spender who is tied to the token_owner's assets and have spending allowances allocated by token_owner. |
-| @param | `from`    | `ByStr20` | Address of the token_owner whose balance is decreased.                                                                |
-| @param | `to`      | `ByStr20` | Address of the recipient whose balance is increased.                                                                  |
-| @param | `amount`  | `Uint128` | Number of tokens to be transferred.                                                                                   |
+|        | Name     | Type      | Description                                              |
+| ------ | -------- | --------- | -------------------------------------------------------- |
+| @param | `from`   | `ByStr20` | Address of the token_owner whose balance is to decrease. |
+| @param | `to`     | `ByStr20` | Address of the recipient whose balance is to increase.   |
+| @param | `amount` | `Uint128` | Number of tokens to be transferred.                      |
 
 |           | Name                  | Description                 | Event Parameters                                                                                                                                                    |
 | --------- | --------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
