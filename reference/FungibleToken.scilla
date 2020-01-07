@@ -17,7 +17,7 @@ type Error =
   | CodeNotFound
   | CodeNotAllowed
 
-let makeError =
+let make_error_event =
   fun (result : Error) =>
     let result_code = 
       match result with
@@ -35,11 +35,7 @@ let le_int =
     match x with
     | True => True
     | False =>
-      let y = builtin eq a b in
-      match y with
-      | True => True
-      | False => False
-      end
+      builtin eq a b
     end
 
 let min_int =
@@ -93,8 +89,8 @@ field allowances_map: Map ByStr20 (Map ByStr20 Uint128)
 (* Procedures *)
 
 (* Emit Errors *)
-procedure MakeError(err : Error)
-  e = makeError err;
+procedure MakeErrorEvent(err : Error)
+  e = make_error_event err;
   event e
 end
 
@@ -121,13 +117,13 @@ procedure ProcedureBurn(from: ByStr20, amount: Uint128)
   match get_bal with
   | None => 
     err = CodeNotAllowed;
-    MakeError err
+    MakeErrorEvent err
   | Some bal =>
     can_burn = le_int amount bal;
     match can_burn with
     | False =>
       err = CodeNotAllowed;
-      MakeError err
+      MakeErrorEvent err
     | True =>
       (* Subtract amount from 'from' *)
       new_balance = builtin sub bal amount;
@@ -149,9 +145,9 @@ procedure ProcedureMove(from: ByStr20, to: ByStr20, amount: Uint128)
     can_do = le_int amount bal;
     match can_do with
     | True =>
-      (* Subtract amount from _sender and add it to "to" address *)
-      new_sender_bal = builtin sub bal amount;
-      balances_map[from] := new_sender_bal;
+      (* Subtract amount from "from" and add it to "to" address *)
+      new_from_bal = builtin sub bal amount;
+      balances_map[from] := new_from_bal;
 
       (* Adds amount to "to" address *)
       get_to_bal <- balances_map[to];
@@ -166,11 +162,11 @@ procedure ProcedureMove(from: ByStr20, to: ByStr20, amount: Uint128)
     | False =>
       (* Balance not sufficient *)
       err = CodeNotAuthorized;
-      MakeError err
+      MakeErrorEvent err
     end
   | None =>
     err = CodeNotFound;
-    MakeError err
+    MakeErrorEvent err
   end
 end
 
@@ -209,14 +205,13 @@ transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
   match is_approved with
     | False =>
       err = CodeNotAuthorized;
-      MakeError err
+      MakeErrorEvent err
     | True =>
       ProcedureMove from to amount
    end
 end
 
 (* @dev: Move a given amount of tokens from one address to another using the allowance mechanism. The caller must be an approved_spender. *)
-(* @param spender: Address of the spender who is tied to the token_owner's assets and have spending allowances allocated by token_owner.  *)
 (* @param from:    Address of the token_owner whose balance is deccreased.                                                                *)
 (* @param to:      Address of the recipient whose balance is increased.                                                                   *)
 (* @param amount:  Amount of tokens to be transferred.                                                                                    *)
@@ -225,13 +220,13 @@ transition TransferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
   match get_bal with
   | None => 
     err = CodeNotFound;
-    MakeError err
+    MakeErrorEvent err
   | Some bal =>
     get_spender_allowed <- allowances_map[from][_sender];
     match get_spender_allowed with
     | None =>
       err = CodeNotAuthorized;
-      MakeError err
+      MakeErrorEvent err
     | Some allowed =>
       min = min_int bal allowed;
       can_do = uint128_le amount min;
@@ -253,7 +248,7 @@ transition TransferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
         event e
       | False =>
         err = CodeNotAllowed;
-        MakeError err
+        MakeErrorEvent err
       end
     end
   end
@@ -267,7 +262,7 @@ transition Mint(recipient: ByStr20, amount: Uint128)
    match is_owner with
     | False =>
       err = CodeNotAuthorized;
-      MakeError err
+      MakeErrorEvent err
     | True =>
       ProcedureMint recipient amount
     end
@@ -281,72 +276,63 @@ transition Burn(burn_account: ByStr20, amount: Uint128)
     match is_owner with
     | False =>
       err = CodeNotAuthorized;
-      MakeError err
+      MakeErrorEvent err
     | True =>
       ProcedureBurn burn_account amount
     end
 end
 
-(* @dev: Make an address an operator of the caller.                           *)
-(* @param operator: Address to be set as operator. Cannot be calling address. *)
+(* @dev: Make an address an operator of the caller.             *)
+(* @param operator: Address to be authorize as operator or      *)
+(* re-authorize as default_operator. Cannot be calling address. *)
 transition AuthorizeOperator(operator: ByStr20)
   is_sender = builtin eq operator _sender;
   match is_sender with
-  | True =>
-    (* Operator is authorizing self, return error code *)
+  | True => 
+    (* _sender is authorizing self as operator, return error code *)
     err = CodeNotAuthorized;
-    MakeError err
+    MakeErrorEvent err
   | False =>
-    authorize = True;
-    operators_map[_sender][operator] := authorize;
-    e = {_eventname : "AuthorizeOperatorSuccess"; operator : operator};
-    event e
+    is_default_operator =  is_default_operator f_eq operator default_operators;
+    match is_default_operator with
+    | True =>
+      (* Re-authorize default_operator *)
+      delete revoked_default_operators[_sender][operator];
+      e = { _eventname : "ReAuthorizedDefaultOperatorSuccess"; reauthorized_default_operator : operator; authorizer : _sender};
+      event e
+    | False =>
+      (* Authorize new operator *)
+      authorize = True;
+      operators_map[_sender][operator] := authorize;
+      e = {_eventname : "AuthorizeOperatorSuccess"; authorized_operator : operator; authorizer : _sender};
+      event e
+    end
   end
 end
 
-(* @dev: Revoke an address from being an operator of the caller. *)
-(* @param operator: Address to be removed as operator.           *)
+(* @dev: Revoke an address from being an operator or default_operator of the caller. *)
+(* @param operator: Address to be removed as operator or default_operator.           *)
 transition RevokeOperator(operator: ByStr20)
-  get_operator <- operators_map[_sender][operator];
-  match get_operator with
-  | None =>
-    (* Operator to be removed not found *)
-    err = CodeNotFound;
-    MakeError err
-  | Some status =>
-    delete operators_map[_sender][operator];
-    e = {_eventname : "RevokeOperatorSuccess"; operator : operator};
-    event e
-  end
-end
-
-(* @dev: Revoke a default operator from being an operator of the caller *)
-(* @param operator:  Address of the default operator to be revoked.     *)
-transition RevokeDefaultOperator(operator : ByStr20)
   is_default_operator =  is_default_operator f_eq operator default_operators;
   match is_default_operator with
   | False =>
-    err = CodeNotFound;
-    MakeError err
-  | True  => 
+    (* Not default_operator, check if operator *)
+    get_operator <- operators_map[_sender][operator];
+    match get_operator with
+    | None =>
+      (* Operator to be removed not found, error *)
+      err = CodeNotFound;
+      MakeErrorEvent err
+    | Some status =>
+      delete operators_map[_sender][operator];
+      e = {_eventname : "RevokeOperatorSuccess"; revoked_operator : operator; revoker : _sender};
+      event e
+    end
+  | True =>
+    (* Is default_operator, revoke default_operator authority instead *)
     verdad = True;
     revoked_default_operators[_sender][operator] := verdad;
-    e = {_eventname : "RevokedDefaultOperatorSuccess"; revoked_operator : operator; revoker : _sender};
-    event e
-    end
-end
-
-(* @dev: Re-authorize a default operator as an operator of the caller    *)
-(* @param operator: Address of the default operator to be re-authorized. *)
-transition ReAuthorizeDefaultOperator(operator : ByStr20)
-is_default_operator = is_default_operator f_eq operator default_operators;
-  match is_default_operator with
-  | False =>
-    err = CodeNotFound;
-    MakeError err
-  | True  => 
-    delete revoked_default_operators[_sender][operator];
-    e = { _eventname : "ReAuthorizedDefaultOperatorSuccess"; revoked_operator : operator; revoker : _sender};
+    e = {_eventname : "RevokedDefaultOperatorSuccess"; revoked_default_operator : operator; revoker : _sender};
     event e
   end
 end
@@ -370,7 +356,7 @@ transition IsOperatorFor(token_owner: ByStr20, operator: ByStr20)
   match is_approved with
   | False =>
     err = CodeNotAuthorized;
-    MakeError err
+    MakeErrorEvent err
   | True =>
     e = {_eventname : "IsOperatorForSuccess"; token_owner: token_owner; operator : operator};
     event e
@@ -386,7 +372,7 @@ transition Approve(spender: ByStr20, amount: Uint128)
   match is_owner with
   | True =>
     err = CodeNotAuthorized;
-    MakeError err
+    MakeErrorEvent err
   | False =>
     ProcedureApprove spender amount
   end
@@ -401,7 +387,7 @@ transition Allowance(token_owner: ByStr20, spender: ByStr20)
   | None =>
     (* approved_spender does not exists *)
     err = CodeNotFound;
-    MakeError err
+    MakeErrorEvent err
   | Some val =>
     e = {_eventname : "Allowance"; token_owner: token_owner; spender : spender;  allowance : val};
     event e

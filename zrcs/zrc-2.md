@@ -109,10 +109,10 @@ transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
 
 ```ocaml
 (* @dev: Move a given amount of tokens from one address to another using the allowance mechanism. The caller must be an approved_spender. *)
-(* @param from:    Address of the token_owner whose balance is decreased.                                                                 *)
+(* @param from:    Address of the token_owner whose balance is deccreased.                                                                *)
 (* @param to:      Address of the recipient whose balance is increased.                                                                   *)
 (* @param amount:  Amount of tokens to be transferred.                                                                                    *)
-transition TransferFrom(spender: ByStr20, from: ByStr20, to: ByStr20, amount: Uint128)
+transition TransferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
 ```
 
 |        | Name     | Type      | Description                                              |
@@ -167,25 +167,27 @@ transition Burn(burn_account: ByStr20, amount: Uint128)
 #### 6. AuthorizeOperator
 
 ```ocaml
-(* @dev: Make an address an operator of the caller.                           *)
-(* @param operator: Address to be set as operator. Cannot be calling address. *)
+(* @dev: Make an address an operator of the caller.             *)
+(* @param operator: Address to be authorize as operator or      *)
+(* re-authorize as default_operator. Cannot be calling address. *)
 transition AuthorizeOperator(operator: ByStr20)
 ```
 
-|        | Name       | Type      | Description                                               |
-| ------ | ---------- | --------- | --------------------------------------------------------- |
-| @param | `operator` | `ByStr20` | Address to be set as operator. Cannot be calling address. |
+|        | Name       | Type      | Description                                                                                         |
+| ------ | ---------- | --------- | --------------------------------------------------------------------------------------------------- |
+| @param | `operator` | `ByStr20` | Address to be authorize as operator or re-authorize as default_operator. Cannot be calling address. |
 
-|           | Name                       | Description                    | Event Parameters                                                                        |
-| --------- | -------------------------- | ------------------------------ | --------------------------------------------------------------------------------------- |
-| eventName | `AuthorizeOperatorSuccess` | Authorizing is successful.     | `operator`: `ByStr20` which is the address to be set as an operator of the token_owner. |
-| eventName | `Error`                    | Authorizing is not successful. | - emit `CodeNotAuthorized` if the user is trying to authorize himself as an operator.   |
+|           | Name                                 | Description                    | Event Parameters                                                                                                                                                                         |
+| --------- | ------------------------------------ | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `AuthorizeOperatorSuccess`           | Authorizing is successful.     | `authorized_operator`: `ByStr20` which is the address to be authorized as an operator of the token_owner, and `authorizer`: `ByStr20` which is the caller's address.                     |
+| eventName | `ReAuthorizedDefaultOperatorSuccess` | Authorizing is successful.     | `reauthorized_default_operator`: `ByStr20` which is the address to be re-authorized as a default_operator of the token_owner, and `authorizer`: `ByStr20` which is the caller's address. |
+| eventName | `Error`                              | Authorizing is not successful. | - emit `CodeNotAuthorized` if the user is trying to authorize himself as an operator.                                                                                                    |
 
 #### 7. RevokeOperator
 
 ```ocaml
-(* @dev: Revoke an address from being an operator of the caller. *)
-(* @param operator: Address to be removed as operator.           *)
+(* @dev: Revoke an address from being an operator or default_operator of the caller. *)
+(* @param operator: Address to be removed as operator or default_operator.           *)
 transition RevokeOperator(operator: ByStr20)
 ```
 
@@ -193,46 +195,13 @@ transition RevokeOperator(operator: ByStr20)
 | ------ | ---------- | --------- | -------------------------------- |
 | @param | `operator` | `ByStr20` | Address to be unset as operator. |
 
-|           | Name                    | Description                 | Event Parameters                                                                            |
-| --------- | ----------------------- | --------------------------- | ------------------------------------------------------------------------------------------- |
-| eventName | `RevokeOperatorSuccess` | Revoking is successful.     | `operator`: `ByStr20` which is the address to be removed as an operator of the token_owner. |
-| eventName | `Error`                 | Revoking is not successful. | - emit `CodeNotFound` if the specified address is not an operator of the token_owner.       |
+|           | Name                            | Description                 | Event Parameters                                                                                                                                                           |
+| --------- | ------------------------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `RevokeOperatorSuccess`         | Revoking is successful.     | `revoked_operator`: `ByStr20` which is the address to be removed as an operator of the token_owner, and `revoker`: `ByStr20` which is the caller's address.                |
+| eventName | `RevokedDefaultOperatorSuccess` | Revoking is successful.     | `revoked_default_operator`: `ByStr20` which is the address to be removed as a default_operator of the token_owner, and `revoker`: `ByStr20` which is the caller's address. |
+| eventName | `Error`                         | Revoking is not successful. | - emit `CodeNotFound` if the specified address is not an operator of the token_owner.                                                                                      |
 
-#### 8. RevokeDefaultOperator
-
-```ocaml
-(* @dev: Revoke a default operator from being an operator of the caller *)
-(* @param operator:  Address of the default operator to be revoked.     *)
-transition RevokeDefaultOperator(operator : ByStr20)
-```
-
-|        | Name       | Type      | Description                                    |
-| ------ | ---------- | --------- | ---------------------------------------------- |
-| @param | `operator` | `ByStr20` | Address of the default operator to be revoked. |
-
-|           | Name                            | Description                 | Event Parameters                                                                                    |
-| --------- | ------------------------------- | --------------------------- | --------------------------------------------------------------------------------------------------- |
-| eventName | `RevokedDefaultOperatorSuccess` | Revoking is successful.     | `operator`: `ByStr20` which is the address to be removed as an default operator of the token_owner. |
-| eventName | `Error`                         | Revoking is not successful. | - emit `CodeNotFound` if the specified address is not an default operator of the token_owner.       |
-
-#### 9. ReAuthorizeDefaultOperator
-
-```ocaml
-(* @dev: Re-authorize a default operator as an operator of the caller    *)
-(* @param operator: Address of the default operator to be re-authorized. *)
-transition ReAuthorizeDefaultOperator(operator : ByStr20)
-```
-
-|        | Name       | Type      | Description                                    |
-| ------ | ---------- | --------- | ---------------------------------------------- |
-| @param | `operator` | `ByStr20` | Address of the default operator to be revoked. |
-
-|           | Name                                 | Description                 | Event Parameters                                                                                          |
-| --------- | ------------------------------------ | --------------------------- | --------------------------------------------------------------------------------------------------------- |
-| eventName | `ReAuthorizedDefaultOperatorSuccess` | Revoking is successful.     | `operator`: `ByStr20` which is the address to be re-authorized as an default operator of the token_owner. |
-| eventName | `Error`                              | Revoking is not successful. | - emit `CodeNotFound` if the specified address is not an default operator of the token_owner.             |
-
-#### 10. IsOperatorFor
+#### 8. IsOperatorFor
 
 ```ocaml
 (* @dev: Returns true if an address is an operator or default operator of a token_owner. *)
@@ -251,7 +220,7 @@ transition IsOperatorFor(token_owner: ByStr20, operator: ByStr20)
 | eventName | `IsOperatorForSuccess` | Operator query is successful.     | `token_owner`: `ByStr20` which is the address of the token_owner, `operator`: `ByStr20` which is the queried address which is an operator or default operator of the token_owner. |
 | eventName | `Error`                | Operator query is not successful. | - emit `CodeNotAuthorized` if the queried operator address is not an operator or default operator of the token_owner.                                                             |
 
-#### 11. Approve
+#### 9. Approve
 
 ```ocaml
 (* @dev: Sets amount as the allowance of spender over the caller’s tokens. Only token_owner allowed to invoke. *)
@@ -270,7 +239,7 @@ transition Approve(spender: ByStr20, amount: Uint128)
 | eventName | `ApproveSuccess` | Approving is successful.     | `spender`: `ByStr20` which is the address to be set as approved_spender, and `amount`: `Uint128` which is the amount to be set as allowance for the approved_spender. |
 | eventName | `Error`          | Approving is not successful. | - emit `CodeNotAuthorized` if the approved_spender's address is the token_owner's address.                                                                            |
 
-#### 12. Allowance
+#### 10. Allowance
 
 ```ocaml
 (* @dev: Returns the number of tokens an approved_spender is allowed to spend on behalf of the token_owner. *)
@@ -289,7 +258,7 @@ transition Allowance(token_owner: ByStr20, spender: ByStr20)
 | eventName | `Allowance` | Query of allowance is successful.     | `token_owner`: `ByStr20` which is the address of the token_owner, `spender`: `ByStr20` which is the address of the approved_spender, and `allowance`: `Uint128` which is the allowance given to approved_spender by the token_owner. |
 | eventName | `Error`     | Query of allowance is not successful. | - emit `CodeNotFound` if the spender is not an approved_spender set by the token_owner.                                                                                                                                              |
 
-#### 13. TotalSupply
+#### 11. TotalSupply
 
 ```ocaml
 (* @dev: Returns the total amount of tokens in existence. *)
@@ -300,7 +269,7 @@ transition TotalSupply()
 | --------- | ------------- | ---------------------------------------------- | -------------------------------------------------------------------------------- |
 | eventName | `TotalSupply` | Query of total supply of tokens is successful. | `total_supply`: `Uint128` which is the current total supply of tokens available. |
 
-#### 14. BalanceOf
+#### 12. BalanceOf
 
 ```ocaml
 (* @dev: Returns the amount of tokens owned by an address. *)
