@@ -232,20 +232,9 @@ transition TransferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
       can_do = uint128_le amount min;
       match can_do with
       | True =>
-        new_from_bal = builtin sub bal amount;
-        balances_map[from] := new_from_bal;
-        to_bal <- balances_map[to];
-        match to_bal with
-        | Some to_bal =>
-          new_to_bal = builtin add to_bal amount;
-          balances_map[to] := new_to_bal
-        | None =>
-          balances_map[to] := amount
-        end;
+        ProcedureMove from to amount;
         new_allowed = builtin sub allowed amount;
-        allowances_map[from][_sender] := new_allowed;
-        e = {_eventname : "TransferFromSuccess"; recipient : to; sender : from; spender : _sender; amount : amount};
-        event e
+        allowances_map[from][_sender] := new_allowed
       | False =>
         err = CodeNotAllowed;
         MakeErrorEvent err
