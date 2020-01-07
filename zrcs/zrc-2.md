@@ -29,7 +29,7 @@ The fungible token contract specification describes:
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
 | `contract_owner`   | The owner of the contract initialized by the creator of the contract.                                                           |
 | `token_owner`      | A user (identified by an address) that owns tokens.                                                                             |
-| `approved_spender` | A user (identified by an address) that can transfer tokens on behalf of the `tokenOwner`.                                       |
+| `approved_spender` | A user (identified by an address) that can transfer tokens on behalf of the token_owner.                                       |
 | `operator`         | A user (identified by an address) that is approved to operate all tokens owned by another user (identified by another address). |
 | `default_operator` | A special user (identified by an address) that is approved to operate all tokens owned by all users (identified by addresses).  |
 
@@ -88,19 +88,17 @@ transition Send(recipient: ByStr20, amount: Uint128)
 
 ```ocaml
 (* @dev: Moves amount tokens from token_owner to recipient. _sender must be an operator of token_owner. *)
-(* @param operator:    Address of the operator who is tied to the token owner's assets.                 *)
 (* @param from:        Address of the token_owner whose balance is decreased.                           *)
 (* @param to:          Address of the recipient whose balance is increased.                             *)
 (* @param amount:      Amount of tokens to be sent.                                                     *)
-transition OperatorSend(token_owner: ByStr20, recipient: ByStr20, amount: Uint128)
+transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
 ```
 
-|        | Name       | Type      | Description                                                      |
-| ------ | ---------- | --------- | ---------------------------------------------------------------- |
-| @param | `operator` | `ByStr20` | Address of the operator who is tied to the token owner's assets. |
-| @param | `from`     | `ByStr20` | Address of the token_owner whose balance is to decrease.         |
-| @param | `to`       | `ByStr20` | Address of the recipient whose balance is to increase.           |
-| @param | `amount`   | `Uint128` | Amount of tokens to be sent.                                     |
+|        | Name     | Type      | Description                                              |
+| ------ | -------- | --------- | -------------------------------------------------------- |
+| @param | `from`   | `ByStr20` | Address of the token_owner whose balance is to decrease. |
+| @param | `to`     | `ByStr20` | Address of the recipient whose balance is to increase.   |
+| @param | `amount` | `Uint128` | Amount of tokens to be sent.                             |
 
 |           | Name          | Description                | Event Parameters                                                                                                                                            |
 | --------- | ------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |

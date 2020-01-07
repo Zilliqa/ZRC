@@ -191,19 +191,18 @@ transition Send(to: ByStr20, amount: Uint128)
 end
 
 (* @dev: Moves amount tokens from token_owner to recipient. _sender must be an operator of token_owner. *)
-(* @param operator:    Address of the operator who is tied to the token owner's assets.                 *)
 (* @param from:        Address of the token_owner whose balance is decreased.                           *)
 (* @param to:          Address of the recipient whose balance is increased.                             *)
 (* @param amount:      Amount of tokens to be sent.                                                     *)
-transition OperatorSend(operator: ByStr20, from: ByStr20, to: ByStr20, amount: Uint128)
-  get_operator <- operators_map[from][operator];
+transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
+  get_operator <- operators_map[from][_sender];
   is_operator_approved = 
     match get_operator with
     | Some value => value
     | None => False
     end;
-  is_default_operator = is_default_operator f_eq operator default_operators;
-  is_revoked_operator <- exists revoked_default_operators[from][operator];
+  is_default_operator = is_default_operator f_eq _sender default_operators;
+  is_revoked_operator <- exists revoked_default_operators[from][_sender];
   is_default_operator_approved = let is_not_revoked_operator = 
     negb is_revoked_operator in andb is_not_revoked_operator is_default_operator;
   is_approved = orb is_operator_approved is_default_operator_approved;
