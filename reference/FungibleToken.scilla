@@ -28,16 +28,6 @@ let make_error_event =
     in
     { _eventname : "Error"; code : result_code }
 
-
-let le_int =
-  fun (a : Uint128) => fun (b : Uint128) =>
-    let x = builtin lt a b in
-    match x with
-    | True => True
-    | False =>
-      builtin eq a b
-    end
-
 let min_int =
   fun (a : Uint128) => fun (b : Uint128) =>
   let min = builtin lt a b in
@@ -119,7 +109,7 @@ procedure ProcedureBurn(from: ByStr20, amount: Uint128)
     err = CodeNotAllowed;
     MakeErrorEvent err
   | Some bal =>
-    can_burn = le_int amount bal;
+    can_burn = uint128_le amount bal;
     match can_burn with
     | False =>
       err = CodeNotAllowed;
@@ -142,7 +132,7 @@ procedure ProcedureMove(from: ByStr20, to: ByStr20, amount: Uint128)
   get_from_bal <- balances_map[from];
   match get_from_bal with
   | Some bal =>
-    can_do = le_int amount bal;
+    can_do = uint128_le amount bal;
     match can_do with
     | True =>
       (* Subtract amount from "from" and add it to "to" address *)
