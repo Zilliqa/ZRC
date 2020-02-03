@@ -421,7 +421,7 @@ transition transferFrom(to: ByStr20, token_id: Uint256)
 
 ## V. Existing Implementation(s)
 
-- [Non-Fungible Token](https://github.com/Zilliqa/ZRC/blob/master/reference/nonfungible-token.scilla)
+- [Non-Fungible Token](../reference/nonfungible-token.scilla)
 
 ## VI. Copyright
 
