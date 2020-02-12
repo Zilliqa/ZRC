@@ -1,7 +1,7 @@
 
 |  ZRC | Title | Status| Type | Author | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd)
 |--|--|--|--| -- | -- | -- |
-| 0  | ZRC Purpose and Guidelines | Implemented | Meta  | Amrit Kumar <amrit@zilliqa.com> | 2019-09-20 | 2019-09-20 
+| 0  | ZRC Purpose and Guidelines | Implemented | Meta  | Amrit Kumar <amrit@zilliqa.com> | 2019-09-20 | 2019-02-12 
 
 ## What is a ZRC?
 
@@ -25,7 +25,7 @@ A ZRC must meet certain minimum criteria. It must be a clear and complete descri
 
 Parties involved in the process are you, the champion or *ZRC author*, the [*ZRC editors*](#zrc-editors), and the [*Zilliqa Core Developers*](https://github.com/orgs/Zilliqa/people).
 
-Before you begin writing a formal ZRC, you should vet your idea. Ask the Zilliqa community first if an idea is original to avoid wasting time on something that will be be rejected based on prior research. It is thus recommended to use one of the groups on the [Zilliqa Discord Channel](https://discord.gg/8tpGXrB),  or [the Issues section of this repository](https://github.com/Zilliqa/ZRC/issues). 
+Before you begin writing a formal ZRC, you should vet your idea. Ask the Zilliqa community first if an idea is original to avoid wasting time on something that will be be rejected based on prior research. It is thus recommended to use one of the groups on the [Zilliqa Discord Channel](https://discord.gg/mWp9HdR),  or [the Issues section of this repository](https://github.com/Zilliqa/ZRC/issues). 
 
 In addition to making sure your idea is original, it will be your role as the author to make your idea clear to reviewers and interested parties, as well as inviting editors, developers and community to give feedback on the aforementioned channels. You should try and gauge whether the interest in your ZRC is commensurate with both the work involved in implementing it and how many parties will have to conform to it.  Negative community feedback will be taken into consideration and may prevent your ZRC from moving past the Draft stage.
 
@@ -128,7 +128,7 @@ The `resolution` header can be used to point to a URL where the pronouncement ab
 
 #### `discussions-to` header
 
-While a ZRC is a draft, a `discussions-to` header will indicate the mailing list or URL where the ZRC is being discussed. As mentioned above, examples for places to discuss your ZRC include [Zilliqa Discord Channel](https://discord.gg/8tpGXrB), an issue in this repo or in a fork of this repo.
+While a ZRC is a draft, a `discussions-to` header will indicate the mailing list or URL where the ZRC is being discussed. As mentioned above, examples for places to discuss your ZRC include [Zilliqa Discord Channel](https://discord.gg/mWp9HdR), an issue in this repo or in a fork of this repo.
 
 No `discussions-to` header is necessary if the ZRC is being discussed privately with the author.
 
