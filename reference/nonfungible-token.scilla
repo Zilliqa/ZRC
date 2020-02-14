@@ -164,7 +164,7 @@ transition getApproved(token_id: Uint256)
   match some_token_approval with
   | Some addr => 
     msg_to_sender = { _tag : "getApprovedCallBack"; _recipient : _sender; _amount : Uint128 0; 
-                      approved_addr : addr};
+                      approved_addr : addr; token_id : token_id};
     msgs = one_msg msg_to_sender;
     send msgs
   | None => throw

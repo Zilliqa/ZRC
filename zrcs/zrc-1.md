@@ -139,9 +139,9 @@ transition getApproved(token_id: Uint256)
 
 **Messages sent:**
 
-|        | Name                  | Description                                                                             | Callback Parameters                                                                                  |
-| ------ | --------------------- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `_tag` | `getApprovedCallBack` | Provide the sender an address of the approved_spender address for the queried token_id. | `approved_addr` of type `ByStr20` representing the address of the approved_spender for the token_id. |
+|        | Name                  | Description                                                                                              | Callback Parameters                                                                                                                                                                         |
+| ------ | --------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `getApprovedCallBack` | Provide the sender an address of the approved_spender address for the queried token_id and the token_id. | `approved_addr` of type `ByStr20` representing the address of the approved_spender for the token_id, and `token_id` of type `Uint256` representing the unique token_id of that queried NFT. |
 
 #### 6. getTokenURI()
 
