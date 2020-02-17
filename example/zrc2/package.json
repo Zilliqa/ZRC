@@ -4,7 +4,17 @@
   "description": "Example project on how to interact with ZRC2 contract",
   "main": "index.js",
   "scripts": {
-    "deploy": "node deploy.js"
+    "deploy": "node deploy.js",
+    "is_operator_for": "node is_operator_for.js",
+    "mint": "node mint.js",
+    "burn": "node burn.js",
+    "auth_operator": "node auth_operator.js",
+    "operator_send": "node operator_send.js",
+    "revoke_operator": "node revoke_operator.js",
+    "increase_allowance": "node increase_allowance.js",
+    "decrease_allowance": "node decrease_allowance.js",
+    "transfer_from": "node transfer_from.js",
+    "transfer": "node transfer.js"
   },
   "author": "xiaohuo",
   "license": "GPL-3.0",
