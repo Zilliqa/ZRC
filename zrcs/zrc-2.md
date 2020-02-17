@@ -341,6 +341,14 @@ transition TransferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
 
 - [Fungible Token Reference contract](../reference/FungibleToken.scilla)
 
+To test the reference contract, simply go to the [`example`](../example) folder and run one of the JS scripts. For example, to deploy the contract, run:
+
+```shell
+yarn deploy.js
+```
+
+> **NOTE:** Please change the `privkey` in the script to your own private key. You can generate a testnet wallet and request for testnet \$ZIL at the [Nucleus Faucet](https://dev-wallet.zilliqa.com/home).
+
 ## VI. Copyright
 
 Copyright and related rights waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
