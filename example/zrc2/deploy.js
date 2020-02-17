@@ -10,7 +10,7 @@ async function main() {
     const CHAIN_ID = 333;
     const MSG_VERSION = 1;
     const VERSION = bytes.pack(CHAIN_ID, MSG_VERSION);
-    privkey = 'e19d05c5452598e24caad4a0d85a49146f7be089515c905ae6a19e8a578a6930';
+    privkey = '07e0b1d1870a0ba1b60311323cb9c198d6f6193b2219381c189afab3f5ac41a9';
     zilliqa.wallet.addByPrivateKey(
         privkey
     );
@@ -53,7 +53,7 @@ async function main() {
         {
             vname: "default_operators",
             type: "List ByStr20",
-            value: ["0xcd44d83d5217a191eed05cf4ee3dd5d9a93961a1", "0xcd44d83d5217a191eed05cf4ee3dd5d9a93961a2", "0xcd44d83d5217a191eed05cf4ee3dd5d9a93961a3"]
+            value: ["0x501A70ffEAA3F31C1caccE3479e74713546BAA44", "0xBFe2445408C51CD8Ee6727541195b02c891109ee", "0x428A2aA43456FE7fd2De66E48C1fBf372eC10eAE"]
         },
         {
             vname: "init_supply",
@@ -91,11 +91,6 @@ async function main() {
         // Get the deployed contract address
         console.log("The contract address is:");
         console.log(ftoken.address);
-
-        //Get the contract state
-        const state = await ftoken.getState();
-        console.log("The state of the contract is:");
-        console.log(state);
     } catch (e) {
         console.error(e);
     }
