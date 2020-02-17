@@ -11,7 +11,7 @@ async function main() {
     const CHAIN_ID = 333;
     const MSG_VERSION = 1;
     const VERSION = bytes.pack(CHAIN_ID, MSG_VERSION);
-    privkey = '534b41b12c3c14e282279da256d85a9ce456e1d8cea4e2ef5c49c71e321b3eac';
+    privkey = '07e0b1d1870a0ba1b60311323cb9c198d6f6193b2219381c189afab3f5ac41a9';
     zilliqa.wallet.addByPrivateKey(
         privkey
     );
@@ -25,13 +25,8 @@ async function main() {
     try {
         const contract = zilliqa.contracts.at(ftAddr);
         const callTx = await contract.call(
-            'TransferFrom',
+            'Transfer',
             [
-                {
-                    vname: 'from',
-                    type: 'ByStr20',
-                    value: "0xF9814DFAF5b817b6Ccd2993d94348cC77b354575",
-                },
                 {
                     vname: 'to',
                     type: 'ByStr20',

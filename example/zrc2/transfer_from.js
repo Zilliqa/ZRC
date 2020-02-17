@@ -25,8 +25,13 @@ async function main() {
     try {
         const contract = zilliqa.contracts.at(ftAddr);
         const callTx = await contract.call(
-            'Transfer',
+            'TransferFrom',
             [
+                {
+                    vname: 'from',
+                    type: 'ByStr20',
+                    value: "0x501A70ffEAA3F31C1caccE3479e74713546BAA44",
+                },
                 {
                     vname: 'to',
                     type: 'ByStr20',
