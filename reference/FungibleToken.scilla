@@ -127,13 +127,15 @@ procedure AuthorizedBurnIfSufficientBalance(from: ByStr20, amount: Uint128)
   match get_bal with
   | None => 
     err = CodeInsufficientFunds;
-    IssueErrorEvent err
+    IssueErrorEvent err;
+    throw
   | Some bal =>
     can_burn = uint128_le amount bal;
     match can_burn with
     | False =>
       err = CodeInsufficientFunds;
-      IssueErrorEvent err
+      IssueErrorEvent err;
+      throw
     | True =>
       (* Subtract amount from 'from' *)
       new_balance = builtin sub bal amount;
@@ -168,11 +170,13 @@ procedure AuthorizedMoveIfSufficientBalance(from: ByStr20, to: ByStr20, amount: 
     | False =>
       (* Balance not sufficient *)
       err = CodeInsufficientFunds;
-      IssueErrorEvent err
+      IssueErrorEvent err;
+      throw
     end
   | None =>
     err = CodeNotFound;
-    IssueErrorEvent err
+    IssueErrorEvent err;
+    throw
   end
 end
 
@@ -209,7 +213,8 @@ transition Mint(recipient: ByStr20, amount: Uint128)
    match is_owner with
     | False =>
       err = CodeNotAuthorized;
-      IssueErrorEvent err
+      IssueErrorEvent err;
+      throw
     | True =>
       AuthorizedMint recipient amount;
       (* Prevent sending to a contract address that does not support transfers of token *)
@@ -230,7 +235,8 @@ transition Burn(burn_account: ByStr20, amount: Uint128)
     match is_owner with
     | False =>
       err = CodeNotAuthorized;
-      IssueErrorEvent err
+      IssueErrorEvent err;
+      throw
     | True =>
       AuthorizedBurnIfSufficientBalance burn_account amount;
       msg_to_sender = {_tag : "BurnSuccessCallBack"; _recipient : _sender; _amount : zero; 
@@ -382,7 +388,8 @@ transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
   match is_approved with
     | False =>
       err = CodeNotAuthorized;
-      IssueErrorEvent err
+      IssueErrorEvent err;
+      throw
     | True =>
       AuthorizedMoveIfSufficientBalance from to amount;
       e = {_eventname : "OperatorSendSuccess"; initiator : _sender; sender : from; recipient : to; amount : amount};
@@ -407,13 +414,15 @@ transition TransferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
   match get_bal with
   | None => 
     err = CodeNotFound;
-    IssueErrorEvent err
+    IssueErrorEvent err;
+    throw
   | Some bal =>
     get_spender_allowed <- allowances_map[from][_sender];
     match get_spender_allowed with
     | None =>
       err = CodeNotAuthorized;
-      IssueErrorEvent err
+      IssueErrorEvent err;
+      throw
     | Some allowed =>
       min = min_int bal allowed;
       can_do = uint128_le amount min;
@@ -433,7 +442,8 @@ transition TransferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
         send msgs
       | False =>
         err = CodeInsufficientFunds;
-        IssueErrorEvent err
+        IssueErrorEvent err;
+        throw
       end
     end
   end
