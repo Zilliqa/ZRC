@@ -83,7 +83,7 @@ transition balanceOf(address: ByStr20)
 
 |        | Name                | Description                                                | Callback Parameters                                                                                    |
 | ------ | ------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `_tag` | `balanceOfCallBack` | Provide the sender the balance of the queried token_owner. | `balance` of type `Uint256` representing the current balance of NFTs owner by the queried token_owner. |
+| `_tag` | `balanceOfCallBack` | Provide the sender the balance of the queried token_owner. | `balance` of type `Uint256` representing the current balance of NFTs owned by the queried for token_owner. |
 
 #### 2. totalSupply()
 
