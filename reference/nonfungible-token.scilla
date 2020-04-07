@@ -298,8 +298,8 @@ end
 
 (* @dev:    Burn existing tokens. Only token_owner or an approved operator can burn a NFT. *)
 (* @param:  token_id - Unique ID of the NFT to be destroyed                                *)
-(* Returns error event CodeNotFound if token does not exists.                              *)
-(* Returns error event CodeNotAuthorised if _sender is not token_owner or operator.        *)
+(* Emits error event CodeNotFound if token does not exists.                              *)
+(* Emits error event CodeNotAuthorised if _sender is not token_owner or operator.        *)
 transition burn(token_id: Uint256)
   (* Check if token exists *)
   some_token_owner <- token_owners[token_id];
