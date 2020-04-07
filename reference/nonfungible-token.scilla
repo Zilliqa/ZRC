@@ -114,7 +114,8 @@ field total_supply: Uint256 = Uint256 0
 (* Emit Errors *)
 procedure EmitError(err : Error)
   e = make_error_event err;
-  event e
+  event e;
+  throw
 end
 
 (* Getter transitions *)
