@@ -298,7 +298,7 @@ transition RevokeOperator(operator: ByStr20)
   end
 end
 
-(* @dev: Increase the allowance of an approved_spender over the caller’s tokens. Only token_owner allowed to invoke. *)
+(* @dev: Increase the allowance of an approved_spender over the callers tokens. Only token_owner allowed to invoke. *)
 (* param spender:      Address of the designated approved_spender.                                                   *)
 (* param amount:       Number of tokens to be increased as allowance for the approved_spender.                       *)
 transition IncreaseAllowance(spender: ByStr20, amount: Uint128)
@@ -322,7 +322,7 @@ transition IncreaseAllowance(spender: ByStr20, amount: Uint128)
   end
 end
 
-(* @dev: Decrease the allowance of an approved_spender over the caller’s tokens. Only token_owner allowed to invoke. *)
+(* @dev: Decrease the allowance of an approved_spender over the callers tokens. Only token_owner allowed to invoke. *)
 (* param spender:      Address of the designated approved_spender.                                                   *)
 (* param amount:       Number of tokens to be decreased as allowance for the approved_spender.                       *)
 transition DecreaseAllowance(spender: ByStr20, amount: Uint128)
