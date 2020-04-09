@@ -25,7 +25,7 @@ The multisig wallet contract specification describes:
 3. the transitions that will allow the changing of values of the mutable variables;
 4. the events to be emitted by them.
 
-## Error Codes
+### Error Codes
 The multisig contract define the following constants for use as error codes for the `Error` event.
 
 | Name                      | Type    | Code  | Description    |
@@ -43,7 +43,7 @@ The multisig contract define the following constants for use as error codes for 
 | `NonOwnerCannotSubmit`    | `Int32` | `-11` | Emit when a non-owner attempts to create a new transaction. |
 | `IncorrectSignatureCount` | `Int32` | `-12` | Emit when trying to revoke a signature of an existing transaction in which there are no signatures. |
 
-## Immutable Variables
+### Immutable Variables
 
 | Name                  | Type           | Description   |
 | --------------------- | -------------- | ------------- |
@@ -52,7 +52,7 @@ The multisig contract define the following constants for use as error codes for 
 
 __Note__: it is a good idea to set `required_signatures` to a value strictly less than the number of owners, so that the remaining owners can retrieve the funds should some owners lose their private keys, or unable or unwilling to sign for new transactions.
 
-## Mutable Fields
+### Mutable Fields
 
 | Name               | Type                            | Description |
 | ------------------ | ------------------------------- | ----------- |
@@ -60,19 +60,38 @@ __Note__: it is a good idea to set `required_signatures` to a value strictly les
 | `transactionCount` | `Uint32`                        | The number of accumulated transactions from contract initialization. |
 | `signatures`       | `Map Uint32 (Map ByStr20 Bool)` | Mapping from transaction IDs to signees. |
 | `signature_counts` | `Map Uint32 Uint32`             | Mapping from transaction IDs to accumulated count of signatures. |
-| `transactions`     | `Map Uint32 Transaction`        | Mapping from transaction IDs to a `Transaction` object. <br/><br/> `Transaction` object contains the `recipient`, `amount` and `tag` in the form: `Trans of ByStr20 Uint128 String`.  |
+| `transactions`     | `Map Uint32 Transaction`        | Mapping from transaction IDs to a `Transaction` object. <br/> `Transaction` object contains the `recipient`, `amount` and `tag` in the form: `Trans of ByStr20 Uint128 String`.  |
 
 __Note__: Although `owners` is listed as a mutable fields, this multisig wallet contract specification is designed to prevent adding or removing owners. Refer to the section [Updating owners / number of required signatures] for more information.
 
-### SubmitTransaction()
+### Interface Transitions
 
-### SignTransaction()
+#### 1. SubmitTransaction()
+```
+(* Creates a transaction request for future signoff *)
+transition SubmitTransaction (recipient : ByStr20, amount : Uint128, tag : String)
+```
 
-### ExecuteTransaction()
+**Arguments:**
+| Name        | Type      | Description |
+| ----------- | --------- | ----------- |
+| `recipient` | `ByStr20` | Address of the recipient to transfer amount to. |
+| `amount`    | `Uint128` | Amount of funds to be transferred.              |
+| `tag`       | `String`  | Transition name to be invoked. Designed in the scenario of invoking a transition of another contract. Otherwise, the `tag` should be set to `AddFunds`. |
 
-### RevokeSignature()
+**Events:**
+|              | Name                  | Description                            | Event Parameters |
+| ------------ | --------------------- | ---------------------------------------| ---------------- |
+| `_eventname` | `Transaction created` | Transaction is submitted successfully. | `transactionId` : `Uint32`, `recipient` : `ByStr20`, `amount`: `Uint128`, `tag` : `String`.<ul><li>`transactionId` : `Uint32` - Identifier for submitted transaction</li></ul>
+| `_eventname` | `Error`               | Transaction is not submitted.          |
 
-### AddFunds()
+#### 2. SignTransaction()
+
+#### 3. ExecuteTransaction()
+
+#### 4. RevokeSignature()
+
+#### 5. AddFunds()
 
 ## V. Existing Implementation(s)
 
