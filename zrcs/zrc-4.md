@@ -97,10 +97,10 @@ transition SignTransaction (transactionId : Uint32)
 | `transactionId` | `Uint32` | Identifier for the transaction request to be signed |
 
 **Events:**
-|              | Name                 | Description                         | Event Parameters |
-| ------------ | -------------------- | ----------------------------------- | ---------------- |
-| `eventname`  | `Transaction signed` | Transaction is signed successfully. | <ul><li>`transactionId` : `Uint32`<br/>Identifier for transaction request</li></ul> |
-| `eventname`  | `Error`              | Transaction is not signed.          | <ul><li>emit `NonOwnerCannotSign` if the transition is not called by the wallet owners</li><li>emit `UnknownTransactionId` if there are no transaction records for the specified `transitionId`</li><li>emit `AlreadySigned` if the transaction already has an existing signature of the signee</li></ul> |
+|               | Name                 | Description                         | Event Parameters |
+| ------------- | -------------------- | ----------------------------------- | ---------------- |
+| `_eventname`  | `Transaction signed` | Transaction is signed successfully. | <ul><li>`transactionId` : `Uint32`<br/>Identifier for transaction request</li></ul> |
+| `_eventname`  | `Error`              | Transaction is not signed.          | <ul><li>emit `NonOwnerCannotSign` if the transition is not called by the wallet owners</li><li>emit `UnknownTransactionId` if there are no transaction records for the specified `transitionId`</li><li>emit `AlreadySigned` if the transaction already has an existing signature of the signee</li></ul> |
 
 #### 3. ExecuteTransaction()
 ```
@@ -113,11 +113,16 @@ transition ExecuteTransaction (transactionId : Uint32)
 | --------------- | -------  | ----------------------------------------------------- |
 | `transactionId` | `Uint32` | Identifier for the transaction request to be executed |
 
+**Messages sent:**
+|        | Name                 | Description                                     | Callback Parameters |
+| ------ | -------------------- | ----------------------------------------------- | ------------------- |
+| `_tag` | `ExecuteTransaction` | Provide the sender the status of the execution. | <ul><li>`recipient` : `ByStr20`<br/>Address of recipient</li><li>`amount` : `Uint128`<br/>Amount of funds to be transferred</li></ul> |
+
 **Events:**
-|              | Name                   | Description                           | Event Parameters |
-| ------------ | ---------------------- | ------------------------------------- | ---------------- |
-| `eventname`  | `Transaction executed` | Transaction is executed successfully. | <ul><li>`transactionId` : `Uint32`<br/>Identifier for transaction request</li><li>`recipient` : `ByStr20`<br/>Address of recipient</li><li>`amount` : `Uint128`<br/>Amount of funds to be transferred</li><li>`tag` : `String`<br/>Transition name to be invoked</li></ul> |
-| `eventname`  | `Error`                | Transaction is not executed.          | <ul><li>emit `UnknownTransactionId` if there are no transaction records for the specified `transitionId`</li><li>emit `SenderMayNotExecute` if the transition is neither called by the wallet owners nor recipient</li><li>emit `InsufficientFunds` if the wallet does not have sufficient funds to transfer over to the recipient</li><li>emit `NoSignatureListFound` if no signature records exist for the stated transaction record</li><li>emit `NotEnoughSignatures` if the transaction is executed without fulfilling the minimum number of required signatures</li></ul> |
+|               | Name                   | Description                           | Event Parameters |
+| ------------- | ---------------------- | ------------------------------------- | ---------------- |
+| `_eventname`  | `Transaction executed` | Transaction is executed successfully. | <ul><li>`transactionId` : `Uint32`<br/>Identifier for transaction request</li><li>`recipient` : `ByStr20`<br/>Address of recipient</li><li>`amount` : `Uint128`<br/>Amount of funds to be transferred</li><li>`tag` : `String`<br/>Transition name to be invoked</li></ul> |
+| `_eventname`  | `Error`                | Transaction is not executed.          | <ul><li>emit `UnknownTransactionId` if there are no transaction records for the specified `transitionId`</li><li>emit `SenderMayNotExecute` if the transition is neither called by the wallet owners nor recipient</li><li>emit `InsufficientFunds` if the wallet does not have sufficient funds to transfer over to the recipient</li><li>emit `NoSignatureListFound` if no signature records exist for the stated transaction record</li><li>emit `NotEnoughSignatures` if the transaction is executed without fulfilling the minimum number of required signatures</li></ul> |
 
 #### 4. RevokeSignature()
 
