@@ -29,17 +29,27 @@ The multisig contract define the following constants for use as error codes for 
 | Name                      | Type    | Code  | Description    |
 | ------------------------- | ------- | ----- | -------------- |
 | `NonOwnerCannotSign`      | `Int32` | `-1`  | Emit when a non-owner attempts to sign a transaction.
-| `UnknownTransactionId`    | `Int32` | `-2`  | Emit when a request is made for a transaction which cannot be found.
-| `InsufficientFunds`       | `Int32` | `-3`  | Emit when there is insufficient balance for token transaction.
-| `NoSignatureListFound`    | `Int32` | `-4`  | Emit when there are no signatures for a valid transaction request.
-| `AlreadySigned`           | `Int32` | `-5`  | Emit when an owner attempts to sign a transaction that has already been signed by the same owner. 
-| `NotAlreadySigned`        | `Int32` | `-6`  | Emit when a request is made to revoke a signature on a exisiting transaction in which the sender has not signed.
-| `InvalidContract`         | `Int32` | `-7`  | Emit when a request is made to an invalid multisig contract.
-| `InvalidAmount`           | `Int32` | `-8`  | Emit when an owner attempts to send an empty amount to a recipient wallet.
-| `NotEnoughSignatures`     | `Int32` | `-9`  | Emit when the number of signatures counts is less than the number of signatures required to execute a transaction.
-| `SenderMayNotExecute`     | `Int32` | `-10` | Emit when a request is made to execute a transaction in which the sender is neither any of the owners nor the receipent of the transaction.
-| `NonOwnerCannotSubmit`    | `Int32` | `-11` | Emit when a non-owner attempts to create a new transaction.
-| `IncorrectSignatureCount` | `Int32` | `-12` | Emit when trying to revoke a signature of an existing transaction in which there are no signatures.
+| `UnknownTransactionId`    | `Int32` | `-2`  | Emit when a request is made for a transaction which cannot be found. |
+| `InsufficientFunds`       | `Int32` | `-3`  | Emit when there is insufficient balance for token transaction. |
+| `NoSignatureListFound`    | `Int32` | `-4`  | Emit when there are no signatures for a valid transaction request. |
+| `AlreadySigned`           | `Int32` | `-5`  | Emit when an owner attempts to sign a transaction that has already been signed by the same owner. |
+| `NotAlreadySigned`        | `Int32` | `-6`  | Emit when a request is made to revoke a signature on a exisiting transaction in which the sender has not signed. |
+| `InvalidContract`         | `Int32` | `-7`  | Emit when a request is made to an invalid multisig contract. |
+| `InvalidAmount`           | `Int32` | `-8`  | Emit when an owner attempts to send an empty amount to a recipient wallet. |
+| `NotEnoughSignatures`     | `Int32` | `-9`  | Emit when the number of signatures counts is less than the number of signatures required to execute a transaction. |
+| `SenderMayNotExecute`     | `Int32` | `-10` | Emit when a request is made to execute a transaction in which the sender is neither any of the owners nor the receipent of the transaction. |
+| `NonOwnerCannotSubmit`    | `Int32` | `-11` | Emit when a non-owner attempts to create a new transaction. |
+| `IncorrectSignatureCount` | `Int32` | `-12` | Emit when trying to revoke a signature of an existing transaction in which there are no signatures. |
+
+## Immutable Variables
+
+| Name                  | Type           | Description   |
+| --------------------- | -------------- | ------------- |
+| `owners_list`         | `List ByStr20` | The list of owners of this wallet. |
+| `required_signatures` | `Uint32`       | The number of signatures required to execute a transaction. |
+
+__Note__
+It is a good idea to set `required_signatures` to a value strictly less than the number of owners, so that the remaining owners can retrieve the funds should some owners lose their private keys, or unable or unwilling to sign for new transactions.
 
 ## V. Existing Implementation(s)
 
