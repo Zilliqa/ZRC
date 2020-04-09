@@ -125,6 +125,21 @@ transition ExecuteTransaction (transactionId : Uint32)
 | `_eventname`  | `Error`                | Transaction is not executed.          | <ul><li>emit `UnknownTransactionId` if there are no transaction records for the specified `transitionId`</li><li>emit `SenderMayNotExecute` if the transition is neither called by the wallet owners nor recipient</li><li>emit `InsufficientFunds` if the wallet does not have sufficient funds to transfer over to the recipient</li><li>emit `NoSignatureListFound` if no signature records exist for the stated transaction record</li><li>emit `NotEnoughSignatures` if the transaction is executed without fulfilling the minimum number of required signatures</li></ul> |
 
 #### 4. RevokeSignature()
+```
+(* Revoke signature of existing transaction, if it has not yet been executed. *)
+transition RevokeSignature (transactionId : Uint32)
+```
+
+**Arguments:**
+| Name            | Type     | Description                                                          |
+| --------------- | -------  | -------------------------------------------------------------------- |
+| `transactionId` | `Uint32` | Transaction identifier in which the signature is to be removed from. |
+
+**Events:**
+|               | Name                | Description                                             | Event Parameters |
+| ------------- | ------------------- | ------------------------------------------------------- | ---------------- |
+| `_eventname`  | `Signature revoked` | Signature is revoked from the transaction successfully. | <ul><li>`transactionId` : `Uint32`<br/>Identifier for transaction request to revoke the signature from</li></ul> |
+| `_eventname`  | `Error`             | Signature is not revoked.                               | <ul><li>emit `NotAlreadySigned` if sender's signature is not found in the signature records for the specific `transactionId`</li><li>emit `IncorrectSignatureCount` if there do not exist any signatures for the existing transaction record</li></ul>
 
 #### 5. AddFunds()
 
