@@ -63,7 +63,7 @@ __Note__: it is a good idea to set `required_signatures` to a value strictly les
 | `signature_counts` | `Map Uint32 Uint32`             | Mapping from transaction IDs to accumulated count of signatures. |
 | `transactions`     | `Map Uint32 Transaction`        | Mapping from transaction IDs to a `Transaction` object. <br/> `Transaction` object contains the `recipient`, `amount` and `tag` in the form: `Trans of ByStr20 Uint128 String`.  |
 
-__Note__: Although `owners` is listed as a mutable fields, this multisig wallet contract specification is designed to prevent adding or removing owners. Refer to the section [Update Owners / Change Number of Required Signatures](#updateownerschangenumberofrequiredsignatures) for more information.
+__Note__: Although `owners` is listed as a mutable fields, this multisig wallet contract specification is designed to prevent adding or removing owners. Refer to the section [Update Owners or Change Number of Required Signatures](#v.-update-owners-or-change-number-of-required-signatures) for more information.
 
 ### D. Interface Transitions
 
@@ -148,7 +148,7 @@ transition RevokeSignature (transactionId : Uint32)
 transition AddFunds ()
 ```
 
-## V. Update Owners / Change Number of Required Signatures
+## V. Update Owners or Change Number of Required Signatures
 
 This multisig wallet contract is designed to prevent adding or removing owners, or changing the number of required signatures. 
 
@@ -164,6 +164,8 @@ The proposed design for performing the aforementioned changes is:
 4. Lastly, on the __old wallet__, have one of the owners invoke `ExecuteTransaction` transition. All the existing balance of the __old wallet__ would be transferred to the new wallet from (1).
 
 ## VI. Existing Implementation(s)
+
+_TBD_
 
 ## VII. Copyright
 
