@@ -92,9 +92,9 @@ transition SignTransaction (transactionId : Uint32)
 ```
 
 **Arguments:**
-| Name            | Type     | Description                                         |
-| --------------- | -------  | --------------------------------------------------- |
-| `transactionId` | `Uint32` | Identifier for the transaction request to be signed |
+| Name            | Type     | Description                                          |
+| --------------- | -------  | ---------------------------------------------------- |
+| `transactionId` | `Uint32` | Identifier for the transaction request to be signed. |
 
 **Events:**
 |               | Name                 | Description                         | Event Parameters |
@@ -109,9 +109,9 @@ transition ExecuteTransaction (transactionId : Uint32)
 ```
 
 **Arguments:**
-| Name            | Type     | Description                                           |
-| --------------- | -------  | ----------------------------------------------------- |
-| `transactionId` | `Uint32` | Identifier for the transaction request to be executed |
+| Name            | Type     | Description                                            |
+| --------------- | -------  | ------------------------------------------------------ |
+| `transactionId` | `Uint32` | Identifier for the transaction request to be executed. |
 
 **Messages sent:**
 |        | Name                 | Description                                     | Callback Parameters |
