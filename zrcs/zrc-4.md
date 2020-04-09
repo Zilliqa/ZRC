@@ -25,7 +25,8 @@ The multisig wallet contract specification describes:
 3. the transitions that will allow the changing of values of the mutable variables;
 4. the events to be emitted by them.
 
-### Error Codes
+### A. Error Codes
+
 The multisig contract define the following constants for use as error codes for the `Error` event.
 
 | Name                      | Type    | Code  | Description    |
@@ -43,7 +44,7 @@ The multisig contract define the following constants for use as error codes for 
 | `NonOwnerCannotSubmit`    | `Int32` | `-11` | Emit when a non-owner attempts to create a new transaction. |
 | `IncorrectSignatureCount` | `Int32` | `-12` | Emit when trying to revoke a signature of an existing transaction in which there are no signatures. |
 
-### Immutable Variables
+### B. Immutable Variables
 
 | Name                  | Type           | Description   |
 | --------------------- | -------------- | ------------- |
@@ -52,7 +53,7 @@ The multisig contract define the following constants for use as error codes for 
 
 __Note__: it is a good idea to set `required_signatures` to a value strictly less than the number of owners, so that the remaining owners can retrieve the funds should some owners lose their private keys, or unable or unwilling to sign for new transactions.
 
-### Mutable Fields
+### C. Mutable Fields
 
 | Name               | Type                            | Description |
 | ------------------ | ------------------------------- | ----------- |
@@ -62,9 +63,9 @@ __Note__: it is a good idea to set `required_signatures` to a value strictly les
 | `signature_counts` | `Map Uint32 Uint32`             | Mapping from transaction IDs to accumulated count of signatures. |
 | `transactions`     | `Map Uint32 Transaction`        | Mapping from transaction IDs to a `Transaction` object. <br/> `Transaction` object contains the `recipient`, `amount` and `tag` in the form: `Trans of ByStr20 Uint128 String`.  |
 
-__Note__: Although `owners` is listed as a mutable fields, this multisig wallet contract specification is designed to prevent adding or removing owners. Refer to the section [Updating owners / number of required signatures] for more information.
+__Note__: Although `owners` is listed as a mutable fields, this multisig wallet contract specification is designed to prevent adding or removing owners. Refer to the section [Update Owners / Change Number of Required Signatures](#update-owners-/-change-number-of- required-signatures) for more information.
 
-### Interface Transitions
+### D. Interface Transitions
 
 #### 1. SubmitTransaction()
 ```
@@ -147,8 +148,23 @@ transition RevokeSignature (transactionId : Uint32)
 transition AddFunds ()
 ```
 
-## V. Existing Implementation(s)
+## V. Update Owners / Change Number of Required Signatures
 
-## VI. Copyright
+This multisig wallet contract is designed to prevent adding or removing owners, or changing the number of required signatures. 
+
+The proposed design for performing the aforementioned changes is:
+
+1. Deploy a new wallet with the owners and number of required signatures adjusted.
+2. On the __old wallet__, invoke `SubmitTransaction` transition with the following parameters:
+    - `recipient` : Address of new wallet
+    - `amount` : _balance of old wallet
+    - `tag` : `AddFunds`
+3. Next, on the __old wallet__, have the various owners invoke `SignTransaction` transition with the following parameters until the minimal required signature is reached:
+    - `transactionId` : <transactionId from (2)>
+4. Lastly, on the __old wallet__, have one of the owners invoke `ExecuteTransaction` transition. All the existing balance of the __old wallet__ would be transferred to the new wallet from (1).
+
+## VI. Existing Implementation(s)
+
+## VII. Copyright
 
 Copyright and related rights waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
