@@ -54,11 +54,12 @@ __Note__: it is a good idea to set `required_signatures` to a value strictly les
 
 | Name               | Type                            | Description |
 | ------------------ | ------------------------------- | ----------- |
-| `owners`           | `Map ByStr20 Bool`              |
-| `transactionCount` | `Uint32`                        |
-| `signatures`       | `Map Uint32 (Map ByStr20 Bool)` |
-| `signature_counts` | `Map Uint32 Uint32`             |
-| `transactions`     | `Map Uint32 Transaction`        |
+| `owners`           | `Map ByStr20 Bool`              | Mapping of multisig wallets owners to a boolean. True indicates an owner. |
+| `transactionCount` | `Uint32`                        | The number of accumulated transactions from contract initialization. |
+| `signatures`       | `Map Uint32 (Map ByStr20 Bool)` | Mapping from transaction IDs to signees. |
+| `signature_counts` | `Map Uint32 Uint32`             | Mapping from transaction IDs to accumulated count of signatures. |
+| `transactions`     | `Map Uint32 Transaction`        | Mapping from transaction IDs to a `Transaction` object. <br/><br/> `Transaction` object contains the `recipient`, `amount` and `tag` in the form: `Trans of ByStr20 Uint128 String`.  |
+
 
 ### SubmitTransaction()
 
