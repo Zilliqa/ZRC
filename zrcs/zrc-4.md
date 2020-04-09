@@ -142,6 +142,10 @@ transition RevokeSignature (transactionId : Uint32)
 | `_eventname`  | `Error`             | Signature is not revoked.                               | <ul><li>emit `NotAlreadySigned` if sender's signature is not found in the signature records for the specific `transactionId`</li><li>emit `IncorrectSignatureCount` if there do not exist any signatures for the existing transaction record</li></ul>
 
 #### 5. AddFunds()
+```
+(* Add funds to wallet *)
+transition AddFunds ()
+```
 
 ## V. Existing Implementation(s)
 
