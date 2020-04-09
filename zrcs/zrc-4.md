@@ -1,8 +1,8 @@
 | ZRC | Title                        | Status | Type  | Author                                                                                                                       | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
 | --- | ---------------------------- | ------ | ----- | ---------------------------------------------------------------------------------------------------------------------------- | -------------------- | -------------------- |
-| 1   | Standard for Multisig Wallet | Draft  | Standard | Yeo Te Ye <teye@zilliqa.com> | 2020-04-08           | 2020-04-08           |
+| 1   | Standard for Multisig Wallet | Draft  | Standard | Yeo Te Ye <teye@zilliqa.com> | 2020-04-08           | 2020-04-09           |
 
-## I. What is a Multisig Wallet?
+## I. What is a MultiSig Wallet?
 
 A multi-signature wallet is a cryptocurrency wallet owned by two or more owners. Whenever a transaction is created, the transaction has to be approved and signed by two or more owners before it can be executed on the blockchain. A multisig wallet can implement various combination of keys: with 2/3 being the most common where 2 signatures are minimally required out of the 3 owners.
 
@@ -63,7 +63,7 @@ __Note__: it is a good idea to set `required_signatures` to a value strictly les
 | `signature_counts` | `Map Uint32 Uint32`             | Mapping from transaction IDs to accumulated count of signatures. |
 | `transactions`     | `Map Uint32 Transaction`        | Mapping from transaction IDs to a `Transaction` object. <br/> `Transaction` object contains the `recipient`, `amount` and `tag` in the form: `Trans of ByStr20 Uint128 String`.  |
 
-__Note__: Although `owners` is listed as a mutable fields, this multisig wallet contract specification is designed to prevent adding or removing owners. Refer to the section [Update Owners / Change Number of Required Signatures](#update-owners-/-change-number-of-required-signatures) for more information.
+__Note__: Although `owners` is listed as a mutable fields, this multisig wallet contract specification is designed to prevent adding or removing owners. Refer to the section [Update Owners / Change Number of Required Signatures](#updateownerschangenumberofrequiredsignatures) for more information.
 
 ### D. Interface Transitions
 
