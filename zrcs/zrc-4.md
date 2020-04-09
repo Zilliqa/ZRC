@@ -8,7 +8,9 @@ A multi-signature wallet is a cryptocurrency wallet owned by two or more owners.
 
 ## II. Abstract
 
-ZRC-4 defines a minimum interface of a multisig wallet smart contract.
+ZRC-4 defines a minimum interface of a multisig wallet smart contract. The contract holds funds that can be paid out to arbitrary users, provided that enough people in the designated list of owners sign off on the payout.
+
+The transaction must be added to the contract before signatures can be collected. Once sufficient signatures are collected, the recipient can request for the transaction to be executed and the money paid out.
 
 ## III. Motivation
 
@@ -60,6 +62,7 @@ __Note__: it is a good idea to set `required_signatures` to a value strictly les
 | `signature_counts` | `Map Uint32 Uint32`             | Mapping from transaction IDs to accumulated count of signatures. |
 | `transactions`     | `Map Uint32 Transaction`        | Mapping from transaction IDs to a `Transaction` object. <br/><br/> `Transaction` object contains the `recipient`, `amount` and `tag` in the form: `Trans of ByStr20 Uint128 String`.  |
 
+__Note__: Although `owners` is listed as a mutable fields, this multisig wallet contract specification is designed to prevent adding or removing owners. Refer to the section [Updating owners / number of required signatures] for more information.
 
 ### SubmitTransaction()
 
