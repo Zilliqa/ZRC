@@ -12,7 +12,7 @@ ZRC-4 defines a minimum interface of a multisig wallet smart contract.
 
 ## III. Motivation
 
-A standard for multisig wallet can serve as an interface for developers and other companies to implement their own multisig wallets to contain their funds in a more secure fashion. The multisig wallet can be used in escrow scenarios and decision making scenarios to prevent misuse of funds for instance.
+A standard for multisig wallet can serve as an interface for developers and other companies to implement their own multisig wallets to contain their funds in a more secure fashion. The multisig wallet can be used in escrow scenarios and decision making scenarios to prevent misuse of funds.
 
 ## IV. Specification
 
@@ -45,11 +45,30 @@ The multisig contract define the following constants for use as error codes for 
 
 | Name                  | Type           | Description   |
 | --------------------- | -------------- | ------------- |
-| `owners_list`         | `List ByStr20` | The list of owners of this wallet. |
-| `required_signatures` | `Uint32`       | The number of signatures required to execute a transaction. |
+| `owners_list`         | `List ByStr20` | The list of owners of the multisig wallet. |
+| `required_signatures` | `Uint32`       | The number of signatures required to approve and execute a transaction. |
 
-__Note__
-It is a good idea to set `required_signatures` to a value strictly less than the number of owners, so that the remaining owners can retrieve the funds should some owners lose their private keys, or unable or unwilling to sign for new transactions.
+__Note__: it is a good idea to set `required_signatures` to a value strictly less than the number of owners, so that the remaining owners can retrieve the funds should some owners lose their private keys, or unable or unwilling to sign for new transactions.
+
+## Mutable Fields
+
+| Name               | Type                            | Description |
+| ------------------ | ------------------------------- | ----------- |
+| `owners`           | `Map ByStr20 Bool`              |
+| `transactionCount` | `Uint32`                        |
+| `signatures`       | `Map Uint32 (Map ByStr20 Bool)` |
+| `signature_counts` | `Map Uint32 Uint32`             |
+| `transactions`     | `Map Uint32 Transaction`        |
+
+### SubmitTransaction()
+
+### SignTransaction()
+
+### ExecuteTransaction()
+
+### RevokeSignature()
+
+### AddFunds()
 
 ## V. Existing Implementation(s)
 
