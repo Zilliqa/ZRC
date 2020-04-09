@@ -82,8 +82,8 @@ transition SubmitTransaction (recipient : ByStr20, amount : Uint128, tag : Strin
 **Events:**
 |              | Name                  | Description                            | Event Parameters |
 | ------------ | --------------------- | ---------------------------------------| ---------------- |
-| `_eventname` | `Transaction created` | Transaction is submitted successfully. | `transactionId` : `Uint32`, `recipient` : `ByStr20`, `amount`: `Uint128`, `tag` : `String`.<ul><li>`transactionId` : `Uint32`<br/>Identifier for submitted transaction</li><li>`recipient` : `ByStr20`<br/>Address of recipient</li><li>`amount` : `Uint128`<br/>Amount of funds to be transferred</li><li>`tag` : `String`<br/>Transition name to be invoked.</li></ul>
-| `_eventname` | `Error`               | Transaction is not submitted.          |
+| `_eventname` | `Transaction created` | Transaction is submitted successfully. | <ul><li>`transactionId` : `Uint32`<br/>Identifier for submitted transaction</li><li>`recipient` : `ByStr20`<br/>Address of recipient</li><li>`amount` : `Uint128`<br/>Amount of funds to be transferred</li><li>`tag` : `String`<br/>Transition name to be invoked.</li></ul> |
+| `_eventname` | `Error`               | Transaction is not submitted.          | <ul><li>emit `NonOwnerCannotSubmit` if the transition is not called by the wallet owners</li><li>emit `InvalidAmount` if the transition is called with empty `amount`</li></ul> |
 
 #### 2. SignTransaction()
 
