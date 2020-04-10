@@ -114,7 +114,8 @@ field total_supply: Uint256 = Uint256 0
 (* Emit Errors *)
 procedure EmitError(err : Error)
   e = make_error_event err;
-  event e
+  event e;
+  throw
 end
 
 (* Getter transitions *)
@@ -267,7 +268,7 @@ transition mint(to: ByStr20, token_id: Uint256, token_uri: String)
     | True =>
       (* Mint new token *)
       token_owners[token_id] := to;
-      (* Add to owner's count *)
+      (* Add to owner count *)
       some_current_count <- owned_token_count[to];
       new_count = add_owner_count some_current_count;
       owned_token_count[to] := new_count;
@@ -350,7 +351,7 @@ transition burn(token_id: Uint256)
 end
 
 
-(* @dev: Approves OR remove an address's ability to transfer a given token_id       *)
+(* @dev: Approves OR remove an address ability to transfer a given token_id       *)
 (* There can only be one approved_spender per token at any given time               *)
 (* param: to       - Address to be approved for the given token_id                  *)
 (* param: token_id - Unique ID of the NFT to be approved                            *)
@@ -457,11 +458,11 @@ transition transfer(to: ByStr20, token_id: Uint256)
       token_owners[token_id] := to;
       (* Delete tokenApproval entry for that token_id *)
       delete token_approvals[token_id];
-      (* Subtract one from previous token owner's count *)
+      (* Subtract one from previous token owner count *)
       some_from_count <- owned_token_count[_sender];
       new_from_count = sub_owner_count some_from_count;
       owned_token_count[_sender] := new_from_count;
-      (* Add one to the new token owner's count *)
+      (* Add one to the new token owner count *)
       some_to_count <- owned_token_count[to];
       new_to_count = add_owner_count some_to_count;
       owned_token_count[to] := new_to_count;
@@ -519,11 +520,11 @@ transition transferFrom(to: ByStr20, token_id: Uint256)
       token_owners[token_id] := to;
       (* Delete tokenApproval entry for that token_id *)
       delete token_approvals[token_id];
-      (* Subtract one from previous token owner's count *)
+      (* Subtract one from previous token owner count *)
       some_from_count <- owned_token_count[token_owner];
       new_from_count = sub_owner_count some_from_count;
       owned_token_count[token_owner] := new_from_count;
-      (* Add one to the new token owner's count *)
+      (* Add one to the new token owner count *)
       some_to_count <- owned_token_count[to];
       new_to_count = add_owner_count some_to_count;
       owned_token_count[to] := new_to_count;
