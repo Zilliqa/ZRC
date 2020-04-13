@@ -1,7 +1,7 @@
 {
-  "name": "zrc2",
+  "name": "zrc1",
   "version": "1.0.0",
-  "description": "Example project on how to interact with ZRC2 contract",
+  "description": "Example project on how to interact with ZRC1 contract",
   "main": "index.js",
   "scripts": {
     "deploy": "node deploy.js"
