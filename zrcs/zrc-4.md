@@ -167,7 +167,7 @@ The proposed design for performing the aforementioned changes is:
 
 - [MultiSig Wallet Reference contract](../reference/multisig_wallet.scilla)
 
-To test the reference contract, simply go to the [`example`](../example) folder and run one of the JS scripts.
+To test the reference contract, simply go to the [`example/zrc4`](../example/zrc4) folder and run one of the JS scripts.
 
 ## VII. Copyright
 
