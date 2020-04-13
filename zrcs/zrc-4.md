@@ -144,7 +144,7 @@ transition RevokeSignature (transactionId : Uint32)
 
 #### 5. AddFunds()
 ```
-(* Add funds to wallet *)
+(* Add native funds to wallet *)
 transition AddFunds ()
 ```
 
