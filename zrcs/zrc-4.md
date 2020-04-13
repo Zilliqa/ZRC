@@ -63,7 +63,7 @@ __Note__: it is a good idea to set `required_signatures` to a value strictly les
 | `signature_counts` | `Map Uint32 Uint32`             | Mapping from transaction IDs to accumulated count of signatures. |
 | `transactions`     | `Map Uint32 Transaction`        | Mapping from transaction IDs to a `Transaction` object. <br/> `Transaction` object contains the `recipient`, `amount` and `tag` in the form: `Trans of ByStr20 Uint128 String`.  |
 
-__Note__: Although `owners` is listed as a mutable fields, this multisig wallet contract specification is designed to prevent adding or removing owners. Refer to the section [V. Update Owners or Change Number of Required Signatures](#v.-update-owners-or-change-number-of-required-signatures) for more information.
+__Note__: Although `owners` is listed as a mutable fields, this multisig wallet contract specification is designed to prevent adding or removing owners. Refer to the section [V. Update Owners or Change Number of Required Signatures](v.-update-owners-or-change-number-of-required-signatures) for more information.
 
 ### D. Interface Transitions
 
@@ -165,7 +165,7 @@ The proposed design for performing the aforementioned changes is:
 
 ## VI. Existing Implementation(s)
 
-_TBD_
+- [MultiSig Wallet Reference contract](../reference/multisig_wallet.scilla)
 
 ## VII. Copyright
 
