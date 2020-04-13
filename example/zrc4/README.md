@@ -2,7 +2,7 @@
 
 The Javascript examples uses [Zilliqa-Javascript-Library](#https://github.com/Zilliqa/Zilliqa-JavaScript-Library).
 <br>
-Using npm <= 12.9, run `npm install`.
+Using npm <= 12.9, run `npm install`.<br>
 To execute the examples, configure the parameters in the Javascript files and run `node [file_name.js], e.g. node deploy.js`.
 
 ## Sample Workflow
