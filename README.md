@@ -18,3 +18,13 @@ When you believe your ZRC is ready to progress past the 'Draft' phase, you shoul
 2. **Ready** - a preliminary version of the ZRC that is ready for review by a wide audience.
 3. **Approved** - a finalized version of the ZRC that has been in the 'Ready' state for at least 2 weeks and any technical changes that were requested have been addressed by the author.
 4. **Implemented** - a finalized version of the ZRC that the Core Devs have decided to implement and release.
+
+# Testing
+To test the reference contract, simply go to the [zrc1](https://github.com/Zilliqa/ZRC/tree/master/example/zrc1) or [zrc2](https://github.com/Zilliqa/ZRC/tree/master/example/zrc2) folder and run one of the JS scripts. For example, to deploy the contract, run:
+
+```shell script
+yarn deploy.js
+```
+
+**NOTE**: Please change the privkey in the script to your own private key. You can generate a testnet wallet and request for testnet $ZIL at the Nucleus Faucet. 
+
