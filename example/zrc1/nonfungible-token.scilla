@@ -1,0 +1,513 @@
+scilla_version 0
+
+(***************************************************)
+(*               Associated library                *)
+(***************************************************)
+import BoolUtils
+library NonfungibleToken
+
+let one_msg = 
+  fun (msg : Message) => 
+  let nil_msg = Nil {Message} in
+  Cons {Message} msg nil_msg
+
+let two_msgs =
+fun (msg1 : Message) =>
+fun (msg2 : Message) =>
+  let msgs_tmp = one_msg msg2 in
+  Cons {Message} msg1 msgs_tmp
+
+let zero = Uint256 0
+let one = Uint256 1
+let tt = True
+let ff = False
+
+let add_owner_count = 
+  fun (some_current_count: Option Uint256) =>
+    match some_current_count with
+    | Some current_count =>
+      builtin add current_count one
+    | None => one
+    end
+
+let sub_owner_count = 
+fun (some_current_count: Option Uint256) =>
+  match some_current_count with
+  | Some current_count =>
+    let is_zero = builtin eq current_count zero in
+    match is_zero with
+    | True => zero
+    | False => 
+        builtin sub current_count one
+    end
+  | None => zero
+  end
+
+(* Check if a sender is an operator of the owner, approved for the given ID *)
+(* or is the owner of the token                                             *)
+let is_approved_or_owner =
+  fun (is_owner: Bool) =>
+  fun (is_approved: Bool) =>
+  fun (is_approved_for_all: Bool) =>
+    let is_owner_or_approved =  orb is_owner is_approved in
+    orb is_owner_or_approved is_approved_for_all
+
+(* Error events *)
+type Error =
+  | CodeNotAuthorised
+  | CodeNotFound
+  | CodeTokenExists
+  | CodeUnexpectedError
+
+let make_error_event =
+  fun (result : Error) =>
+    let result_code = 
+      match result with
+      | CodeNotAuthorised    => Int32 -1
+      | CodeNotFound         => Int32 -2
+      | CodeTokenExists      => Int32 -3
+      | CodeUnexpectedError  => Int32 -4
+      end
+    in
+    { _eventname : "Error"; code : result_code }
+
+(* Dummy user-defined ADT *)
+type Unit =
+| Unit
+
+(***************************************************)
+(*             The contract definition             *)
+(***************************************************)
+
+contract NonfungibleToken
+(contract_owner: ByStr20,
+  name : String,
+  symbol: String
+)
+
+(* Mutable fields *)
+
+(* List of minters available *)
+field minters: Map ByStr20 Unit = Emp ByStr20 Unit
+
+(* Mapping between token_id to token_owner *)
+field token_owners: Map Uint256 ByStr20 = Emp Uint256 ByStr20
+
+(* Mapping from owner to number of owned tokens *)
+field owned_token_count: Map ByStr20 Uint256 = Emp ByStr20 Uint256
+
+(* Mapping between token_id to approved address                              *)
+(* @dev: There can only be one approved address per token at any given time. *)
+field token_approvals: Map Uint256 ByStr20 = Emp Uint256 ByStr20
+
+(* Mapping from owner to operator approvals  *)
+field operator_approvals: Map ByStr20 (Map ByStr20 Bool)
+                            = Emp ByStr20 (Map ByStr20 Bool)
+
+(* Mapping from token_id to token_uri *)
+field token_uris: Map Uint256 String = Emp Uint256 String
+
+(* Total token count *)
+field total_supply: Uint256 = Uint256 0
+
+
+(* Emit Errors *)
+procedure EmitError(err : Error)
+  e = make_error_event err;
+  event e;
+  throw
+end
+
+(* Getter transitions *)
+
+(* @dev: Get number of NFTs assigned to a token_owner *)
+transition balanceOf(address: ByStr20)
+  some_bal <- owned_token_count[address];
+  balance = 
+    match some_bal with
+    | Some bal => bal
+    | None => Uint256 0
+    end;
+  msg_to_sender = { _tag : "balanceOfCallBack"; _recipient : _sender; 
+                    _amount : Uint128 0; balance : balance};
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* @dev: Get total supply of NFTs minted *)
+transition totalSupply()
+  current_supply <- total_supply;
+  msg_to_sender = { _tag : "totalSupplyCallBack"; _recipient : _sender; _amount : Uint128 0;
+                   total_supply : current_supply};
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* @dev: Get name of the NFTs *)
+transition name()
+  msg_to_sender = { _tag : "nameCallBack"; _recipient : _sender; _amount : Uint128 0;
+                   name : name};
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* @dev: Get name of the NFTs *)
+transition symbol()
+  msg_to_sender = { _tag : "symbolCallBack"; _recipient : _sender; _amount : Uint128 0;
+                   symbol : symbol};
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* @dev: Get approved_addr for token_id *)
+transition getApproved(token_id: Uint256)
+  some_token_approval <- token_approvals[token_id];
+  match some_token_approval with
+  | Some addr => 
+    msg_to_sender = { _tag : "getApprovedCallBack"; _recipient : _sender; _amount : Uint128 0; 
+                      approved_addr : addr; token_id : token_id};
+    msgs = one_msg msg_to_sender;
+    send msgs
+  | None => throw
+  end
+end
+
+transition getTokenURI(token_id: Uint256)
+  some_token_uri <- token_uris[token_id];
+  match some_token_uri with
+  | Some token_uri =>
+    msg_to_sender = { _tag : "getTokenURICallBack"; _recipient : _sender; _amount : Uint128 0; 
+                      token_uri : token_uri};
+    msgs = one_msg msg_to_sender;
+    send msgs
+  | None => throw
+  end
+end
+
+transition isOwner(token_id: Uint256, address: ByStr20)
+  some_token_owner <- token_owners[token_id];
+  is_owner_bool = 
+    match some_token_owner with
+    | Some addr => builtin eq addr address
+    | None => False
+    end;
+  msg_to_sender = { _tag : "isOwnerCallBack"; _recipient : _sender; _amount : Uint128 0;
+                    is_owner : is_owner_bool};
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+transition isApprovedForAll(token_owner: ByStr20, operator: ByStr20)
+  some_operator_approval <- operator_approvals[token_owner][operator];
+  is_operator =
+    match some_operator_approval with
+    | Some status => status
+    | None => False
+    end;
+  msg_to_sender = { _tag : "isApprovedForAllCallBack"; _recipient : _sender; _amount : Uint128 0; 
+                   is_operator : is_operator};
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+transition configureMinter(minter: ByStr20)
+  is_owner = builtin eq contract_owner _sender;
+  match is_owner with
+  | False =>
+    (* Token exists, return error code *)
+    err = CodeNotAuthorised;
+    EmitError err
+  | True =>
+    some_minter <- minters[minter];
+    match some_minter with
+    | Some Unit => 
+      delete minters[minter];
+      (* Emit success event *)
+      e = {_eventname: "RemovedMinterSuccess"; minter: minter};
+      event e
+    | None =>
+      authorize = Unit;
+      minters[minter] := authorize;
+      (* Emit success event *)
+      e = {_eventname: "AddMinterSuccess"; minter: minter};
+      event e
+    end
+  end
+end
+
+transition mint(to: ByStr20, token_id: Uint256, token_uri: String)
+  (* Check if token exists *)
+  token_exist <- exists token_owners[token_id];
+  match token_exist with
+  | True =>
+    (* Token exists, return error code *)
+    err = CodeTokenExists;
+    EmitError err
+  | False =>
+    (* Check if sender is contract_owner *)
+    is_contract_owner = builtin eq _sender contract_owner;
+    (* Check if sender is a minter *)
+    is_minter <- exists minters[_sender];
+    is_authorised = orb is_contract_owner is_minter;
+    match is_authorised with
+    | True =>
+      (* Mint new token *)
+      token_owners[token_id] := to;
+      (* Add to owner count *)
+      some_current_count <- owned_token_count[to];
+      new_count = add_owner_count some_current_count;
+      owned_token_count[to] := new_count;
+      (* Add token_uri for token_id *)
+      token_uris[token_id] := token_uri;
+      (* Add to total_supply *)
+      current_supply <- total_supply;
+      new_supply = builtin add current_supply one;
+      total_supply := new_supply; 
+      (* Emit success event *)
+      e = {_eventname: "MintSuccess"; by: _sender; recipient: to;
+           token_id: token_id; token_uri: token_uri};
+      event e;
+      (* Send dummy message.                                                         *)
+      (* Revert transition if invalid recipient contract. Ignore if external address *)
+      msg_to_recipient = { _tag : "recipientAcceptMint"; _recipient : to; _amount : Uint128 0 };
+      msg_to_sender = { _tag : "mintCallBack"; _recipient : _sender; _amount : Uint128 0;
+                        recipient : to; token_id : token_id; token_uri : token_uri };
+      msgs = two_msgs msg_to_recipient msg_to_sender;
+      send msgs
+    | False =>
+      (* Unauthorised transaction*)
+      err = CodeNotAuthorised;
+      EmitError err
+    end
+  end
+end
+
+transition burn(token_id: Uint256)
+  (* Check if token exists *)
+  some_token_owner <- token_owners[token_id];
+  match some_token_owner with
+  | None =>
+    (* Token does not exist, return error code *)
+    err = CodeNotFound;
+    EmitError err
+  | Some token_owner =>
+    (* Check if sender is token_owner *)
+    is_owner = builtin eq _sender token_owner;
+    (* Check if sender is token_owner approvedForAll operator *)
+    some_operator <- operator_approvals[token_owner][_sender];
+    is_approved_for_all = 
+      match some_operator with
+      | None => False
+      | Some val => val
+      end;
+    (* Check if sender is an authorised *)
+    is_authorised = orb is_owner is_approved_for_all;
+    match is_authorised with
+    | False =>
+      (* Unauthorised transaction *)
+      err = CodeNotAuthorised;
+      EmitError err
+    | True =>
+      (* Destroy existing token *)
+      delete token_owners[token_id];
+      delete token_approvals[token_id];
+      delete token_uris[token_id];
+      (* Deduct from owned_token_count *)
+      some_current_count <- owned_token_count[token_owner];
+      some_new_count = sub_owner_count some_current_count;
+      owned_token_count[token_owner] := some_new_count;
+      (* Deduct from total_supply *)
+      current_supply <- total_supply;
+      new_supply = builtin sub current_supply one;
+      total_supply := new_supply;
+      (* Emit success event *)
+      e = {_eventname: "BurnSuccess"; initiator: _sender; burn_address: token_owner; token: token_id};
+      event e;
+      msg_to_sender = { _tag : "burnCallBack"; _recipient : _sender; _amount : Uint128 0;
+                        initiator : _sender; burn_address : token_owner; token_id : token_id };
+      msgs = one_msg msg_to_sender;
+      send msgs
+    end
+  end
+end
+
+transition approve(to: ByStr20, token_id: Uint256)
+  (* Get token_owner address *)
+  some_token_owner <- token_owners[token_id];
+  match some_token_owner with
+  | None =>
+    (* Token not found *)
+    err = CodeNotFound;
+    EmitError err
+  | Some token_owner =>
+    is_owner = builtin eq _sender token_owner;
+    some_operator <- operator_approvals[token_owner][_sender];
+    is_operator = 
+      match some_operator with
+      | Some val => val
+      | None => False
+      end;
+    is_authorised = orb is_owner is_operator;
+    match is_authorised with
+    | True =>
+      some_approved_addr <- token_approvals[token_id];
+      match some_approved_addr with
+      | None =>
+        token_approvals[token_id] := to;
+        (* Emit event *)
+        e = {_eventname: "AddApprovalSuccess"; initiator: _sender; approved_spender: to; token_id: token_id};
+        event e;
+        msg_to_sender = { _tag : "addApprovalSuccessCallBack"; _recipient : _sender; _amount : Uint128 0; 
+                          approved_spender : to; token_id : token_id };
+        msgs = one_msg msg_to_sender;
+        send msgs
+      | Some addr =>
+        delete token_approvals[token_id];
+        (* Emit event *)
+        e = {_eventname: "RemoveApprovalSuccess"; initiator: _sender; removed_spender: to; token_id: token_id};
+        event e;
+        msg_to_sender = { _tag : "removeApprovalSuccessCallBack"; _recipient : _sender; _amount : Uint128 0; 
+                          removed_spender : to; token_id : token_id };
+        msgs = one_msg msg_to_sender;
+        send msgs
+      end
+    | False =>
+      (* Unauthorised transaction *)
+      err = CodeNotAuthorised;
+      EmitError err
+    end
+  end
+end
+
+transition setApprovalForAll(to: ByStr20, approved: Bool)
+  (* Checks if the _sender is approving himself *)
+  is_valid_operation = let check = builtin eq _sender to in negb check;
+  (* Require the approval to not be the _sender *)
+  match is_valid_operation with
+  | True =>
+    (* Check if _sender has an existing record on the operatorApproval *)
+    operator_approvals[_sender][to] := approved;
+    (* Stringify boolean value to be emitted in the event *)
+    approved_str = bool_to_string approved;
+    e = {_eventname: "SetApprovalForAllSuccess"; initiator: _sender; operator: to; status: approved_str};
+    event e;
+    msg_to_sender = { _tag : "setApprovalForAllSuccessCallBack"; _recipient : _sender; _amount : Uint128 0; 
+                      operator : to; status: approved_str };
+    msgs = one_msg msg_to_sender;
+    send msgs
+  | False =>
+    err = CodeNotAuthorised;
+    EmitError err
+  end
+end
+
+(* @dev: Transfer the ownership of a given token_id to another address. Only token_owner transition. *)
+(* @param: to       - Recipient address for the token                                                *)
+(* @param: token_id - Unique ID of the NFT to be transferred                                         *)
+(* Returns error event CodeNotFound if token does not exists                                         *)
+(* Returns error event CodeNotAuthorised if _sender is not token_owner.                              *)
+(* Revert transition if invalid recipient contract.                                                  *)
+transition transfer(to: ByStr20, token_id: Uint256)
+  (* Check if token exists *)
+  some_token_owner <- token_owners[token_id];
+  match some_token_owner with
+  | None =>
+    (* Token does not exists, return error code *)
+    err = CodeNotFound;
+    EmitError err
+  | Some token_owner =>
+    (* Check if sender is token_owner *)
+    is_owner = builtin eq _sender token_owner;
+    match is_owner with
+    | False =>
+      (* Unauthorised transaction*)
+      err = CodeNotAuthorised;
+      EmitError err
+    | True =>
+      (* Change token_owner for that token_id *)
+      token_owners[token_id] := to;
+      (* Delete tokenApproval entry for that token_id *)
+      delete token_approvals[token_id];
+      (* Subtract one from previous token owner count *)
+      some_from_count <- owned_token_count[_sender];
+      new_from_count = sub_owner_count some_from_count;
+      owned_token_count[_sender] := new_from_count;
+      (* Add one to the new token owner count *)
+      some_to_count <- owned_token_count[to];
+      new_to_count = add_owner_count some_to_count;
+      owned_token_count[to] := new_to_count;
+      e = {_eventname: "TransferSuccess"; from: _sender; recipient: to; token: token_id};
+      event e;
+      (* Send dummy callback message.                                                *)
+      (* Revert transition if invalid recipient contract. Ignore if external address *)
+      msg_to_recipient = { _tag : "recipientAcceptTransfer"; _recipient : to; _amount : Uint128 0; 
+                          from : _sender; recipient : to; token_id : token_id };
+      msg_to_sender = { _tag : "transferSuccessCallBack"; _recipient : _sender; _amount : Uint128 0; 
+                        from : _sender; recipient : to; token_id : token_id };
+      msgs = two_msgs msg_to_recipient msg_to_sender;
+      send msgs
+    end
+  end
+end
+
+(* @dev: Transfer the ownership of a given token_id to another address. Only approved_spender or operator transition. *)
+(* @param: to       - Recipient address for the NFT                                                                   *)
+(* @param: token_id - Unique ID of the NFT to be transferred                                                          *)
+(* Returns error event CodeNotFound if token does not exists                                                          *)
+(* Returns error event CodeNotAuthorised if _sender is not approved_spender or operator.                              *)
+(* Revert transition if invalid recipient contract.                                                                   *)
+transition transferFrom(to: ByStr20, token_id: Uint256)
+  (* Check if token exists *)
+  some_token_owner <- token_owners[token_id];
+  match some_token_owner with
+  | None =>
+    (* Token does not exists, return error code *)
+    err = CodeNotFound;
+    EmitError err
+  | Some token_owner =>
+    (* Check if sender is an approved_spender *)
+    some_token_approval <- token_approvals[token_id];
+    is_approved = match some_token_approval with
+      | None => False
+      | Some approved_address => 
+        builtin eq _sender approved_address
+      end;
+    (* Check if sender is an operator *)
+    some_operator_status <- operator_approvals[token_owner][_sender];
+    is_approved_for_all = match some_operator_status with
+      | None => False
+      | Some val => val
+      end;
+    (* Check if sender is an authorised personnel *)
+    is_authorised = orb is_approved is_approved_for_all;
+    match is_authorised with
+    | False =>
+      (* Unauthorised transaction*)
+      err = CodeNotAuthorised;
+      EmitError err
+    | True =>
+      (* Change token_owner for that token_id *)
+      token_owners[token_id] := to;
+      (* Delete tokenApproval entry for that token_id *)
+      delete token_approvals[token_id];
+      (* Subtract one from previous token owner count *)
+      some_from_count <- owned_token_count[token_owner];
+      new_from_count = sub_owner_count some_from_count;
+      owned_token_count[token_owner] := new_from_count;
+      (* Add one to the new token owner count *)
+      some_to_count <- owned_token_count[to];
+      new_to_count = add_owner_count some_to_count;
+      owned_token_count[to] := new_to_count;
+      e = {_eventname: "TransferFromSuccess"; from: token_owner; recipient: to; token: token_id};
+      event e;
+      (* Send dummy callback message.                                                *)
+      (* Revert transition if invalid recipient contract. Ignore if external address *)
+      msg_to_recipient = { _tag : "recipientAcceptTransferFrom"; _recipient : to; _amount : Uint128 0; 
+                          from : token_owner; recipient : to; token_id : token_id };
+      msg_to_sender = { _tag : "transferFromSuccessCallBack"; _recipient : _sender; _amount : Uint128 0; 
+                        from : token_owner; recipient : to; token_id : token_id };
+      msgs = two_msgs msg_to_recipient msg_to_sender;
+      send msgs
+    end
+  end
+end
