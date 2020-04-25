@@ -97,7 +97,7 @@ transition IsOperatorFor(token_owner: ByStr20, operator: ByStr20)
 #### 1. Mint() (Optional)
 
 ```ocaml
-(* @dev: Optional transition. Mint new tokens. Only contract_owner can mint. *)
+(* @dev: Mint new tokens. Only contract_owner can mint.                      *)
 (* @param recipient: Address of the recipient whose balance is to increase.  *)
 (* @param amount:    Number of tokens to be minted.                          *)
 transition Mint(recipient: ByStr20, amount: Uint128)
@@ -127,7 +127,7 @@ transition Mint(recipient: ByStr20, amount: Uint128)
 #### 2. Burn() (Optional)
 
 ```ocaml
-(* @dev: Optional transition. Burn existing tokens. Only contract_owner can burn. *)
+(* @dev: Burn existing tokens. Only contract_owner can burn.                      *)
 (* @param burn_account: Address of the token_owner whose balance is to decrease.  *)
 (* @param amount:       Number of tokens to be burned.                            *)
 transition Burn(burn_account: ByStr20, amount: Uint128)
@@ -199,7 +199,7 @@ transition RevokeOperator(operator: ByStr20)
 #### 5. IncreaseAllowance()
 
 ```ocaml
-(* @dev: Increase the allowance of an approved_spender over the caller’s tokens. Only token_owner allowed to invoke. *)
+(* @dev: Increase the allowance of an approved_spender over the caller tokens. Only token_owner allowed to invoke.   *)
 (* param spender:      Address of the designated approved_spender.                                                   *)
 (* param amount:       Number of tokens to be increased as allowance for the approved_spender.                       *)
 transition IncreaseAllowance(spender: ByStr20, amount: Uint128)
@@ -222,9 +222,9 @@ transition IncreaseAllowance(spender: ByStr20, amount: Uint128)
 #### 6. DecreaseAllowance()
 
 ```ocaml
-(* @dev: Decrease the allowance of an approved_spender over the caller’s tokens. Only token_owner allowed to invoke. *)
-(* param spender:      Address of the designated approved_spender.                                                   *)
-(* param amount:       Number of tokens to be decreased as allowance for the approved_spender.                       *)
+(* @dev: Decrease the allowance of an approved_spender over the caller tokens. Only token_owner allowed to invoke. *)
+(* param spender:      Address of the designated approved_spender.                                                 *)
+(* param amount:       Number of tokens to be decreased as allowance for the approved_spender.                     *)
 transition DecreaseAllowance(spender: ByStr20, amount: Uint128)
 ```
 
