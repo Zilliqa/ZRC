@@ -337,10 +337,10 @@ transition ConfigureMinter(minter: ByStr20)
   end
 end
 
-(* @dev:    Mint new tokens. Only contract_owner can mint.         *)
-(* @param:  to        - Address of the token recipient             *)
-(* @param:  token_id  - ID of the new token to be minted           *)
-(* @param:  token_uri -  URI of the the new token to be minted     *)
+(* @dev:    Mint new tokens. Only minters can mint.           *)
+(* @param:  to        - Address of the token recipient        *)
+(* @param:  token_id  - ID of the new token to be minted      *)
+(* @param:  token_uri - URI of the the new token to be minted *)
 transition Mint(to: ByStr20, token_id: Uint256, token_uri: String)
   IsTokenExists token_id;
   IsMinter _sender;
@@ -431,8 +431,8 @@ transition SetApprove(to: ByStr20, token_id: Uint256)
   end
 end
 
-(* @dev: Sets or unsets an operator for the _sender                *)
-(* @param: to       - Address to be set or unset as an operator    *)
+(* @dev: Sets or unsets an operator for the _sender       *)
+(* @param: to - Address to be set or unset as an operator *)
 transition SetApprovalForAll(to: ByStr20)
   IsSelf to _sender;
   is_operator <- exists operator_approvals[_sender][to];
