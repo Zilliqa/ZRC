@@ -1,6 +1,6 @@
 | ZRC | Title                        | Status   | Type     | Author                                                                                                                       | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
 | --- | ---------------------------- | -------- | -------- | ---------------------------------------------------------------------------------------------------------------------------- | -------------------- | -------------------- |
-| 1   | Standard for Fungible Tokens | Approved | Standard | Gareth Mensah <gareth@zilliqa.com> <br> Vaivaswatha Nagaraj <vaivaswatha@zilliqa.com> <br> Chua Han Wen <hanwen@zilliqa.com> | 2019-11-18           | 2020-02-12           |
+| 2   | Standard for Fungible Tokens | Approved | Standard | Vaivaswatha Nagaraj <vaivaswatha@zilliqa.com> <br> Chua Han Wen <hanwen@zilliqa.com> | 2019-11-18           | 2020-04-25           |
 
 ## I. What are Fungible Tokens?
 
