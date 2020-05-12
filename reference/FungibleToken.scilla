@@ -327,7 +327,7 @@ end
 (* @param amount:     Amount of tokens to be sent.                                  *)
 transition Transfer(to: ByStr20, amount: Uint128)
   AuthorizedMoveIfSufficientBalance _sender to amount;
-  e = {_eventname : "Transfer"; sender : _sender; recipient : to; amount : amount};
+  e = {_eventname : "TransferSuccess"; sender : _sender; recipient : to; amount : amount};
   event e;
   (* Prevent sending to a contract address that does not support transfers of token *)
   msg_to_recipient = {_tag : "RecipientAcceptTransfer"; _recipient : to; _amount : zero; 
