@@ -270,7 +270,7 @@ transition Transfer(to: ByStr20, amount: Uint128)
 
 |              | Name       | Description                | Event Parameters                                                                                                                                                                                      |
 | ------------ | ---------- | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `Transfer` | Sending is successful.     | `sender`: `ByStr20` which is the sender's address, `recipient`: `ByStr20` which is the recipient's address, and `amount`: `Uint128` which is the amount of fungible tokens transferred.               |
+| `_eventname` | `TransferSuccess` | Sending is successful.     | `sender`: `ByStr20` which is the sender's address, `recipient`: `ByStr20` which is the recipient's address, and `amount`: `Uint128` which is the amount of fungible tokens transferred.               |
 | `_eventname` | `Error`    | Sending is not successful. | - emit `CodeNoBalance` if the balance of token_owner is not found. <br> - emit `CodeInsufficientFunds` if the balance of the token_owner lesser than the specified amount that was to be transferred. |
 
 #### 8. OperatorSend()
