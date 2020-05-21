@@ -303,7 +303,7 @@ end
 (* @dev: Check if a token_id is owned by a token_owner *)
 transition CheckTokenOwner(token_id: Uint256, address: ByStr20)
   IsTokenOwner token_id address;
-  msg_to_sender = { _tag : "IsOwnerCallBack"; _recipient : _sender; _amount : Uint128 0};
+  msg_to_sender = { _tag : "IsTokenOwnerCallBack"; _recipient : _sender; _amount : Uint128 0};
   msgs = one_msg msg_to_sender;
   send msgs
 end
@@ -385,7 +385,7 @@ transition Burn(token_id: Uint256)
     current_supply <- total_supply;
     new_supply = builtin sub current_supply one;
     total_supply := new_supply;
-    e = {_eventname: "BurnSuccess"; initiator: _sender; burn_address: token_owner; token: token_id};
+    e = {_eventname: "BurnSuccess"; initiator: _sender; burn_address: token_owner; token_id: token_id};
     event e;
     msg_to_sender = { _tag : "BurnCallBack"; _recipient : _sender; _amount : Uint128 0;
                       initiator : _sender; burn_address : token_owner; token_id : token_id };
@@ -469,7 +469,7 @@ transition Transfer(to: ByStr20, token_id: Uint256)
   UpdateTokenCount sub_operation _sender;
   (* Add one to the new token owner count *)
   UpdateTokenCount add_operation to;
-  e = {_eventname: "TransferSuccess"; from: _sender; recipient: to; token: token_id};
+  e = {_eventname: "TransferSuccess"; from: _sender; recipient: to; token_id: token_id};
   event e;
   msg_to_recipient = { _tag : "RecipientAcceptTransfer"; _recipient : to; _amount : Uint128 0; 
                       from : _sender; recipient : to; token_id : token_id };
@@ -499,7 +499,7 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
     UpdateTokenCount sub_operation token_owner;
     (* Add one to the new token owner count *)
     UpdateTokenCount add_operation to;
-    e = {_eventname: "TransferFromSuccess"; from: token_owner; recipient: to; token: token_id};
+    e = {_eventname: "TransferFromSuccess"; from: token_owner; recipient: to; token_id: token_id};
     event e;
     msg_to_recipient = { _tag : "RecipientAcceptTransferFrom"; _recipient : to; _amount : Uint128 0; 
                         from : token_owner; recipient : to; token_id : token_id };
