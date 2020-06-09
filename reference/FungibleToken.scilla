@@ -92,17 +92,17 @@ contract FungibleToken
 
 field total_supply : Uint128 = init_supply
 
-field balances_map: Map ByStr20 Uint128 
+field balances: Map ByStr20 Uint128 
   = let emp_map = Emp ByStr20 Uint128 in
     builtin put emp_map contract_owner init_supply
 
-field operators_map: Map ByStr20 (Map ByStr20 Unit) 
+field operators: Map ByStr20 (Map ByStr20 Unit) 
   = Emp ByStr20 (Map ByStr20 Unit)
 
 field revoked_default_operators : Map ByStr20 (Map ByStr20 Unit) 
   = Emp ByStr20 (Map ByStr20 Unit)
 
-field allowances_map: Map ByStr20 (Map ByStr20 Uint128) 
+field allowances: Map ByStr20 (Map ByStr20 Uint128) 
   = Emp ByStr20 (Map ByStr20 Uint128)
 
 (**************************************)
@@ -135,7 +135,7 @@ procedure IsNotSender(address: ByStr20)
 end
 
 procedure IsApprovedOperator(token_owner: ByStr20, operator: ByStr20)
-  is_operator_approved <- exists operators_map[token_owner][operator];
+  is_operator_approved <- exists operators[token_owner][operator];
   is_default_operator = is_default_operator f_eq operator default_operators;
   is_revoked_operator <- exists revoked_default_operators[token_owner][operator];
   is_default_operator_approved = 
@@ -151,10 +151,10 @@ procedure IsApprovedOperator(token_owner: ByStr20, operator: ByStr20)
 end
 
 procedure AuthorizedMint(recipient: ByStr20, amount: Uint128) 
-  some_bal <- balances_map[recipient];
+  some_bal <- balances[recipient];
   bal = get_val some_bal;
   new_balance = builtin add amount bal;
-  balances_map[recipient] := new_balance;
+  balances[recipient] := new_balance;
   current_total_supply <- total_supply;
   new_total_supply = builtin add current_total_supply amount;
   total_supply := new_total_supply;
@@ -163,7 +163,7 @@ procedure AuthorizedMint(recipient: ByStr20, amount: Uint128)
 end
 
 procedure AuthorizedBurnIfSufficientBalance(from: ByStr20, amount: Uint128)
-  get_bal <- balances_map[from];
+  get_bal <- balances[from];
   match get_bal with
   | Some bal =>
     can_burn = uint128_le amount bal;
@@ -171,7 +171,7 @@ procedure AuthorizedBurnIfSufficientBalance(from: ByStr20, amount: Uint128)
     | True =>
       (* Subtract amount from from *)
       new_balance = builtin sub bal amount;
-      balances_map[from] := new_balance;
+      balances[from] := new_balance;
       current_total_supply <- total_supply;
       new_total_supply = builtin sub current_total_supply amount;
       total_supply := new_total_supply;
@@ -188,7 +188,7 @@ procedure AuthorizedBurnIfSufficientBalance(from: ByStr20, amount: Uint128)
 end
 
 procedure AuthorizedMoveIfSufficientBalance(from: ByStr20, to: ByStr20, amount: Uint128)
-  get_from_bal <- balances_map[from];
+  get_from_bal <- balances[from];
   match get_from_bal with
   | Some bal =>
     can_do = uint128_le amount bal;
@@ -196,14 +196,14 @@ procedure AuthorizedMoveIfSufficientBalance(from: ByStr20, to: ByStr20, amount: 
     | True =>
       (* Subtract amount from from and add it to to address *)
       new_from_bal = builtin sub bal amount;
-      balances_map[from] := new_from_bal;
+      balances[from] := new_from_bal;
       (* Adds amount to to address *)
-      get_to_bal <- balances_map[to];
+      get_to_bal <- balances[to];
       new_to_bal = match get_to_bal with
       | Some bal => builtin add bal amount
       | None => amount
       end;
-      balances_map[to] := new_to_bal
+      balances[to] := new_to_bal
     | False =>
       (* Balance not sufficient *)
       err = CodeInsufficientFunds;
@@ -272,7 +272,7 @@ transition AuthorizeOperator(operator: ByStr20)
   delete revoked_default_operators[_sender][operator];
   (* Authorize new operator if not default_operator *)
   verdad = Unit;
-  operators_map[_sender][operator] := verdad;
+  operators[_sender][operator] := verdad;
   e = {_eventname : "AuthorizeOperatorSuccess"; authorizer : _sender; authorized_operator : operator};
   event e
 end
@@ -282,7 +282,7 @@ end
 transition RevokeOperator(operator: ByStr20)
   IsApprovedOperator _sender operator;
   (* Remove operator if exists *)
-  delete operators_map[_sender][operator];
+  delete operators[_sender][operator];
   (* Revoke default_operator if exists *)
   verdad = Unit;
   revoked_default_operators[_sender][operator] := verdad;
@@ -295,10 +295,10 @@ end
 (* param amount:       Number of tokens to be increased as allowance for the approved_spender.                       *)
 transition IncreaseAllowance(spender: ByStr20, amount: Uint128)
   IsNotSender spender;
-  some_current_allowance <- allowances_map[_sender][spender];
+  some_current_allowance <- allowances[_sender][spender];
   current_allowance = get_val some_current_allowance;
   new_allowance = builtin add current_allowance amount;
-  allowances_map[_sender][spender] := new_allowance;
+  allowances[_sender][spender] := new_allowance;
   e = {_eventname : "IncreasedAllowance"; token_owner : _sender; spender: spender; new_allowance : new_allowance};
   event e
 end
@@ -308,7 +308,7 @@ end
 (* param amount:       Number of tokens to be decreased as allowance for the approved_spender.                     *)
 transition DecreaseAllowance(spender: ByStr20, amount: Uint128)
   IsNotSender spender;
-  some_current_allowance <- allowances_map[_sender][spender];
+  some_current_allowance <- allowances[_sender][spender];
   current_allowance = get_val some_current_allowance;
   new_allowance =
     let amount_le_allowance = uint128_le amount current_allowance in
@@ -316,7 +316,7 @@ transition DecreaseAllowance(spender: ByStr20, amount: Uint128)
       | True => builtin sub current_allowance amount
       | False => zero
       end;
-  allowances_map[_sender][spender] := new_allowance;
+  allowances[_sender][spender] := new_allowance;
   e = {_eventname : "DecreasedAllowance"; token_owner : _sender; spender: spender; new_allowance : new_allowance};
   event e
 end
@@ -363,10 +363,10 @@ end
 (* @param to:      Address of the recipient whose balance is increased.                                                                   *)
 (* @param amount:  Amount of tokens to be transferred.                                                                                    *)
 transition TransferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
-  get_bal <- balances_map[from];
+  get_bal <- balances[from];
   match get_bal with
   | Some bal =>
-    get_spender_allowed <- allowances_map[from][_sender];
+    get_spender_allowed <- allowances[from][_sender];
     match get_spender_allowed with
     | Some allowed =>
       min = min_int bal allowed;
@@ -377,7 +377,7 @@ transition TransferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
         e = {_eventname : "TransferFromSuccess"; initiator : _sender; sender : from; recipient : to; amount : amount};
         event e;
         new_allowed = builtin sub allowed amount;
-        allowances_map[from][_sender] := new_allowed;
+        allowances[from][_sender] := new_allowed;
         (* Prevent sending to a contract address that does not support transfers of token *)
         msg_to_recipient = {_tag : "RecipientAcceptTransferFrom"; _recipient : to; _amount : zero; 
                             initiator : _sender; sender : from; recipient : to; amount : amount};
