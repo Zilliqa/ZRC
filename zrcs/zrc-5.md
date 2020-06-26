@@ -27,7 +27,7 @@ The deposit of ZIL specification describes:
 
 ### A. Naming of transition
 
-For a contract that wishes to conditionally or unconditionally accept ZIL, it should implement a transition named `AddFumds`.
+For a contract that wishes to conditionally or unconditionally accept ZIL, it should implement a transition named `AddFunds`.
 
 ### B. Mandatory instruction 
 
