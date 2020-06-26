@@ -35,7 +35,7 @@ Within the `AddFunds` transition, there should be an `accept` instruction.
 
 ### C. Conditional acceptance of ZIL
 
-Smart contract developers are free to introduce any programmatic logic to conditionally accept ZIL in `AddFunds` transition. Smart contract developers can also use `accept` instruction in other transition, however, for such transition will reduce composability of the smart contract. 
+Smart contract developers are free to introduce any programmatic logic to conditionally accept ZIL in `AddFunds` transition. Smart contract developers can also use `accept` instruction in other transitions, however, such transitions may reduce composability of the smart contract. 
 
 ### D. Sample implementation
 This is a sample implementation of `AddFunds` transition that unconditionally accepts ZIL.
