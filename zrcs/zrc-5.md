@@ -14,7 +14,7 @@ ZRC-5 defines a convention for an interface that a smart contract should impleme
 
 For a smart contract to accept incoming ZIL, it needs to do so explicitly using the `accept` statement. As such, any transition that does not have the `accept` statement  will not be able to accept any incoming ZIL transfer. 
 
-However, there is currently no naming convention for transition that can accept ZIL. As a result, cryptocurrency exchange or cryptocurrency wallet provider does not know which `_tag` to set, should it wishes to transfer ZIL to a contract address. 
+However, there is currently no naming convention for transitions that can accept ZIL. As a result, cryptocurrency exchanges or cryptocurrency wallet providers do not know which `_tag` to set, should they wish to transfer ZIL to a contract address. 
 
 By having a naming convention for transitions that can accept ZIL, one can easily transfer ZIL to a contract that follows this convention, thereby improving composability. 
 
