@@ -114,8 +114,8 @@ transition Mint(recipient: ByStr20, amount: Uint128)
 
 |        | Name                  | Description                                           | Callback Parameters                                                                                                                                                                                                |
 | ------ | --------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `_tag` | `recipientAcceptMint` | Dummy callback to prevent invalid recipient contract. | `minter` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `minter` is the address of the minter, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens minted. |
-| `_tag` | `mintSuccessCallBack` | Provide the sender the status of the mint.            | `minter` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `minter` is the address of the minter, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens minted. |
+| `_tag` | `RecipientAcceptMint` | Dummy callback to prevent invalid recipient contract. | `minter` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `minter` is the address of the minter, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens minted. |
+| `_tag` | `MintSuccessCallBack` | Provide the sender the status of the mint.            | `minter` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `minter` is the address of the minter, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens minted. |
 
 **Events:**
 
