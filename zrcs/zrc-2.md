@@ -341,7 +341,8 @@ transition TransferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
 
 ## V. Existing Implementation(s)
 
-- [Fungible Token Reference contract](../reference/FungibleToken.scilla)
+- [ZRC2 Reference contract](../reference/FungibleToken.scilla)
+- [ZRC2-Operator Reference contract](../reference/FungibleToken-Operator.scilla)
 
 To test the reference contract, simply go to the [`example`](../example) folder and run one of the JS scripts. For example, to deploy the contract, run:
 
