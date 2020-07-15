@@ -21,11 +21,11 @@ fun (msg2 : Message) =>
 type Error =
   | CodeNotOwner
   | CodeIsSender
-  | CodeNotApprovedOperator
   | CodeNotApprovedSpender
   | CodeNoBalance
   | CodeInsufficientFunds
   | CodeInsufficientAllowanceOrFunds
+  | CodeNotApprovedOperator
 
 let make_error =
   fun (result : Error) =>
@@ -33,11 +33,11 @@ let make_error =
       match result with
       | CodeNotOwner                     => Int32 -1
       | CodeIsSender                     => Int32 -2
-      | CodeNotApprovedOperator          => Int32 -3
-      | CodeNotApprovedSpender           => Int32 -4
-      | CodeNoBalance                    => Int32 -5
-      | CodeInsufficientFunds            => Int32 -6
-      | CodeInsufficientAllowanceOrFunds => Int32 -7
+      | CodeNotApprovedSpender           => Int32 -3
+      | CodeNoBalance                    => Int32 -4
+      | CodeInsufficientFunds            => Int32 -5
+      | CodeInsufficientAllowanceOrFunds => Int32 -6
+      | CodeNotApprovedOperator          => Int32 -7
       end
     in
     { _exception : "Error"; code : result_code }
@@ -84,8 +84,8 @@ contract FungibleToken
   name : String,
   symbol: String,
   decimals: Uint32,
-  default_operators : List ByStr20,
-  init_supply : Uint128
+  init_supply : Uint128,
+  default_operators : List ByStr20
 )
 
 (* Mutable fields *)
@@ -96,14 +96,14 @@ field balances: Map ByStr20 Uint128
   = let emp_map = Emp ByStr20 Uint128 in
     builtin put emp_map contract_owner init_supply
 
+field allowances: Map ByStr20 (Map ByStr20 Uint128) 
+  = Emp ByStr20 (Map ByStr20 Uint128)
+
 field operators: Map ByStr20 (Map ByStr20 Unit) 
   = Emp ByStr20 (Map ByStr20 Unit)
 
 field revoked_default_operators : Map ByStr20 (Map ByStr20 Unit) 
   = Emp ByStr20 (Map ByStr20 Unit)
-
-field allowances: Map ByStr20 (Map ByStr20 Uint128) 
-  = Emp ByStr20 (Map ByStr20 Uint128)
 
 (**************************************)
 (*             Procedures             *)
