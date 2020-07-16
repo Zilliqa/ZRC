@@ -19,25 +19,19 @@ fun (msg2 : Message) =>
 
 (* Error events *)
 type Error =
-  | CodeNotOwner
   | CodeIsSender
-  | CodeNotApprovedSpender
-  | CodeNoBalance
   | CodeInsufficientFunds
-  | CodeInsufficientAllowanceOrFunds
+  | CodeInsufficientAllowance
   | CodeNotApprovedOperator
 
 let make_error =
   fun (result : Error) =>
     let result_code = 
       match result with
-      | CodeNotOwner                     => Int32 -1
-      | CodeIsSender                     => Int32 -2
-      | CodeNotApprovedSpender           => Int32 -3
-      | CodeNoBalance                    => Int32 -4
-      | CodeInsufficientFunds            => Int32 -5
-      | CodeInsufficientAllowanceOrFunds => Int32 -6
-      | CodeNotApprovedOperator          => Int32 -7
+      | CodeIsSender              => Int32 -1
+      | CodeInsufficientFunds     => Int32 -2
+      | CodeInsufficientAllowance => Int32 -3
+      | CodeNotApprovedOperator   => Int32 -5
       end
     in
     { _exception : "Error"; code : result_code }
@@ -47,16 +41,6 @@ let zero = Uint128 0
 (* Dummy user-defined ADT *)
 type Unit =
 | Unit
-
-let min_int =
-  fun (a : Uint128) => fun (b : Uint128) =>
-  let min = builtin lt a b in
-  match min with
-  | True =>
-    a
-  | False =>
-    b
-  end
     
 (* A util function to test equality *)
 let f_eq =
@@ -114,16 +98,6 @@ procedure ThrowError(err : Error)
   throw e
 end
 
-procedure IsOwner(address: ByStr20)
-  is_owner = builtin eq contract_owner address;
-  match is_owner with
-  | True =>
-  | False =>
-    err = CodeNotOwner;
-    ThrowError err
-  end
-end
-
 procedure IsNotSender(address: ByStr20)
   is_sender = builtin eq _sender address;
   match is_sender with
@@ -146,43 +120,6 @@ procedure IsApprovedOperator(token_owner: ByStr20, operator: ByStr20)
   | True =>
   | False =>
     err = CodeNotApprovedOperator;
-    ThrowError err
-  end
-end
-
-procedure AuthorizedMint(recipient: ByStr20, amount: Uint128) 
-  some_bal <- balances[recipient];
-  bal = get_val some_bal;
-  new_balance = builtin add amount bal;
-  balances[recipient] := new_balance;
-  current_total_supply <- total_supply;
-  new_total_supply = builtin add current_total_supply amount;
-  total_supply := new_total_supply;
-  e = {_eventname: "Minted"; minter: _sender; recipient: recipient; amount: amount};
-  event e
-end
-
-procedure AuthorizedBurnIfSufficientBalance(from: ByStr20, amount: Uint128)
-  get_bal <- balances[from];
-  match get_bal with
-  | Some bal =>
-    can_burn = uint128_le amount bal;
-    match can_burn with
-    | True =>
-      (* Subtract amount from from *)
-      new_balance = builtin sub bal amount;
-      balances[from] := new_balance;
-      current_total_supply <- total_supply;
-      new_total_supply = builtin sub current_total_supply amount;
-      total_supply := new_total_supply;
-      e = {_eventname: "Burnt"; burner: _sender; burn_account: from; amount: amount};
-      event e  
-    | False =>
-      err = CodeInsufficientFunds;
-      ThrowError err
-    end
-  | None => 
-    err = CodeNoBalance;
     ThrowError err
   end
 end
@@ -210,7 +147,7 @@ procedure AuthorizedMoveIfSufficientBalance(from: ByStr20, to: ByStr20, amount: 
       ThrowError err
     end
   | None =>
-    err = CodeNoBalance;
+    err = CodeInsufficientFunds;
     ThrowError err
   end
 end
@@ -231,37 +168,6 @@ transition IsOperatorFor(token_owner: ByStr20, operator: ByStr20)
   msgs = one_msg msg_to_sender;
   send msgs
 end
-
-(* Optional transitions *)
-
-(* @dev: Mint new tokens. Only contract_owner can mint.                      *)
-(* @param recipient: Address of the recipient whose balance is to increase.  *)
-(* @param amount:    Number of tokens to be minted.                          *)
-transition Mint(recipient: ByStr20, amount: Uint128)
-  IsOwner _sender;
-  AuthorizedMint recipient amount;
-  (* Prevent sending to a contract address that does not support transfers of token *)
-  msg_to_recipient = {_tag : "RecipientAcceptMint"; _recipient : recipient; _amount : zero; 
-                      minter : _sender; recipient : recipient; amount : amount};
-  msg_to_sender = {_tag : "MintSuccessCallBack"; _recipient : _sender; _amount : zero; 
-                      minter : _sender; recipient : recipient; amount : amount};
-  msgs = two_msgs msg_to_recipient msg_to_sender;
-  send msgs
-end
-
-(* @dev: Burn existing tokens. Only contract_owner can burn.                      *)
-(* @param burn_account: Address of the token_owner whose balance is to decrease.  *)
-(* @param amount:       Number of tokens to be burned.                            *)
-transition Burn(burn_account: ByStr20, amount: Uint128)
-  IsOwner _sender;
-  AuthorizedBurnIfSufficientBalance burn_account amount;
-  msg_to_sender = {_tag : "BurnSuccessCallBack"; _recipient : _sender; _amount : zero; 
-                    burner : _sender; burn_account : burn_account; amount : amount};
-  msgs = one_msg msg_to_sender;
-  send msgs
-end
-
-(* Compulsory interface transitions *)
 
 (* @dev: Make an address an operator of the caller.             *)
 (* @param operator: Address to be authorize as operator or      *)
@@ -338,6 +244,40 @@ transition Transfer(to: ByStr20, amount: Uint128)
   send msgs
 end
 
+(* @dev: Move a given amount of tokens from one address to another using the allowance mechanism. The caller must be an approved_spender. *)
+(* @dev: Balance of recipient will increase. Balance of token_owner will decrease.                                                        *)
+(* @param from:    Address of the token_owner whose balance is decreased.                                                                 *)
+(* @param to:      Address of the recipient whose balance is increased.                                                                   *)
+(* @param amount:  Amount of tokens to be transferred.                                                                                    *)
+transition TransferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
+  get_spender_allowed <- allowances[from][_sender];
+  match get_spender_allowed with
+  | Some allowed =>
+    can_do = uint128_le amount allowed;
+    match can_do with
+    | True =>
+      AuthorizedMoveIfSufficientBalance from to amount;
+      e = {_eventname : "TransferFromSuccess"; initiator : _sender; sender : from; recipient : to; amount : amount};
+      event e;
+      new_allowed = builtin sub allowed amount;
+      allowances[from][_sender] := new_allowed;
+      (* Prevent sending to a contract address that does not support transfers of token *)
+      msg_to_recipient = {_tag : "RecipientAcceptTransferFrom"; _recipient : to; _amount : zero; 
+                          initiator : _sender; sender : from; recipient : to; amount : amount};
+      msg_to_sender = {_tag : "TransferFromSuccessCallBack"; _recipient : _sender; _amount : zero; 
+                      initiator : _sender; sender : from; recipient : to; amount : amount};
+      msgs = two_msgs msg_to_recipient msg_to_sender;
+      send msgs
+    | False =>
+      err = CodeInsufficientAllowance;
+      ThrowError err
+    end
+  | None =>
+    err = CodeInsufficientAllowance;
+    ThrowError err
+  end
+end
+
 (* @dev: Moves amount tokens from token_owner to recipient. _sender must be an operator of token_owner. *)
 (* @dev: Balance of recipient will increase. Balance of token_owner will decrease.                      *)
 (* @param from:        Address of the token_owner whose balance is decreased.                           *)
@@ -355,46 +295,4 @@ transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
                   initiator : _sender; sender : from; recipient : to; amount : amount};
   msgs = two_msgs msg_to_recipient msg_to_sender;
   send msgs
-end
-
-(* @dev: Move a given amount of tokens from one address to another using the allowance mechanism. The caller must be an approved_spender. *)
-(* @dev: Balance of recipient will increase. Balance of token_owner will decrease.                                                        *)
-(* @param from:    Address of the token_owner whose balance is decreased.                                                                 *)
-(* @param to:      Address of the recipient whose balance is increased.                                                                   *)
-(* @param amount:  Amount of tokens to be transferred.                                                                                    *)
-transition TransferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
-  get_bal <- balances[from];
-  match get_bal with
-  | Some bal =>
-    get_spender_allowed <- allowances[from][_sender];
-    match get_spender_allowed with
-    | Some allowed =>
-      min = min_int bal allowed;
-      can_do = uint128_le amount min;
-      match can_do with
-      | True =>
-        AuthorizedMoveIfSufficientBalance from to amount;
-        e = {_eventname : "TransferFromSuccess"; initiator : _sender; sender : from; recipient : to; amount : amount};
-        event e;
-        new_allowed = builtin sub allowed amount;
-        allowances[from][_sender] := new_allowed;
-        (* Prevent sending to a contract address that does not support transfers of token *)
-        msg_to_recipient = {_tag : "RecipientAcceptTransferFrom"; _recipient : to; _amount : zero; 
-                            initiator : _sender; sender : from; recipient : to; amount : amount};
-        msg_to_sender = {_tag : "TransferFromSuccessCallBack"; _recipient : _sender; _amount : zero; 
-                        initiator : _sender; sender : from; recipient : to; amount : amount};
-        msgs = two_msgs msg_to_recipient msg_to_sender;
-        send msgs
-      | False =>
-        err = CodeInsufficientAllowanceOrFunds;
-        ThrowError err
-      end
-    | None =>
-      err = CodeNotApprovedSpender;
-      ThrowError err
-    end
-  | None => 
-    err = CodeNoBalance;
-    ThrowError err
-  end
 end
