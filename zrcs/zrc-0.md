@@ -180,6 +180,8 @@ The current ZRC editors are
 
 - Amrit Kumar ([**@AmritKumar**](https://github.com/AmritKumar))
 
+- Arnav Vohra ([**@arnavvohra**](https://github.com/arnavvohra))
+
 
 ## ZRC Editor Responsibilities
 

@@ -19,20 +19,34 @@ fun (msg2 : Message) =>
 
 (* Error events *)
 type Error =
-  | CodeNotAuthorized
-  | CodeNotFound
+  | CodeNotOwner
+  | CodeIsSender
+  | CodeNotApprovedOperator
+  | CodeNotApprovedSpender
+  | CodeNoBalance
   | CodeInsufficientFunds
+  | CodeInsufficientAllowanceOrFunds
 
-let make_error_event =
+let make_error =
   fun (result : Error) =>
     let result_code = 
       match result with
-      | CodeNotAuthorized     => Int32 -1
-      | CodeNotFound          => Int32 -2
-      | CodeInsufficientFunds => Int32 -3
+      | CodeNotOwner                     => Int32 -1
+      | CodeIsSender                     => Int32 -2
+      | CodeNotApprovedOperator          => Int32 -3
+      | CodeNotApprovedSpender           => Int32 -4
+      | CodeNoBalance                    => Int32 -5
+      | CodeInsufficientFunds            => Int32 -6
+      | CodeInsufficientAllowanceOrFunds => Int32 -7
       end
     in
-    { _eventname : "Error"; code : result_code }
+    { _exception : "Error"; code : result_code }
+  
+let zero = Uint128 0
+
+(* Dummy user-defined ADT *)
+type Unit =
+| Unit
 
 let min_int =
   fun (a : Uint128) => fun (b : Uint128) =>
@@ -53,27 +67,20 @@ let f_eq =
 (* Instantiate a type function to test membership in a list *)
 let is_default_operator = @list_mem ByStr20
 
-(* A util function to get balance of token_owner *)
-let get_balance =
-  fun (some_bal: Option Uint128) =>
-  match some_bal with
-  | Some bal => bal
-  | None => Uint128 0
+let get_val =
+  fun (some_val: Option Uint128) =>
+  match some_val with
+  | Some val => val
+  | None => zero
   end
-
-(* Dummy user-defined ADT *)
-type Unit =
-| Unit
-
-let zero = Uint128 0
-let one = Uint128 1
 
 (***************************************************)
 (*             The contract definition             *)
 (***************************************************)
 
 contract FungibleToken
-(contract_owner: ByStr20,
+(
+  contract_owner: ByStr20,
   name : String,
   symbol: String,
   decimals: Uint32,
@@ -85,36 +92,69 @@ contract FungibleToken
 
 field total_supply : Uint128 = init_supply
 
-field balances_map: Map ByStr20 Uint128 
+field balances: Map ByStr20 Uint128 
   = let emp_map = Emp ByStr20 Uint128 in
-  builtin put emp_map contract_owner init_supply
+    builtin put emp_map contract_owner init_supply
 
-field operators_map: Map ByStr20 (Map ByStr20 Unit) 
+field operators: Map ByStr20 (Map ByStr20 Unit) 
   = Emp ByStr20 (Map ByStr20 Unit)
 
 field revoked_default_operators : Map ByStr20 (Map ByStr20 Unit) 
   = Emp ByStr20 (Map ByStr20 Unit)
 
-field allowances_map: Map ByStr20 (Map ByStr20 Uint128) 
+field allowances: Map ByStr20 (Map ByStr20 Uint128) 
   = Emp ByStr20 (Map ByStr20 Uint128)
 
 (**************************************)
 (*             Procedures             *)
 (**************************************)
 
-(* Emit Errors *)
 procedure ThrowError(err : Error)
-  e = make_error_event err;
-  event e;
-  throw
+  e = make_error err;
+  throw e
 end
 
-(* Mint Tokens *)
+procedure IsOwner(address: ByStr20)
+  is_owner = builtin eq contract_owner address;
+  match is_owner with
+  | True =>
+  | False =>
+    err = CodeNotOwner;
+    ThrowError err
+  end
+end
+
+procedure IsNotSender(address: ByStr20)
+  is_sender = builtin eq _sender address;
+  match is_sender with
+  | True =>
+    err = CodeIsSender;
+    ThrowError err
+  | False =>
+  end
+end
+
+procedure IsApprovedOperator(token_owner: ByStr20, operator: ByStr20)
+  is_operator_approved <- exists operators[token_owner][operator];
+  is_default_operator = is_default_operator f_eq operator default_operators;
+  is_revoked_operator <- exists revoked_default_operators[token_owner][operator];
+  is_default_operator_approved = 
+    let is_not_revoked_operator = negb is_revoked_operator in 
+    andb is_not_revoked_operator is_default_operator;
+  is_approved = orb is_operator_approved is_default_operator_approved;
+  match is_approved with
+  | True =>
+  | False =>
+    err = CodeNotApprovedOperator;
+    ThrowError err
+  end
+end
+
 procedure AuthorizedMint(recipient: ByStr20, amount: Uint128) 
-  get_bal <- balances_map[recipient];
-  balance = get_balance get_bal;
-  new_balance = builtin add amount balance;
-  balances_map[recipient] := new_balance;
+  some_bal <- balances[recipient];
+  bal = get_val some_bal;
+  new_balance = builtin add amount bal;
+  balances[recipient] := new_balance;
   current_total_supply <- total_supply;
   new_total_supply = builtin add current_total_supply amount;
   total_supply := new_total_supply;
@@ -122,57 +162,55 @@ procedure AuthorizedMint(recipient: ByStr20, amount: Uint128)
   event e
 end
 
-(* Burn Tokens *)
 procedure AuthorizedBurnIfSufficientBalance(from: ByStr20, amount: Uint128)
-  get_bal <- balances_map[from];
+  get_bal <- balances[from];
   match get_bal with
-  | None => 
-    err = CodeInsufficientFunds;
-    ThrowError err
   | Some bal =>
     can_burn = uint128_le amount bal;
     match can_burn with
-    | False =>
-      err = CodeInsufficientFunds;
-      ThrowError err
     | True =>
-      (* Subtract amount from 'from' *)
+      (* Subtract amount from from *)
       new_balance = builtin sub bal amount;
-      balances_map[from] := new_balance;
+      balances[from] := new_balance;
       current_total_supply <- total_supply;
       new_total_supply = builtin sub current_total_supply amount;
       total_supply := new_total_supply;
       e = {_eventname: "Burnt"; burner: _sender; burn_account: from; amount: amount};
       event e  
-      end
-   end
+    | False =>
+      err = CodeInsufficientFunds;
+      ThrowError err
+    end
+  | None => 
+    err = CodeNoBalance;
+    ThrowError err
+  end
 end
 
-(* Move Tokens if authorized *)
 procedure AuthorizedMoveIfSufficientBalance(from: ByStr20, to: ByStr20, amount: Uint128)
-  get_from_bal <- balances_map[from];
+  get_from_bal <- balances[from];
   match get_from_bal with
   | Some bal =>
     can_do = uint128_le amount bal;
     match can_do with
     | True =>
-      (* Subtract amount from "from" and add it to "to" address *)
+      (* Subtract amount from from and add it to to address *)
       new_from_bal = builtin sub bal amount;
-      balances_map[from] := new_from_bal;
-      (* Adds amount to "to" address *)
-      get_to_bal <- balances_map[to];
+      balances[from] := new_from_bal;
+      (* Adds amount to to address *)
+      get_to_bal <- balances[to];
       new_to_bal = match get_to_bal with
       | Some bal => builtin add bal amount
       | None => amount
       end;
-      balances_map[to] := new_to_bal
+      balances[to] := new_to_bal
     | False =>
       (* Balance not sufficient *)
       err = CodeInsufficientFunds;
       ThrowError err
     end
   | None =>
-    err = CodeNotFound;
+    err = CodeNoBalance;
     ThrowError err
   end
 end
@@ -183,62 +221,44 @@ end
 
 (* Getter transitions *)
 
-(* @dev: Check if an address is an operator or default operator of a token_owner. Provide a Bool *)
-(* @param operator:    Address of a potential operator.                                          *)
-(* @param token_owner: Address of a token_owner.                                                 *)
+(* @dev: Check if an address is an operator or default operator of a token_owner. Throw if not. *)
+(* @param operator:    Address of a potential operator.                                         *)
+(* @param token_owner: Address of a token_owner.                                                *)
 transition IsOperatorFor(token_owner: ByStr20, operator: ByStr20)
-  is_operator_approved <- exists operators_map[token_owner][operator];
-  is_default_operator = is_default_operator f_eq operator default_operators;
-  is_revoked_operator <- exists revoked_default_operators[token_owner][operator];
-  is_default_operator_approved = 
-    let is_not_revoked_operator = negb is_revoked_operator in 
-    andb is_not_revoked_operator is_default_operator;
-  is_approved = orb is_operator_approved is_default_operator_approved;
-  msg_to_sender = { _tag : "IsOperatorForCallBack"; _recipient : _sender; _amount : Uint128 0;
-                    is_operator_for : is_approved};
+  IsApprovedOperator token_owner operator;
+  msg_to_sender = {_tag : "IsOperatorForCallBack"; _recipient : _sender; _amount : zero;
+                    token_owner: token_owner; operator : operator};
   msgs = one_msg msg_to_sender;
   send msgs
 end
 
 (* Optional transitions *)
 
-(* @dev: Optional transition. Mint new tokens. Only contract_owner can mint. *)
+(* @dev: Mint new tokens. Only contract_owner can mint.                      *)
 (* @param recipient: Address of the recipient whose balance is to increase.  *)
 (* @param amount:    Number of tokens to be minted.                          *)
 transition Mint(recipient: ByStr20, amount: Uint128)
-  is_owner = builtin eq _sender contract_owner;
-   match is_owner with
-    | False =>
-      err = CodeNotAuthorized;
-      ThrowError err
-    | True =>
-      AuthorizedMint recipient amount;
-      (* Prevent sending to a contract address that does not support transfers of token *)
-      msg_to_recipient = {_tag : "RecipientAcceptMint"; _recipient : recipient; _amount : zero; 
-                          minter : _sender; recipient : recipient; amount : amount};
-      msg_to_sender = {_tag : "MintSuccessCallBack"; _recipient : _sender; _amount : zero; 
-                          minter : _sender; recipient : recipient; amount : amount};
-      msgs = two_msgs msg_to_recipient msg_to_sender;
-      send msgs
-    end
+  IsOwner _sender;
+  AuthorizedMint recipient amount;
+  (* Prevent sending to a contract address that does not support transfers of token *)
+  msg_to_recipient = {_tag : "RecipientAcceptMint"; _recipient : recipient; _amount : zero; 
+                      minter : _sender; recipient : recipient; amount : amount};
+  msg_to_sender = {_tag : "MintSuccessCallBack"; _recipient : _sender; _amount : zero; 
+                      minter : _sender; recipient : recipient; amount : amount};
+  msgs = two_msgs msg_to_recipient msg_to_sender;
+  send msgs
 end
 
-(* @dev: Optional transition. Burn existing tokens. Only contract_owner can burn. *)
+(* @dev: Burn existing tokens. Only contract_owner can burn.                      *)
 (* @param burn_account: Address of the token_owner whose balance is to decrease.  *)
 (* @param amount:       Number of tokens to be burned.                            *)
 transition Burn(burn_account: ByStr20, amount: Uint128)
-  is_owner = builtin eq _sender contract_owner;
-    match is_owner with
-    | False =>
-      err = CodeNotAuthorized;
-      ThrowError err
-    | True =>
-      AuthorizedBurnIfSufficientBalance burn_account amount;
-      msg_to_sender = {_tag : "BurnSuccessCallBack"; _recipient : _sender; _amount : zero; 
-                        burner : _sender; burn_account : burn_account; amount : amount};
-      msgs = one_msg msg_to_sender;
-      send msgs
-    end
+  IsOwner _sender;
+  AuthorizedBurnIfSufficientBalance burn_account amount;
+  msg_to_sender = {_tag : "BurnSuccessCallBack"; _recipient : _sender; _amount : zero; 
+                    burner : _sender; burn_account : burn_account; amount : amount};
+  msgs = one_msg msg_to_sender;
+  send msgs
 end
 
 (* Compulsory interface transitions *)
@@ -247,108 +267,58 @@ end
 (* @param operator: Address to be authorize as operator or      *)
 (* Re-authorize as default_operator. Cannot be calling address. *)
 transition AuthorizeOperator(operator: ByStr20)
-  is_sender = builtin eq operator _sender;
-  match is_sender with
-  | True => 
-    (* _sender is authorizing self as operator, throw error code *)
-    err = CodeNotAuthorized;
-    ThrowError err
-  | False =>
-    is_default_operator =  is_default_operator f_eq operator default_operators;
-    match is_default_operator with
-    | True =>
-      (* Re-authorize default_operator *)
-      delete revoked_default_operators[_sender][operator];
-      e = { _eventname : "ReAuthorizedDefaultOperatorSuccess"; authorizer : _sender; reauthorized_default_operator : operator};
-      event e
-    | False =>
-      (* Authorize new operator *)
-      authorize = Unit;
-      operators_map[_sender][operator] := authorize;
-      e = {_eventname : "AuthorizeOperatorSuccess"; authorizer : _sender; authorized_operator : operator};
-      event e
-    end
-  end
+  IsNotSender operator;
+  (* Re-authorize default_operator if exists *)
+  delete revoked_default_operators[_sender][operator];
+  (* Authorize new operator if not default_operator *)
+  verdad = Unit;
+  operators[_sender][operator] := verdad;
+  e = {_eventname : "AuthorizeOperatorSuccess"; authorizer : _sender; authorized_operator : operator};
+  event e
 end
 
 (* @dev: Revoke an address from being an operator or default_operator of the caller. *)
 (* @param operator: Address to be removed as operator or default_operator.           *)
 transition RevokeOperator(operator: ByStr20)
-  is_default_operator = is_default_operator f_eq operator default_operators;
-  match is_default_operator with
-  | False =>
-    (* Not default_operator, check if operator *)
-    get_operator <- operators_map[_sender][operator];
-    match get_operator with
-    | None =>
-      (* Operator to be removed not found, throw error *)
-      err = CodeNotFound;
-      ThrowError err
-    | Some status =>
-      delete operators_map[_sender][operator];
-      e = {_eventname : "RevokeOperatorSuccess"; revoker : _sender; revoked_operator : operator};
-      event e
-    end
-  | True =>
-    (* Is default_operator, revoke default_operator authority instead *)
-    verdad = Unit;
-    revoked_default_operators[_sender][operator] := verdad;
-    e = {_eventname : "RevokedDefaultOperatorSuccess"; revoker : _sender; revoked_default_operator : operator};
-    event e
-  end
+  IsApprovedOperator _sender operator;
+  (* Remove operator if exists *)
+  delete operators[_sender][operator];
+  (* Revoke default_operator if exists *)
+  verdad = Unit;
+  revoked_default_operators[_sender][operator] := verdad;
+  e = {_eventname : "RevokeOperatorSuccess"; revoker : _sender; revoked_operator : operator};
+  event e
 end
 
-(* @dev: Increase the allowance of an approved_spender over the callers tokens. Only token_owner allowed to invoke. *)
+(* @dev: Increase the allowance of an approved_spender over the caller tokens. Only token_owner allowed to invoke.   *)
 (* param spender:      Address of the designated approved_spender.                                                   *)
 (* param amount:       Number of tokens to be increased as allowance for the approved_spender.                       *)
 transition IncreaseAllowance(spender: ByStr20, amount: Uint128)
-  (* Checks if the _sender and approved_spender is the same *)
-  is_owner = builtin eq _sender spender;
-  match is_owner with
-  | True =>
-    err = CodeNotAuthorized;
-    ThrowError err
-  | False =>
-    get_current_allowance <- allowances_map[_sender][spender];
-    current_allowance =
-      match get_current_allowance with
-      | Some allowance => allowance
-      | None => zero
-      end;
-    new_allowance = builtin add current_allowance amount;
-    allowances_map[_sender][spender] := new_allowance;
-    e = {_eventname : "IncreasedAllowance"; token_owner : _sender; spender: spender; new_allowance : new_allowance};
-    event e
-  end
+  IsNotSender spender;
+  some_current_allowance <- allowances[_sender][spender];
+  current_allowance = get_val some_current_allowance;
+  new_allowance = builtin add current_allowance amount;
+  allowances[_sender][spender] := new_allowance;
+  e = {_eventname : "IncreasedAllowance"; token_owner : _sender; spender: spender; new_allowance : new_allowance};
+  event e
 end
 
-(* @dev: Decrease the allowance of an approved_spender over the callers tokens. Only token_owner allowed to invoke. *)
-(* param spender:      Address of the designated approved_spender.                                                   *)
-(* param amount:       Number of tokens to be decreased as allowance for the approved_spender.                       *)
+(* @dev: Decrease the allowance of an approved_spender over the caller tokens. Only token_owner allowed to invoke. *)
+(* param spender:      Address of the designated approved_spender.                                                 *)
+(* param amount:       Number of tokens to be decreased as allowance for the approved_spender.                     *)
 transition DecreaseAllowance(spender: ByStr20, amount: Uint128)
-  (* Checks if the _sender and approved_spender is the same *)
-  is_owner = builtin eq _sender spender;
-  match is_owner with
-  | True =>
-    err = CodeNotAuthorized;
-    ThrowError err
-  | False =>
-    get_current_allowance <- allowances_map[_sender][spender];
-    current_allowance =
-      match get_current_allowance with
-      | Some allowance => allowance
-      | None => zero
-      end;
-    new_allowance =
-      let amount_le_allowance = uint128_le amount current_allowance in
+  IsNotSender spender;
+  some_current_allowance <- allowances[_sender][spender];
+  current_allowance = get_val some_current_allowance;
+  new_allowance =
+    let amount_le_allowance = uint128_le amount current_allowance in
       match amount_le_allowance with
       | True => builtin sub current_allowance amount
       | False => zero
       end;
-    allowances_map[_sender][spender] := new_allowance;
-    e = {_eventname : "DecreasedAllowance"; token_owner : _sender; spender: spender; new_allowance : new_allowance};
-    event e
-  end
+  allowances[_sender][spender] := new_allowance;
+  e = {_eventname : "DecreasedAllowance"; token_owner : _sender; spender: spender; new_allowance : new_allowance};
+  event e
 end
 
 (* @dev: Moves an amount tokens from _sender to the recipient. Used by token_owner. *)
@@ -357,7 +327,7 @@ end
 (* @param amount:     Amount of tokens to be sent.                                  *)
 transition Transfer(to: ByStr20, amount: Uint128)
   AuthorizedMoveIfSufficientBalance _sender to amount;
-  e = {_eventname : "Transfer"; sender : _sender; recipient : to; amount : amount};
+  e = {_eventname : "TransferSuccess"; sender : _sender; recipient : to; amount : amount};
   event e;
   (* Prevent sending to a contract address that does not support transfers of token *)
   msg_to_recipient = {_tag : "RecipientAcceptTransfer"; _recipient : to; _amount : zero; 
@@ -374,28 +344,17 @@ end
 (* @param to:          Address of the recipient whose balance is increased.                             *)
 (* @param amount:      Amount of tokens to be sent.                                                     *)
 transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
-  is_operator_approved <- exists operators_map[from][_sender];
-  is_default_operator = is_default_operator f_eq _sender default_operators;
-  is_revoked_operator <- exists revoked_default_operators[from][_sender];
-  is_default_operator_approved = let is_not_revoked_operator = 
-    negb is_revoked_operator in andb is_not_revoked_operator is_default_operator;
-  is_approved = orb is_operator_approved is_default_operator_approved;
-  match is_approved with
-    | False =>
-      err = CodeNotAuthorized;
-      ThrowError err
-    | True =>
-      AuthorizedMoveIfSufficientBalance from to amount;
-      e = {_eventname : "OperatorSendSuccess"; initiator : _sender; sender : from; recipient : to; amount : amount};
-      event e;
-      (* Prevent sending to a contract address that does not support transfers of token *)
-      msg_to_recipient = {_tag : "RecipientAcceptOperatorSend"; _recipient : to; _amount : zero; 
-                          initiator : _sender; sender : from; recipient : to; amount : amount};
-      msg_to_sender = {_tag : "OperatorSendSuccessCallBack"; _recipient : _sender; _amount : zero; 
+  IsApprovedOperator from _sender;
+  AuthorizedMoveIfSufficientBalance from to amount;
+  e = {_eventname : "OperatorSendSuccess"; initiator : _sender; sender : from; recipient : to; amount : amount};
+  event e;
+  (* Prevent sending to a contract address that does not support transfers of token *)
+  msg_to_recipient = {_tag : "RecipientAcceptOperatorSend"; _recipient : to; _amount : zero; 
                       initiator : _sender; sender : from; recipient : to; amount : amount};
-      msgs = two_msgs msg_to_recipient msg_to_sender;
-      send msgs
-   end
+  msg_to_sender = {_tag : "OperatorSendSuccessCallBack"; _recipient : _sender; _amount : zero; 
+                  initiator : _sender; sender : from; recipient : to; amount : amount};
+  msgs = two_msgs msg_to_recipient msg_to_sender;
+  send msgs
 end
 
 (* @dev: Move a given amount of tokens from one address to another using the allowance mechanism. The caller must be an approved_spender. *)
@@ -404,17 +363,11 @@ end
 (* @param to:      Address of the recipient whose balance is increased.                                                                   *)
 (* @param amount:  Amount of tokens to be transferred.                                                                                    *)
 transition TransferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
-  get_bal <- balances_map[from];
+  get_bal <- balances[from];
   match get_bal with
-  | None => 
-    err = CodeNotFound;
-    ThrowError err
   | Some bal =>
-    get_spender_allowed <- allowances_map[from][_sender];
+    get_spender_allowed <- allowances[from][_sender];
     match get_spender_allowed with
-    | None =>
-      err = CodeNotAuthorized;
-      ThrowError err
     | Some allowed =>
       min = min_int bal allowed;
       can_do = uint128_le amount min;
@@ -424,7 +377,7 @@ transition TransferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
         e = {_eventname : "TransferFromSuccess"; initiator : _sender; sender : from; recipient : to; amount : amount};
         event e;
         new_allowed = builtin sub allowed amount;
-        allowances_map[from][_sender] := new_allowed;
+        allowances[from][_sender] := new_allowed;
         (* Prevent sending to a contract address that does not support transfers of token *)
         msg_to_recipient = {_tag : "RecipientAcceptTransferFrom"; _recipient : to; _amount : zero; 
                             initiator : _sender; sender : from; recipient : to; amount : amount};
@@ -433,9 +386,15 @@ transition TransferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
         msgs = two_msgs msg_to_recipient msg_to_sender;
         send msgs
       | False =>
-        err = CodeInsufficientFunds;
+        err = CodeInsufficientAllowanceOrFunds;
         ThrowError err
       end
+    | None =>
+      err = CodeNotApprovedSpender;
+      ThrowError err
     end
+  | None => 
+    err = CodeNoBalance;
+    ThrowError err
   end
 end
