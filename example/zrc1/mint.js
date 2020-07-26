@@ -31,12 +31,7 @@ async function main() {
                     vname: 'to',
                     type: 'ByStr20',
                     value: `${address}`,
-                },
-                {
-                    vname: 'token_id',
-                    type: 'Uint256',
-                    value: '2',
-                },
+                }
                 {
                     vname: 'token_uri',
                     type: 'String',

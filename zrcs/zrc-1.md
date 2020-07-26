@@ -236,7 +236,6 @@ transition ConfigureMinter(minter: ByStr20)
 ```ocaml
 (* @dev:    Mint new tokens. Only minters can mint.           *)
 (* @param:  to        - Address of the token recipient        *)
-(* @param:  token_id  - ID of the new token to be minted      *)
 (* @param:  token_uri - URI of the the new token to be minted *)
 transition Mint(to: ByStr20, token_id: Uint256, token_uri: String)
 ```
@@ -246,7 +245,6 @@ transition Mint(to: ByStr20, token_id: Uint256, token_uri: String)
 |        | Name        | Type      | Description                                       |
 | ------ | ----------- | --------- | ------------------------------------------------- |
 | @param | `to`        | `ByStr20` | Address of the recipient of the NFT to be minted. |
-| @param | `token_id`  | `Uint256` | Unique token_id of the NFT to be minted.          |
 | @param | `token_uri` | `Uint256` | Token URI of the NFT to be minted.                |
 
 **Messages sent:**

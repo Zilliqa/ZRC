@@ -339,21 +339,22 @@ end
 
 (* @dev:    Mint new tokens. Only minters can mint.           *)
 (* @param:  to        - Address of the token recipient        *)
-(* @param:  token_id  - ID of the new token to be minted      *)
 (* @param:  token_uri - URI of the the new token to be minted *)
-transition Mint(to: ByStr20, token_id: Uint256, token_uri: String)
-  IsTokenExists token_id;
-  IsMinter _sender;
-  (* Mint new token *)
-  token_owners[token_id] := to;
+transition Mint(to: ByStr20, token_uri: String)
   (* Add to owner count *)
   UpdateTokenCount add_operation to;
-  (* Add token_uri for token_id *)
-  token_uris[token_id] := token_uri;
   (* Add to total_supply *)
   current_supply <- total_supply;
   new_supply = builtin add current_supply one;
-  total_supply := new_supply; 
+  total_supply := new_supply;
+  (* Initiate token_id and check conditions *)
+  token_id = new_supply;
+  IsMinter _sender;
+  IsTokenExists token_id;
+  (* Mint new non-fungible token *)
+  token_owners[token_id] := to;
+  (* Add token_uri for token_id *)
+  token_uris[token_id] := token_uri;
   e = {_eventname: "MintSuccess"; by: _sender; recipient: to;
         token_id: token_id; token_uri: token_uri};
   event e;
