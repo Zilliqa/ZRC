@@ -3,7 +3,7 @@ scilla_version 0
 (***************************************************)
 (*               Associated library                *)
 (***************************************************)
-import BoolUtils
+import BoolUtils PairUtils ListUtils
 library NonfungibleToken
 
 (* User-defined ADTs *)
@@ -39,6 +39,11 @@ let get_bal =
     | Some bal => bal
     | None => zero
     end
+
+let build_pair =
+  fun (input_to_address : ByStr20) =>
+  fun (input_token_uri : String) =>
+    Pair {ByStr20 String} input_to_address input_token_uri
 
 (* Error exception *)
 type Error =
@@ -337,19 +342,20 @@ transition ConfigureMinter(minter: ByStr20)
   end
 end
 
-(* @dev:    Mint new tokens. Only minters can mint.           *)
-(* @param:  to        - Address of the token recipient        *)
-(* @param:  token_uri - URI of the the new token to be minted *)
-transition Mint(to: ByStr20, token_uri: String)
+procedure Minting(input_pair: Pair ByStr20 String)
+  to = let fst_string_bystr20 = @fst ByStr20 String in
+    fst_string_bystr20 input_pair;
+  token_uri = let snd_string_bystr20 = @snd ByStr20 String in
+    snd_string_bystr20 input_pair;
+  IsMinter _sender;
   (* Add to owner count *)
   UpdateTokenCount add_operation to;
   (* Add to total_supply *)
   current_supply <- total_supply;
   new_supply = builtin add current_supply one;
   total_supply := new_supply;
-  (* Initiate token_id and check conditions *)
+  (* Initiate token_id and check if exists *)
   token_id = new_supply;
-  IsMinter _sender;
   IsTokenExists token_id;
   (* Mint new non-fungible token *)
   token_owners[token_id] := to;
@@ -357,10 +363,30 @@ transition Mint(to: ByStr20, token_uri: String)
   token_uris[token_id] := token_uri;
   e = {_eventname: "MintSuccess"; by: _sender; recipient: to;
         token_id: token_id; token_uri: token_uri};
-  event e;
+  event e
+end
+
+(* @dev:    Mint new tokens. Only minters can mint.           *)
+(* @param:  to        - Address of the token recipient        *)
+(* @param:  token_uri - URI of the the new token to be minted *)
+transition Mint(to: ByStr20, token_uri: String)
+  input_pair = build_pair to token_uri;
+  Minting input_pair;
+  token_id <- total_supply;
   msg_to_recipient = { _tag : "RecipientAcceptMint"; _recipient : to; _amount : Uint128 0 };
   msg_to_sender = { _tag : "MintCallBack"; _recipient : _sender; _amount : Uint128 0;
-                    recipient : to; token_id : token_id; token_uri : token_uri };
+                    recipient : _sender; token_id : token_id; token_uri : token_uri };
+  msgs = two_msgs msg_to_recipient msg_to_sender;
+  send msgs
+end
+
+transition BatchMint(to: ByStr20, token_uris_list: List String)
+  pair_token_uri_list = @list_map String (Pair ByStr20 String);
+  tmp_fun = build_pair to;
+  input_list = pair_token_uri_list tmp_fun token_uris_list;
+  forall input_list Minting;
+  msg_to_recipient = { _tag : "RecipientAcceptBatchMint"; _recipient : to; _amount : Uint128 0 };
+  msg_to_sender = { _tag : "BatchMintCallBack"; _recipient : _sender; _amount : Uint128 0 };
   msgs = two_msgs msg_to_recipient msg_to_sender;
   send msgs
 end
