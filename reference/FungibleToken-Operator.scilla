@@ -125,28 +125,23 @@ procedure IsApprovedOperator(token_owner: ByStr20, operator: ByStr20)
 end
 
 procedure AuthorizedMoveIfSufficientBalance(from: ByStr20, to: ByStr20, amount: Uint128)
-  get_from_bal <- balances[from];
-  match get_from_bal with
-  | Some bal =>
-    can_do = uint128_le amount bal;
-    match can_do with
-    | True =>
-      (* Subtract amount from from and add it to to address *)
-      new_from_bal = builtin sub bal amount;
-      balances[from] := new_from_bal;
-      (* Adds amount to to address *)
-      get_to_bal <- balances[to];
-      new_to_bal = match get_to_bal with
-      | Some bal => builtin add bal amount
-      | None => amount
-      end;
-      balances[to] := new_to_bal
-    | False =>
-      (* Balance not sufficient *)
-      err = CodeInsufficientFunds;
-      ThrowError err
-    end
-  | None =>
+  o_from_bal <- balances[from];
+  bal = get_val o_from_bal;
+  can_do = uint128_le amount bal;
+  match can_do with
+  | True =>
+    (* Subtract amount from from and add it to to address *)
+    new_from_bal = builtin sub bal amount;
+    balances[from] := new_from_bal;
+    (* Adds amount to to address *)
+    get_to_bal <- balances[to];
+    new_to_bal = match get_to_bal with
+    | Some bal => builtin add bal amount
+    | None => amount
+    end;
+    balances[to] := new_to_bal
+  | False =>
+    (* Balance not sufficient *)
     err = CodeInsufficientFunds;
     ThrowError err
   end
@@ -250,29 +245,24 @@ end
 (* @param to:      Address of the recipient whose balance is increased.                                                                   *)
 (* @param amount:  Amount of tokens to be transferred.                                                                                    *)
 transition TransferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
-  get_spender_allowed <- allowances[from][_sender];
-  match get_spender_allowed with
-  | Some allowed =>
-    can_do = uint128_le amount allowed;
-    match can_do with
-    | True =>
-      AuthorizedMoveIfSufficientBalance from to amount;
-      e = {_eventname : "TransferFromSuccess"; initiator : _sender; sender : from; recipient : to; amount : amount};
-      event e;
-      new_allowed = builtin sub allowed amount;
-      allowances[from][_sender] := new_allowed;
-      (* Prevent sending to a contract address that does not support transfers of token *)
-      msg_to_recipient = {_tag : "RecipientAcceptTransferFrom"; _recipient : to; _amount : zero; 
-                          initiator : _sender; sender : from; recipient : to; amount : amount};
-      msg_to_sender = {_tag : "TransferFromSuccessCallBack"; _recipient : _sender; _amount : zero; 
-                      initiator : _sender; sender : from; recipient : to; amount : amount};
-      msgs = two_msgs msg_to_recipient msg_to_sender;
-      send msgs
-    | False =>
-      err = CodeInsufficientAllowance;
-      ThrowError err
-    end
-  | None =>
+  o_spender_allowed <- allowances[from][_sender];
+  allowed = get_val o_spender_allowed;
+  can_do = uint128_le amount allowed;
+  match can_do with
+  | True =>
+    AuthorizedMoveIfSufficientBalance from to amount;
+    e = {_eventname : "TransferFromSuccess"; initiator : _sender; sender : from; recipient : to; amount : amount};
+    event e;
+    new_allowed = builtin sub allowed amount;
+    allowances[from][_sender] := new_allowed;
+    (* Prevent sending to a contract address that does not support transfers of token *)
+    msg_to_recipient = {_tag: "RecipientAcceptTransferFrom"; _recipient : to; _amount: zero; 
+                        initiator: _sender; sender : from; recipient: to; amount: amount};
+    msg_to_sender = {_tag: "TransferFromSuccessCallBack"; _recipient: _sender; _amount: zero; 
+                    initiator: _sender; sender: from; recipient: to; amount: amount};
+    msgs = two_msgs msg_to_recipient msg_to_sender;
+    send msgs
+  | False =>
     err = CodeInsufficientAllowance;
     ThrowError err
   end
