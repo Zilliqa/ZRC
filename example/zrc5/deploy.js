@@ -20,7 +20,7 @@ async function main() {
     const myGasPrice = units.toQa('2000', units.Units.Li); // Gas Price that will be used by all transactions
 
     console.log("start to deploy zrc2: ");
-    const code = fs.readFileSync("../../reference/FungibleToken-Operator.scilla").toString();
+    const code = fs.readFileSync("../../reference/FungibleMultiToken.scilla").toString();
     console.log("contract code is: ");
     console.log(code);
     const init = [
@@ -34,31 +34,6 @@ async function main() {
             vname: "contract_owner",
             type: "ByStr20",
             value: `${address}`
-        },
-        {
-            vname: "name",
-            type: "String",
-            value: `USDT`
-        },
-        {
-            vname: "symbol",
-            type: "String",
-            value: `USDT`
-        },
-        {
-            vname: "decimals",
-            type: "Uint32",
-            value: `2`
-        },
-        {
-            vname: "default_operators",
-            type: "List ByStr20",
-            value: ["0x501A70ffEAA3F31C1caccE3479e74713546BAA44", "0xBFe2445408C51CD8Ee6727541195b02c891109ee", "0x428A2aA43456FE7fd2De66E48C1fBf372eC10eAE"]
-        },
-        {
-            vname: "init_supply",
-            type: "Uint128",
-            value: `100000000`
         }
     ];
     console.log("init json is: ");
