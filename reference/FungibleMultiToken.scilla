@@ -22,6 +22,7 @@ type Error =
 | CodeIsSender
 | CodeInsufficientFunds
 | CodeInsufficientAllowance
+| CodeTokenDoesNotExist
 
 let make_error =
   fun (result : Error) =>
@@ -30,6 +31,7 @@ let make_error =
       | CodeIsSender              => Int32 -1
       | CodeInsufficientFunds     => Int32 -2
       | CodeInsufficientAllowance => Int32 -3
+      | CodeTokenDoesNotExist     => Int32 -4
       end
     in
     { _exception : "Error"; code : result_code }
@@ -80,6 +82,17 @@ procedure ThrowError(err : Error)
   throw e
 end
 
+procedure TokenDoesNotExist(token: Uint64)
+  m <- max_token;
+  e = builtin lt token m;
+  match e with
+  | True =>
+  | False =>
+    err = CodeTokenDoesNotExist;
+    ThrowError err
+  end
+end
+
 procedure IsNotSender(address: ByStr20)
   is_sender = builtin eq _sender address;
   match is_sender with
@@ -118,9 +131,9 @@ end
 (***************************************)
 
 transition CreateZRC2BridgeToken(zrc2_contract: ByStr20)
-  id <- max_token;
-  token = let one = Uint64 1 in builtin add id one;
-  max_token := token;
+  token <- max_token;
+  new_max = let one = Uint64 1 in builtin add token one;
+  max_token := new_max;
   total_supply[token] := zero;
   zrc2_to_token[zrc2_contract] := token;
   (*token_to_zrc2[token] := zrc2_contract;*)
@@ -135,6 +148,7 @@ end
 (* param amount:       Number of tokens to be increased as allowance for the approved_spender.                       *)
 transition IncreaseAllowance(token: Uint64, spender: ByStr20, amount: Uint128)
   IsNotSender spender;
+  TokenDoesNotExist token;
   some_current_allowance <- allowances[token][_sender][spender];
   current_allowance = get_val some_current_allowance;
   new_allowance = builtin add current_allowance amount;
@@ -148,6 +162,7 @@ end
 (* param amount:       Number of tokens to be decreased as allowance for the approved_spender.                     *)
 transition DecreaseAllowance(token: Uint64, spender: ByStr20, amount: Uint128)
   IsNotSender spender;
+  TokenDoesNotExist token;
   some_current_allowance <- allowances[token][_sender][spender];
   current_allowance = get_val some_current_allowance;
   new_allowance =
@@ -166,6 +181,7 @@ end
 (* @param to:  Address of the recipient whose balance is increased.                 *)
 (* @param amount:     Amount of tokens to be sent.                                  *)
 transition Transfer(token: Uint64, to: ByStr20, amount: Uint128)
+  TokenDoesNotExist token;
   AuthorizedMoveIfSufficientBalance token _sender to amount;
   e = {_eventname : "TransferSuccess"; token : token; sender : _sender; recipient : to; amount : amount};
   event e;
@@ -184,6 +200,7 @@ end
 (* @param to:      Address of the recipient whose balance is increased.                                                                   *)
 (* @param amount:  Amount of tokens to be transferred.                                                                                    *)
 transition TransferFrom(token: Uint64, from: ByStr20, to: ByStr20, amount: Uint128)
+  TokenDoesNotExist token;
   o_spender_allowed <- allowances[token][from][_sender];
   allowed = get_val o_spender_allowed;
   can_do = uint128_le amount allowed;
@@ -225,8 +242,8 @@ procedure DoAcceptTransfer(sender: ByStr20, recipient: ByStr20, amount: Uint128)
     e = {_eventname: "Minted"; minter: sender; recipient: recipient; amount: amount};
     event e
   | None =>
-    e = {_exception: "TokenDoesNotExist"; token: sender};
-    throw e
+    err = CodeTokenDoesNotExist;
+    ThrowError err
   end
 end
 
@@ -239,6 +256,7 @@ transition RecipientAcceptTransferFrom(initiator: ByStr20, sender : ByStr20, rec
 end
 
 transition Withdraw(token: Uint64, amount: Uint128)
+  TokenDoesNotExist token;
   o_balance <- balances[token][_sender];
   balance = get_val o_balance;
   balance = builtin sub balance amount;
