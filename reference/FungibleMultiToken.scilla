@@ -71,7 +71,7 @@ field allowances: Map Uint64 (Map ByStr20 (Map ByStr20 Uint128))
   = Emp Uint64 (Map ByStr20 (Map ByStr20 Uint128))
 
 field zrc2_to_token: Map ByStr20 Uint64 = Emp ByStr20 Uint64
-(*field token_to_zrc2: Map Uint64 ByStr20 = Emp Uint64 ByStr20*)
+field token_to_zrc2: Map Uint64 ByStr20 = Emp Uint64 ByStr20
 
 (**************************************)
 (*             Procedures             *)
@@ -136,7 +136,7 @@ transition CreateZRC2BridgeToken(zrc2_contract: ByStr20)
   max_token := new_max;
   total_supply[token] := zero;
   zrc2_to_token[zrc2_contract] := token;
-  (*token_to_zrc2[token] := zrc2_contract;*)
+  token_to_zrc2[token] := zrc2_contract;
   e = {_eventname : "CreatedToken"; token_owner : _sender; token: token};
   event e
 end
@@ -255,17 +255,26 @@ transition RecipientAcceptTransferFrom(initiator: ByStr20, sender : ByStr20, rec
   DoAcceptTransfer sender recipient amount
 end
 
-transition Withdraw(token: Uint64, amount: Uint128)
-  TokenDoesNotExist token;
-  o_balance <- balances[token][_sender];
-  balance = get_val o_balance;
-  balance = builtin sub balance amount;
-  balances[token][_sender] := balance;
-  o_our_total_supply <- total_supply[token];
-  our_total_supply = get_val o_our_total_supply;
-  our_total_supply = builtin sub our_total_supply amount;
-  total_supply[token] := our_total_supply;
-  (* TODO: Should `minter` be `sender` or `_sender`? *)
-  e = {_eventname: "Burnt"; burner: _sender; burn_account: _sender; amount: amount};
-  event e
+transition Withdraw(token: Uint64, to: ByStr20, amount: Uint128)
+  o_zrc2 <- token_to_zrc2[token];
+  match o_zrc2 with
+  | Some zrc2 =>
+    o_balance <- balances[token][_sender];
+    balance = get_val o_balance;
+    balance = builtin sub balance amount;
+    balances[token][_sender] := balance;
+    o_our_total_supply <- total_supply[token];
+    our_total_supply = get_val o_our_total_supply;
+    our_total_supply = builtin sub our_total_supply amount;
+    total_supply[token] := our_total_supply;
+    msg = {_tag : "Transfer"; to : to; amount : amount; _amount : zero; _recipient : zrc2};
+    msgs = one_msg msg;
+    send msgs;
+    (* TODO: Should `minter` be `sender` or `_sender`? *)
+    e = {_eventname: "Burnt"; burner: _sender; burn_account: _sender; amount: amount};
+    event e
+  | None =>
+    err = CodeTokenDoesNotExist;
+    ThrowError err
+  end
 end
