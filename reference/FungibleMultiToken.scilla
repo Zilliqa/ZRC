@@ -68,7 +68,8 @@ field balances: Map Uint64 (Map ByStr20 Uint128)
 field allowances: Map Uint64 (Map ByStr20 (Map ByStr20 Uint128))
   = Emp Uint64 (Map ByStr20 (Map ByStr20 Uint128))
 
-field mirrored_zrc2: Map Uint64 ByStr20 = Emp Uint64 ByStr20
+field zrc2_to_token: Map ByStr20 Uint64 = Emp ByStr20 Uint64
+(*field token_to_zrc2: Map Uint64 ByStr20 = Emp Uint64 ByStr20*)
 
 (**************************************)
 (*             Procedures             *)
@@ -120,14 +121,14 @@ transition CreateZRC2BridgeToken(zrc2_contract: ByStr20)
   id <- max_token;
   token = let one = Uint64 1 in builtin add id one;
   max_token := token;
-  zero = Uint128 0;
   total_supply[token] := zero;
-  mirrored_zrc2[token] := zrc2_contract;
+  zrc2_to_token[zrc2_contract] := token;
+  (*token_to_zrc2[token] := zrc2_contract;*)
   e = {_eventname : "CreatedToken"; token_owner : _sender; token: token};
   event e
 end
 
-(* TODO: Be able to retrieve mirrored_zrc2 *)
+(* TODO: Be able to retrieve zrc2_to_token *)
 
 (* @dev: Increase the allowance of an approved_spender over the caller tokens. Only token_owner allowed to invoke.   *)
 (* param spender:      Address of the designated approved_spender.                                                   *)
@@ -204,4 +205,49 @@ transition TransferFrom(token: Uint64, from: ByStr20, to: ByStr20, amount: Uint1
     err = CodeInsufficientAllowance;
     ThrowError err
   end
+end
+
+(* ZRC2 bridge *)
+
+procedure DoAcceptTransfer(sender: ByStr20, recipient: ByStr20, amount: Uint128)
+  o_token <- zrc2_to_token[_sender];
+  match o_token with
+  | Some token =>
+    o_balance <- balances[token][sender];
+    balance = get_val o_balance;
+    balance = builtin add balance amount;
+    balances[token][sender] := balance;
+    o_our_total_supply <- total_supply[token];
+    our_total_supply = get_val o_our_total_supply;
+    our_total_supply = builtin add our_total_supply amount;
+    total_supply[token] := our_total_supply;
+    (* TODO: Should `minter` be `sender` or `_sender`? *)
+    e = {_eventname: "Minted"; minter: sender; recipient: recipient; amount: amount};
+    event e
+  | None =>
+    e = {_exception: "TokenDoesNotExist"; token: sender};
+    throw e
+  end
+end
+
+transition RecipientAcceptTransfer(sender: ByStr20, recipient: ByStr20, amount: Uint128)
+  DoAcceptTransfer sender recipient amount
+end
+
+transition RecipientAcceptTransferFrom(initiator: ByStr20, sender : ByStr20, recipient: ByStr20, amount: Uint128)
+  DoAcceptTransfer sender recipient amount
+end
+
+transition Withdraw(token: Uint64, amount: Uint128)
+  o_balance <- balances[token][_sender];
+  balance = get_val o_balance;
+  balance = builtin sub balance amount;
+  balances[token][_sender] := balance;
+  o_our_total_supply <- total_supply[token];
+  our_total_supply = get_val o_our_total_supply;
+  our_total_supply = builtin sub our_total_supply amount;
+  total_supply[token] := our_total_supply;
+  (* TODO: Should `minter` be `sender` or `_sender`? *)
+  e = {_eventname: "Burnt"; burner: _sender; burn_account: _sender; amount: amount};
+  event e
 end
