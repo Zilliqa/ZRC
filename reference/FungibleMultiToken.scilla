@@ -68,6 +68,8 @@ field balances: Map Uint64 (Map ByStr20 Uint128)
 field allowances: Map Uint64 (Map ByStr20 (Map ByStr20 Uint128))
   = Emp Uint64 (Map ByStr20 (Map ByStr20 Uint128))
 
+field mirrored_zrc2: Map Uint64 ByStr20 = Emp Uint64 ByStr20
+
 (**************************************)
 (*             Procedures             *)
 (**************************************)
@@ -114,15 +116,18 @@ end
 (*             Transitions             *)
 (***************************************)
 
-transition CreateToken()
+transition CreateZRC2BridgeToken(zrc2_contract: ByStr20)
   id <- max_token;
-  id2 = let one = Uint64 1 in builtin add id one;
-  max_token := id2;
+  token = let one = Uint64 1 in builtin add id one;
+  max_token := token;
   zero = Uint128 0;
-  total_supply[id2] := zero;
-  e = {_eventname : "CreatedToken"; token_owner : _sender; token: id2};
+  total_supply[token] := zero;
+  mirrored_zrc2[token] := zrc2_contract;
+  e = {_eventname : "CreatedToken"; token_owner : _sender; token: token};
   event e
 end
+
+(* TODO: Be able to retrieve mirrored_zrc2 *)
 
 (* @dev: Increase the allowance of an approved_spender over the caller tokens. Only token_owner allowed to invoke.   *)
 (* param spender:      Address of the designated approved_spender.                                                   *)
