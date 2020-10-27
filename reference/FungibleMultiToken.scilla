@@ -58,13 +58,15 @@ contract FungibleMultiToken
 
 (* Mutable fields *)
 
-field total_supply : Map Uint64 Uint128 = init_supply
+field max_token: Uint64 = Uint64 0
+
+field total_supply : Map Uint64 Uint128 = Emp Uint64 Uint128
 
 field balances: Map Uint64 (Map ByStr20 Uint128)
-  = let emp_map = Map Uint64 (Map ByStr20 Uint128)
+  = Emp Uint64 (Map ByStr20 Uint128)
 
 field allowances: Map Uint64 (Map ByStr20 (Map ByStr20 Uint128))
-  = Emp Map Uint64 (ByStr20 (Map ByStr20 Uint128))
+  = Emp Uint64 (Map ByStr20 (Map ByStr20 Uint128))
 
 (**************************************)
 (*             Procedures             *)
@@ -93,14 +95,14 @@ procedure AuthorizedMoveIfSufficientBalance(token: Uint64, from: ByStr20, to: By
   | True =>
     (* Subtract amount from from and add it to to address *)
     new_from_bal = builtin sub bal amount;
-    balances[from] := new_from_bal;
+    balances[token][from] := new_from_bal;
     (* Adds amount to to address *)
-    get_to_bal <- balances[to];
+    get_to_bal <- balances[token][to];
     new_to_bal = match get_to_bal with
     | Some bal => builtin add bal amount
     | None => amount
     end;
-    balances[to] := new_to_bal
+    balances[token][to] := new_to_bal
   | False =>
     (* Balance not sufficient *)
     err = CodeInsufficientFunds;
@@ -111,6 +113,16 @@ end
 (***************************************)
 (*             Transitions             *)
 (***************************************)
+
+transition CreateToken()
+  id <- max_token;
+  id2 = let one = Uint64 1 in builtin add id one;
+  max_token := id2;
+  zero = Uint128 0;
+  total_supply[id2] := zero;
+  e = {_eventname : "CreatedToken"; token_owner : _sender; token: id2};
+  event e
+end
 
 (* @dev: Increase the allowance of an approved_spender over the caller tokens. Only token_owner allowed to invoke.   *)
 (* param spender:      Address of the designated approved_spender.                                                   *)
@@ -147,9 +159,9 @@ end
 (* @dev: Balance of recipient will increase. Balance of _sender will decrease.      *)
 (* @param to:  Address of the recipient whose balance is increased.                 *)
 (* @param amount:     Amount of tokens to be sent.                                  *)
-transition Transfer(token: Uint64; to: ByStr20, amount: Uint128)
+transition Transfer(token: Uint64, to: ByStr20, amount: Uint128)
   AuthorizedMoveIfSufficientBalance token _sender to amount;
-  e = {_eventname : "TransferSuccess"; token : Uint64; sender : _sender; recipient : to; amount : amount};
+  e = {_eventname : "TransferSuccess"; token : token; sender : _sender; recipient : to; amount : amount};
   event e;
   (* Prevent sending to a contract address that does not support transfers of token *)
   msg_to_recipient = {_tag : "RecipientAcceptTransfer"; _token: token; _recipient : to; _amount : zero; 
@@ -172,7 +184,7 @@ transition TransferFrom(token: Uint64, from: ByStr20, to: ByStr20, amount: Uint1
   match can_do with
   | True =>
     AuthorizedMoveIfSufficientBalance token from to amount;
-    e = {_eventname : "TransferFromSuccess"; token: Uin64; initiator : _sender; sender : from; recipient : to; amount : amount};
+    e = {_eventname : "TransferFromSuccess"; token: token; initiator : _sender; sender : from; recipient : to; amount : amount};
     event e;
     new_allowed = builtin sub allowed amount;
     allowances[token][from][_sender] := new_allowed;
