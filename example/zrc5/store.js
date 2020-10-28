@@ -18,13 +18,13 @@ async function main() {
     const address = getAddressFromPrivateKey(privkey);
     console.log("Your account address is:");
     console.log(`${address}`);
-    const myGasPrice = units.toQa('1000', units.Units.Li); // Gas Price that will be used by all transactions
+    const myGasPrice = units.toQa('2000', units.Units.Li); // Gas Price that will be used by all transactions
 
 
     const ftAddrHuman = "509ae6e5d91cee3c6571dcd04aa08288a29d563a";
     const mtAddrHuman = "9b80a12a68989575b7fd4b82a6dabee468ab9d92";
-    const ftAddr = toBech32Address('0x'+ftAddrHuman);
-    const mtAddr = toBech32Address('0x'+mtAddrHuman);
+    const ftAddr = toBech32Address(ftAddrHuman);
+    const mtAddr = toBech32Address(mtAddrHuman);
     const receiptAddrHuman = "BFe2445408C51CD8Ee6727541195b02c891109ee";
 
     try {
@@ -32,10 +32,10 @@ async function main() {
         const mtContract = zilliqa.contracts.at(mtAddr);
 
         const createTokenCallTx = await mtContract.call(
-            'Transfer',
+            'CreateZRC2BridgeToken',
             [
                 {
-                    vname: 'CreateZRC2BridgeToken',
+                    vname: 'zrc2_contract',
                     type: 'ByStr20',
                     value: '0x'+ftAddrHuman,
                 }
@@ -48,11 +48,10 @@ async function main() {
                 gasLimit: Long.fromNumber(10000),
             }
         );
-        console.log(JSON.stringify(createTokenCallTx/*.receipt*/, null, 4));
-        return;
-
-        const confirmedCreateTokenCallTx = await createTokenCallTx.confirm(createTokenCallTx.id);
-        console.log(JSON.stringify(confirmedCreateTokenCallTx.receipt, null, 4));
+        console.log(JSON.stringify(createTokenCallTx.receipt, null, 4));
+        const tokenId = createTokenCallTx.receipt.event_logs.filter(e => e._eventname === "CreatedToken")[0]
+            .params.filter(p => p.vname === "token")[0].value;
+        console.log(`Created token #${tokenId}.`);
 
         const depositCallTx = await ftContract.call(
             'Transfer',
@@ -84,12 +83,12 @@ async function main() {
                 {
                     vname: 'token',
                     type: 'Uint64',
-                    value: ??,
+                    value: tokenId,
                 },
                 {
                     vname: 'to',
                     type: 'ByStr20',
-                    value: receiptAddrHuman,
+                    value: "0x"+receiptAddrHuman,
                 },
                 {
                     vname: 'amount',
@@ -113,7 +112,7 @@ async function main() {
                 {
                     vname: 'token',
                     type: 'Uint64',
-                    value: ??,
+                    value: tokenId,
                 },
                 {
                     vname: 'to',
