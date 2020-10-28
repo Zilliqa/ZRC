@@ -59,7 +59,7 @@ async function main() {
                 {
                     vname: 'to',
                     type: 'ByStr20',
-                    value: mtAddr,
+                    value: "0x"+mtAddrHuman,
                 },
                 {
                     vname: 'amount',
