@@ -16,7 +16,7 @@ const TRANSACTION_ID = '2'; // transaction to be signed
 const zilliqa = new Zilliqa(API);
 const MSG_VERSION = 1;
 const VERSION = bytes.pack(CHAIN_ID, MSG_VERSION);
-const GAS_PRICE = units.toQa('1000', units.Units.Li);
+const GAS_PRICE = units.toQa('2000', units.Units.Li);
 
 async function main() {
     try {
