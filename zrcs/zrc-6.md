@@ -2,9 +2,6 @@
 | --- | ---------------------------- | ------ | -------- | ------------------------------- | -------------------- |
 | 6   | Standard for Multiple Tokens | Draft  | Standard | Victor Porton <porton@narod.ru> | 2020-10-30           |
 
-TODO:
-- URI of token (or name/symbol?!)
-
 ## I. What are Multiple Tokens?
 
 This standard allows a contract to "contain" both fungible (like ZRC-2) and non-fungible (like ZRC-1) tokens. Up to 2**64 tokens per single contract are supported.
@@ -656,6 +653,8 @@ transition OperatorSendMultiple(tokens: List Uint64, froms: List ByStr20, tos: L
 ## VI. Misc Notes
 
 This standard is deliberately not interoperable with ZRC-1, because ZRC-1 restricts minting tokens to the addresses that are keys of `minters` mapping. It is not an acceptable requirement for this standard because sometimes it's necessary to allow everyone to mint new tokens.
+
+We intentionally don't provide an interface for setting a token URI, because at the URI it may be easily put a malignant information, like a sudden change of the number of digits.
 
 ## VI. Existing Implementation(s)
 
