@@ -618,7 +618,7 @@ transition TransferFromMultiple(tokens: List Uint64, froms: List ByStr20, tos: L
 (* @param froms:        Addresses of the token_owner's whose balance is decreased.                      *)
 (* @param tos:          Addresses of the recipients whose balance is increased.                         *)
 (* @param amounts:      Amounts of tokens to be sent.                                                   *)
-transition OperatorSendMultiple(tokens: List Uint64, from: List ByStr20, to: List ByStr20, amount: List Uint128)
+transition OperatorSendMultiple(tokens: List Uint64, froms: List ByStr20, tos: List ByStr20, amounts: List Uint128)
 ```
 
 **Arguments:**
@@ -628,7 +628,7 @@ transition OperatorSendMultiple(tokens: List Uint64, from: List ByStr20, to: Lis
 | @param | `tokens`  | `List Uint64`  | Tokens IDs.                                                  |
 | @param | `froms`   | `List ByStr20` | Addresses of the token_owner\s whose balance is to decrease. |
 | @param | `tos`     | `List ByStr20` | Addresses of the recipients whose balance is to increase.    |
-| @param | `amousnt` | `List Uint128` | Amounts of tokens to be sent.                                |
+| @param | `amounts` | `List Uint128` | Amounts of tokens to be sent.                                |
 
 **Messages sent:**
 
