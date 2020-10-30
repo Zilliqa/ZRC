@@ -112,9 +112,9 @@ transition BalancesMultiple(tokens: List Uint64, token_owner: ByStr20)
 
 **Messages sent:**
 
-|        | Name               | Description                                                                                                 | Callback Parameters                        |
-| ------ | ------------------ | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
-| `_tag` | `BalancesMultiple` | Provide the sender a callback wit token balances. | `balances` : `List Uint128` is the list of balances correspondign to tokens for a given token_owner. |
+|        | Name               | Description                                                                                                 | Callback Parameters                         |
+| ------ | ------------------ | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `_tag` | `BalancesMultiple` | Provide the sender a callback with token balances. | `balances` : `List Uint128` is the list of balances correspondign to tokens for a given token_owner. |
 
 ### F. Interface Transitions
 
