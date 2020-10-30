@@ -122,7 +122,7 @@ transition BalancesMultiple(tokens: List Uint64, token_owner: ByStr20)
 
 ```ocaml
 (* @dev: Mint new tokens. Only the relevant owner can mint.                  *)
-(* @param token: Token ID.                                                   *)
+(* @param token:     Token ID.                                               *)
 (* @param recipient: Address of the recipient whose balance is to increase.  *)
 (* @param amount:    Number of tokens to be minted.                          *)
 transition Mint(token: ByStr20, recipient: ByStr20, amount: Uint128)
