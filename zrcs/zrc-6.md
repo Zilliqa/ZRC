@@ -142,7 +142,7 @@ transition Burn(token: ByStr20, burn_account: ByStr20, amount: Uint128)
 
 |        | Name           | Type      | Description                                              |
 | ------ | -------------- | --------- | -------------------------------------------------------- |
-| @param | `token`     | `ByStr20` | A token ID.                                            |
+| @param | `token`        | `ByStr20` | A token ID.                                              |
 | @param | `burn_account` | `ByStr20` | Address of the token_owner whose balance is to decrease. |
 | @param | `amount`       | `Uint128` | Number of tokens to be burned.                           |
 
