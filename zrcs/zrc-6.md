@@ -135,7 +135,7 @@ transition Mint(token: ByStr20, recipient: ByStr20, amount: Uint128)
 (* @param token: Token ID.                                                        *)
 (* @param burn_account: Address of the token_owner whose balance is to decrease.  *)
 (* @param amount:       Number of tokens to be burned.                            *)
-transition Burn(burn_account: ByStr20, amount: Uint128)
+transition Burn(token: ByStr20, burn_account: ByStr20, amount: Uint128)
 ```
 
 **Arguments:**
