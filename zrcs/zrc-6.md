@@ -622,11 +622,15 @@ transition OperatorSendMultiple(tokens: List Uint64, from: List ByStr20, to: Lis
 | `_eventname` | `OperatorSendSuccess` | Sending is successful.     | `tokens`: `List Uint64` which are the tokens ID, `initiator`: `ByStr20` which is the operator's address, `senders`: `List ByStr20` which are the token_owner's addresses, `recipients`: `List ByStr20` which are the recipient's addresses, and `amounts`: `List Uint128` which are the amounts of fungible tokens to be transferred. |
 | `_eventname` | `Error`               | Sending is not successful. | - emit `CodeNotApprovedOperator` if sender is not an approved operator for the token_owner's <br> - emit `CodeInsufficientFunds` if the balance of the token_owner's is lesser than the specified amount that is to be transferred. <br> - emit `CodeTokenDoesNotExist` if the token ID does not exist  |
 
-## V. More events
+## V. More Events
 
 |              | Name           | Description          | Event Parameters                                                                          |
 | ------------ | -------------- | -------------------- | ----------------------------------------------------------------------------------------- |
 | `_eventname` | `CreatedToken` | A token was created. | `token_owner` : `ByStr20` who created the token, `token`: `Uint64` which is the token ID. |
+
+## VI. Misc Notes
+
+This standard is deliberately not interoperable with ZRC-1, because ZRC-1 restricts minting tokens to the addresses that are keys of `minters` mapping. It is not an acceptable requirement for this standard because sometimes it's necessary to allow everyone to mint new tokens.
 
 ## VI. Existing Implementation(s)
 
