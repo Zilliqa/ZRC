@@ -546,9 +546,9 @@ transition DecreaseAllowanceMultiple(tokens: List Uint64, spender: ByStr20, amou
 ```ocaml
 (* @dev: Moves an amount tokens from _sender to the recipient. Used by token_owner. *)
 (* @dev: Balance of recipient will increase. Balance of _sender will decrease.      *)
-(* @param tokens:        Tokens IDs.                                                *)
-(* @param tos:  Addresses of the recipients whose balance is increased.             *)
-(* @param amounts:     Amounts of tokens to be sent.                                *)
+(* @param tokens:     Tokens IDs.                                                   *)
+(* @param tos:        Addresses of the recipients whose balance is increased.       *)
+(* @param amounts:    Amounts of tokens to be sent.                                 *)
 transition TransferMultiple(tokens: List Uint64, tos: List ByStr20, amounts: List Uint128)
 ```
 
