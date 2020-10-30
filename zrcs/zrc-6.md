@@ -1,6 +1,6 @@
 | ZRC | Title                        | Status | Type     | Author                          | Created (yyyy-mm-dd) |
 | --- | ---------------------------- | ------ | -------- | ------------------------------- | -------------------- |
-| 2   | Standard for Multiple Tokens | Draft  | Standard | Victor Porton <porton@narod.ru> | 2020-10-30           |
+| 6   | Standard for Multiple Tokens | Draft  | Standard | Victor Porton <porton@narod.ru> | 2020-10-30           |
 
 ## I. What are Fungible Tokens?
 
