@@ -289,8 +289,7 @@ transition Transfer(token: Uint64, to: ByStr20, amount: Uint128)
 |              | Name              | Description                | Event Parameters                                                                                                                                                                                                                 |
 | ------------ | ----------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `TransferSuccess` | Sending is successful.     | `token`: `Uint64` which is the token ID, `sender`: `ByStr20` which is the sender's address, `recipient`: `ByStr20` which is the recipient's address, and `amount`: `Uint128` which is the amount of fungible tokens transferred. |
-| `_eventname` | `Error`           | Sending is not successful. | - emit `CodeInsufficientFunds` if the balance of the token_owner lesser than the specified amount that is to be transferred.                                                                                                     |
-|              |                   |                            | - emit `CodeTokenDoesNotExist` if the token ID does not exist                                                                                                                                                                    |
+| `_eventname` | `Error`           | Sending is not successful. | - emit `CodeInsufficientFunds` if the balance of the token_owner lesser than the specified amount that is to be transferred. <br> - emit `CodeTokenDoesNotExist` if the token ID does not exist                                  |
 
 #### 8. TransferFrom()
 
