@@ -204,8 +204,7 @@ transition RevokeOperator(token: Uint64, operator: ByStr20)
 |              | Name                    | Description                 | Event Parameters                                                                                                                                                                                     |
 | ------------ | ----------------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `RevokeOperatorSuccess` | Revoking is successful.     | `token`: `Uint64` which is the token ID, `revoker`: `ByStr20` which is the caller's address, and `revoked_operator`: `ByStr20` which is the address to be removed as an operator of the token_owner. |
-| `_eventname` | `Error`                 | Revoking is not successful. | - emit `CodeNotApprovedOperator` if the specified address is not an existing operator or default_operator of the token_owner.                                                                        |
-|              |                         |                             | - emit `CodeTokenDoesNotExist` if the token ID does not exist                                                                                                                                        |
+| `_eventname` | `Error`                 | Revoking is not successful. | - emit `CodeNotApprovedOperator` if the specified address is not an existing operator or default_operator of the token_owner. <br> - emit `CodeTokenDoesNotExist` if the token ID does not exist     |
 
 #### 5. IncreaseAllowance()
 
