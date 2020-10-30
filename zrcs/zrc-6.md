@@ -124,8 +124,9 @@ transition Mint(token: ByStr20, recipient: ByStr20, amount: Uint128)
 
 |              | Name     | Description                | Event Parameters                                                                                                                                                                                                                                                                |
 | ------------ | -------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `Minted` | Minting is successful.     | `token` : `Uint64`, `minter` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `token` is the token ID, `minter` is the address of the minter, `recipient` is the address whose balance will be increased, and `amount` is the amount of fungible tokens minted. |
+| `_eventname` | `Minted` | Minting is successful.     | `token` : `Uint64`, `minter` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `token` is the token ID, `minter` is the address of the minter, `recipient` is the address whose balance will be increased, and `amount` is the amount of fungible tokens minted.  |
 | `_eventname` | `Error`  | Minting is not successful. | - emit `CodeNotOwner` if the transition is not called by the appropriate owner.                                                                                                                                                                                                 |
+|              |          |                            | - emit `CodeTokenDoesNotExist` if the token ID does not exist                                                                                                                                       |
 
 #### 2. Burn() (Optional)
 
@@ -153,10 +154,11 @@ transition Burn(burn_account: ByStr20, amount: Uint128)
 
 **Events/Errors:**
 
-|              | Name    | Description                | Event Parameters                                                                                                                                                                                                                                                |
-| ------------ | ------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `Burnt` | Burning is successful.     | `token` : `Uint64`, `burner` : `ByStr20`, `burn_account`: `ByStr20`, `amount`: `Uint128`, where `token` is the token ID, `burner` is the address of the burner, `burn_account` is the address whose balance will be decreased, and `amount` is the amount of fungible tokens burned.                         |
-| `_eventname` | `Error` | Burning is not successful. | - emit `CodeNotOwner` if the transition is not called by the contract_owner. <br> - emit `CodeNoBalance` if balance of relevant owner does not exists. <br> - emit `CodeInsufficientFunds` if the amount to be burned is more than the balance of the relevant holder. |
+|              | Name    | Description                | Event Parameters                                                                                                                                                                                                                                                                     |
+| ------------ | ------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `_eventname` | `Burnt` | Burning is successful.     | `token` : `Uint64`, `burner` : `ByStr20`, `burn_account`: `ByStr20`, `amount`: `Uint128`, where `token` is the token ID, `burner` is the address of the burner, `burn_account` is the address whose balance will be decreased, and `amount` is the amount of fungible tokens burned. |
+| `_eventname` | `Error` | Burning is not successful. | - emit `CodeNotOwner` if the transition is not called by the contract_owner. <br> - emit `CodeNoBalance` if balance of relevant owner does not exists. <br> - emit `CodeInsufficientFunds` if the amount to be burned is more than the balance of the relevant holder.               |
+|              |          |                            | - emit `CodeTokenDoesNotExist` if the token ID does not exist                                                                                                                                                                                                                       |
 
 #### 3. AuthorizeOperator() (Optional)
 
@@ -181,6 +183,7 @@ transition AuthorizeOperator(token: Uint64, operator: ByStr20)
 | ------------ | -------------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `AuthorizeOperatorSuccess` | Authorizing is successful.     | `token` : `Uint64` which is the token ID, `authorizer`: `ByStr20` which is the caller's address, and `authorized_operator`: `ByStr20` which is the address to be authorized as an operator of the token_owner. |
 | `_eventname` | `Error`                    | Authorizing is not successful. | - emit `CodeIsSender` if the user is trying to authorize himself as an operator.                                                                                                                               |
+|              |                            |                                | - emit `CodeTokenDoesNotExist` if the token ID does not exist                                                                                                                                                  |
 
 #### 4. RevokeOperator() (Optional)
 
@@ -204,6 +207,7 @@ transition RevokeOperator(token: Uint64, operator: ByStr20)
 | ------------ | ----------------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `RevokeOperatorSuccess` | Revoking is successful.     | `token`: `Uint64` which is the token ID, `revoker`: `ByStr20` which is the caller's address, and `revoked_operator`: `ByStr20` which is the address to be removed as an operator of the token_owner. |
 | `_eventname` | `Error`                 | Revoking is not successful. | - emit `CodeNotApprovedOperator` if the specified address is not an existing operator or default_operator of the token_owner.                                                                        |
+|              |                         |                             | - emit `CodeTokenDoesNotExist` if the token ID does not exist                                                                                                                                        |
 
 #### 5. IncreaseAllowance()
 
@@ -225,10 +229,11 @@ transition IncreaseAllowance(token: Uint64, spender: ByStr20, amount: Uint128)
 
 **Events/Errors:**
 
-|              | Name                 | Description                                                   | Event Parameters                                                                                                                                                                                                                                  |
-| ------------ | -------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|              | Name                 | Description                                                   | Event Parameters                                                                                                                                                                                                                                                                           |
+| ------------ | -------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `_eventname` | `IncreasedAllowance` | Increasing of allowance of an approved_spender is successful. | `token`: `Uint64` which is the token ID, `token_owner`: `ByStr20` which is the address the token_owner, `spender`: `ByStr20` which is the address of a approved_spender of the token_owner, and `new_allowance` is the new spending allowance of the approved_spender for the token_owner. |
-| `_eventname` | `Error`              | Increasing of allowance is not successful.                    | - emit `CodeIsSelf` if the user is trying to authorize himself as an approved_spender.                                                                                                                                                            |
+| `_eventname` | `Error`              | Increasing of allowance is not successful.                    | - emit `CodeIsSelf` if the user is trying to authorize himself as an approved_spender.                                                                                                                                                                                                     |
+|              |                      |                             | - emit `CodeTokenDoesNotExist` if the token ID does not exist                                                                                                                                                                                                                                                                |
 
 #### 6. DecreaseAllowance()
 
@@ -250,10 +255,11 @@ transition DecreaseAllowance(token: Uint64, spender: ByStr20, amount: Uint128)
 
 **Events/Errors:**
 
-|              | Name                 | Description                                                   | Event Parameters                                                                                                                                                                                                                                  |
-| ------------ | -------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|              | Name                 | Description                                                   | Event Parameters                                                                                                                                                                                                                                                                           |
+| ------------ | -------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `_eventname` | `DecreasedAllowance` | Decreasing of allowance of an approved_spender is successful. | `token`: `Uint64` which is the token ID, `token_owner`: `ByStr20` which is the address the token_owner, `spender`: `ByStr20` which is the address of a approved_spender of the token_owner, and `new_allowance` is the new spending allowance of the approved_spender for the token_owner. |
-| `_eventname` | `Error`              | Decreasing of allowance is not successful.                    | - emit `CodeIsSelf` if the user is trying to authorize himself as an approved_spender.                                                                                                                                                            |
+| `_eventname` | `Error`              | Decreasing of allowance is not successful.                    | - emit `CodeIsSelf` if the user is trying to authorize himself as an approved_spender.                                                                                                                                                                                                     |
+|              |                      |                                                               | - emit `CodeTokenDoesNotExist` if the token ID does not exist                                                                                                                                        |
 
 #### 7. Transfer()
 
@@ -287,6 +293,7 @@ transition Transfer(token: Uint64, to: ByStr20, amount: Uint128)
 | ------------ | ----------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `TransferSuccess` | Sending is successful.     | `token`: `Uint64` which is the token ID, `sender`: `ByStr20` which is the sender's address, `recipient`: `ByStr20` which is the recipient's address, and `amount`: `Uint128` which is the amount of fungible tokens transferred. |
 | `_eventname` | `Error`           | Sending is not successful. | - emit `CodeInsufficientFunds` if the balance of the token_owner lesser than the specified amount that is to be transferred.                                                                                                     |
+|              |                   |                            | - emit `CodeTokenDoesNotExist` if the token ID does not exist                                                                                                                                                                    |
 
 #### 8. TransferFrom()
 
@@ -317,10 +324,11 @@ transition TransferFrom(token: Uint64, from: ByStr20, to: ByStr20, amount: Uint1
 
 **Events:**
 
-|              | Name                  | Description                | Event Parameters                                                                                                                                                                                                                                                                                             |
-| ------------ | --------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+|              | Name                  | Description                | Event Parameters                                                                                                                                                                                                                                                                                                                                         |
+| ------------ | --------------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `TransferFromSuccess` | Sending is successful.     | `token`: `Uint64`, `initiator`: `ByStr20`, `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `token` is the token ID, `initiator` is the address of an approved_spender,`sender` is the address of the token_owner, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred. |
-| `_eventname` | `Error`               | Sending is not successful. | - emit `CodeInsufficientAllowance` if the allowance of approved_spender is lesser than the specified amount that is to be transferred. <br> - emit `CodeInsufficientFunds` if the balance of the token_owner lesser than the specified amount that is to be transferred.                                     |
+| `_eventname` | `Error`               | Sending is not successful. | - emit `CodeInsufficientAllowance` if the allowance of approved_spender is lesser than the specified amount that is to be transferred. <br> - emit `CodeInsufficientFunds` if the balance of the token_owner lesser than the specified amount that is to be transferred.                                                                                 |
+|              |                       |                            | - emit `CodeTokenDoesNotExist` if the token ID does not exist                                                                                                                                           |
 
 #### 9. OperatorSend() (Optional)
 
@@ -352,10 +360,11 @@ transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
 
 **Events/Errors:**
 
-|              | Name                  | Description                | Event Parameters                                                                                                                                                                                                                                           |
-| ------------ | --------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|              | Name                  | Description                | Event Parameters                                                                                                                                                                                                                                                                                    |
+| ------------ | --------------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `OperatorSendSuccess` | Sending is successful.     | `token`: `Uint64` which is the token ID, `initiator`: `ByStr20` which is the operator's address, `sender`: `ByStr20` which is the token_owner's address, `recipient`: `ByStr20` which is the recipient's address, and `amount`: `Uint128` which is the amount of fungible tokens to be transferred. |
-| `_eventname` | `Error`               | Sending is not successful. | - emit `CodeNotApprovedOperator` if sender is not an approved operator for the token_owner <br> - emit `CodeInsufficientFunds` if the balance of the token_owner is lesser than the specified amount that is to be transferred.                            |
+| `_eventname` | `Error`               | Sending is not successful. | - emit `CodeNotApprovedOperator` if sender is not an approved operator for the token_owner <br> - emit `CodeInsufficientFunds` if the balance of the token_owner is lesser than the specified amount that is to be transferred.                                                                     |
+|              |                       |                            | - emit `CodeTokenDoesNotExist` if the token ID does not exist                                                                                                                                                                                                                                       |
 
 ## V. Existing Implementation(s)
 
