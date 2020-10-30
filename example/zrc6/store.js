@@ -38,6 +38,21 @@ async function main() {
                     vname: 'zrc2_contract',
                     type: 'ByStr20',
                     value: '0x'+ftAddrHuman,
+                },
+                {
+                    vname: 'newName',
+                    type: 'String',
+                    value: "A token",
+                },
+                {
+                    vname: 'newSymbol',
+                    type: 'String',
+                    value: "SYM",
+                },
+                {
+                    vname: 'newDecimals',
+                    type: 'Uint32',
+                    value: "18",
                 }
             ],
             {
@@ -48,6 +63,7 @@ async function main() {
                 gasLimit: Long.fromNumber(10000),
             }
         );
+        console.log(JSON.stringify(createTokenCallTx, null, 4));
         console.log(JSON.stringify(createTokenCallTx.receipt, null, 4));
         const tokenId = createTokenCallTx.receipt.event_logs.filter(e => e._eventname === "CreatedToken")[0]
             .params.filter(p => p.vname === "token")[0].value;
