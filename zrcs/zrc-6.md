@@ -25,13 +25,13 @@ The multiple token contract specification describes:
 
 ### A. Roles
 
-| Name               | Description                                                                                                                                            |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `contract_owner`   | The owner of the contract initialized by the creator of the contract.                                                                                  |
-| `token_owner`      | A user (identified by an address) that owns tokens.                                                                                                    |
-| `approved_spender` | A user (identified by an address) that can transfer tokens on behalf of the token_owner.                                                               |
-| `operator`         | A user (identified by an address) that is approved to operate all tokens owned by another user (identified by another address). This role is optional. |
-| `default_operator` | A special user (identified by an address) that is approved to operate all tokens owned by all users (identified by addresses). This role is optional.  |
+| Name               | Description                                                                                                                                                                                                                |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `contract_owner`   | The owner of the contract initialized by the creator of the contract.                                                                                                                                                      |
+| `token_owner`      | A user (identified by an address) that owns tokens.                                                                                                                                                                        |
+| `approved_spender` | A user (identified by an address) that can transfer tokens on behalf of the token_owner.                                                                                                                                   |
+| `operator`         | A user (identified by an address) that is approved to operate all tokens owned by another user (identified by another address). This role is optional. (Remark: we don't provide default operators per-token to save gas.) |
+| `default_operator` | A special user (identified by an address) that is approved to operate all tokens owned by all users (identified by addresses). This role is optional.                                                                      |
 
 ### B. Error Codes
 
