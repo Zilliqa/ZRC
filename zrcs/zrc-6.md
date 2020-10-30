@@ -98,7 +98,7 @@ transition IsOperatorFor(token: Uint64, token_owner: ByStr20, operator: ByStr20)
 #### 1. Mint() (Optional)
 
 ```ocaml
-(* @dev: Mint new tokens. Only contract_owner can mint.                      *)
+(* @dev: Mint new tokens. Only the relevant owner can mint.                  *)
 (* @param token: Token ID.                                                   *)
 (* @param recipient: Address of the recipient whose balance is to increase.  *)
 (* @param amount:    Number of tokens to be minted.                          *)
@@ -131,7 +131,7 @@ transition Mint(token: ByStr20, recipient: ByStr20, amount: Uint128)
 #### 2. Burn() (Optional)
 
 ```ocaml
-(* @dev: Burn existing tokens. Only contract_owner can burn.                      *)
+(* @dev: Burn existing tokens. Only relevant owner can burn.                      *)
 (* @param token: Token ID.                                                        *)
 (* @param burn_account: Address of the token_owner whose balance is to decrease.  *)
 (* @param amount:       Number of tokens to be burned.                            *)
@@ -157,7 +157,7 @@ transition Burn(token: ByStr20, burn_account: ByStr20, amount: Uint128)
 |              | Name    | Description                | Event Parameters                                                                                                                                                                                                                                                                                                                            |
 | ------------ | ------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `Burnt` | Burning is successful.     | `token` : `Uint64`, `burner` : `ByStr20`, `burn_account`: `ByStr20`, `amount`: `Uint128`, where `token` is the token ID, `burner` is the address of the burner, `burn_account` is the address whose balance will be decreased, and `amount` is the amount of fungible tokens burned.                                                        |
-| `_eventname` | `Error` | Burning is not successful. | - emit `CodeNotOwner` if the transition is not called by the contract_owner. <br> - emit `CodeNoBalance` if balance of relevant owner does not exists. <br> - emit `CodeInsufficientFunds` if the amount to be burned is more than the balance of the relevant holder. <br> -  emit `CodeTokenDoesNotExist` if the token ID does not exist. |
+| `_eventname` | `Error` | Burning is not successful. | - emit `CodeNotOwner` if the transition is not called by the relevant owner. <br> - emit `CodeNoBalance` if balance of token_owner does not exists. <br> - emit `CodeInsufficientFunds` if the amount to be burned is more than the balance of token_owner. <br> -  emit `CodeTokenDoesNotExist` if the token ID does not exist. |
 
 #### 3. AuthorizeOperator() (Optional)
 
@@ -234,10 +234,10 @@ transition IncreaseAllowance(token: Uint64, spender: ByStr20, amount: Uint128)
 #### 6. DecreaseAllowance()
 
 ```ocaml
-(* @dev: Decrease the allowance of an approved_spender over the caller tokens. Only token_owner allowed to invoke. *)
-(* param token:        Token ID.                                                                                   *)
-(* param spender:      Address of the designated approved_spender.                                                 *)
-(* param amount:       Number of tokens to be decreased as allowance for the approved_spender.                     *)
+(* @dev: Decrease the allowance of an approved_spender over the caller tokens. Only the token_owner allowed to invoke. *)
+(* param token:        Token ID.                                                                                          *)
+(* param spender:      Address of the designated approved_spender.                                                        *)
+(* param amount:       Number of tokens to be decreased as allowance for the approved_spender.                            *)
 transition DecreaseAllowance(token: Uint64, spender: ByStr20, amount: Uint128)
 ```
 
