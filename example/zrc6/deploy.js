@@ -34,21 +34,6 @@ async function main() {
             vname: "contract_owner",
             type: "ByStr20",
             value: `${address}`
-        },
-        {
-            vname: "newName",
-            type: "String",
-            value: `A token`
-        },
-        {
-            vname: "newSymbol",
-            type: "String",
-            value: `SYM`
-        },
-        {
-            vname: "newDecimals",
-            type: "Uint32",
-            value: `18`
         }
     ];
     console.log("init json is: ");
