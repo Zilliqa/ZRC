@@ -94,6 +94,28 @@ transition IsOperatorFor(token: Uint64, token_owner: ByStr20, operator: ByStr20)
 | ------ | ----------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `_tag` | `IsOperatorForCallBack` | Provide the sender a callback if specified address is indeed an approved operator of specified token_owner. | `token` : `Uint64`, `token_owner` : `ByStr20`, `operator`: `ByStr20`, where `token_owner` is the address of the token_owner, `operator` is the address of the approved operator. |
 
+#### 2. BalancesMultiple() (Optional)
+
+```ocaml
+(* @dev: Get balances of several tokens. *)
+(* @param tokens:      Tokens IDs.               *)
+(* @param token_owner: Address of a token_owner. *)
+transition BalancesMultiple(tokens: List Uint64, token_owner: ByStr20)
+```
+
+**Arguments:**
+
+|        | Name          | Type          | Description                             |
+| ------ | ------------- | ------------- | --------------------------------------- |
+| @param | `tokens`      | `List Uint64` | A token ID.                             |
+| @param | `token_owner` | `ByStr20`     | An address of a particular token_owner. |
+
+**Messages sent:**
+
+|        | Name               | Description                                                                                                 | Callback Parameters                        |
+| ------ | ------------------ | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| `_tag` | `BalancesMultiple` | Provide the sender a callback wit token balances. | `balances` : `List Uint128` is the list of balances correspondign to tokens for a given token_owner. |
+
 ### F. Interface Transitions
 
 #### 1. Mint() (Optional)
