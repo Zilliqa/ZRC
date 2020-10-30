@@ -150,8 +150,6 @@ transition CreateZRC2BridgeToken(zrc2_contract: ByStr20, newName : String, newSy
   event e
 end
 
-(* TODO: Be able to retrieve zrc2_to_token *)
-
 (* @dev: Increase the allowance of an approved_spender over the caller tokens. Only token_owner allowed to invoke.   *)
 (* param spender:      Address of the designated approved_spender.                                                   *)
 (* param amount:       Number of tokens to be increased as allowance for the approved_spender.                       *)
