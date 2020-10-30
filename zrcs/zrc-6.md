@@ -296,6 +296,7 @@ transition Transfer(token: Uint64, to: ByStr20, amount: Uint128)
 ```ocaml
 (* @dev: Move a given amount of tokens from one address to another using the allowance mechanism. The caller must be an approved_spender. *)
 (* @dev: Balance of recipient will increase. Balance of token_owner will decrease.                                                        *)
+(* @param token:   Token ID.                                                                                                              *)
 (* @param from:    Address of the token_owner whose balance is decreased.                                                                 *)
 (* @param to:      Address of the recipient whose balance is increased.                                                                   *)
 (* @param amount:  Amount of tokens to be transferred.                                                                                    *)
