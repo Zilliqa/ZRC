@@ -458,7 +458,7 @@ transition AuthorizeOperatorMultiple(tokens: List Uint64, operator: ByStr20)
 
 |        | Name       | Type          | Description                                                                                         |
 | ------ | ---------- | ------------- | --------------------------------------------------------------------------------------------------- |
-| @param | `token`    | `List Uint64` | Tokens IDs.                                                                                         |
+| @param | `tokens`   | `List Uint64` | Tokens IDs.                                                                                         |
 | @param | `operator` | `ByStr20`     | Address to be authorize as operator or re-authorize as default_operator. Cannot be calling address. |
 
 **Events/Errors:**
