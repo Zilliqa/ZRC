@@ -173,7 +173,7 @@ transition AuthorizeOperator(token: Uint64, operator: ByStr20)
 
 |        | Name       | Type      | Description                                                                                         |
 | ------ | ---------- | --------- | --------------------------------------------------------------------------------------------------- |
-| @param | `token`    | `Uint64`  | Token ID                                                                                            |
+| @param | `token`    | `Uint64`  | Token ID.                                                                                           |
 | @param | `operator` | `ByStr20` | Address to be authorize as operator or re-authorize as default_operator. Cannot be calling address. |
 
 **Events/Errors:**
@@ -196,7 +196,7 @@ transition RevokeOperator(token: Uint64, operator: ByStr20)
 
 |        | Name       | Type      | Description                      |
 | ------ | ---------- | --------- | -------------------------------- |
-| @param | `token`    | `Uint64`  | Token ID                         |
+| @param | `token`    | `Uint64`  | Token ID.                        |
 | @param | `operator` | `ByStr20` | Address to be unset as operator. |
 
 **Events/Errors:**
@@ -221,7 +221,7 @@ transition IncreaseAllowance(token: Uint64, spender: ByStr20, amount: Uint128)
 
 |        | Name      | Type      | Description                                                                     |
 | ------ | --------- | --------- | ------------------------------------------------------------------------------- |
-| @param | `token`   | `Uint64`  | Token ID                                                                        |
+| @param | `token`   | `Uint64`  | Token ID.                                                                       |
 | @param | `spender` | `ByStr20` | Address of an approved_spender.                                                 |
 | @param | `amount`  | `Uint128` | Number of tokens to be increased as spending allowance of the approved_spender. |
 
@@ -246,7 +246,7 @@ transition DecreaseAllowance(token: Uint64, spender: ByStr20, amount: Uint128)
 
 |        | Name      | Type      | Description                                                                     |
 | ------ | --------- | --------- | ------------------------------------------------------------------------------- |
-| @param | `token`   | `Uint64`  | Token ID                                                                        |
+| @param | `token`   | `Uint64`  | Token ID.                                                                       |
 | @param | `spender` | `ByStr20` | Address of an approved_spender.                                                 |
 | @param | `amount`  | `Uint128` | Number of tokens to be decreased as spending allowance of the approved_spender. |
 
