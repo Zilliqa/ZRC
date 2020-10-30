@@ -336,7 +336,7 @@ transition TransferFrom(token: Uint64, from: ByStr20, to: ByStr20, amount: Uint1
 (* @param from:        Address of the token_owner whose balance is decreased.                           *)
 (* @param to:          Address of the recipient whose balance is increased.                             *)
 (* @param amount:      Amount of tokens to be sent.                                                     *)
-transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
+transition OperatorSend(token: Uint64, from: ByStr20, to: ByStr20, amount: Uint128)
 ```
 
 **Arguments:**
