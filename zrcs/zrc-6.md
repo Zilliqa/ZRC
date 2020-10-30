@@ -363,7 +363,13 @@ transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
 | `_eventname` | `Error`               | Sending is not successful. | - emit `CodeNotApprovedOperator` if sender is not an approved operator for the token_owner <br> - emit `CodeInsufficientFunds` if the balance of the token_owner is lesser than the specified amount that is to be transferred.                                                                     |
 |              |                       |                            | - emit `CodeTokenDoesNotExist` if the token ID does not exist                                                                                                                                                                                                                                       |
 
-## V. Existing Implementation(s)
+## V. More events
+
+|              | Name           | Description          | Event Parameters                                                                          |
+| ------------ | -------------- | -------------------- | ----------------------------------------------------------------------------------------- |
+| `_eventname` | `CreatedToken` | A token was created. | `token_owner` : `ByStr20` who created the token, `token`: `Uint64` which is the token ID. |
+
+## VI. Existing Implementation(s)
 
 - [ZRC2 to ZRC6 wrapper contract](../reference/FungibleMultoToken.scilla)
 
