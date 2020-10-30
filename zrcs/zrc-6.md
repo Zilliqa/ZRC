@@ -2,6 +2,11 @@
 | --- | ---------------------------- | ------ | -------- | ------------------------------- | -------------------- |
 | 6   | Standard for Multiple Tokens | Draft  | Standard | Victor Porton <porton@narod.ru> | 2020-10-30           |
 
+TODO:
+- Multiple in events
+- URI of token (or name/symbol?!)
+- `CodeInequalLengths`
+
 ## I. What are Multiple Tokens?
 
 This standard allows a contract to "contain" both fungible (like ZRC-2) and non-fungible (like ZRC-1) tokens. Up to 2**64 tokens per single contract are supported.
