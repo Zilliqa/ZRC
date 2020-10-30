@@ -549,16 +549,16 @@ transition DecreaseAllowanceMultiple(tokens: List Uint64, spender: ByStr20, amou
 (* @param tokens:        Tokens IDs.                                                *)
 (* @param tos:  Addresses of the recipients whose balance is increased.             *)
 (* @param amounts:     Amounts of tokens to be sent.                                *)
-transition TransferMultiple(token: List Uint64, to: List ByStr20, amount: List Uint128)
+transition TransferMultiple(tokens: List Uint64, tos: List ByStr20, amounts: List Uint128)
 ```
 
 **Arguments:**
 
 |        | Name     | Type      | Description                                                    |
 | ------ | -------- | --------- | -------------------------------------------------------------- |
-| @param | `token`  | `List Uint64`  | Tokens IDs.                                               |
-| @param | `to`     | `List ByStr20` | Addresses of the recipients whose balance is to increase. |
-| @param | `amount` | `List Uint128` | Amounts of tokens to be sent.                             |
+| @param | `tokens`  | `List Uint64`  | Tokens IDs.                                               |
+| @param | `tos`     | `List ByStr20` | Addresses of the recipients whose balance is to increase. |
+| @param | `amounts` | `List Uint128` | Amounts of tokens to be sent.                             |
 
 **Messages sent:**
 
