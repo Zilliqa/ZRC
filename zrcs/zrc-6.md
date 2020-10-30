@@ -658,7 +658,7 @@ We intentionally don't provide an interface for setting a token URI, because at 
 
 ## VI. Existing Implementation(s)
 
-- [ZRC-2 to ZRC-6 wrapper contract](../reference/FungibleMultoToken.scilla)
+- [ZRC-2 to ZRC-6 wrapper contract](../reference/FungibleMultiToken.scilla)
 
 To test the reference contract, simply go to the [`example`](../example) folder and run one of the JS scripts. For example, to deploy the contract, run:
 
