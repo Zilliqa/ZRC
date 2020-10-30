@@ -386,11 +386,10 @@ transition MintMultiple(tokens: List ByStr20, recipients: List ByStr20, amounts:
 
 **Events/Errors:**
 
-|              | Name     | Description                | Event Parameters                                                                                                                                                                                                                                                                |
-| ------------ | -------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `Minted` | Minting is successful.     | `tokens` : `Uint64`, `minter` : `ByStr20`, `recipients`: `ByStr20`, `amounts`: `Uint128`, where `tokens` are the tokens IDs, `minter` is the address of the minter, `recipients` are the addresses whose balances will be increased, and `amounts` are the amounts of fungible tokens minted.  |
-| `_eventname` | `Error`  | Minting is not successful. | - emit `CodeNotOwner` if the transition is not called by the appropriate owner.                                                                                                                                                                                                 |
-|              |          |                            | - emit `CodeTokenDoesNotExist` if the token ID does not exist                                                                                                                                       |
+|              | Name     | Description                | Event Parameters                                                                                                                                                                                                                                                                              |
+| ------------ | -------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `Minted` | Minting is successful.     | `tokens` : `Uint64`, `minter` : `ByStr20`, `recipients`: `ByStr20`, `amounts`: `Uint128`, where `tokens` are the tokens IDs, `minter` is the address of the minter, `recipients` are the addresses whose balances will be increased, and `amounts` are the amounts of fungible tokens minted. |
+| `_eventname` | `Error`  | Minting is not successful. | - emit `CodeNotOwner` if the transition is not called by the appropriate owner. <br> - emit `CodeTokenDoesNotExist` if the token ID does not exist                                                                                                                                            |
 
 #### 11. BurnMultiple() (Optional)
 
