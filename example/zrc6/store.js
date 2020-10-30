@@ -22,7 +22,7 @@ async function main() {
 
 
     const ftAddrHuman = "509ae6e5d91cee3c6571dcd04aa08288a29d563a";
-    const mtAddrHuman = "e3aa085f045abb2102520b3678d54dd551a04b08";
+    const mtAddrHuman = "0e53e4a172f5be707277e555cc9ce9ce592b4bc0";
     const ftAddr = toBech32Address(ftAddrHuman);
     const mtAddr = toBech32Address(mtAddrHuman);
     const receiptAddrHuman = "BFe2445408C51CD8Ee6727541195b02c891109ee";
