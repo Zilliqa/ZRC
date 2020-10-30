@@ -656,7 +656,7 @@ This standard is deliberately not interoperable with ZRC-1, because ZRC-1 restri
 
 ## VI. Existing Implementation(s)
 
-- [ZRC2 to ZRC6 wrapper contract](../reference/FungibleMultoToken.scilla)
+- [ZRC-2 to ZRC-6 wrapper contract](../reference/FungibleMultoToken.scilla)
 
 To test the reference contract, simply go to the [`example`](../example) folder and run one of the JS scripts. For example, to deploy the contract, run:
 
