@@ -31,7 +31,7 @@ let make_error =
       | CodeIsSender              => Int32 -1
       | CodeInsufficientFunds     => Int32 -2
       | CodeInsufficientAllowance => Int32 -3
-      | CodeTokenDoesNotExist     => Int32 -4
+      | CodeTokenDoesNotExist     => Int32 -6
       end
     in
     { _exception : "Error"; code : result_code }
@@ -72,6 +72,11 @@ field allowances: Map Uint64 (Map ByStr20 (Map ByStr20 Uint128))
 
 field zrc2_to_token: Map ByStr20 Uint64 = Emp ByStr20 Uint64
 field token_to_zrc2: Map Uint64 ByStr20 = Emp Uint64 ByStr20
+
+field name : Map Uint64 String = Emp Uint64 String
+field symbol : Map Uint64 String = Emp Uint64 String
+field decimals : Map Uint64 Uint32 = Emp Uint64 Uint32
+field init_supply : Map Uint64 Uint128 = Emp Uint64 Uint128
 
 (**************************************)
 (*             Procedures             *)
@@ -130,11 +135,15 @@ end
 (*             Transitions             *)
 (***************************************)
 
-transition CreateZRC2BridgeToken(zrc2_contract: ByStr20)
+transition CreateZRC2BridgeToken(zrc2_contract: ByStr20, newName : String, newSymbol : String, newDecimals : Uint32)
   token <- max_token;
   new_max = let one = Uint64 1 in builtin add token one;
   max_token := new_max;
-  total_supply[token] := zero;
+  name[token] := newName;
+  symbol[token] := newSymbol;
+  decimals[token] := newDecimals;
+  total_supply[token] := zero; (* FIXME: https://github.com/Zilliqa/scilla/issues/901 *)
+  init_supply[token] := zero;  (* FIXME: ditto *)
   zrc2_to_token[zrc2_contract] := token;
   token_to_zrc2[token] := zrc2_contract;
   e = {_eventname : "CreatedToken"; token_owner : _sender; token: token};
