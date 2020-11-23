@@ -152,7 +152,7 @@ procedure IsTokenExists(token_id: Uint256)
 end
 
 procedure IsMinter(address: ByStr20)
-  is_minter <- exists minters[_sender];
+  is_minter <- exists minters[address];
   match is_minter with
   | True =>
   | False =>
