@@ -17,7 +17,7 @@ async function main() {
     const address = getAddressFromPrivateKey(privkey);
     console.log("Your account address is:");
     console.log(`${address}`);
-    const myGasPrice = units.toQa('1000', units.Units.Li); // Gas Price that will be used by all transactions
+    const myGasPrice = units.toQa('2000', units.Units.Li); // Gas Price that will be used by all transactions
 
     console.log("start to deploy zrc2: ");
     const code = fs.readFileSync("nonfungible-token.scilla").toString();
