@@ -206,7 +206,7 @@ transition CheckApprovedForAll(token_owner: ByStr20, operator: ByStr20)
 
 |        | Name                       | Description                                                                                                                             | Callback Parameters                                                                                 |
 | ------ | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `_tag` | `isApprovedForAllCallBack` | Check if the queried operator is an approved operator of a token_owner, throw CodeNotApprovedForAll error if that's not the case. | - |
+| `_tag` | `IsApprovedForAllCallBack` | Check if the queried operator is an approved operator of a token_owner, throw CodeNotApprovedForAll error if that's not the case. | `token_owner` of type `ByStr20` representing the address of the token owner of the NFTs, and `operator` of type `ByStr20` representing the address of the approved operator of the token owner.  |
 
 ### F. Interface Transitions
 
