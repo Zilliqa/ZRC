@@ -1,6 +1,6 @@
-| ZRC | Title                            | Status | Type     | Author                                                                                                         | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
-| --- | -------------------------------- | ------ | -------- | -------------------------------------------------------------------------------------------------------------- | -------------------- | -------------------- |
-| 1   | Standard for Non Fungible Tokens | Ready  | Standard | Edison Lim <edison@aqilliz.com> <br> Han Wen Chua <hanwen@zilliqa.com> <br> Arnav Vohra <arnav@zilliqa.com> | 2019-09-28           | 2020-05-21           |
+| ZRC | Title                            | Status | Type     | Author                                                                                                      | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
+| --- | -------------------------------- | ------ | -------- | ----------------------------------------------------------------------------------------------------------- | -------------------- | -------------------- |
+| 1   | Standard for Non Fungible Tokens | Ready  | Standard | Edison Lim <edison@aqilliz.com> <br> Han Wen Chua <hanwen@zilliqa.com> <br> Arnav Vohra <arnav@zilliqa.com> | 2019-09-28           | 2020-12-11           |
 
 ## I. What are Non Fungible Tokens?
 
@@ -37,18 +37,18 @@ The NFT contract specification describes:
 
 The NFT contract must define the following constants for use as error codes for the `Error` event.
 
-| Name                              |  Type   | Code | Description                                                     |
-| --------------------------------- | ------- | ---- | --------------------------------------------------------------- |
-| `CodeNotContractOwner`            | `Int32` | `-1` | Emit when the sender attempts a transition call only authorised for contract owner.
-| `CodeIsSelf`                      | `Int32` | `-2` | Emit when the sender attempts a transition call wrongly to his/her own address .   |
-| `CodeTokenExists`                 | `Int32` | `-3` | Emit when trying to create a token that already exists.      |
-| `CodeIsNotMinter`                 | `Int32` | `-4` | Emit when the sender is not an approved token minter.   |
-| `CodeNotApproved`                 | `Int32` | `-5` | Emit when there is no approved address for the given token id.   |
-| `CodeNotTokenOwner`               | `Int32` | `-6` | Emit when a given address is not an owner of the token.    |
-| `CodeNotFound`                    | `Int32` | `-7` | Emit when a value is missing.      |
-| `CodeNotApprovedForAll`           | `Int32` | `-8` | Emit when the address is not an operator for the token owner.    |
-| `CodeNotOwnerOrOperator`          | `Int32` | `-9` | Emit when the sender is neither a token owner nor a token operator.   |
-| `CodeNotApprovedSpenderOrOperator`| `Int32` | `-10`| Emit when the sender is neither an approved sender nor a token operator.    |
+| Name                               | Type    | Code  | Description                                                                         |
+| ---------------------------------- | ------- | ----- | ----------------------------------------------------------------------------------- |
+| `CodeNotContractOwner`             | `Int32` | `-1`  | Emit when the sender attempts a transition call only authorised for contract owner. |
+| `CodeIsSelf`                       | `Int32` | `-2`  | Emit when the sender attempts a transition call wrongly to his/her own address .    |
+| `CodeTokenExists`                  | `Int32` | `-3`  | Emit when trying to create a token that already exists.                             |
+| `CodeIsNotMinter`                  | `Int32` | `-4`  | Emit when the sender is not an approved token minter.                               |
+| `CodeNotApproved`                  | `Int32` | `-5`  | Emit when there is no approved address for the given token id.                      |
+| `CodeNotTokenOwner`                | `Int32` | `-6`  | Emit when a given address is not an owner of the token.                             |
+| `CodeNotFound`                     | `Int32` | `-7`  | Emit when a value is missing.                                                       |
+| `CodeNotApprovedForAll`            | `Int32` | `-8`  | Emit when the address is not an operator for the token owner.                       |
+| `CodeNotOwnerOrOperator`           | `Int32` | `-9`  | Emit when the sender is neither a token owner nor a token operator.                 |
+| `CodeNotApprovedSpenderOrOperator` | `Int32` | `-10` | Emit when the sender is neither an approved sender nor a token operator.            |
 
 ### C. Immutable Variables
 
@@ -60,15 +60,15 @@ The NFT contract must define the following constants for use as error codes for 
 
 ### D. Mutable Fields
 
-| Name                 | Type                             | Description                                                                                                                                     |
-| -------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `minters`            | `Map ByStr20 Unit`               | Mapping containing the addresses approved to mint NFTs.                                                                                         |
-| `token_owners`       | `Map Uint256 ByStr20`            | Mapping between token_id (that identifies each token) to its owner.                                                                             |
-| `owned_token_count`  | `Map ByStr20 Uint256`            | Mapping from token_owner to the number of NFTs he/she owns.                                                                                     |
+| Name                 | Type                             | Description                                                                                                                  |
+| -------------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `minters`            | `Map ByStr20 Unit`               | Mapping containing the addresses approved to mint NFTs.                                                                      |
+| `token_owners`       | `Map Uint256 ByStr20`            | Mapping between token_id (that identifies each token) to its owner.                                                          |
+| `owned_token_count`  | `Map ByStr20 Uint256`            | Mapping from token_owner to the number of NFTs he/she owns.                                                                  |
 | `token_approvals`    | `Map Uint256 ByStr20`            | Mapping between token_id to an approved_spender address. There can only be one approved address per token at any given time. |
-| `operator_approvals` | `Map ByStr20 (Map ByStr20 Bool)` | Mapping from token_owner to approved operators authorised by the token_owner.                                                                   |
-| `token_uris`         | `Map Uint256 String`             | Mapping from token_id to token_uri                                                                                                          |
-| `total_supply`       | `Uint256`                        | Current total supply of NFTs minted                                                                                                             |
+| `operator_approvals` | `Map ByStr20 (Map ByStr20 Bool)` | Mapping from token_owner to approved operators authorised by the token_owner.                                                |
+| `token_uris`         | `Map Uint256 String`             | Mapping from token_id to token_uri                                                                                           |
+| `total_supply`       | `Uint256`                        | Current total supply of NFTs minted                                                                                          |
 
 ### E. Getter Transitions
 
@@ -87,8 +87,8 @@ transition BalanceOf(address: ByStr20)
 
 **Messages sent:**
 
-|        | Name                | Description                                                | Callback Parameters                                                                                    |
-| ------ | ------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+|        | Name                | Description                                                | Callback Parameters                                                                                        |
+| ------ | ------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
 | `_tag` | `balanceOfCallBack` | Provide the sender the balance of the queried token_owner. | `balance` of type `Uint256` representing the current balance of NFTs owned by the queried for token_owner. |
 
 #### 2. TotalSupply()
@@ -164,8 +164,8 @@ transition getTokenURI(token_id: Uint256)
 
 **Messages sent:**
 
-|        | Name                  | Description                                           | Callback Parameters                                                           |
-| ------ | --------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------- |
+|        | Name                 | Description                                           | Callback Parameters                                                           |
+| ------ | -------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------- |
 | `_tag` | GetTokenURICallBack` | Provide the sender a token_uri of a queried token_id. | `token_uri` of type `String` representing the token_uri of a unique token_id. |
 
 #### 7. CheckTokenOwner()
@@ -184,9 +184,9 @@ transition CheckTokenOwner(token_id: Uint256, address: ByStr20)
 
 **Messages sent:**
 
-|        | Name              | Description                                                                                                                        | Callback Parameters                                                                                    |
-| ------ | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `_tag` | `IsOwnerCallBack` | Check if the queried address is the owner of the queried token_id, throw CodeNotTokenOwner error if that's not the case. | - |
+|        | Name              | Description                                                                                                              | Callback Parameters |
+| ------ | ----------------- | ------------------------------------------------------------------------------------------------------------------------ | ------------------- |
+| `_tag` | `IsOwnerCallBack` | Check if the queried address is the owner of the queried token_id, throw CodeNotTokenOwner error if that's not the case. | -                   |
 
 #### 8. CheckApprovedForAll()
 
@@ -204,9 +204,9 @@ transition CheckApprovedForAll(token_owner: ByStr20, operator: ByStr20)
 
 **Messages sent:**
 
-|        | Name                       | Description                                                                                                                             | Callback Parameters                                                                                 |
-| ------ | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `_tag` | `isApprovedForAllCallBack` | Check if the queried operator is an approved operator of a token_owner, throw CodeNotApprovedForAll error if that's not the case. | - |
+|        | Name                       | Description                                                                                                                       | Callback Parameters                                                                                                                                                                             |
+| ------ | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `IsApprovedForAllCallBack` | Check if the queried operator is an approved operator of a token_owner, throw CodeNotApprovedForAll error if that's not the case. | `token_owner` of type `ByStr20` representing the address of the token owner of the NFTs, and `operator` of type `ByStr20` representing the address of the approved operator of the token owner. |
 
 ### F. Interface Transitions
 
@@ -256,9 +256,9 @@ transition Mint(to: ByStr20, token_id: Uint256, token_uri: String)
 
 **Events:**
 
-|              | Name          | Description                | Event Parameters                                                                                                                                                                                                                                                                                              |
-| ------------ | ------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `MintSuccess` | Minting is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, `token_uri`: `String`, where `by` is the address of caller,`recipient` is the `to` address the token is sent to, `token_id` is the unique token_id of the new NFT to be minted, and `token_uri` is the token URI of the new NFT to be minted. |
+|              | Name          | Description            | Event Parameters                                                                                                                                                                                                                                                                                              |
+| ------------ | ------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `MintSuccess` | Minting is successful. | `by`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, `token_uri`: `String`, where `by` is the address of caller,`recipient` is the `to` address the token is sent to, `token_id` is the unique token_id of the new NFT to be minted, and `token_uri` is the token URI of the new NFT to be minted. |
 
 #### 3. Burn()
 
@@ -284,9 +284,9 @@ transition Burn(tokenId: Uint256)
 
 **Events:**
 
-|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                                                            |
-| --------- | ------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `BurnSuccess` | Burning is successful.     | `initiator`: `ByStr20`, `burn_address`: `ByStr20`, `token_id`: `Uint256`, where, `initiator` is the address of caller, `burn_address` is the address of the token_owner whose NFT is being burned, and `token_id` is the unique token_id of the token that has been burned. |
+|           | Name          | Description            | Event Parameters                                                                                                                                                                                                                                                            |
+| --------- | ------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `BurnSuccess` | Burning is successful. | `initiator`: `ByStr20`, `burn_address`: `ByStr20`, `token_id`: `Uint256`, where, `initiator` is the address of caller, `burn_address` is the address of the token_owner whose NFT is being burned, and `token_id` is the unique token_id of the token that has been burned. |
 
 #### 4. SetApprove()
 
@@ -307,8 +307,8 @@ transition SetApprove(to: ByStr20, token_id: Uint256)
 
 **Messages sent:**
 
-|        | Name                            | Description                                                            | Callback Parameters                                                                                                                                                                                                                                                           |
-| ------ | ------------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|        | Name                            | Description                                                            | Callback Parameters                                                                                                                                                                                       |
+| ------ | ------------------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_tag` | `AddApprovalSuccessCallBack`    | Provide the sender the status of the approval for an approved_spender. | `approved_spender`: `ByStr20`, `token_id`: `Uint256`, where `approved_spender` is address to be set as an approved_spender of a given token_id, and `token_id` is the unique token_id of an existing NFT. |
 | `_tag` | `RemoveApprovalSuccessCallBack` | Provide the sender the status of the approval for an approved_spender. | `removed_spender`: `ByStr20`, `token_id`: `Uint256`, where `removed_spender` is address to be set as an removed_spender of a given token_id, and `token_id` is the unique token_id of an existing NFT.    |
 
@@ -329,9 +329,9 @@ transition SetApprovalForAll(to: ByStr20)
 
 **Arguments:**
 
-|        | Name       | Type      | Description                             |
-| ------ | ---------- | --------- | --------------------------------------- |
-| @param | `to`       | `ByStr20` | Address to be set or unset as operator. |
+|        | Name | Type      | Description                             |
+| ------ | ---- | --------- | --------------------------------------- |
+| @param | `to` | `ByStr20` | Address to be set or unset as operator. |
 
 **Messages sent:**
 
@@ -341,10 +341,10 @@ transition SetApprovalForAll(to: ByStr20)
 
 **Events:**
 
-|           | Name                       | Description                                        | Event Parameters                                                                                                                                                        |
-| --------- | -------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `AddApprovalForAllSuccess` | Addition of an operator's status is successful.     | `initiator`: `ByStr20`, `operator`: `ByStr20`, where `initiator` is the address of the \_sender, and `operator` is the address of the approved_spender which was added. |
-| eventName | `RemoveApprovalForAllSuccess` | Removal of an operator's status is successful.     | `initiator`: `ByStr20`, `operator`: `ByStr20`, where `initiator` is the address of the \_sender, and `operator` is the address of the approved_spender which was removed. |
+|           | Name                          | Description                                     | Event Parameters                                                                                                                                                          |
+| --------- | ----------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `AddApprovalForAllSuccess`    | Addition of an operator's status is successful. | `initiator`: `ByStr20`, `operator`: `ByStr20`, where `initiator` is the address of the \_sender, and `operator` is the address of the approved_spender which was added.   |
+| eventName | `RemoveApprovalForAllSuccess` | Removal of an operator's status is successful.  | `initiator`: `ByStr20`, `operator`: `ByStr20`, where `initiator` is the address of the \_sender, and `operator` is the address of the approved_spender which was removed. |
 
 #### 6. Transfer()
 
@@ -371,8 +371,8 @@ transition Transfer(to: ByStr20, token_id: Uint256)
 
 **Events:**
 
-|           | Name                  | Description                    | Event Parameters                                                                                                                                                                                              |
-| --------- | --------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|           | Name              | Description                    | Event Parameters                                                                                                                                                                                              |
+| --------- | ----------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | eventName | `TransferSuccess` | Transfer of NFT is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the \_sender address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |
 
 #### 7. TransferFrom()
@@ -393,16 +393,16 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
 
 **Messages sent:**
 
-|        | Name                  | Description                                                           | Callback Parameters                                                                                                                                                                                              |
-| ------ | --------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|        | Name                          | Description                                                 | Callback Parameters                                                                                                                                                                                              |
+| ------ | ----------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_tag` | `RecipientAcceptTransferFrom` | Provide the recipient the status of the transfer of an NFT. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the token_owner address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |
-| `_tag` | `TransferFromSuccessCallBack` | Provide the sender the status of the transfer of an NFT.                                                                                | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the token_owner address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |
+| `_tag` | `TransferFromSuccessCallBack` | Provide the sender the status of the transfer of an NFT.    | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the token_owner address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |
 
 **Events:**
 
 |           | Name                  | Description                    | Event Parameters                                                                                                                                                                                                 |
-| --------- | --------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `TransferFromSuccess` | Transfer of NFT is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the token_owner address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |                                      |
+| --------- | --------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| eventName | `TransferFromSuccess` | Transfer of NFT is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the token_owner address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |     |
 
 ## V. Existing Implementation(s)
 

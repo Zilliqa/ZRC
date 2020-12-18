@@ -319,7 +319,8 @@ end
 (* @dev: Check if address is operator for token_owner *)
 transition CheckApprovedForAll(token_owner: ByStr20, operator: ByStr20)
   IsApprovedForAll token_owner operator;
-  msg_to_sender = { _tag : "IsApprovedForAllCallBack"; _recipient : _sender; _amount : Uint128 0};
+  msg_to_sender = { _tag : "IsApprovedForAllCallBack"; _recipient : _sender; _amount : Uint128 0;
+                    token_owner : token_owner; operator : operator};
   msgs = one_msg msg_to_sender;
   send msgs
 end
@@ -440,18 +441,25 @@ transition SetApprove(to: ByStr20, token_id: Uint256)
     ThrowError err
   | Some token_owner =>
     IsOwnerOrOperator token_owner;
-    is_approved <- exists token_approvals[token_id];
+    is_approved <- token_approvals[token_id];
     match is_approved with
-    | True =>
+    | Some approved_spender =>
       (* Remove approved_spender *)
-      delete token_approvals[token_id];
-      e = {_eventname: "RemoveApprovalSuccess"; initiator: _sender; removed_spender: to; token_id: token_id};
-      event e;
-      msg_to_sender = { _tag : "RemoveApprovalSuccessCallBack"; _recipient : _sender; _amount : Uint128 0; 
-                        removed_spender : to; token_id : token_id };
-      msgs = one_msg msg_to_sender;
-      send msgs
-    | False =>
+      is_approved_spender = builtin eq to approved_spender;
+      match is_approved_spender with
+      | True =>
+        delete token_approvals[token_id];
+        e = {_eventname: "RemoveApprovalSuccess"; initiator: _sender; removed_spender: to; token_id: token_id};
+        event e;
+        msg_to_sender = { _tag : "RemoveApprovalSuccessCallBack"; _recipient : _sender; _amount : Uint128 0; 
+                          removed_spender : to; token_id : token_id };
+        msgs = one_msg msg_to_sender;
+        send msgs
+      | False =>
+        err = CodeNotApproved;
+        ThrowError err
+      end
+    | None =>
       (* Add approved_spender *)
       token_approvals[token_id] := to;
       e = {_eventname: "AddApprovalSuccess"; initiator: _sender; approved_spender: to; token_id: token_id};
