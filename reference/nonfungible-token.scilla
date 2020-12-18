@@ -114,6 +114,9 @@ field token_uris: Map Uint256 String = Emp Uint256 String
 (* Total token count *)
 field total_supply: Uint256 = Uint256 0
 
+(* Used token id *)
+field token_id_count: Uint256 = Uint256 0
+
 
 (* Emit Errors *)
 procedure ThrowError(err : Error)
@@ -355,7 +358,10 @@ procedure Minting(input_pair: Pair ByStr20 String)
   new_supply = builtin add current_supply one;
   total_supply := new_supply;
   (* Initiate token_id and check if exists *)
-  token_id = new_supply;
+  current_token_id_count <- token_id_count;
+  new_token_id_count = builtin add current_token_id_count one;
+  token_id_count := new_token_id_count;
+  token_id = new_token_id_count;
   IsTokenExists token_id;
   (* Mint new non-fungible token *)
   token_owners[token_id] := to;
@@ -372,7 +378,7 @@ end
 transition Mint(to: ByStr20, token_uri: String)
   input_pair = build_pair to token_uri;
   Minting input_pair;
-  token_id <- total_supply;
+  token_id <- token_id_count;
   msg_to_recipient = { _tag : "RecipientAcceptMint"; _recipient : to; _amount : Uint128 0 };
   msg_to_sender = { _tag : "MintCallBack"; _recipient : _sender; _amount : Uint128 0;
                     recipient : _sender; token_id : token_id; token_uri : token_uri };
