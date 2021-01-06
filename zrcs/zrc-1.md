@@ -237,7 +237,7 @@ transition ConfigureMinter(minter: ByStr20)
 (* @dev:    Mint new tokens. Only minters can mint.           *)
 (* @param:  to        - Address of the token recipient        *)
 (* @param:  token_uri - URI of the the new token to be minted *)
-transition Mint(to: ByStr20, token_id: Uint256, token_uri: String)
+transition Mint(to: ByStr20, token_uri: String)
 ```
 
 **Arguments:**
