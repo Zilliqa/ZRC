@@ -11,7 +11,7 @@ Your first PR should be a first draft of the final ZRC. An editor will manually 
 
 If your ZRC requires images, the image files should be included in a subdirectory of the assets folder for that ZRC as follow: `assets/zrc-X` (for zrc X). When linking to an image in the ZRC, use relative links such as `../assets/zrc-X/image.png`.
 
-When you believe your ZRC is ready to progress past the 'Draft' phase, you should go to our [Zilliqa Official Discord](https://discord.gg/8tpGXrB) server and ask to have your issue added to the next community dev call where it can be discussed for inclusion in a future platform upgrade. If the community agrees to include it, the ZRC editors will update the state of your ZRC to 'Approved'.
+When you believe your ZRC is ready to progress past the 'Draft' phase, you should go to our [Zilliqa Official Discord](https://discord.gg/XMRE9tt) server and ask to have your issue added to the next community dev call where it can be discussed for inclusion in a future platform upgrade. If the community agrees to include it, the ZRC editors will update the state of your ZRC to 'Approved'.
 
 # ZRC Status
 1. **Draft** - a preliminary version of the ZRC that is not yet ready for submission.

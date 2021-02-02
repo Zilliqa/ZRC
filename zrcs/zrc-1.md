@@ -1,6 +1,6 @@
-| ZRC | Title                            | Status | Type     | Author                             | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
-| --- | -------------------------------- | ------ | -------- | ---------------------------------- | -------------------- | -------------------- |
-| 1   | Standard for Non Fungible Tokens | Ready  | Standard | Gareth Mensah <gareth@zilliqa.com>, Vaivaswatha Nagaraj <vaivaswatha@zilliqa.com> | 2019-09-28           | 2019-10-09           |
+| ZRC | Title                            | Status | Type     | Author                                                                                                      | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
+| --- | -------------------------------- | ------ | -------- | ----------------------------------------------------------------------------------------------------------- | -------------------- | -------------------- |
+| 1   | Standard for Non Fungible Tokens | Ready  | Standard | Edison Lim <edison@aqilliz.com> <br> Han Wen Chua <hanwen@zilliqa.com> <br> Arnav Vohra <arnav@zilliqa.com> | 2019-09-28           | 2020-12-11           |
 
 ## I. What are Non Fungible Tokens?
 
@@ -25,161 +25,396 @@ The NFT contract specification describes:
 
 ### A. Roles
 
-| Name              | Description                                                                                                                                                                                                                      |     |
-| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
-| `contractOwner`   | The owner of the contract initialized by the creator of the contract.                                                                                                                                                            |
-| `tokenOwner`      | A user (identified by an address) that owns a token tied to a tokenId.                                                                                                                                                           |
-| `approvedSpender` | A user (identified by an address) that can transfer a token tied to a tokenId on behalf of the `tokenOwner`.                                                                                                                     |
-| `operator`        | A user (identified by an address) that is approved to operate all and any tokens owned by another user (identified by another address). The operators can make any transfer, approve, or burn the tokens on behalf of that user. |
+| Name               | Description                                                                                                                                                                                                                      |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `contract_owner`   | The owner of the contract initialized by the creator of the contract.                                                                                                                                                            |
+| `token_owner`      | A user (identified by an address) that owns a token tied to a token_id.                                                                                                                                                          |
+| `approved_spender` | A user (identified by an address) that can transfer a token tied to a token_id on behalf of the token_owner.                                                                                                                     |
+| `minter`           | A user (identified by an address) that is approved by the contract_owner to mint NFTs.                                                                                                                                           |
+| `operator`         | A user (identified by an address) that is approved to operate all and any tokens owned by another user (identified by another address). The operators can make any transfer, approve, or burn the tokens on behalf of that user. |
 
 ### B. Error Codes
 
 The NFT contract must define the following constants for use as error codes for the `Error` event.
 
-| Name                  | Type    | Code | Description                                                     |
-| --------------------- | ------- | ---- | --------------------------------------------------------------- |
-| `CodeNotAuthorised`   | `Int32` | `-1` | Emit when the transition call is unauthorised for a given user. |
-| `CodeNotFound`        | `Int32` | `-2` | Emit when a value is missing.                                   |
-| `CodeTokenExists`     | `Int32` | `-3` | Emit when trying to create a token that already exists.         |
-| `CodeUnexpectedError` | `Int32` | `-4` | Emit when the transition call runs into an unexpected error.    |
+| Name                               | Type    | Code  | Description                                                                         |
+| ---------------------------------- | ------- | ----- | ----------------------------------------------------------------------------------- |
+| `CodeNotContractOwner`             | `Int32` | `-1`  | Emit when the sender attempts a transition call only authorised for contract owner. |
+| `CodeIsSelf`                       | `Int32` | `-2`  | Emit when the sender attempts a transition call wrongly to his/her own address .    |
+| `CodeTokenExists`                  | `Int32` | `-3`  | Emit when trying to create a token that already exists.                             |
+| `CodeIsNotMinter`                  | `Int32` | `-4`  | Emit when the sender is not an approved token minter.                               |
+| `CodeNotApproved`                  | `Int32` | `-5`  | Emit when there is no approved address for the given token id.                      |
+| `CodeNotTokenOwner`                | `Int32` | `-6`  | Emit when a given address is not an owner of the token.                             |
+| `CodeNotFound`                     | `Int32` | `-7`  | Emit when a value is missing.                                                       |
+| `CodeNotApprovedForAll`            | `Int32` | `-8`  | Emit when the address is not an operator for the token owner.                       |
+| `CodeNotOwnerOrOperator`           | `Int32` | `-9`  | Emit when the sender is neither a token owner nor a token operator.                 |
+| `CodeNotApprovedSpenderOrOperator` | `Int32` | `-10` | Emit when the sender is neither an approved sender nor a token operator.            |
 
 ### C. Immutable Variables
 
-| Name            | Type      | Description                                                           |
-| --------------- | --------- | --------------------------------------------------------------------- |
-| `contractOwner` | `ByStr20` | The owner of the contract initialized by the creator of the contract. |
-| `name`          | `String`  | The name of the non-fungible token.                                   |
-| `symbol`        | `String`  | The symbol of the non-fungible token.                                 |
+| Name             | Type      | Description                                                           |
+| ---------------- | --------- | --------------------------------------------------------------------- |
+| `contract_owner` | `ByStr20` | The owner of the contract initialized by the creator of the contract. |
+| `name`           | `String`  | The name of the non-fungible token.                                   |
+| `symbol`         | `String`  | The symbol of the non-fungible token.                                 |
 
 ### D. Mutable Fields
 
-| Name                | Type                                                              | Description                                                                                                                                                           |
-| ------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tokenOwnerMap`     | `Map Uint256 ByStr20 = Emp Uint256 ByStr20`                       | Mapping between `tokenId` (that identifies each token) to its owner.                                                                                                  |
-| `ownedTokenCount`   | `Map ByStr20 Uint256 = Emp ByStr20 Uint256`                       | Mapping from token owner to number of owned tokens.                                                                                                                   |
-| `tokenApprovals`    | `Map Uint256 ByStr20 = Emp Uint256 ByStr20`                       | Mapping between tokenId to approved address. Token owner can approve an address (as an operator) to transfer a particular token (given a tokenId) to other addresses. |
-| `operatorApprovals` | `Map ByStr20 (Map ByStr20 Bool) = Emp ByStr20 (Map ByStr20 Bool)` | Mapping from token owner to operator approvals.                                                                                                                       |
+| Name                 | Type                             | Description                                                                                                                  |
+| -------------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `minters`            | `Map ByStr20 Unit`               | Mapping containing the addresses approved to mint NFTs.                                                                      |
+| `token_owners`       | `Map Uint256 ByStr20`            | Mapping between token_id (that identifies each token) to its owner.                                                          |
+| `owned_token_count`  | `Map ByStr20 Uint256`            | Mapping from token_owner to the number of NFTs he/she owns.                                                                  |
+| `token_approvals`    | `Map Uint256 ByStr20`            | Mapping between token_id to an approved_spender address. There can only be one approved address per token at any given time. |
+| `operator_approvals` | `Map ByStr20 (Map ByStr20 Bool)` | Mapping from token_owner to approved operators authorised by the token_owner.                                                |
+| `token_uris`         | `Map Uint256 String`             | Mapping from token_id to token_uri                                                                                           |
+| `total_supply`       | `Uint256`                        | Current total supply of NFTs minted                                                                                          |
 
-### E. Transitions
+### E. Getter Transitions
 
-#### 1. Mint
-
-```ocaml
-(* @dev:    Mint new tokens. Only contractOwner can mint. *)
-(* @param:  to      - Address of the token recipient      *)
-(* @param:  tokenId - ID of the new token minted          *)
-(* Returns error message CodeTokenExists if token exists. *)
-(* Revert transition if invalid recipient contract.       *)
-transition mint(to: ByStr20, tokenId: Uint256)
-```
-
-|        | Name      | Type      | Description                                          |
-| ------ | --------- | --------- | ---------------------------------------------------- |
-| @param | `to`      | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `tokenId` | `Uint256` | Token id of the new to be minted.                    |
-
-|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
-| --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `MintSuccess` | Minting is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller,`recipient` is the `to` address the token is sent, and `token` is the `tokenId` of the token minted.                             |
-| eventName | `Error`       | Minting is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only the `contractOwner` is allowed to call this transition. |
-
-#### 2. Burn
+#### 1. BalanceOf()
 
 ```ocaml
-(* @dev:    Burn existing tokens. Only tokenOwner or approved operator can burn a token *)
-(* @param:  tokenId - ID of the new token destroyed                                     *)
-(* Returns error message CodeNotFound if token does not exists                          *)
-transition burn(tokenId: Uint256)
+(* @dev: Get number of NFTs assigned to a token_owner *)
+transition BalanceOf(address: ByStr20)
 ```
 
-|        | Name      | Type      | Description                         |
-| ------ | --------- | --------- | ----------------------------------- |
-| @param | `tokenId` | `Uint256` | Token id of the token to be burned. |
+**Arguments:**
 
-|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                                               |
-| --------- | ------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `BurnSuccess` | Burning is successful.     | `by`: `ByStr20`, `token`: `Uint256`, where, `by` is the address of caller and `token` is the `tokenID` of the token that has been burned.                                                                                                                      |
-| eventName | `Error`       | Burning is not successful. | - emit `CodeNotFound` if the token does not exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only either the `tokenOwner` or approved `operator`(s) is allowed to call this transition. |
+|        | Name      | Type      | Description                                     |
+| ------ | --------- | --------- | ----------------------------------------------- |
+| @param | `address` | `ByStr20` | Address of the token_owner to check balance of. |
 
-#### 3. Approve
+**Messages sent:**
+
+|        | Name                | Description                                                | Callback Parameters                                                                                        |
+| ------ | ------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `_tag` | `balanceOfCallBack` | Provide the sender the balance of the queried token_owner. | `balance` of type `Uint256` representing the current balance of NFTs owned by the queried for token_owner. |
+
+#### 2. TotalSupply()
 
 ```ocaml
-(* @dev: Approves another address the ability to transfer the given tokenId *)
-(* There can only be one approvedSpender per token at a given time          *)
-(* Absence of entry in tokenApproval indicates there is no approved address *)
-(* param: to      - Address to be approved for the given tokenId            *)
-(* param: tokenId - ID of the token to be approved                          *)
-transition approve(to: ByStr20, tokenId: Uint256)
+(* @dev: Get total supply of NFTs minted *)
+transition TotalSupply()
 ```
 
-|        | Name      | Type      | Description                                    |
-| ------ | --------- | --------- | ---------------------------------------------- |
-| @param | `to`      | `ByStr20` | Address to be approved for the given token id. |
-| @param | `tokenId` | `Uint256` | ID of the token to be approved.                |
+**Messages sent:**
 
-|           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
-| --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `ApproveSuccess` | Approval is successful.     | `from`: `ByStr20`, `approvedTo`: `ByStr20`, `token`: `Uint256`, where `from` is the address of the caller, and `approvedTo` is argument `to` to the transition.                                                                                               |
-| eventName | `Error`          | Approval is not successful. | - emit `CodeNotFound` if token doesn't exist.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not authorized to approve. <br>**NOTE:** Only either the `tokenOwner` or approved `operator`(s) are allowed to call this transition. |
+|        | Name                  | Description                                                 | Callback Parameters                                                                    |
+| ------ | --------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `_tag` | `TotalSupplyCallBack` | Provide the sender the current total supply of NFTs minted. | `total_supply` of type `Uint256` representing the current total supply of NFTs minted. |
 
-#### 4. SetApprovalForAll
+#### 3. Name()
 
 ```ocaml
-(* @dev: Sets or unsets the approval of a given operator           *)
-(* @param: to       - Address to be set or unset as operator       *)
-(* @param: approved - Status of approval to be set for the address *)
-transition setApprovalForAll(to: ByStr20, approved: Bool)
+(* @dev: Get name of the NFTs *)
+transition Name()
 ```
+
+**Messages sent:**
+
+|        | Name           | Description                                      | Callback Parameters                                                |
+| ------ | -------------- | ------------------------------------------------ | ------------------------------------------------------------------ |
+| `_tag` | `NameCallBack` | Provide the sender the current name of the NFTs. | `name` of type `String` representing the current name of the NFTs. |
+
+#### 4. Symbol()
+
+```ocaml
+(* @dev: Get name of the NFTs *)
+transition Symbol()
+```
+
+**Messages sent:**
+
+|        | Name             | Description                                        | Callback Parameters                                                    |
+| ------ | ---------------- | -------------------------------------------------- | ---------------------------------------------------------------------- |
+| `_tag` | `SymbolCallBack` | Provide the sender the current symbol of the NFTs. | `symbol` of type `String` representing the current symbol of the NFTs. |
+
+#### 5. GetApproved()
+
+```ocaml
+(* @dev: Get approved_addr for token_id *)
+transition GetApproved(token_id: Uint256)
+```
+
+**Arguments:**
+
+|        | Name       | Type      | Description                    |
+| ------ | ---------- | --------- | ------------------------------ |
+| @param | `token_id` | `Uint256` | A token_id that to be queried. |
+
+**Messages sent:**
+
+|        | Name                  | Description                                                                                              | Callback Parameters                                                                                                                                                                         |
+| ------ | --------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `GetApprovedCallBack` | Provide the sender an address of the approved_spender address for the queried token_id and the token_id. | `approved_addr` of type `ByStr20` representing the address of the approved_spender for the token_id, and `token_id` of type `Uint256` representing the unique token_id of that queried NFT. |
+
+#### 6. GetTokenURI()
+
+```ocaml
+(* @dev: Get the token_uri of a certain token_id *)
+transition getTokenURI(token_id: Uint256)
+```
+
+**Arguments:**
+
+|        | Name       | Type      | Description                    |
+| ------ | ---------- | --------- | ------------------------------ |
+| @param | `token_id` | `Uint256` | A token_id that to be queried. |
+
+**Messages sent:**
+
+|        | Name                 | Description                                           | Callback Parameters                                                           |
+| ------ | -------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `_tag` | GetTokenURICallBack` | Provide the sender a token_uri of a queried token_id. | `token_uri` of type `String` representing the token_uri of a unique token_id. |
+
+#### 7. CheckTokenOwner()
+
+```ocaml
+(* @dev: Check if a token_id is owned by a token_owner *)
+transition CheckTokenOwner(token_id: Uint256, address: ByStr20)
+```
+
+**Arguments:**
+
+|        | Name       | Type      | Description                      |
+| ------ | ---------- | --------- | -------------------------------- |
+| @param | `token_id` | `Uint256` | A token_id that will be queried. |
+| @param | `address`  | `ByStr20` | An address that will be queried. |
+
+**Messages sent:**
+
+|        | Name              | Description                                                                                                              | Callback Parameters |
+| ------ | ----------------- | ------------------------------------------------------------------------------------------------------------------------ | ------------------- |
+| `_tag` | `IsOwnerCallBack` | Check if the queried address is the owner of the queried token_id, throw CodeNotTokenOwner error if that's not the case. | -                   |
+
+#### 8. CheckApprovedForAll()
+
+```ocaml
+(* @dev: Check if address is operator for token_owner *)
+transition CheckApprovedForAll(token_owner: ByStr20, operator: ByStr20)
+```
+
+**Arguments:**
+
+|        | Name          | Type      | Description                      |
+| ------ | ------------- | --------- | -------------------------------- |
+| @param | `token_owner` | `ByStr20` | An address that will be queried. |
+| @param | `operator`    | `ByStr20` | An address that will be queried. |
+
+**Messages sent:**
+
+|        | Name                       | Description                                                                                                                       | Callback Parameters                                                                                                                                                                             |
+| ------ | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `IsApprovedForAllCallBack` | Check if the queried operator is an approved operator of a token_owner, throw CodeNotApprovedForAll error if that's not the case. | `token_owner` of type `ByStr20` representing the address of the token owner of the NFTs, and `operator` of type `ByStr20` representing the address of the approved operator of the token owner. |
+
+### F. Interface Transitions
+
+#### 1. ConfigureMinter()
+
+```ocaml
+(* @dev:    Add or remove approved minters. Only contract_owner can approve minters. *)
+(* @param:  minter      - Address of the minter to be approved or removed            *)
+transition ConfigureMinter(minter: ByStr20)
+```
+
+**Arguments:**
+
+|        | Name     | Type      | Description                                                      |
+| ------ | -------- | --------- | ---------------------------------------------------------------- |
+| @param | `minter` | `ByStr20` | An address that will be approved or removed as a minter of NFTs. |
+
+**Events:**
+
+|              | Name                   | Description                    | Event Parameters                                                                |
+| ------------ | ---------------------- | ------------------------------ | ------------------------------------------------------------------------------- |
+| `_eventname` | `RemovedMinterSuccess` | Removing minter is successful. | `minter`: `ByStr20`, where `minter` is the address removed as a minter of NFTs. |
+| `_eventname` | `AddMinterSuccess`     | Adding minter is successful.   | `minter`: `ByStr20`, where `minter` is the address added as a minter of NFTs.   |
+
+#### 2. Mint()
+
+```ocaml
+(* @dev:    Mint new tokens. Only minters can mint.           *)
+(* @param:  to        - Address of the token recipient        *)
+(* @param:  token_uri - URI of the the new token to be minted *)
+transition Mint(to: ByStr20, token_uri: String)
+```
+
+**Arguments:**
+
+|        | Name        | Type      | Description                                       |
+| ------ | ----------- | --------- | ------------------------------------------------- |
+| @param | `to`        | `ByStr20` | Address of the recipient of the NFT to be minted. |
+| @param | `token_uri` | `Uint256` | Token URI of the NFT to be minted.                |
+
+**Messages sent:**
+
+|        | Name                  | Description                                           | Callback Parameters                                                                                                                                                                                                                    |
+| ------ | --------------------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `RecipientAcceptMint` | Dummy callback to prevent invalid recipient contract. |                                                                                                                                                                                                                                        |
+| `_tag` | `MintCallBack`        | Provide the sender the status of the mint.            | `recipient`: `ByStr20`, `token_id`: `Uint256`, `token_uri`: `String`, where `to` is the address of the recipient, `token_id` is the unique token_id of the NFT to be minted, and `token_uri` is the token URI of the NFT to be minted. |
+
+**Events:**
+
+|              | Name          | Description            | Event Parameters                                                                                                                                                                                                                                                                                              |
+| ------------ | ------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `MintSuccess` | Minting is successful. | `by`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, `token_uri`: `String`, where `by` is the address of caller,`recipient` is the `to` address the token is sent to, `token_id` is the unique token_id of the new NFT to be minted, and `token_uri` is the token URI of the new NFT to be minted. |
+
+#### 3. Burn()
+
+```ocaml
+(* @dev:    Burn existing tokens. Only token_owner or an approved operator can burn a NFT. *)
+(* @param:  token_id - Unique ID of the NFT to be destroyed                                *)
+(* Returns error event CodeNotFound if token does not exists.                              *)
+(* Returns error event CodeNotAuthorised if _sender is not token_owner or operator.        *)
+transition Burn(tokenId: Uint256)
+```
+
+**Arguments:**
+
+|        | Name       | Type      | Description                                         |
+| ------ | ---------- | --------- | --------------------------------------------------- |
+| @param | `token_id` | `Uint256` | Unique token_id of an existing NFT to be destroyed. |
+
+**Messages sent:**
+
+|        | Name           | Description                                | Callback Parameters                                                                                                                                                                                                                                                                  |
+| ------ | -------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `_tag` | `BurnCallBack` | Provide the sender the status of the burn. | `initiator`: `ByStr20`, `burn_address`: `ByStr20`, `token_id`: `Uint256`, where `initiator` is the address of the burner, `to` is the address of the recipient, `token_id` is the unique token_id of the NFT to be minted, and `token_uri` is the token URI of the NFT to be minted. |
+
+**Events:**
+
+|           | Name          | Description            | Event Parameters                                                                                                                                                                                                                                                            |
+| --------- | ------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `BurnSuccess` | Burning is successful. | `initiator`: `ByStr20`, `burn_address`: `ByStr20`, `token_id`: `Uint256`, where, `initiator` is the address of caller, `burn_address` is the address of the token_owner whose NFT is being burned, and `token_id` is the unique token_id of the token that has been burned. |
+
+#### 4. SetApprove()
+
+```ocaml
+(* @dev: Approves OR remove an address ability to transfer a given token_id *)
+(* There can only be one approved_spender per token at any given time       *)
+(* param: to       - Address to be approved for the given token_id          *)
+(* param: token_id - Unique ID of the NFT to be approved                    *)
+transition SetApprove(to: ByStr20, token_id: Uint256)
+```
+
+**Arguments:**
+
+|        | Name       | Type      | Description                                                   |
+| ------ | ---------- | --------- | ------------------------------------------------------------- |
+| @param | `to`       | `ByStr20` | Address to be set as an approved_spender of a given token_id. |
+| @param | `token_id` | `Uint256` | Unique token_id of an existing NFT.                           |
+
+**Messages sent:**
+
+|        | Name                            | Description                                                            | Callback Parameters                                                                                                                                                                                       |
+| ------ | ------------------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `AddApprovalSuccessCallBack`    | Provide the sender the status of the approval for an approved_spender. | `approved_spender`: `ByStr20`, `token_id`: `Uint256`, where `approved_spender` is address to be set as an approved_spender of a given token_id, and `token_id` is the unique token_id of an existing NFT. |
+| `_tag` | `RemoveApprovalSuccessCallBack` | Provide the sender the status of the approval for an approved_spender. | `removed_spender`: `ByStr20`, `token_id`: `Uint256`, where `removed_spender` is address to be set as an removed_spender of a given token_id, and `token_id` is the unique token_id of an existing NFT.    |
+
+**Events:**
+
+|           | Name                    | Description                                 | Event Parameters                                                                                                                                                                                                                                                              |
+| --------- | ----------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `AddApprovalSuccess`    | Adding of approved_spender is successful.   | `initiator`: `ByStr20`, `approved_spender`: `ByStr20`, `token_id`: `Uint256`, where `initiator` is the address of the \_sender, `approved_spender` is address to be set as an approved_spender of a given token_id, and `token_id` is the unique token_id of an existing NFT. |
+| eventName | `RemoveApprovalSuccess` | Removing of approved_spender is successful. | `initiator`: `ByStr20`, `removed_spender`: `ByStr20`, `token_id`: `Uint256`, where `initiator` is the address of the \_sender, `removed_spender` is address to removed as an approved_spender of a given token_id, and `token_id` is the unique token_id of an existing NFT.  |
+
+#### 5. SetApprovalForAll()
+
+```ocaml
+(* @dev: Sets or unsets an operator for the _sender       *)
+(* @param: to - Address to be set or unset as an operator *)
+transition SetApprovalForAll(to: ByStr20)
+```
+
+**Arguments:**
+
+|        | Name | Type      | Description                             |
+| ------ | ---- | --------- | --------------------------------------- |
+| @param | `to` | `ByStr20` | Address to be set or unset as operator. |
+
+**Messages sent:**
+
+|        | Name                               | Description                                                   | Callback Parameters                                                                                                                                                     |
+| ------ | ---------------------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `SetApprovalForAllSuccessCallBack` | Provide the sender the status of the approval of an operator. | `operator`: `ByStr20`, `status`: `Bool`, where `operator` is the address of the approved_spender whose status was being set, and `status` is status it is being set to. |
+
+**Events:**
+
+|           | Name                          | Description                                     | Event Parameters                                                                                                                                                          |
+| --------- | ----------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `AddApprovalForAllSuccess`    | Addition of an operator's status is successful. | `initiator`: `ByStr20`, `operator`: `ByStr20`, where `initiator` is the address of the \_sender, and `operator` is the address of the approved_spender which was added.   |
+| eventName | `RemoveApprovalForAllSuccess` | Removal of an operator's status is successful.  | `initiator`: `ByStr20`, `operator`: `ByStr20`, where `initiator` is the address of the \_sender, and `operator` is the address of the approved_spender which was removed. |
+
+#### 6. Transfer()
+
+```ocaml
+(* @dev: Transfer the ownership of a given token_id to another address. token_owner only transition. *)
+(* @param: to       - Recipient address for the token                                                *)
+(* @param: token_id - Unique ID of the NFT to be transferred                                         *)
+transition Transfer(to: ByStr20, token_id: Uint256)
+```
+
+**Arguments:**
 
 |        | Name       | Type      | Description                             |
 | ------ | ---------- | --------- | --------------------------------------- |
-| @param | `to`       | `ByStr20` | Address to be set or unset as operator. |
-| @param | `approved` | `Bool`    | Status of the approval to be set.       |
+| @param | `to`       | `ByStr20` | Recipient address of the NFT.           |
+| @param | `token_id` | `Uint256` | Unique ID of the NFT to be transferred. |
 
-|           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
-| --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `SetApprovalForAllSuccess` | Set approval for all is successful.     | `by`: `ByStr20`, `recipient`: `ByStr20`, `status`: `Bool`, where, `by` is the caller, `recipient` is the `to` address to be set approval status for, and `status` is the `approved` status after execution of this transition. |
-| eventName | `Error`                    | Set approval for all is not successful. | - emit `CodeNotAuthorised` if the transition is called by the wrong user, i.e., the caller attempting to approve herself.                                                                                                      |
+**Messages sent:**
 
-#### 5. Transfer
+|        | Name                      | Description                                                                                                                             | Callback Parameters                                                                                                                                                                                           |
+| ------ | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `RecipientAcceptTransfer` | Provide the recipient the status of the transfer of an NFT. Revert the whole transition if it is a non-NFT supporting contract address. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the \_sender address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |
+| `_tag` | `TransferSuccessCallBack` | Provide the sender the status of the transfer of an NFT.                                                                                | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the \_sender address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |
 
-```ocaml
-(* @dev: Transfer the ownership of a given tokenId to another address *)
-(* @param: to      - Recipient address for the token                  *)
-(* @param: tokenId - ID of the token to be transferred                *)
-(* Returns error message CodeNotFound if token does not exists        *)
-(* Revert transition if invalid recipient contract.                   *)
-transition transfer(to: ByStr20, tokenId: Uint256)
-```
+**Events:**
 
-|        | Name      | Type      | Description                        |
-| ------ | --------- | --------- | ---------------------------------- |
-| @param | `to`      | `ByStr20` | Recipient address of the token.    |
-| @param | `tokenId` | `Uint256` | Id of the token to be transferred. |
+|           | Name              | Description                    | Event Parameters                                                                                                                                                                                              |
+| --------- | ----------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `TransferSuccess` | Transfer of NFT is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the \_sender address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |
 
-|           | Name                  | Description                 | Event Parameters                                                                                                                                                                                                                                                                        |
-| --------- | --------------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `TransferFromSuccess` | Transfer is successful.     | `from`: `ByStr20`, `recipient`: `ByStr20`, `token`: `Uint256`, where, `from` is the caller of the transition, `recipient` is the `to` address and `token` is the `tokenID` of the token that is transferred.                                                                            |
-| eventName | `Error`               | Transfer is not successful. | - emit `CodeNotFound` if the token does not exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user that is not authorised.<br>**NOTE:** Only either `tokenOwner`, `approvedSpender` or an `operator` tied to that `tokenOwner` address can invoke this transition. |
-
-#### 6. BalanceOf
+#### 7. TransferFrom()
 
 ```ocaml
-(* @notice: Count all NFTs assigned to a tokenOwner *)
-transition balanceOf(address: ByStr20)
+(* @dev: Transfer the ownership of a given token_id to another address. approved_spender or operator only transition. *)
+(* @param: to       - Recipient address for the NFT                                                                   *)
+(* @param: token_id - Unique ID of the NFT to be transferred                                                          *)
+transition TransferFrom(to: ByStr20, token_id: Uint256)
 ```
 
-|        | Name      | Type      | Description               |
-| ------ | --------- | --------- | ------------------------- |
-| @param | `address` | `ByStr20` | Address of a token owner. |
+**Arguments:**
 
-|           | Name               | Description                        | Event Parameters                                                                                                                                    |
-| --------- | ------------------ | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `BalanceOfSuccess` | Counting of balance is successful. | `bal`: `Uint128`, which returns the number of tokens owned by a given address. If the user does not own any tokens, then the value returned is `0`. |
+|        | Name       | Type      | Description                             |
+| ------ | ---------- | --------- | --------------------------------------- |
+| @param | `to`       | `ByStr20` | Recipient address of the NFT.           |
+| @param | `token_id` | `Uint256` | Unique ID of the NFT to be transferred. |
+
+**Messages sent:**
+
+|        | Name                          | Description                                                 | Callback Parameters                                                                                                                                                                                              |
+| ------ | ----------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `RecipientAcceptTransferFrom` | Provide the recipient the status of the transfer of an NFT. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the token_owner address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |
+| `_tag` | `TransferFromSuccessCallBack` | Provide the sender the status of the transfer of an NFT.    | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the token_owner address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |
+
+**Events:**
+
+|           | Name                  | Description                    | Event Parameters                                                                                                                                                                                                 |
+| --------- | --------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| eventName | `TransferFromSuccess` | Transfer of NFT is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the token_owner address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |     |
 
 ## V. Existing Implementation(s)
 
-- [Non-Fungible Token](https://github.com/Zilliqa/ZRC/blob/master/reference/nonfungible-token.scilla)
+- [Non-Fungible Token](../reference/nonfungible-token.scilla)
+
+To test the reference contract, simply go to the [`example/zrc1`](../example/zrc1) folder and run one of the JS scripts. For example, to deploy the contract, run:
+
+```shell
+yarn deploy.js
+```
+
+> **NOTE:** Please change the `privkey` in the script to your own private key. You can generate a testnet wallet and request for testnet \$ZIL at the [Nucleus Faucet](https://dev-wallet.zilliqa.com/home).
 
 ## VI. Copyright
 
