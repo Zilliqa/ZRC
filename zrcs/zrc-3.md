@@ -1,430 +1,431 @@
+| ZRC | Title                        | Status   | Type     | Author                                                                               | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
+| --- | ---------------------------- | -------- | -------- | ------------------------------------------------------------------------------------ | -------------------- | -------------------- |
+| 2   | Standard for Fungible Tokens | Draft | Standard | Cameron Sajedi <cameron@starlingfoundries.com> | 2019-10-15           | 2021-02-08           |
 
-|  ZRC | Title | Status| Type | Author | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd)
-|--|--|--|--| -- | -- | -- |
-| 3  | Standard for Operated Meta Transactions in Fungible Token Contracts | Draft | Standard | Cameron Sajedi <cameron@starlingfoundries.com> | 2019-10-15 | 2019-12-19 
+## I. What are Metatransactions?
 
+The concept of metatransactions is intended to allow wallets to sign incomplete transactions that represent the authorization to spend a certain amount of tokens. These are valuable to users who do not wish to go through KYC, etc to get a trivial amount of ZIL in order to pay for a transaction. Developers may choose to include this pattern to give an easier onboarding UX, or also to enable transactions to be paid for in the native token. This standard includes an example of ZRC-2 integrated with metatransactions, but there are many situations where authorizing an effect via a signed message is valuable.  The drawback is a metatransaction cannot easily be cancelled, so signers of metatransactions should view them as transactions that have already been processed, and if the relayer censors them they should re-send the same exact metatransaction to another relayer to void the original censored transaction.
 
-## I. What are Meta Transactions?
+## II. Abstract
 
-Meta Transactions are an emerging standard across smart contract platforms for smoothing the experience of onboarding new users.This is done by enabling an off-chain teller node to act as an intermediary, accepting signed checks for token transfers and paying the fee to engage the transfer on the signatory's behalf. In the Ethereum community, this pattern can be seen in: ERC-865, 965, 1077, 1776 token contracts, no including the many other applications unrelated to token transfers. 
-
-## II. Abstract 
-
-ZRC-3 defines the minimum functionality a smart contract must implement to allow a token of any type to be transfered via delegation to a pre-arranged teller server which can pay gas fees on that user's behalf. This may be easily extended to cases where access control or authority must be represented by this off-chain server as well. 
-ZRC-3 modifies ZRC-2 in several core ways:
-* The Operator has been replaced with a Teller, which cannot arbitrarily transfer funds, but must wait for the user to prompt a transfer with a signed, valid metatransaction. 
-* `Allowance` and `TransferFrom` are both considered depricated and (should be) removed - a teller gets approval through the signed metatransaction and the TransferFrom logic was brought into ERC777 to maintain backwards compatibility, the function has little purpose and presents a front-running vulnerability, and DEXes on Zilliqa will likely not rely on it to engage transfers.  
-* A contract-wide account nonce is added to enable multiple Tellers and normal transactions to process in contract without worrying about double spending or out of order transactions due to Teller censorship. Any transaction is only considered valid if its nonce is previous nonce+1. The default transfer does not include this nonce, as that would make supporting this contract more difficult for wallets and exchanges. Thus, if a user is interacting with a Teller they will be encouraged not to spend from that account until the check has cleared (because normal transactions take precedence over check transactions).
-* The `OperatorSend` function has been replaced with `SendCheck`, which accepts a signed metatransaction payload and validates the hash and signature on-chain to prevent Teller fraud. 
+ZRC-3 defines a basic supplement to another contract with the ability to perform transitions with metatransactions. In this provided standard we build on ZRC-2 to enable metatransaction transfers. 
 
 ## III. Motivation
-
-Today, if a potential Zilliqa dapp user wants to participate they must figure out their wallet, keys, safety strategy, recovery seed, etc before they can even begin to participate. Beyond that, if they recieve tokens and want to send them from a wallet without gas, they must now register through an exchange, probably do KYC, and wait several weeks just to do a transfer that costs a fraction of a cent. Tokens that have enabled Meta Transactions may have a Teller that pays for this gas fee on a users behalf, extending ZRC-2. This addition will clear away adoption barries by reducing the onboarding from many days to a few minutes. There are other potential benefits, including OpenBadges standard for scarce achievement badges, UniversalLogins and more.
-
+Metatransactions provide an alternative flow for users just getting started with their cryptocurrency and wallets. It allows for gasless transactions, cutting out the barrier of getting ZIL from an exchange or via mining before a Dapp user can interact with the smart contract. It can also be seen as a way to defer the processing of transactions or even to guard a transition that requires multiparty authorization, although those applications are left to implementations and future standards. This contract adds a `metatransfer` transition to the existing ZRC-2. It does this in a way that maintains compatibility with the Operator and Mintable variants of ZRC-2 as well as the Zilswap exchange, and hopefully future OpFi tools.
 ## IV. Specification
 
-The reference Meta Transactions contract specification describes: 
-1) the global error codes to be declared in the library part of the contract. 
-2) the names and types of the immutable and mutable variables (aka `fields`). 
-3) the transitions that will allow changing the values of the mutable variables. 
-4) the events to be emitted by them.
+The fungible token contract specification describes:
+
+1. the global error codes to be declared in the library part of the contract;
+2. the names and types of the immutable and mutable variables (aka `fields`);
+3. the transitions that will allow the changing of values of the mutable variables;
+4. the events to be emitted by them.
 
 ### A. Roles
 
-| Name | Description
-|--|--|
-| Contract Owner | The owner of the contract initialized by the creator of the contract. |
-| Token Owner | A user (identified by her address) that owns a token.  |
-| Teller | A signing authority identified by its `_sender` address within a contract call that can only be executed if the teller the Teller has included a valid signed metatransaction specifying that transaction parameters and the `Token Owner`'s signature. A `Token Owner` can now trust that no authority can move funds without the `Token Owner`'s expressed consent. |
+| Name               | Description                                                                                                                                            |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `contract_owner`   | The owner of the contract initialized by the creator of the contract.                                                                                  |
+| `token_owner`      | A user (identified by an address) that owns tokens.                                                                                                    |
+| `approved_spender` | A user (identified by an address) that can transfer tokens on behalf of the token_owner.                                                               |
+| `operator`         | A user (identified by an address) that is approved to operate all tokens owned by another user (identified by another address). This role is optional. |
+| `default_operator` | A special user (identified by an address) that is approved to operate all tokens owned by all users (identified by addresses). This role is optional.  |
 
 ### B. Error Codes
 
-The contract must define the following constants for use as error codes for the `Error` event.
+The fungible token contract must define the following constants for use as error codes for the `Error` exception.
 
-| Name | Type | Code | Description
-|--|--|--|--|
-| `CodeNoAuthorized` | `Int32` | `-1` | Emit when the transition call is unauthorized for a given user.
-| `CodeNotFound` | `Int32` | `-2` | Emit when a value is missing.
-| `CodeBadRequest` | `Int32` | `-3` | Emit when the transition call is somehow incorrect.
-| `CodeTokenExists`| `Int32` | `-4` | Emit when trying to create a token that already exists.
-| `CodeNonceError` | `Int32` | `-5` | Emit when the transition call tries to use a nonce lower than the accounts present nonce.
-| `CodeUnexpectedError` | `Int32` | `-6` | Emit when the transition call runs into an unexpected error.
+| Name                        | Type    | Code | Description                                                                                    |
+| --------------------------- | ------- | ---- | ---------------------------------------------------------------------------------------------- |
+| `CodeIsSender`              | `Int32` | `-1` | Emit when an address is same as is the sender.                                                 |
+| `CodeInsufficientFunds`     | `Int32` | `-2` | Emit when there is insufficient balance to authorise transaction.                              |
+| `CodeInsufficientAllowance` | `Int32` | `-3` | Emit when there is insufficient allowance to authorise transaction.                            |
+| `CodeChequeVoid`            | `Int32` | `-4` | Emit when the metatransaction cheque is improperly formed.                                     |
+| `CodeSignatureInvalid`      | `Int32` | `-5` | Emit when a metatransaction signature does not match the cheque parameters.                    |
+| `CodeInvalidSigner`      | `Int32` | `-6` | Emit when a metatransaction signer is not the owner of the tokens they try to move. |
+| `CodeNotOwner`              | `Int32` | `-7` | Emit when the sender is not contract_owner. This error code is optional.                       |
+| `CodeNotApprovedOperator`   | `Int32` | `-8` | Emit when caller is not an approved operator or default_operator. This error code is optional. |
 
 
 ### C. Immutable Variables
 
-| Name                 | Type          | Description                                                           |
-| -------------------- | ------------- | --------------------------------------------------------------------- |
-| `contractOwner`      | `ByStr20`     | The owner of the contract initialized by the creator of the contract. |
-| `name`               | `String`      | The name of the fungible token.                                       |
-| `symbol`             | `String`      | The symbol of the fungible token.                                     |
-| `default_tellers`  | `List ByStr20`| The adddresses set as default for tellers all token holders.        |
-| `decimals`           | `Uint32`      | The number of decimal places a token can be divided by.               |
+| Name                | Type           | Description                                                                                                    |
+| ------------------- | -------------- | -------------------------------------------------------------------------------------------------------------- |
+| `contract_owner`    | `ByStr20`      | The owner of the contract initialized by the creator of the contract.                                          |
+| `name`              | `String`       | The name of the fungible token.                                                                                |
+| `symbol`            | `String`       | The symbol of the fungible token.                                                                              |
+| `decimals`          | `Uint32`       | The number of decimal places a token can be divided by.                                                        |
+| `init_supply`       | `Uint128`      | The initial supply of fungible tokens when contract is created.                                                |
+| `default_operators` | `List ByStr20` | The list of default operators initialized by the creator of the contract. This immutable variable is optional. |
 
 ### D. Mutable Fields
 
-| Name                | Type                                                              | Description                                                                                                                                                           |
-| ------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `total_tokens` | `Uint128 = Uint128 0` |    Total amount of tokens.       |
-| `revokedDefaultTeller` | `Map ByStr20 (Map ByStr20 Bool) = Emp ByStr20 (Map ByStr20 Bool)` |    Mapping of `default_tellers` that have been revoked by token hodlers.       |
-| `balancesMap`     | `Map ByStr20 Uint128 = Emp ByStr20 Uint128`                       | Mapping between token owner to number of owned tokens.                                                                                                  |
-| `tellersMap`    | `Map ByStr20 (Map ByStr20 Bool) = Emp ByStr20 (Map ByStr20 Bool)`                       | Mapping between token owner to approved address. Token owner can approve an address (as an teller) to transfer tokens to other addresses.   |
-| `allowancesMap` | `Map ByStr20 (Map ByStr20 Uint128) = Emp ByStr20 (Map ByStr20 Uint128)` |    Mapping between token owner to approved address. Token owner can give an address an allowance of tokens to transfer tokens to other addresses.       |            
-| `accountNonce` | `Map ByStr20 Uint128 = Emp ByStr20 Uint128` |    Mapping between token owner to their present nonce. |
+| Name                        | Type                                | Description                                                                                                                                                                                                                                            |
+| --------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `total_supply`              | `Uint128`                           | Total amount of tokens available.                                                                                                                                                                                                                      |
+| `balances`                  | `Map ByStr20 Uint128`               | Mapping between token owner to number of owned tokens.                                                                                                                                                                                                 |
+| `allowances`                | `Map ByStr20 (Map ByStr20 Uint128)` | Mapping from token owner to approved spender address. Token owner can give an address an allowance of tokens to transfer tokens to other addresses.                                                                                                    |
+| `operators`                 | `Map ByStr20 (Map ByStr20 Unit)`    | Mapping from token owner to designated operators. A token owner can approve an address as an operator (as per the definition of operator given above). This mapping is optional.                                                                       |
+| `revoked_default_operators` | `Map ByStr20 (Map ByStr20 Unit)`    | Mapping from token owner to revoked default operators. Default operators are intialised by the contract owner. A token owner can revoked a default operator (as per the definition of default operator given above) at will. This mapping is optional. |
+| `void_cheques` | `Map ByStr ByStr20` | Mapping of the hashes of the metatransaction that has been processed, and the relayer wallet that submitted it to the chain. |
 
-### E. Transitions
+### E. Getter Transitions
 
-#### 1. ReauthorizeDefaultTeller
+#### 1. IsOperatorFor() (Optional)
 
 ```ocaml
-(* @dev: Re-authorize a default teller*)
-(* @param teller: Amount of tokens to be sent.       *)
-transition ReauthorizeDefaultTeller(teller: ByStr20)  
+(* @dev: Check if an address is an operator or default operator of a token_owner. Throw if not. *)
+(* @param operator:    Address of a potential operator.                                         *)
+(* @param token_owner: Address of a token_owner.                                                *)
+transition IsOperatorFor(token_owner: ByStr20, operator: ByStr20)
 ```
 
-|        | Name        | Type      | Description                                          |
-| ------ | ----------- | --------- | ---------------------------------------------------- |
-| @param | `teller`  | `ByStr20` | Address of the default teller to be reauthorized.  |
+**Arguments:**
 
+|        | Name          | Type      | Description                                           |
+| ------ | ------------- | --------- | ----------------------------------------------------- |
+| @param | `token_owner` | `ByStr20` | An address of a particular token_owner.               |
+| @param | `operator`    | `ByStr20` | An address of a particular operator of a token_owner. |
 
-|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
-| --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `ReAuthorizedDefaultTeller` | Re-authorizing is successful.     | `teller`: `ByStr20`, `recipient`: `ByStr20`, and `sender` : `_sender`.                             |
-| eventName | `Error`       | Re-authorizing is successful. | - emit `CodeNotFound` if the default teller is not found. |
+**Messages sent:**
 
-#### 2. RevokeDefaultTeller
+|        | Name                    | Description                                                                                                 | Callback Parameters                                                                                                                                          |
+| ------ | ----------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `_tag` | `IsOperatorForCallBack` | Provide the sender a callback if specified address is indeed an approved operator of specified token_owner. | `token_owner` : `ByStr20`, `operator`: `ByStr20`, where `token_owner` is the address of the token_owner, `operator` is the address of the approved operator. |
 
-```ocaml
-(* @dev: Revoke a default teller.              *)
-(* @param teller: Amount of tokens to be sent. *)
-transition RevokeDefaultTeller(teller : ByStr20)
-```
+### F. Interface Transitions
 
-|        | Name        | Type      | Description                                          |
-| ------ | ----------- | --------- | ---------------------------------------------------- |
-| @param | `teller`      | `ByStr20` | Address of the default teller to be revoked.   |
-
-
-|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
-| --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `RevokedDefaultTellerSuccess` | Revoking is successful.     | `teller`: `ByStr20`, `recipient`: `ByStr20`, and `sender` : `_sender`.                             |
-| eventName | `Error`       | Revoking is not successful. | - emit `CodeNotFound` if the default teller is not found. |
-
-
-#### 3. Send
+#### 1. Mint() (Optional)
 
 ```ocaml
-(* @dev: Moves amount tokens from the caller’s address to the recipient.   *)
-(* @param from:       Address of the sender whose balance is decreased.    *)
-(* @param recipient:  Address of the recipient whose balance is increased. *)
-(* @param amount:     Amount of tokens to be sent.                         *)
-transition Send(from: ByStr20, recipient: ByStr20, amount: Uint128)
-```
-
-|        | Name        | Type      | Description                                          |
-| ------ | ----------- | --------- | ---------------------------------------------------- |
-| @param | `from`      | `ByStr20` | Address of the sender whose balance is decreased.    |
-| @param | `recipient` | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `amount`    | `Uint128` | Amount of tokens to be sent.                         |
-
-|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
-| --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `SendSuccess` | Sending is successful.     | `from`: `ByStr20`, `recipient`: `ByStr20`, and `amount`: `Uint128`.                             |
-| eventName | `Error`       | Sending is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner. |
-
-#### 4. SendCheck
-
-```ocaml
-(* @dev: Moves amount tokens from sender to recipient via metatransaction. *)
-(* @param tokenOwner: Address of the sender whose balance is decreased.    *)
-(* @param recipient:  Address of the recipient whose balance is increased. *)
-(* @param amount:     Amount of tokens to be sent.                         *)
-(* @param checkHash:  teller-supplied hash of the metatransaction check.   *)
-(* @param checkSig:   Signature of checkHash - supplied by the tokenOwer.  *)
-(* @param tip:        Amount of tokens tokenOwner allocated for the teller *)
-(* @param nonce:      The account-specific nonce to use for transaction    *)
-transition SendCheck(tokenOwner: ByStr20, recipient: ByStr20, amount: Uint128, checkHash:ByStr, checkSig: ByStr64, tip: Uint128, nonce: Uint128)
-```
-
-|        | Name         | Type      | Description                                          |
-| ------ | ------------ | --------- | ---------------------------------------------------- |
-| @param | `tokenOwner` | `ByStr20` | Address of the sender whose balance is decreased.    |
-| @param | `recipient`  | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `amount`     | `Uint128` | Amount of tokens to be sent.                         |
-| @param | `checkHash` | `ByStrX` | The concatenated hashes of the metacheck fields to validate|
-| @param | `checkSig` | `ByStr33` | The tokenOwner's signature of checkhash to validate the check | 
-| @param | `tip`     | `Uint128` | Amount of tokens to transfer from sender to teller for service.|
-| @param | `nonce`     | `Uint128` | The client-supplied and client-signed account specific nonce.|
-
-
-
-|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
-| --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `TellerSendSuccess` | Sending is successful.     | `from`: `ByStr20`, `to`: `ByStr20`, and `amount`: `Uint128`.                             |
-| eventName | `Error`       | Sending is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not an approved teller. |
-
-#### 5. Burn
-
-```ocaml
-(* @dev: Burn existing tokens. Only tokenOwner or approved teller can burn a token *)
-(* @param burn_account:                     Address holding the tokens to be burned. *)
-(* @param amount:                           Number of tokens to be destroyed.        *)
-transition Burn(burn_account: ByStr20, amount: Uint128)
-```
-
-|        | Name           | Type      | Description                              |
-| ------ | -------------- | --------- | ---------------------------------------- |
-| @param | `burn_account` | `ByStr20` | Address holding the tokens to be burned. |
-| @param | `amount`       | `Uint128` | Number of tokens to be burned.           |
-
-|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                                               |
-| --------- | ------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `BurnSuccess` | Burning is successful.     | `from`: `ByStr20`, and `amount`: `Uint128`.                                                                                                                      |
-| eventName | `Error`       | Burning is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the token owner.<br>**NOTE:** Only the `tokenOwner` is allowed to call this transition. |
-
-
-#### 6. TellerBurn
-
-```ocaml
-(* @dev: Burn existing tokens. Onlya  default teller can burn a token.  *)
-(* @param teller:   Address must be an teller of tokenOwner.          *)
-(* @param tokenOwner: Address holding the tokens to be burned.            *)
-(* @param amount:     Number of tokens to be destroyed.                   *)
-transition TellerBurn(teller: ByStr20, from: ByStr20, amount: Uint128)
-```
-
-|        | Name         | Type      | Description                                    |
-| ------ | ------------ | --------- | ---------------------------------------------- |
-| @param | `teller`   | `ByStr20` | Address of a default teller.                 |
-| @param | `tokenOwner` | `ByStr20` | Address holding the tokens to be burned.       |
-| @param | `amount`     | `Uint128` | Number of tokens to be burned.                 |
-
-|           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
-| --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `TellerBurnSuccess` | Burning is successful.     | `teller`: `ByStr20`, `tokenOwner`: `ByStr20`, and `amount`: `Uint128`.                                                                                               |
-| eventName | `Error`          | Burning is not successful. | - emit `CodeNotAuthorised` if the transition is called by an teller who is not authorized. |
-
-
-#### 7. Mint
-
-```ocaml
-(* @dev: Mint new tokens. Only contractOwner can mint.                        *)
-(* @param recipient:     Address of the recipient whose balance is increased. *)
-(* @param amount:        Number of tokens to be burned.                       *)
+(* @dev: Mint new tokens. Only contract_owner can mint.                      *)
+(* @param recipient: Address of the recipient whose balance is to increase.  *)
+(* @param amount:    Number of tokens to be minted.                          *)
 transition Mint(recipient: ByStr20, amount: Uint128)
 ```
 
-|        | Name        | Type      | Description                                          |
-| ------ | ----------- | --------- | ---------------------------------------------------- |
-| @param | `recipient` | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `amount`    | `Uint128` | Number of tokens to be minted.                       |
+**Arguments:**
 
-|           | Name          | Description                | Event Parameters                                                                                                                                                                                                                   |
-| --------- | ------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `MintSuccess` | Minting is successful.     | `recipient`: `ByStr20`, and `amount`: `Uint128`.                             |
-| eventName | `Error`       | Minting is not successful. | - emit `CodeTokenExists` if the token already exists.<br>- emit `CodeNotAuthorised` if the transition is called by a user who is not the contract owner.<br>**NOTE:** Only the `contractOwner` is allowed to call this transition. |
+|        | Name        | Type      | Description                                            |
+| ------ | ----------- | --------- | ------------------------------------------------------ |
+| @param | `recipient` | `ByStr20` | Address of the recipient whose balance is to increase. |
+| @param | `amount`    | `Uint128` | Number of tokens to be minted.                         |
 
+**Messages sent:**
 
-#### 8. TellerMint
+|        | Name                  | Description                                           | Callback Parameters                                                                                                                                                                                                |
+| ------ | --------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `_tag` | `RecipientAcceptMint` | Dummy callback to prevent invalid recipient contract. | `minter` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `minter` is the address of the minter, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens minted. |
+| `_tag` | `MintSuccessCallBack` | Provide the sender the status of the mint.            | `minter` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `minter` is the address of the minter, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens minted. |
 
-```ocaml
-(* @dev: Mint new tokens. Only approved teller can mint tokens.         *)
-(* @param teller:   Address must be an teller of tokenOwner.          *)
-(* @param recipient: Address of the recipient whose balance is increased. *)
-(* @param amount:    Number of tokens to be burned.                       *)
-transition TellerMint(teller: ByStr20, recipient: ByStr20, amount: Uint128)
-```
+**Events/Errors:**
 
-|        | Name         | Type      | Description                                         |
-| ------ | ------------ | --------- | --------------------------------------------------- |
-| @param | `teller`   | `ByStr20` | Address of a default teller.                      |
-| @param | `recipient`  | `ByStr20` | Address of the recipient whose balance is increased.|
-| @param | `amount`     | `Uint128` | Number of tokens to be minted.                      |
+|              | Name     | Description                | Event Parameters                                                                                                                                                                                                                  |
+| ------------ | -------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `Minted` | Minting is successful.     | `minter` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `minter` is the address of the minter, `recipient` is the address whose balance will be increased, and `amount` is the amount of fungible tokens minted. |
+| `_eventname` | `Error`  | Minting is not successful. | - emit `CodeNotOwner` if the transition is not called by the contract_owner.                                                                                                                                                      |
 
-|           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
-| --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `TellerMintAllSuccess` | Minting is successful.     | `recipient`: `ByStr20`, and `amount`: `Uint128`. |
-| eventName | `Error`                    | Minting is not successful. | - emit `CodeNotAuthorised` if the transition is not called by an approved teller.                                                                                                      |
-
-
-#### 9. AuthorizeTeller
+#### 2. Burn() (Optional)
 
 ```ocaml
-(* @dev: Make an address an teller of the caller.                           *)
-(* @param teller: Address to be set as teller. Cannot be calling address. *)
-transition AuthorizeTeller(teller: ByStr20)
+(* @dev: Burn existing tokens. Only contract_owner can burn.                      *)
+(* @param burn_account: Address of the token_owner whose balance is to decrease.  *)
+(* @param amount:       Number of tokens to be burned.                            *)
+transition Burn(burn_account: ByStr20, amount: Uint128)
 ```
 
-|        | Name       | Type      | Description                    |
-| ------ | ---------- | --------- | ------------------------------ |
-| @param | `teller` | `ByStr20` | Address to be set as teller. Cannot be calling address. |
+**Arguments:**
 
-|           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
-| --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `AuthorizeTellerSuccess` | Authorizing is successful.     | `teller`: `ByStr20`. |
-| eventName | `Error`                    | Authorizing is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the token holder.                                                                                                      |
+|        | Name           | Type      | Description                                              |
+| ------ | -------------- | --------- | -------------------------------------------------------- |
+| @param | `burn_account` | `ByStr20` | Address of the token_owner whose balance is to decrease. |
+| @param | `amount`       | `Uint128` | Number of tokens to be burned.                           |
 
+**Messages sent:**
 
-#### 10. RevokeTeller
+|        | Name                  | Description                                | Callback Parameters                                                                                                                                                                                                                     |
+| ------ | --------------------- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `BurnSuccessCallBack` | Provide the sender the status of the burn. | `burner` : `ByStr20`, `burn_account`: `ByStr20`, `amount`: `Uint128`, where `burner` is the address of the burner, `burn_account` is the address whose balance will be decreased, and `amount` is the amount of fungible tokens burned. |
+
+**Events/Errors:**
+
+|              | Name    | Description                | Event Parameters                                                                                                                                                                                                                                                |
+| ------------ | ------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `Burnt` | Burning is successful.     | `burner` : `ByStr20`, `burn_account`: `ByStr20`, `amount`: `Uint128`, where `burner` is the address of the burner, `burn_account` is the address whose balance will be decreased, and `amount` is the amount of fungible tokens burned.                         |
+| `_eventname` | `Error` | Burning is not successful. | - emit `CodeNotOwner` if the transition is not called by the contract_owner. <br> - emit `CodeNoBalance` if balance of token_owner does not exists. <br> - emit `CodeInsufficientFunds` if the amount to be burned is more than the balance of the token_owner. |
+
+#### 3. AuthorizeOperator() (Optional)
 
 ```ocaml
-(* @dev: Revoke an address from being an teller of the caller. *)
-(* @param teller:         Address to be unset as teller.     *)
-transition RevokeTeller(teller: ByStr20)
+(* @dev: Make an address an operator of the caller.             *)
+(* @param operator: Address to be authorize as operator or      *)
+(* Re-authorize as default_operator. Cannot be calling address. *)
+transition AuthorizeOperator(operator: ByStr20)
 ```
+
+**Arguments:**
+
+|        | Name       | Type      | Description                                                                                         |
+| ------ | ---------- | --------- | --------------------------------------------------------------------------------------------------- |
+| @param | `operator` | `ByStr20` | Address to be authorize as operator or re-authorize as default_operator. Cannot be calling address. |
+
+**Events/Errors:**
+
+|              | Name                       | Description                    | Event Parameters                                                                                                                                                     |
+| ------------ | -------------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `AuthorizeOperatorSuccess` | Authorizing is successful.     | `authorizer`: `ByStr20` which is the caller's address, and `authorized_operator`: `ByStr20` which is the address to be authorized as an operator of the token_owner. |
+| `_eventname` | `Error`                    | Authorizing is not successful. | - emit `CodeIsSender` if the user is trying to authorize himself as an operator.                                                                                     |
+
+#### 4. RevokeOperator() (Optional)
+
+```ocaml
+(* @dev: Revoke an address from being an operator or default_operator of the caller. *)
+(* @param operator: Address to be removed as operator or default_operator.           *)
+transition RevokeOperator(operator: ByStr20)
+```
+
+**Arguments:**
 
 |        | Name       | Type      | Description                      |
 | ------ | ---------- | --------- | -------------------------------- |
-| @param | `teller` | `ByStr20` | Address to be unset as teller. |
+| @param | `operator` | `ByStr20` | Address to be unset as operator. |
 
-|           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
-| --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `RevokeTellerSuccess` | Revoking is successful.     | `teller`: `ByStr20`. |
-| eventName | `Error`                    | Revoking is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not the token holder.                                                                                                      |
+**Events/Errors:**
 
+|              | Name                    | Description                 | Event Parameters                                                                                                                                            |
+| ------------ | ----------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `RevokeOperatorSuccess` | Revoking is successful.     | `revoker`: `ByStr20` which is the caller's address, and `revoked_operator`: `ByStr20` which is the address to be removed as an operator of the token_owner. |
+| `_eventname` | `Error`                 | Revoking is not successful. | - emit `CodeNotApprovedOperator` if the specified address is not an existing operator or default_operator of the token_owner.                               |
 
-#### 11. IsTellerFor
+#### 5. IncreaseAllowance()
 
 ```ocaml
-(* @dev: Returns true if an address is an teller of tokenOwner. All addresses are their own teller. *)
-(* @param teller:    Address of a potential teller.                                                 *)
-(* @param tokenOwner:  Address of a token holder.                                                       *)
-transition IsTellerFor(teller: ByStr20, tokenOwner: ByStr20)
+(* @dev: Increase the allowance of an approved_spender over the caller tokens. Only token_owner allowed to invoke.   *)
+(* param spender:      Address of the designated approved_spender.                                                   *)
+(* param amount:       Number of tokens to be increased as allowance for the approved_spender.                       *)
+transition IncreaseAllowance(spender: ByStr20, amount: Uint128)
 ```
 
-|        | Name          | Type      | Description                          |
-| ------ | ------------- | --------- | ------------------------------------ |
-| @param | `teller`    | `ByStr20` | Address of a potential teller.     |
-| @param | `tokenOwner`  | `ByStr20` | Address of a token ownwer.           |
+**Arguments:**
 
-|           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
-| --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `IsTellerForSuccess` | Checking teller is successful.     | `teller`: `ByStr20`, and `tokenOwner`: `ByStr20`. |
-| eventName | `Error`                    | Checking teller is not successful. | TBA.                                                                                                      |
+|        | Name      | Type      | Description                                                                     |
+| ------ | --------- | --------- | ------------------------------------------------------------------------------- |
+| @param | `spender` | `ByStr20` | Address of an approved_spender.                                                 |
+| @param | `amount`  | `Uint128` | Number of tokens to be increased as spending allowance of the approved_spender. |
 
+**Events/Errors:**
 
-#### 12. DefaultTellers
+|              | Name                 | Description                                                   | Event Parameters                                                                                                                                                                                                                                  |
+| ------------ | -------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `IncreasedAllowance` | Increasing of allowance of an approved_spender is successful. | `token_owner`: `ByStr20` which is the address the token_owner, `spender`: `ByStr20` which is the address of a approved_spender of the token_owner, and `new_allowance` is the new spending allowance of the approved_spender for the token_owner. |
+| `_eventname` | `Error`              | Increasing of allowance is not successful.                    | - emit `CodeIsSelf` if the user is trying to authorize himself as an approved_spender.                                                                                                                                                            |
+
+#### 6. DecreaseAllowance()
 
 ```ocaml
-(* @dev: Returns the list of default tellers. These addresses are tellers for all token holders. *)
-transition DefaultTellers()
+(* @dev: Decrease the allowance of an approved_spender over the caller tokens. Only token_owner allowed to invoke. *)
+(* param spender:      Address of the designated approved_spender.                                                 *)
+(* param amount:       Number of tokens to be decreased as allowance for the approved_spender.                     *)
+transition DecreaseAllowance(spender: ByStr20, amount: Uint128)
 ```
 
-|           | Name                       | Description                             | Event Parameters                                                                                                                                                                                                               |
-| --------- | -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| eventName | `DefaultTellersSuccess` | Listing default tellers is successful.     | `list`: `List ByStr20` |
+**Arguments:**
 
+|        | Name      | Type      | Description                                                                     |
+| ------ | --------- | --------- | ------------------------------------------------------------------------------- |
+| @param | `spender` | `ByStr20` | Address of an approved_spender.                                                 |
+| @param | `amount`  | `Uint128` | Number of tokens to be decreased as spending allowance of the approved_spender. |
 
-#### 13. Transfer
+**Events/Errors:**
+
+|              | Name                 | Description                                                   | Event Parameters                                                                                                                                                                                                                                  |
+| ------------ | -------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `DecreasedAllowance` | Decreasing of allowance of an approved_spender is successful. | `token_owner`: `ByStr20` which is the address the token_owner, `spender`: `ByStr20` which is the address of a approved_spender of the token_owner, and `new_allowance` is the new spending allowance of the approved_spender for the token_owner. |
+| `_eventname` | `Error`              | Decreasing of allowance is not successful.                    | - emit `CodeIsSelf` if the user is trying to authorize himself as an approved_spender.                                                                                                                                                            |
+
+#### 7. Transfer()
 
 ```ocaml
-(* @dev: Move a given amount of tokens from one address another.       *)
-(* @param to:     Address of the recipient whose balance is increased. *)
-(* @param amount: Number of tokens to be transferred.                  *)
+(* @dev: Moves an amount tokens from _sender to the recipient. Used by token_owner. *)
+(* @dev: Balance of recipient will increase. Balance of _sender will decrease.      *)
+(* @param to:  Address of the recipient whose balance is increased.                 *)
+(* @param amount:     Amount of tokens to be sent.                                  *)
 transition Transfer(to: ByStr20, amount: Uint128)
 ```
 
-|        | Name      | Type      | Description                        |
-| ------ | --------- | --------- | ---------------------------------- |
-| @param | `to`      | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `amount`  | `Uint128` | Number of tokens to be transferred.                  |
+**Arguments:**
 
-|           | Name                  | Description                 | Event Parameters                                                                                                                                                                                                                                                                        |
-| --------- | --------------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `TransferSuccess` | Transfering is successful.     | `to`: `ByStr20`, and `amount`: `Uint128`.                                                                            |
-| eventName | `Error`               | Transfering is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user that is not authorised.<br>**NOTE:** Only `tokenOwner` address can invoke this transition. |
+|        | Name     | Type      | Description                                            |
+| ------ | -------- | --------- | ------------------------------------------------------ |
+| @param | `to`     | `ByStr20` | Address of the recipient whose balance is to increase. |
+| @param | `amount` | `Uint128` | Amount of tokens to be sent.                           |
 
-#### 14. TransferFrom
+**Messages sent:**
 
-```ocaml
-(* @dev: Move a given amount of tokens from one address another using the allowance mechanism. *)
-(* param from:    Address of the sender whose balance is deccreased.                           *)
-(* param to:      Address of the recipient whose balance is increased.                         *)
-(* param amount:  Number of tokens to be transferred.                                          *)
-transition TansferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
-```
+|        | Name                      | Description                                           | Callback Parameters                                                                                                                                                                                                           |
+| ------ | ------------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `RecipientAcceptTransfer` | Dummy callback to prevent invalid recipient contract. | `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `sender` is the address of the sender, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred. |
+| `_tag` | `TransferSuccessCallBack` | Provide the sender the status of the transfer.        | `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `sender` is the address of the sender, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred. |
 
-|        | Name      | Type      | Description                                          |
-| ------ | --------- | --------- | ---------------------------------------------------- |
-| @param | `from`    | `ByStr20` | Address of the sender whose balance is deccreased.   |
-| @param | `to`      | `ByStr20` | Address of the recipient whose balance is increased. |
-| @param | `amount`  | `Uint128` | Number of tokens to be transferred.                  |
+**Events/Errors:**
 
-|           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
-| --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `TansferFromSuccess` | Approval is successful.     | `from`: `ByStr20`, `to`: `ByStr20`, and `amount`: `Uint128`.                                                                                               |
-| eventName | `Error`          | Approval is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not authorized to approve. <br>**NOTE:** Only either the `tokenOwner` or approved `teller`(s) are allowed to call this transition. |
+|              | Name              | Description                | Event Parameters                                                                                                                                                                        |
+| ------------ | ----------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `TransferSuccess` | Sending is successful.     | `sender`: `ByStr20` which is the sender's address, `recipient`: `ByStr20` which is the recipient's address, and `amount`: `Uint128` which is the amount of fungible tokens transferred. |
+| `_eventname` | `Error`           | Sending is not successful. | - emit `CodeInsufficientFunds` if the balance of the token_owner lesser than the specified amount that is to be transferred.                                                            |
 
-#### 15. Allowance
+#### 8. TransferFrom()
 
 ```ocaml
-(* @dev: Returns the number of tokens spender is allowed to spend on behalf of owner. *)
-(* param tokenOwner:   Address of a token holder.                                     *)
-(* param spender:      Address to be set as a spender.                                *)
-transition Allowance(tokenOwner: ByStr20, spender: ByStr20)
+(* @dev: Move a given amount of tokens from one address to another using the allowance mechanism. The caller must be an approved_spender. *)
+(* @dev: Balance of recipient will increase. Balance of token_owner will decrease.                                                        *)
+(* @param from:    Address of the token_owner whose balance is decreased.                                                                 *)
+(* @param to:      Address of the recipient whose balance is increased.                                                                   *)
+(* @param amount:  Amount of tokens to be transferred.                                                                                    *)
+transition TransferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
 ```
 
-|        | Name      | Type      | Description                                    |
-| ------ | --------- | --------- | ---------------------------------------------- |
-| @param | `tokenOwner` | `ByStr20` | Address of a token owner.                               |
-| @param | `spender`    | `ByStr20` | Address to be set as a spender for a given token owner. |
+**Arguments:**
 
-|           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
-| --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `AllowanceSuccess` | Allowing is successful.     | `tokenOwner`: `ByStr20`, and `spender`: `ByStr20`.                                                                                               |
-| eventName | `Error`          | Allowing is not successful. | TBA. |
+|        | Name     | Type      | Description                                              |
+| ------ | -------- | --------- | -------------------------------------------------------- |
+| @param | `from`   | `ByStr20` | Address of the token_owner whose balance is to decrease. |
+| @param | `to`     | `ByStr20` | Address of the recipient whose balance is to increase.   |
+| @param | `amount` | `Uint128` | Number of tokens to be transferred.                      |
 
+**Messages sent:**
 
-#### 16. Approve
+|        | Name                          | Description                                           | Callback Parameters                                                                                                                                                                                                                                                                                          |
+| ------ | ----------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `_tag` | `RecipientAcceptTransferFrom` | Dummy callback to prevent invalid recipient contract. | `initiator`: `ByStr20`, `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `initiator` is the address of an approved_spender,`sender` is the address of the token_owner, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred. |
+| `_tag` | `TransferFromSuccessCallBack` | Provide the initiator the status of the transfer.        | `initiator`: `ByStr20`, `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `initiator` is the address of an approved_spender,`sender` is the address of the token_owner, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred. |
+
+**Events:**
+
+|              | Name                  | Description                | Event Parameters                                                                                                                                                                                                                                                                                             |
+| ------------ | --------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `_eventname` | `TransferFromSuccess` | Sending is successful.     | `initiator`: `ByStr20`, `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `initiator` is the address of an approved_spender,`sender` is the address of the token_owner, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred. |
+| `_eventname` | `Error`               | Sending is not successful. | - emit `CodeInsufficientAllowance` if the allowance of approved_spender is lesser than the specified amount that is to be transferred. <br> - emit `CodeInsufficientFunds` if the balance of the token_owner lesser than the specified amount that is to be transferred.                                     |
+
+#### 9. OperatorSend() (Optional)
 
 ```ocaml
-(* @dev: Sets amount as the allowance of spender over the caller’s tokens.  *)
-(* There can only be one approved spender per token at a given time         *)
-(* param spender: Address to be set as a spender.                           *)
-(* param amount:  Number of tokens to be approved for a given spender.      *)
-transition Approve(spender: ByStr20, amount: Uint128)
+(* @dev: Moves amount tokens from token_owner to recipient. _sender must be an operator of token_owner. *)
+(* @dev: Balance of recipient will increase. Balance of token_owner will decrease.                      *)
+(* @param from:        Address of the token_owner whose balance is decreased.                           *)
+(* @param to:          Address of the recipient whose balance is increased.                             *)
+(* @param amount:      Amount of tokens to be sent.                                                     *)
+transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
 ```
 
-|        | Name         | Type      | Description                                          |
-| ------ | ------------ | --------- | ---------------------------------------------------- | 
-| @param | `spender`    | `ByStr20` | Address to be approved for the given token id.       |
-| @param | `amount`     | `Uint128` | Number of tokens to be approved for a given spender. |
+**Arguments:**
 
-|           | Name             | Description                 | Event Parameters                                                                                                                                                                                                                                              |
-| --------- | ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `ApproveSuccess` | Approving is successful.     | `spender`: `ByStr20`, and `amount`: `Uint128`.                                                                                               |
-| eventName | `Error`          | Approving is not successful. | - emit `CodeNotAuthorised` if the transition is called by a user who is not authorized to approve. <br>**NOTE:** Only the `tokenOwner` or approved is allowed to call this transition. |
+|        | Name     | Type      | Description                                              |
+| ------ | -------- | --------- | -------------------------------------------------------- |
+| @param | `from`   | `ByStr20` | Address of the token_owner whose balance is to decrease. |
+| @param | `to`     | `ByStr20` | Address of the recipient whose balance is to increase.   |
+| @param | `amount` | `Uint128` | Amount of tokens to be sent.                             |
 
+**Messages sent:**
 
-#### 17. TotalSupply
+|        | Name                          | Description                                           | Callback Parameters                                                                                                                                                                                                                                                                                  |
+| ------ | ----------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `RecipientAcceptOperatorSend` | Dummy callback to prevent invalid recipient contract. | `initiator`: `ByStr20`, `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `initiator` is the address of an operator,`sender` is the address of the token_owner, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred. |
+| `_tag` | `OperatorSendSuccessCallBack` | Provide the operator the status of the transfer.        | `initiator`: `ByStr20`, `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `initiator` is the address of an operator,`sender` is the address of the token_owner, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred. |
+
+**Events/Errors:**
+
+|              | Name                  | Description                | Event Parameters                                                                                                                                                                                                                                           |
+| ------------ | --------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `OperatorSendSuccess` | Sending is successful.     | `initiator`: `ByStr20` which is the operator's address, `sender`: `ByStr20` which is the token_owner's address, `recipient`: `ByStr20` which is the recipient's address, and `amount`: `Uint128` which is the amount of fungible tokens to be transferred. |
+| `_eventname` | `Error`               | Sending is not successful. | - emit `CodeNotApprovedOperator` if sender is not an approved operator for the token_owner <br> - emit `CodeInsufficientFunds` if the balance of the token_owner is lesser than the specified amount that is to be transferred.                            |
+
+#### 10. ChequeSend() (Optional)
 
 ```ocaml
-(* @dev: Returns the amount of tokens in existence. *)
-transition TotalSupply()
+(* @dev: Moves amount tokens from token_owner to recipient.                                             *)
+(* @dev: Balance of recipient will increase. Balance of token_owner will decrease.                      *)
+(* @param pubkey:      Public Key of the token_owner whose balance is decreased.                        *)
+(* @param to:          Address of the recipient whose balance is increased.                             *)
+(* @param amount:      Amount of tokens to be sent.                                                     *)
+(* @param fee:         Reward taken from the cheque senders balance for the relayer.                    *)
+(* @param nonce:       A random value included in the cheque to make each unique.                       *)
+(* @param signature:   The signature of the cheque by the token owner to authorize spend.               *)
+transition ChequeSend(pubkey: ByStr20, to: ByStr20, amount: Uint128, fee: Uint128, nonce:Uint218, signature: ByStr64)
 ```
 
-|           | Name               | Description                        | Event Parameters                                                                                                                                    |
-| --------- | ------------------ | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `TotalSupplySuccess` | Counting of supply is successful. | `bal`: `Uint128`, which returns the number of tokens owned by a given address. If the user does not own any tokens, then the value returned is `0`. |
+**Arguments:**
 
-#### 18. BalanceOf
+|        | Name       | Type      | Description                                                        |
+| ------ | --------   | --------- | --------------------------------------------------------           |
+| @param | `pubkey`   | `ByStr33` | Public Key of the token_owner whose balance is to decrease.        |
+| @param | `to`       | `ByStr20` | Address of the recipient whose balance is to increase.             |
+| @param | `amount`   | `Uint128` | Amount of tokens to be sent.                                       |
+| @param | `fee`      | `Uint128` | Reward taken from the cheque senders balance for the relayer.      |
+| @param | `nonce`    | `Uint128` | A random value included in the cheque to make each unique.         |
+| @param | `signature`| `ByStr64` | The signature of the cheque by the token owner to authorize spend. |
+**Messages sent:**
+
+|        | Name                          | Description                                           | Callback Parameters                                                                                                                                                                                                                                                                                  |
+| ------ | ----------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `RecipientAcceptChequeSend` | Dummy callback to prevent invalid recipient contract. | `initiator`: `ByStr20`, `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `initiator` is the address of an operator,`sender` is the address of the token_owner, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred. |
+| `_tag` | `ChequeSendSuccessCallBack` | Provide the relayer the status of the transfer.        | `initiator`: `ByStr20`, `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `initiator` is the address of an relayer,`sender` is the address of the token_owner, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred. |
+
+**Events/Errors:**
+
+|              | Name                  | Description                | Event Parameters                                                                                                                                                                                                                                           |
+| ------------ | --------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `ChequeSendSuccess` | Sending is successful.     | `initiator`: `ByStr20` which is the operator's address, `sender`: `ByStr20` which is the token_owner's address, `recipient`: `ByStr20` which is the recipient's address, and `amount`: `Uint128` which is the amount of fungible tokens to be transferred. |
+| `_eventname` | `Error`               | Sending is not successful. | - emit `CodeChequeVoid` if the cheque submitted has already been transferred.<br>- emit `CodeInsufficientFunds` if the balance of the token_owner is lesser than the specified amount that is to be transferred.<br> - emit `CodeSignatureInvalid` if the signature of the cheque does not match the cheque parameters. <br> - emit `CodeInvalidSigner` if the signer of the metatransaction is not the owner of the tokens to be moved.  |
+
+#### 11. ChequeVoid() (Optional)
 
 ```ocaml
-(* @dev: Returns the amount of tokens owned by address. *)
-transition BalanceOf(address: ByStr20)
+
+(* @dev: Voids a cheque that _sender does not wish to be processed                                      *)
+(* @dev: Balance of recipient will remain the same.                                                     *)
+(* @param pubkey:      Public Key of the token_owner within the cheque.                                 *)
+(* @param to:          Address of the recipient within the cheque.                                      *)
+(* @param amount:      Amount of tokens which would have been sent within the cheque.                   *)
+(* @param fee:         Reward to be taken from the cheque senders balance if the cheque was processed.  *)
+(* @param nonce:       A random value included in the cheque to make each unique.                       *)
+(* @param signature:   The signature of the cheque by the token owner that authorized the spend.        *)
+transition ChequeVoid(pubkey: ByStr33, from: ByStr20, to: ByStr20, amount: Uint128, fee: Uint128, nonce:Uint128, signature: ByStr64)
 ```
 
-|        | Name      | Type      | Description               |
-| ------ | --------- | --------- | ------------------------- |
-| @param | `address` | `ByStr20` | Address of a token owner. |
+**Arguments:**
 
-|           | Name               | Description                        | Event Parameters                                                                                                                                    |
-| --------- | ------------------ | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `BalanceOfSuccess` | Counting of balance is successful. | `bal`: `Uint128`, which returns the number of tokens owned by a given address. If the user does not own any tokens, then the value returned is `0`. |
+|        | Name       | Type      | Description                                                        |
+| ------ | --------   | --------- | --------------------------------------------------------           |
+| @param | `pubkey`   | `ByStr33` | Public Key of the token_owner within the cheque.         |
+| @param | `to`       | `ByStr20` | Address of the recipient within the cheque.             |
+| @param | `amount`   | `Uint128` |  Amount of tokens which would have been sent within the cheque.                                       |
+| @param | `fee`      | `Uint128` | Reward to be taken from the cheque senders balance if the cheque was processed.      |
+| @param | `nonce`    | `Uint128` | A random value included in the cheque to make each unique.         |
+| @param | `signature`| `ByStr64` | The signature of the cheque by the token owner that authorized the spend. |
+**Messages sent:**
+
+|        | Name                          | Description                                           | Callback Parameters                                                                                                                                                                                                                                                                                  |
+| ------ | ----------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+
+**Events/Errors:**
+
+|              | Name                  | Description                | Event Parameters                                                                                                                                                                                                                                           |
+| ------------ | --------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `ChequeVoidSuccess` | Broadcast if voiding is successful.     | `initiator`: `ByStr20` which is the operator's address, `sender`: `ByStr20` which is the token_owner's address, `recipient`: `ByStr20` which is the recipient's address, and `amount`: `Uint128` which is the amount of fungible tokens to be transferred. |
+| `_eventname` | `Error`               | Sending is not successful. | - emit `CodeChequeVoid` if the cheque submitted has already been transferred.<br>- emit `CodeInsufficientFunds` if the balance of the token_owner is lesser than the specified amount that is to be transferred.<br> - emit `CodeSignatureInvalid` if the signature of the cheque does not match the cheque parameters. <br> - emit `CodeInvalidSigner` if the signer of the metatransaction is not the owner of the tokens to be moved.  |
 
 ## V. Existing Implementation(s)
 
--[starling-foundries](https://github.com/starling-foundries/ZRC-3)
+- [ZRC3 Reference contract](../reference/MetaFungibleToken.scilla)
+- [ZRC3 Reference Relayer ](https://github.com/starling-foundries/relay.js)
+To test the reference contract, simply go to the [`example`](../example) folder and run one of the JS scripts. For example, to deploy the contract, run:
+
+```shell
+yarn deploy.js
+```
+
+> **NOTE:** Please change the `privkey` in the script to your own private key. You can generate a testnet wallet and request for testnet \$ZIL at the [Nucleus Faucet](https://dev-wallet.zilliqa.com/home).
 
 ## VI. Copyright
 
