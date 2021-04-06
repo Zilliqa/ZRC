@@ -1,6 +1,6 @@
 | ZRC | Title                        | Status   | Type     | Author                                                                                                                       | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
 | --- | ---------------------------- | -------- | -------- | ---------------------------------------------------------------------------------------------------------------------------- | -------------------- | -------------------- |
-| 5   | Convention for Deposit of ZIL | Draft | Standard | Jun Hao Tan <junhao@zilliqa.com> | 2020-06-25           | 2020-06-25           |
+| 5   | Convention for Deposit of ZIL | Approved | Standard | Jun Hao Tan <junhao@zilliqa.com> | 2020-06-25           | 2020-06-25           |
 
 ## I. What is ZIL?
 
