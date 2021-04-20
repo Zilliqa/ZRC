@@ -394,7 +394,7 @@ transition BatchMint(to_list: List ByStr20, token_uris_list: List String)
   pair_two_list = @list_zip ByStr20 String;
   input_list = pair_two_list to_list token_uris_list;
   forall input_list Minting;
-  msg_to_sender = { _tag : "MintForManyCallback"; _recipient : _sender; _amount : Uint128 0 };
+  msg_to_sender = { _tag : "BatchMintCallback"; _recipient : _sender; _amount : Uint128 0 };
   msgs = one_msg msg_to_sender;
   send msgs
 end
