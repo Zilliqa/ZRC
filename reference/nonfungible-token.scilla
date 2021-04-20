@@ -387,16 +387,18 @@ transition Mint(to: ByStr20, token_uri: String)
   send msgs
 end
 
-transition BatchMint(to: ByStr20, token_uris_list: List String)
-  pair_token_uri_list = @list_map String (Pair ByStr20 String);
-  tmp_fun = build_pair to;
-  input_list = pair_token_uri_list tmp_fun token_uris_list;
+(* @dev:    Mint multiple new tokens at once. Only minters can mint. *)
+(* @param:  to_list         - Addressses of the token recipient      *)
+(* @param:  token_uris_list - URIs of the the new token to be minted *)
+transition BatchMint(to_list: List ByStr20, token_uris_list: List String)
+  pair_two_list = @list_zip ByStr20 String;
+  input_list = pair_two_list to_list token_uris_list;
   forall input_list Minting;
-  msg_to_recipient = { _tag : "RecipientAcceptBatchMint"; _recipient : to; _amount : Uint128 0 };
-  msg_to_sender = { _tag : "BatchMintCallBack"; _recipient : _sender; _amount : Uint128 0 };
-  msgs = two_msgs msg_to_recipient msg_to_sender;
+  msg_to_sender = { _tag : "MintForManyCallback"; _recipient : _sender; _amount : Uint128 0 };
+  msgs = one_msg msg_to_sender;
   send msgs
 end
+
 
 (* @dev:    Burn existing tokens. Only token_owner or an operator can burn a NFT. *)
 (* @param:  token_id - Unique ID of the NFT to be destroyed                       *)
