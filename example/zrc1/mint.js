@@ -25,13 +25,13 @@ async function main() {
     try {
         const contract = zilliqa.contracts.at(nftAddr);
         const callTx = await contract.callWithoutConfirm(
-            'mint',
+            'Mint',
             [
                 {
                     vname: 'to',
                     type: 'ByStr20',
                     value: `${address}`,
-                }
+                },
                 {
                     vname: 'token_uri',
                     type: 'String',
