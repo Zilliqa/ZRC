@@ -4,14 +4,15 @@
 
 ## I. What are Metatransactions?
 
-The concept of metatransactions is intended to allow wallets to sign incomplete transactions that represent the authorization to spend a certain amount of tokens. These are valuable to users who do not wish to go through KYC, etc to get a trivial amount of ZIL in order to pay for a transaction. Developers may choose to include this pattern to give an easier onboarding UX, or also to enable transactions to be paid for in the native token. This standard includes an example of ZRC-2 integrated with metatransactions, but there are many situations where authorizing an effect via a signed message is valuable.  The drawback is a metatransaction cannot easily be cancelled, so signers of metatransactions should view them as transactions that have already been processed, and if the relayer censors them they should re-send the same exact metatransaction to another relayer to void the original censored transaction.
+[The concept of metatransactions](https://medium.com/builders-of-zilliqa/zrc3s-grand-rewrite-22558797ea0) is intended to allow wallets to sign incomplete transactions that represent the authorization to spend a certain amount of tokens. These are valuable to users who do not wish to go through KYC, etc to get a trivial amount of ZIL in order to pay for a transaction. Developers may choose to include this pattern to give an easier onboarding UX, or also to enable transactions to be paid for in the native token. This standard includes an example of ZRC-2 integrated with metatransactions, but there are many situations where authorizing an effect via a signed message is valuable.  The drawback is a metatransaction cannot easily be cancelled, so signers of metatransactions should view them as transactions that have already been processed, and if the relayer censors them they should re-send the same exact metatransaction to another relayer to void the original censored transaction.
 
 ## II. Abstract
 
 ZRC-3 defines a basic supplement to another contract with the ability to perform transitions with metatransactions. In this provided standard we build on ZRC-2 to enable metatransaction transfers. 
 
 ## III. Motivation
-Metatransactions provide an alternative flow for users just getting started with their cryptocurrency and wallets. It allows for gasless transactions, cutting out the barrier of getting ZIL from an exchange or via mining before a Dapp user can interact with the smart contract. It can also be seen as a way to defer the processing of transactions or even to guard a transition that requires multiparty authorization, although those applications are left to implementations and future standards. This contract adds a `metatransfer` transition to the existing ZRC-2. It does this in a way that maintains compatibility with the Operator and Mintable variants of ZRC-2 as well as the Zilswap exchange, and hopefully future OpFi tools.
+Metatransactions provide an alternative flow for users just getting started with their cryptocurrency and wallets. It allows for gasless transactions, cutting out the barrier of getting ZIL from an exchange or via mining before a Dapp user can interact with the smart contract. 
+It can also be seen as a way to defer the processing of transactions or even to guard a transition that requires multiparty authorization, although those applications are left to implementations and future standards. This contract adds a `metatransfer` transition to the existing ZRC-2. It does this in a way that maintains compatibility with the Operator and Mintable variants of ZRC-2 as well as the Zilswap exchange, and hopefully future OpFi tools.
 ## IV. Specification
 
 The fungible token contract specification describes:
@@ -340,7 +341,7 @@ transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
 | `_eventname` | `OperatorSendSuccess` | Sending is successful.     | `initiator`: `ByStr20` which is the operator's address, `sender`: `ByStr20` which is the token_owner's address, `recipient`: `ByStr20` which is the recipient's address, and `amount`: `Uint128` which is the amount of fungible tokens to be transferred. |
 | `_eventname` | `Error`               | Sending is not successful. | - emit `CodeNotApprovedOperator` if sender is not an approved operator for the token_owner <br> - emit `CodeInsufficientFunds` if the balance of the token_owner is lesser than the specified amount that is to be transferred.                            |
 
-#### 10. ChequeSend() (Optional)
+#### 10. ChequeSend()
 
 ```ocaml
 (* @dev: Moves amount tokens from token_owner to recipient.                                             *)

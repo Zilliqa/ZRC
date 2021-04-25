@@ -210,59 +210,46 @@ end
 (* @param fee:         Reward taken from the cheque senders balance for the relayer.                    *)
 (* @param nonce:       A random value included in the cheque to make each unique.                       *)
 (* @param signature:   The signature of the cheque by the token owner to authorize spend.               *)
-transition ChequeSend(pubkey: ByStr33, from: ByStr20, to: ByStr20, amount: Uint128, fee: Uint128, nonce:Uint128, signature: ByStr64)
-  hash = builtin sha256hash pubkey;
-  strHash = builtin to_string hash;
-  offset = Uint32 26;
-  length = Uint32 40;
-  addr = builtin substr strHash offset length;
-  fixed_addr = builtin concat prefix addr;
-  from_str = builtin to_string from;
-  sender_is_owner = builtin eq fixed_addr from_str;
-  match sender_is_owner with
-    | True =>
-      to_hash = builtin sha256hash to;
-      amount_hash = builtin sha256hash amount;
-      contract_hash = builtin sha256hash _this_address;
-      fee_hash = builtin sha256hash fee;
-      nonce_hash = builtin sha256hash nonce;
-      p0_hash = builtin concat to_hash amount_hash;
-      p1_hash = builtin concat p0_hash contract_hash;
-      p2_hash = builtin concat p1_hash fee_hash;
-      p3_hash = builtin concat p2_hash nonce_hash;
-      cheque_hash = builtin to_bystr p3_hash;
-      ev = {_eventname : "CalculatedHash"; from:from ; to_hash:to_hash ; amount_hash:amount_hash; contract_hash:contract_hash;fee_hash:fee_hash ; nonce_hash:nonce_hash ; chequehash:cheque_hash };
-        event ev;
-        cheque_invalid <- exists void_cheques[cheque_hash];
-        match cheque_invalid with 
-        | False =>
-            valid_sig = builtin schnorr_verify pubkey cheque_hash signature;
-            match valid_sig with 
-              | True =>
-                AuthorizedMoveIfSufficientBalance from to amount;
-                AuthorizedMoveIfSufficientBalance from _sender fee;
-                void_cheques[cheque_hash] :=_sender;
-                e = {_eventname : "ChequeSendSuccess"; initiator : _sender; sender: from; recipient : to; amount : amount};
-                event e;
-                (* Prevent sending to a contract address that does not support transfers of token *)
-                msg_to_recipient = {_tag : "RecipientAcceptTransfer"; _recipient : to; _amount : zero; 
-                                    sender : _sender; recipient : to; amount : amount};
-                msg_to_sender = {_tag : "TransferSuccessCallBack"; _recipient : _sender; _amount : zero; 
+transition ChequeSend(pubkey: ByStr33, to: ByStr20, amount: Uint128, fee: Uint128, nonce:Uint128, signature: ByStr64)
+  from = builtin schnorr_get_address pubkey;
+  to_hash = builtin sha256hash to;
+  amount_hash = builtin sha256hash amount;
+  contract_hash = builtin sha256hash _this_address;
+  fee_hash = builtin sha256hash fee;
+  nonce_hash = builtin sha256hash nonce;
+  p0_hash = builtin concat to_hash amount_hash;
+  p1_hash = builtin concat p0_hash contract_hash;
+  p2_hash = builtin concat p1_hash fee_hash;
+  p3_hash = builtin concat p2_hash nonce_hash;
+  cheque_hash = builtin to_bystr p3_hash;
+  ev = {_eventname : "CalculatedHash"; from:from ; to_hash:to_hash ; amount_hash:amount_hash; contract_hash:contract_hash;fee_hash:fee_hash ; nonce_hash:nonce_hash ; chequehash:cheque_hash };
+    event ev;
+    cheque_invalid <- exists void_cheques[cheque_hash];
+    match cheque_invalid with 
+    | False =>
+        valid_sig = builtin schnorr_verify pubkey cheque_hash signature;
+        match valid_sig with 
+          | True =>
+            AuthorizedMoveIfSufficientBalance from to amount;
+            AuthorizedMoveIfSufficientBalance from _sender fee;
+            void_cheques[cheque_hash] :=_sender;
+            e = {_eventname : "ChequeSendSuccess"; initiator : _sender; sender: from; recipient : to; amount : amount};
+            event e;
+            (* Prevent sending to a contract address that does not support transfers of token *)
+            msg_to_recipient = {_tag : "RecipientAcceptTransfer"; _recipient : to; _amount : zero; 
                                 sender : _sender; recipient : to; amount : amount};
-                msgs = two_msgs msg_to_recipient msg_to_sender;
-                send msgs
-              | False =>
-                err = CodeSignatureInvalid;
-                ThrowError err
-            end
-        | True =>
-          err = CodeChequeVoid;
-          ThrowError err
+            msg_to_sender = {_tag : "TransferSuccessCallBack"; _recipient : _sender; _amount : zero; 
+                            sender : _sender; recipient : to; amount : amount};
+            msgs = two_msgs msg_to_recipient msg_to_sender;
+            send msgs
+          | False =>
+            err = CodeSignatureInvalid;
+            ThrowError err
         end
-      | False => 
-        err = CodeInvalidSigner;
-        ThrowError err
-      end
+    | True =>
+      err = CodeChequeVoid;
+      ThrowError err
+    end
 end
 
 
@@ -274,46 +261,33 @@ end
 (* @param fee:         Reward to be taken from the cheque senders balance if the cheque was processed.  *)
 (* @param nonce:       A random value included in the cheque to make each unique.                       *)
 (* @param signature:   The signature of the cheque by the token owner that authorized the spend.        *)
-transition ChequeVoid(pubkey: ByStr33, from: ByStr20, to: ByStr20, amount: Uint128, fee: Uint128, nonce:Uint128, signature: ByStr64)
-  hash = builtin sha256hash pubkey;
-  strHash = builtin to_string hash;
-  offset = Uint32 26;
-  length = Uint32 40;
-  addr = builtin substr strHash offset length;
-  fixed_addr = builtin concat prefix addr;
-  sender_str = builtin to_string _sender;
-  sender_is_owner = builtin eq fixed_addr sender_str;
-  match sender_is_owner with
-    | True =>
-      to_hash = builtin sha256hash to;
-      amount_hash = builtin sha256hash amount;
-      contract_hash = builtin sha256hash _this_address;
-      fee_hash = builtin sha256hash fee;
-      nonce_hash = builtin sha256hash nonce;
-      p0_hash = builtin concat to_hash amount_hash;
-      p1_hash = builtin concat p0_hash contract_hash;
-      p2_hash = builtin concat p1_hash fee_hash;
-      p3_hash = builtin concat p2_hash nonce_hash;
-      cheque_hash = builtin to_bystr p3_hash;
-      cheque_invalid <- exists void_cheques[cheque_hash];
-        match cheque_invalid with 
-        | False =>
-            valid_sig = builtin schnorr_verify pubkey cheque_hash signature;
-            match valid_sig with 
-              | True =>
-                void_cheques[cheque_hash] :=_sender;
-                e = {_eventname : "ChequeVoidSuccess"; initiator : _sender; sender: from; recipient : to; amount : amount};
-                event e
-              | False =>
-                err = CodeSignatureInvalid;
-                ThrowError err
-            end
-        | True =>
-          err = CodeChequeVoid;
-          ThrowError err
+transition ChequeVoid(pubkey: ByStr33, to: ByStr20, amount: Uint128, fee: Uint128, nonce:Uint128, signature: ByStr64)
+  from = builtin schnorr_get_address pubkey;
+  to_hash = builtin sha256hash to;
+  amount_hash = builtin sha256hash amount;
+  contract_hash = builtin sha256hash _this_address;
+  fee_hash = builtin sha256hash fee;
+  nonce_hash = builtin sha256hash nonce;
+  p0_hash = builtin concat to_hash amount_hash;
+  p1_hash = builtin concat p0_hash contract_hash;
+  p2_hash = builtin concat p1_hash fee_hash;
+  p3_hash = builtin concat p2_hash nonce_hash;
+  cheque_hash = builtin to_bystr p3_hash;
+  cheque_invalid <- exists void_cheques[cheque_hash];
+    match cheque_invalid with 
+    | False =>
+        valid_sig = builtin schnorr_verify pubkey cheque_hash signature;
+        match valid_sig with 
+          | True =>
+            void_cheques[cheque_hash] :=_sender;
+            e = {_eventname : "ChequeVoidSuccess"; initiator : _sender; sender: from; recipient : to; amount : amount};
+            event e
+          | False =>
+            err = CodeSignatureInvalid;
+            ThrowError err
         end
-      | False => 
-        err = CodeInvalidSigner;
-        ThrowError err
-      end
+    | True =>
+      err = CodeChequeVoid;
+      ThrowError err
+    end
 end
