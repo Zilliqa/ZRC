@@ -1,0 +1,689 @@
+scilla_version 0
+
+import ListUtils
+
+library MultiToken
+
+let one_msg = 
+  fun (msg : Message) => 
+  let nil_msg = Nil {Message} in
+  Cons {Message} msg nil_msg
+
+(* global variables*)
+let none = Uint128 0
+let zero_128 = Uint128 0
+let zero_32 = Uint32 0
+let one_32 = Uint32 1
+let zero_address = 0x0000000000000000000000000000000000000000
+let empty_string = ""
+let error_128 = Int128 -1
+let error_zero_128 = Int128 0
+
+(* Error events *)
+type Error =
+| CodeSenderIsOperator
+| CodeIsZeroAddress
+| CodeInsufficientAmount
+| CodeListLengthNoMatch
+| CodeUpdateBalanceFailed
+| CodeSenderIsNotOperator 
+| CodeIsNotMinter
+| CodeNotContractOwner
+| CodeTokenNotFound
+| CodeSenderIsNotOperatorOrOwner
+
+(* Library functions *)
+let make_error_event =
+  fun (result : Error) =>
+    let result_code = 
+      match result with
+      | CodeSenderIsOperator              => Int32 -1
+      | CodeIsZeroAddress                 => Int32 -2
+      | CodeInsufficientAmount            => Int32 -3
+      | CodeListLengthNoMatch             => Int32 -4
+      | CodeUpdateBalanceFailed           => Int32 -5
+      | CodeSenderIsNotOperator           => Int32 -6
+      | CodeIsNotMinter                   => Int32 -7
+      | CodeNotContractOwner              => Int32 -8
+      | CodeTokenNotFound                 => Int32 -9
+      | CodeSenderIsNotOperatorOrOwner    => Int32 -10
+      end
+    in
+    { _exception : "Error"; code : result_code }
+
+let two_msgs =
+  fun (msg1 : Message) =>
+  fun (msg2 : Message) =>
+    let msgs_tmp = one_msg msg2 in
+    Cons {Message} msg1 msgs_tmp
+
+let get_val_Uint128 =
+  fun (some_val: Option Uint128) =>
+    match some_val with
+    | Some val => val
+    | None => zero_128
+    end
+
+let get_val_Uint32 =
+  fun (some_vals: Option Uint32) =>
+    match some_vals with
+    | Some vals => vals
+    | None => zero_32
+    end  
+
+let get_int128_from_uint128 =
+  fun(v: Uint128) =>
+    let value = builtin to_int128 v in
+    match value with 
+    | Some v => v
+    | None => error_128
+    end
+    
+let get_batch_balance_of =
+  fun (balances_map: Map Uint256 (Map ByStr20 Uint128) ) =>
+  fun (token_id : Uint256) =>
+  fun (address: ByStr20) =>
+    let balance_map = builtin get balances_map token_id in
+    match balance_map with
+      | Some v =>
+          let balance = builtin get v address in
+          match balance with
+            | Some v => 
+              get_int128_from_uint128 v
+            | None => error_zero_128
+          end 
+      | None => error_zero_128
+    end
+
+let do_batch_mint =
+  fun (balances_map : Map Uint256 (Map ByStr20 Uint128) ) =>
+  fun (address : ByStr20) =>
+  fun (token_id : Uint256) =>
+  fun (amount: Uint128) => 
+    let balance_map = builtin get balances_map token_id in
+    match balance_map with
+      | Some v =>
+          let balance = builtin get v address in
+          match balance with
+            | Some v => 
+                let value = builtin add v amount in
+                  get_int128_from_uint128 value
+            | None => 
+                  get_int128_from_uint128 amount
+          end 
+      | None => get_int128_from_uint128 amount
+    end
+
+let do_batch_burn =
+  fun (balances_map : Map Uint256 (Map ByStr20 Uint128) ) =>
+  fun (address : ByStr20) =>
+  fun (token_id : Uint256) =>
+  fun (amount: Uint128) => 
+    let balance_map = builtin get balances_map token_id in
+    match balance_map with
+      | Some v =>
+          let balance = builtin get v address in
+          match balance with
+            | Some v => 
+                let value = builtin sub v amount in 
+                  get_int128_from_uint128 value
+            | None => error_128
+          end 
+      | None => error_128
+    end
+
+let do_batch_transfer_from =
+  fun (balances_map : Map Uint256 (Map ByStr20 Uint128) ) =>
+  fun (from : ByStr20) =>
+  fun (token_id : Uint256) =>
+  fun (amount: Uint128) => 
+    let balance_map = builtin get balances_map token_id in
+    match balance_map with
+      | Some v =>
+          let balance = builtin get v from in
+          match balance with
+            | Some v => 
+                let is_less = builtin lt v amount in
+                match is_less with 
+                | False =>
+                    let value = builtin sub v amount in
+                      get_int128_from_uint128 value
+                | True => error_128
+                end
+            | None => error_128
+          end 
+      | None => error_128
+    end
+
+let do_batch_transfer_to =
+  fun (balances_map : Map Uint256 (Map ByStr20 Uint128) ) =>
+  fun (to : ByStr20) =>
+  fun (token_id : Uint256) =>
+  fun (amount: Uint128) => 
+    let balance_map = builtin get balances_map token_id in
+    match balance_map with
+      | Some v =>
+          let balance = builtin get v to in
+          match balance with
+            | Some v => 
+                let value = builtin add v amount in
+                  get_int128_from_uint128 value
+            | None => get_int128_from_uint128 amount
+
+          end 
+      | None => get_int128_from_uint128 amount
+
+    end
+
+(* Dummy user-defined ADT *)
+type Unit =
+| Unit
+
+contract MultiTokenContract(
+  contract_owner: ByStr20
+)
+
+(* List of minters available *)
+field minters: Map ByStr20 Unit = Emp ByStr20 Unit
+
+(* Mapping from token_id to address to amount *)
+field balances : Map Uint256 (Map ByStr20 Uint128) 
+  = Emp Uint256 (Map ByStr20 Uint128)
+
+(* Mapping from owner to operator approval *)
+field operator_approvals : Map ByStr20 (Map ByStr20 Uint32) 
+  = Emp ByStr20 (Map ByStr20 Uint32)
+
+field token_uris: Map Uint256 String = Emp Uint256 String
+
+(* List of temporary used variables  used *)
+field temp_result : List Int128 = Nil {Int128}
+field temp_address : ByStr20 =  zero_address
+field countTrue: Uint32 = zero_32
+field temp_token_uris : List String = Nil {String}
+
+(* Emit Errors *)
+procedure EmitError(err : Error)
+  e = make_error_event err;
+  throw e
+end
+
+procedure SenderIsNotOperator(operator: ByStr20) 
+    is = builtin eq _sender operator;
+    match is with
+    | False =>
+    | True => 
+      e = CodeSenderIsOperator;
+      EmitError e
+    end
+end
+
+procedure SenderIsOperator(account: ByStr20) 
+  is_approved_operator <- operator_approvals[account][_sender];
+  operator_status = get_val_Uint32 is_approved_operator;
+  is = builtin eq operator_status one_32;
+  match is with
+  | False =>
+    e = CodeSenderIsNotOperator;
+    EmitError e
+  | True => 
+  end
+end
+
+procedure IsZeroAddress(address: ByStr20) 
+  is_zero = builtin eq zero_address address;
+  match is_zero with
+    | True =>
+      e = CodeIsZeroAddress;
+      EmitError e
+    | False =>
+    end
+end
+  
+procedure IsInsufficientBalance(balance: Uint128, amount: Uint128 )
+  is_less = builtin lt balance amount;
+  match is_less with
+    | True =>
+      e = CodeInsufficientAmount;
+      EmitError e
+    | False =>
+    end
+end
+ 
+procedure IsEqual( a:Uint32, b:Uint32)
+  is_equal = builtin eq a b;
+  match is_equal with
+    | True =>
+    
+    | False =>
+      e = CodeListLengthNoMatch;
+      EmitError e
+   end
+end
+
+procedure UpdateBalances(token_id: Uint256)
+  count <- countTrue;
+  temp_r <- temp_result;
+  temp_a <- temp_address;
+  temp_list <- temp_token_uris;
+
+  list_nth_i = @list_nth Int128;
+  final_amount = list_nth_i count temp_r;
+  
+  list_nth_s = @list_nth String;
+  token_uri = list_nth_s count temp_list;
+  match token_uri with
+    | Some v =>
+        token_uris[token_id] := v
+    | None =>
+  end;
+  
+  add_result = builtin add count one_32;
+  countTrue := add_result;
+  
+  match final_amount with
+     |Some v => 
+       new_balance = builtin to_uint128 v;
+       match new_balance with
+       | Some balance => 
+          is_zero = builtin eq balance zero_128;
+          match is_zero with
+          | True => 
+              delete balances[token_id][temp_a]            
+          | False => 
+              balances[token_id][temp_a] := balance
+          end
+       | None =>
+          e = CodeUpdateBalanceFailed;
+          EmitError e
+       end
+     |None => 
+  end
+end
+
+(* procedure DeleteToken(token_id: Uint256)
+  delete token_uris[token_id];
+  delete balances[token_id];  
+  e = {_eventname: "DeleteTokenURI"; initiator: _sender};
+  event e;
+end *)
+
+procedure IsMinter()
+  is_minter <- exists minters[_sender];
+  match is_minter with
+  | True =>
+  | False =>
+    err = CodeIsNotMinter;
+    EmitError err
+  end
+end
+
+procedure IsContractOwner()
+  is_contract_owner = builtin eq contract_owner _sender;
+  match is_contract_owner with
+  | True => 
+  | False =>
+    err = CodeNotContractOwner;
+    EmitError err
+  end
+end
+
+procedure IsTokenOwner(token_id: Uint256, address: ByStr20)
+  token_owners_map <- balances[token_id][address];
+  match token_owners_map with
+    | Some v =>
+    | None => 
+      err = CodeTokenNotFound;
+      EmitError err
+  end  
+end
+
+procedure IsTokenOwnerOrOperator(account: ByStr20)
+  sender_is_token_owner = builtin eq account _sender;
+  match sender_is_token_owner with
+    | True =>
+    | False =>
+      is_approved_operator <- operator_approvals[account][_sender];
+      operator_status = get_val_Uint32 is_approved_operator;
+      is_operator = builtin eq operator_status zero_32;
+      match is_operator with
+        | True =>
+          e = CodeSenderIsNotOperatorOrOwner;
+          EmitError e
+        | False =>
+      end
+  end
+end
+
+(* @dev: Get the uri for the given token_id *)
+(* @param: token_id - Unique ID of a token  *)
+transition GetURI(token_id: Uint256)
+  some_token_uri <- token_uris[token_id];
+  match some_token_uri with
+  | Some token_uri =>
+    msg_to_sender = { _tag : "GetTokenURICallBack"; _recipient : _sender; _amount : Uint128 0; 
+                        token_uri : token_uri};
+    msgs = one_msg msg_to_sender;
+    send msgs
+  | None =>
+    err = CodeTokenNotFound;
+    EmitError err
+  end
+  
+end
+
+(* @dev: Check if a token_id is owned by a token_owner *)
+transition CheckTokenOwner(token_id: Uint256, address: ByStr20)
+  IsTokenOwner token_id address;
+  msg_to_sender = { _tag : "IsTokenOwnerCallBack"; _recipient : _sender; _amount : Uint128 0};
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* @dev:   Add or remove approved minters. Only contract_owner can approve minters. *)
+(* @param: minter - Address of the minter to be approved or removed            *)
+transition ConfigureMinter(minter: ByStr20)
+  IsContractOwner;
+  some_minter <- minters[minter];
+  match some_minter with
+  | Some Unit => 
+    (* Remove minter *)
+    delete minters[minter];
+    e = {_eventname: "RemovedMinterSuccess"; minter: minter};
+    event e
+  | None =>
+    (* Add minter *)
+    authorize = Unit;
+    minters[minter] := authorize;
+    e = {_eventname: "AddMinterSuccess"; minter: minter};
+    event e
+  end
+end
+
+(* @dev:   Get the balance of token token_id for an address *)
+(* @param: address -  Address of the user whose balance is needed *)
+(* @param: token_id - Token id whose balance is required *)
+transition BalanceOf(address: ByStr20, token_id: Uint256)
+    IsZeroAddress address;
+    address_balance <- balances[token_id][address];
+    balance = get_val_Uint128 address_balance;
+    msg_to_sender = { _tag : "BalanceOfCallBack"; _recipient : _sender; 
+                _amount : Uint128 0; balance : balance};
+    msgs = one_msg msg_to_sender;
+    send msgs
+end
+
+(* @dev:   Get the batch balance of token token_id for an address *)
+(* @param: address - List of address of the user whose balance is needed *)
+(* @param: token_id - List of token id whose balance is required *)
+transition BalanceOfBatch(address: List ByStr20, token_id: List Uint256)
+  address_list_length = @list_length ByStr20;
+  address_length = address_list_length address;
+  token_id_list_length = @list_length Uint256;
+  token_length = token_id_list_length token_id;
+  IsEqual token_length address_length;
+
+  l3 <- balances;
+  curryed_batch_balance = get_batch_balance_of l3;
+  list_zip_eq_with = @list_zip_with Uint256 ByStr20 Int128;
+  result = list_zip_eq_with curryed_batch_balance token_id address;
+
+  msg_to_sender = { _tag : "BalanceOfCallBackBatch"; _recipient : _sender; 
+                    _amount : Uint128 0; balance : result};
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* @dev:   Sets or unsets an operator for the _sender *)
+(* @param: to - Address to be set or unset as an operator *)
+(* @param: approved - Approval status to be given 1 for set and 0 for not removing *)
+transition SetApprovalForAll(to: ByStr20, approved: Uint32)
+  SenderIsNotOperator to;
+  operator_approvals[_sender][to] := approved;
+  e = {_eventname: "SetApprovalForAllSuccess"; initiator: _sender; operator: to; status: approved};
+  event e;
+  msg_to_sender = { _tag : "SetApprovalForAllSuccessCallBack"; _recipient : _sender; _amount : Uint128 0; 
+  operator : to; status: approved };
+  msgs = one_msg msg_to_sender;
+  send msgs
+
+end
+
+(* @dev:   Checks if the operator address is operator for token_owner address *)
+(* @param: operator - Address to be check as an operator *)
+(* @param: token_owner - Address of the token_owner *)
+transition IsApprovedForAll(operator: ByStr20, token_owner: ByStr20)
+  approved_status <- operator_approvals[token_owner][operator];
+  is_operator = get_val_Uint32 approved_status;
+  msg_to_sender = { _tag : "IsApprovedForAllCallBack"; _recipient : _sender; _amount : Uint128 0; 
+                   is_operator : is_operator};
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+procedure BeforeTokenTransfer(operator: ByStr20, from: ByStr20, to: ByStr20, token_id: Uint256, amount: Uint128, data: String)
+  
+end
+
+procedure BeforeBatchTokenTransfer(operator: ByStr20, from: ByStr20, to: ByStr20, token_id: List Uint256, amount: List Uint128, data: String)
+  
+end
+
+(* @dev:   Transfer the ownership of a given token_id of amount to address 
+    Owner or operator can only call the transition *)
+(* @param: from - Address to send the token *)
+(* @param: to - Address to recieve the token *)
+(* @param: token_id - Token id to be transferred *)
+(* @param: amount - Amount of token to be transferred *)
+(* @param: data - Data to display on BeforeBatchTokenTransfer *)
+transition SafeTransferFrom(from: ByStr20, to: ByStr20, token_id: Uint256, amount: Uint128, data: String)
+  IsZeroAddress to;
+  IsTokenOwnerOrOperator from;
+
+  balance_from <- balances[token_id][from];
+  from_balance = get_val_Uint128 balance_from;
+  IsInsufficientBalance from_balance amount;
+
+  BeforeTokenTransfer from from to token_id amount data;
+
+  subtract_value = builtin sub from_balance amount;
+  balances[token_id][from] := subtract_value;
+  balance_to <- balances[token_id][to];
+  to_balance = get_val_Uint128 balance_to;
+  add_value = builtin add to_balance amount;
+  balances[token_id][to] := add_value;
+  
+  e = {_eventname : "TransferSuccess"; from: from; recipient: to; token_id: token_id};
+  event e;
+
+  msg_to_recipient = { _tag : "RecipientAcceptTransfer"; _recipient : to; _amount : Uint128 0; 
+  from : from; recipient : to; token_id : token_id; token_amount : amount};
+
+  msg_to_sender = { _tag : "TransferSuccessCallBack"; _recipient : from; _amount : Uint128 0; 
+  from : _sender; recipient : to; token_id : token_id; token_amount : amount };
+  msgs = two_msgs msg_to_recipient msg_to_sender;
+  send msgs
+end
+
+(* @dev:   Transfer the ownership of a given token_id of amount to address 
+    Owner or operator can only call the transition *)
+(* @param: from - Address to send the token *)
+(* @param: to - Address to receive the token *)
+(* @param: token_id - List of token id to be transferred *)
+(* @param: amount - List of amount of token to be transferred *)
+(* @param: data - Data to display on BeforeBatchTokenTransfer *)
+transition SafeBatchTransferFrom(from: ByStr20, to: ByStr20, token_id: List Uint256, amount: List Uint128, data: String)
+  amount_list_length = @list_length Uint128;
+  amount_length = amount_list_length amount;
+  token_id_list_length = @list_length Uint256;
+  token_length = token_id_list_length token_id;
+  IsEqual token_length amount_length;
+
+  IsZeroAddress to;
+  IsTokenOwnerOrOperator from;
+
+
+  BeforeBatchTokenTransfer _sender _sender to token_id amount data;
+
+  l3 <- balances;
+  curryed_batch_balance = do_batch_transfer_from l3 from;
+  list_zip_eq_with = @list_zip_with Uint256 Uint128 Int128;
+  result = list_zip_eq_with curryed_batch_balance token_id amount;
+  
+  temp_result := result;
+  temp_address := from;
+
+  forall token_id UpdateBalances;
+  countTrue := zero_32;
+  
+  curryed_batch_balance = do_batch_transfer_to l3 to;
+  list_zip_eq_with = @list_zip_with Uint256 Uint128 Int128;
+  result = list_zip_eq_with curryed_batch_balance token_id amount;
+  
+  temp_result := result;
+  temp_address := to;
+
+  forall token_id UpdateBalances;
+  countTrue := zero_32;
+
+  e = {_eventname : "BatchTransferSuccess"; _sender : _sender};
+  event e
+end
+
+(* @dev:   This transition mints the token to to address, only minters can call the transition *)
+(* @param: to - Address to recieve the token *)
+(* @param: token_id - Token id to be minted *)
+(* @param: amount - Amount of token to be minted *)
+(* @param: token_uri - Token Uri to be set for the token *)
+transition Mint(to: ByStr20, token_id: Uint256, amount: Uint128, token_uri: String)
+  IsMinter;
+  IsZeroAddress to;
+
+  BeforeTokenTransfer _sender zero_address to token_id amount empty_string;
+
+  account_balance <- balances[token_id][to];
+  balance_account = get_val_Uint128 account_balance;
+  add_value = builtin add balance_account amount;
+  balances[token_id][to] := add_value;
+  token_uris[token_id] := token_uri;
+  e = {_eventname: "MintSuccess"; by: _sender; recipient: to;
+           token_id: token_id; token_amount: amount};
+  event e;
+
+  msg_to_recipient = { _tag : "RecipientAcceptMint"; _recipient : to; _amount : Uint128 0; token_amount: amount };
+  msg_to_sender = { _tag : "MintCallBack"; _recipient : _sender; _amount : Uint128 0;
+                    recipient : to; token_id : token_id };
+  msgs = two_msgs msg_to_recipient msg_to_sender;
+  send msgs
+
+end
+
+(* @dev:   This transition mints the list of tokens to to address, only minters can call the transition *)
+(* @param: to - Address to recieve the token *)
+(* @param: token_id - List of token id to be minted *)
+(* @param: amount - List of amount of token to be minted *)
+(* @param: token_uri - List of token uri to be set for the token *)
+transition MintBatch(amount: List Uint128, token_id: List Uint256, token_uris_list: List String, to: ByStr20)
+  IsMinter;
+  
+  amount_list_length = @list_length Uint128;
+  amount_length = amount_list_length amount;
+  token_id_list_length = @list_length Uint256;
+  token_length = token_id_list_length token_id;
+  IsEqual token_length amount_length;
+
+  IsZeroAddress to;
+
+  BeforeBatchTokenTransfer _sender zero_address to token_id amount empty_string;
+
+  l3 <- balances;
+  curryed_batch_balance = do_batch_mint l3 to;
+  list_zip_eq_with = @list_zip_with Uint256 Uint128 Int128;
+  result = list_zip_eq_with curryed_batch_balance token_id amount;
+  
+  temp_result := result;
+  temp_address := to;
+
+  temp_token_uris := token_uris_list;
+
+  forall token_id UpdateBalances;
+  countTrue := zero_32;
+  
+  e = {_eventname : "SafeBatchMint"; initiator: _sender; mint_address: to; result : result};
+  event e;
+
+  msg_to_recipient = { _tag : "RecipientAcceptBatchMint"; _recipient : to; _amount : Uint128 0 };
+  msg_to_sender = { _tag : "BatchMintCallBack"; _recipient : _sender; _amount : Uint128 0 };
+  msgs = two_msgs msg_to_recipient msg_to_sender;
+  send msgs
+end
+
+(* @dev:   This transition burns the tokens, only operators can call the transition *)
+(* @param: from - Address of the user whose token is to be burnt *)
+(* @param: token_id - Token id to be burnt *)
+(* @param: amount - Amount of token to be burnt *)
+transition Burn(from: ByStr20, token_id: Uint256, amount: Uint128 )
+  SenderIsOperator from;
+  IsZeroAddress from;
+  
+  BeforeTokenTransfer _sender from zero_address token_id amount empty_string;
+
+  balance <- balances[token_id][from];
+  balance_account = get_val_Uint128 balance;
+  IsInsufficientBalance balance_account amount;
+  new_balance = builtin sub balance_account amount;
+  is_zero = builtin eq new_balance zero_128;
+  match is_zero with
+  | True => 
+      delete balances[token_id][from]            
+  | False => 
+      balances[token_id][from] := new_balance
+  end; 
+
+  e = {_eventname: "BurnSuccess"; initiator: _sender; burn_address: from; token_id: token_id; token_amount: amount};
+  event e;
+
+  msg_to_sender = { _tag : "BurnCallBack"; _recipient : _sender; _amount : Uint128 0;
+                    initiator : _sender; burn_address : from; token_id : token_id };
+  msgs = one_msg msg_to_sender;
+  send msgs
+  
+end
+
+(* @dev:   This transition burns the list of tokens, only operators can call the transition *)
+(* @param: from - Address of the user whose token is to be burnt *)
+(* @param: token_id - List of token id to be burnt *)
+(* @param: amount - List of amount of token to be burnt *)
+transition BurnBatch(amount: List Uint128, token_id: List Uint256, from: ByStr20)
+  SenderIsOperator from;
+  amount_list_length = @list_length Uint128;
+  amount_length = amount_list_length amount;
+  token_id_list_length = @list_length Uint256;
+  token_length = token_id_list_length token_id;
+  IsEqual token_length amount_length;
+
+  IsZeroAddress from;
+
+  BeforeBatchTokenTransfer _sender from zero_address token_id amount empty_string;
+
+  l3 <- balances;
+  curryed_batch_balance = do_batch_burn l3 from;
+  list_zip_eq_with = @list_zip_with Uint256 Uint128 Int128;
+  result = list_zip_eq_with curryed_batch_balance token_id amount;
+
+  temp_result := result;
+  temp_address := from;
+
+  forall token_id UpdateBalances;
+  countTrue := zero_32;
+
+
+  e = {_eventname: "BatchBurnSuccess"; initiator: _sender; burn_address: from; result: result};
+  event e;
+
+  msg_to_sender = { _tag : "BurnCallBack"; _recipient : _sender; _amount : Uint128 0;
+                    initiator : _sender; burn_address : from};
+  msgs = one_msg msg_to_sender;
+  send msgs
+  
+end
