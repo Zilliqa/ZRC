@@ -1,15 +1,11 @@
 scilla_version 0
 
-import ListUtils IntUtils BoolUtils
+import ListUtils BoolUtils
 
 (***************************************************)
 (*               Associated library                *)
 (***************************************************)
 library WalletLib
-
-(* Event emitted when the contract is initialized *)
-let mk_contract_initialized_event =
-  { _eventname : "Contract initialized" }
 
 (* Event for communicating a new transaction id *)
 let mk_transaction_added_event =

@@ -42,7 +42,7 @@ This is a sample implementation of `AddFunds` transition that unconditionally ac
 
 ```
 transition AddFunds ()
-  accept;
+  accept
 end
 ```
 
