@@ -1,6 +1,6 @@
 scilla_version 0
 
-import ListUtils IntUtils BoolUtils
+import ListUtils BoolUtils
 
 (***************************************************)
 (*               Associated library                *)
