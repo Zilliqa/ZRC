@@ -7,10 +7,6 @@ import ListUtils BoolUtils
 (***************************************************)
 library WalletLib
 
-(* Event emitted when the contract is initialized *)
-let mk_contract_initialized_event =
-  { _eventname : "Contract initialized" }
-
 (* Event for communicating a new transaction id *)
 let mk_transaction_added_event =
   fun (tc : Uint32) =>
