@@ -1,6 +1,6 @@
 | ZRC | Title                        | Status   | Type     | Author                                                                               | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
 | --- | ---------------------------- | -------- | -------- | ------------------------------------------------------------------------------------ | -------------------- | -------------------- |
-| 2   | Standard for Fungible Tokens | Draft | Standard | Cameron Sajedi <cameron@starlingfoundries.com> | 2019-10-15           | 2021-02-08           |
+| 3   | Standard for Metatransactions | Draft | Standard | Cameron Sajedi <cameron@starlingfoundries.com> | 2019-10-15           | 2021-06-29           |
 
 ## I. What are Metatransactions?
 
