@@ -1,0 +1,35 @@
+{
+  "scripts": {
+    "check": "nodemon",
+    "test": "npm run test:bancor && npm run test:operator &&npm run test:token",
+    "test:token": "ts-node ./src/Token/__tests__/run.ts",
+    "test:bancor": "ts-node ./src/BancorFormula/__tests__/run.ts",
+    "test:operator": "ts-node ./src/Operator/__tests__/run.ts"
+  },
+  "dependencies": {
+    "@zilliqa-js/zilliqa": "^3.0.0",
+    "big.js": "^6.1.1",
+    "create-hash": "^1.2.0",
+    "dotenv": "^10.0.0",
+    "jest": "^27.0.6",
+    "nodemon": "^2.0.9",
+    "ts-jest": "^27.0.4",
+    "websocket": "^1.0.34"
+  },
+  "devDependencies": {
+    "@types/big.js": "^6.1.1",
+    "@types/bn.js": "^4.11.6",
+    "@types/create-hash": "^1.2.2",
+    "@types/jest": "^27.0.0",
+    "@types/long": "^4.0.1",
+    "@types/node": "^16.4.0",
+    "@types/node-fetch": "^2.5.12",
+    "@types/prettier": "^2.3.2",
+    "@types/websocket": "^1.0.4",
+    "node-fetch": "^2.6.1",
+    "prettier": "2.3.2",
+    "ts-node": "^10.0.0",
+    "tslib": "^2.3.0",
+    "typescript": "^4.3.5"
+  }
+}

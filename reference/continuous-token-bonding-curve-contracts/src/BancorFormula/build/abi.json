@@ -1,0 +1,178 @@
+{
+  "contract_info": {
+    "scilla_major_version": "0",
+    "vname": "BancorFormula",
+    "params": [],
+    "fields": [],
+    "transitions": [
+      {
+        "vname": "CalculatePurchaseReturn",
+        "params": [
+          { "vname": "in_supply", "type": "Uint128" },
+          { "vname": "in_connector_balance", "type": "Uint128" },
+          { "vname": "in_connector_weight", "type": "Uint128" },
+          { "vname": "in_deposit_amount", "type": "Uint128" }
+        ]
+      },
+      {
+        "vname": "CalculateSaleReturn",
+        "params": [
+          { "vname": "in_supply", "type": "Uint128" },
+          { "vname": "in_connector_balance", "type": "Uint128" },
+          { "vname": "in_connector_weight", "type": "Uint128" },
+          { "vname": "in_sell_amount", "type": "Uint128" }
+        ]
+      },
+      {
+        "vname": "CalculateCrossConnectorReturn",
+        "params": [
+          { "vname": "in_from_connector_balance", "type": "Uint128" },
+          { "vname": "in_from_connector_weight", "type": "Uint128" },
+          { "vname": "in_to_connector_balance", "type": "Uint128" },
+          { "vname": "in_to_connector_weight", "type": "Uint128" },
+          { "vname": "in_amount", "type": "Uint128" }
+        ]
+      }
+    ],
+    "procedures": [
+      {
+        "vname": "ThrowError",
+        "params": [ { "vname": "err", "type": "BancorFormula.Error" } ]
+      },
+      {
+        "vname": "AssertNotZero",
+        "params": [ { "vname": "value", "type": "Uint256" } ]
+      },
+      {
+        "vname": "AssertIsLE",
+        "params": [
+          { "vname": "i1", "type": "Uint256" },
+          { "vname": "i2", "type": "Uint256" }
+        ]
+      },
+      {
+        "vname": "SendCalculatePurchaseReturnCallback",
+        "params": [ { "vname": "result", "type": "Uint128" } ]
+      },
+      {
+        "vname": "SendCalculateSaleReturnCallback",
+        "params": [ { "vname": "result", "type": "Uint128" } ]
+      },
+      {
+        "vname": "SendCalculateCrossConnectorReturnCallback",
+        "params": [ { "vname": "result", "type": "Uint128" } ]
+      }
+    ],
+    "events": [],
+    "ADTs": [
+      {
+        "tname": "BancorFormula.Error",
+        "tparams": [],
+        "tmap": [
+          { "cname": "BancorFormula.CodeInputIsZero", "argtypes": [] },
+          { "cname": "BancorFormula.CodeInputNotInBounds", "argtypes": [] }
+        ]
+      },
+      {
+        "tname": "BancorFormula.ResAndX",
+        "tparams": [],
+        "tmap": [
+          {
+            "cname": "BancorFormula.ResAndX",
+            "argtypes": [ "Uint256", "Uint256" ]
+          }
+        ]
+      },
+      {
+        "tname": "Option",
+        "tparams": [ "'A" ],
+        "tmap": [
+          { "cname": "Some", "argtypes": [ "'A" ] },
+          { "cname": "None", "argtypes": [] }
+        ]
+      },
+      {
+        "tname": "BancorFormula.ThresholdAndToAdd",
+        "tparams": [],
+        "tmap": [
+          {
+            "cname": "BancorFormula.ThresholdAndToAdd",
+            "argtypes": [ "Uint256", "Uint256" ]
+          }
+        ]
+      },
+      {
+        "tname": "BancorFormula.PrecisionAndMax",
+        "tparams": [],
+        "tmap": [
+          {
+            "cname": "BancorFormula.PrecisionAndMax",
+            "argtypes": [ "Uint256", "Uint256" ]
+          }
+        ]
+      },
+      {
+        "tname": "BancorFormula.XAndRes",
+        "tparams": [],
+        "tmap": [
+          {
+            "cname": "BancorFormula.XAndRes",
+            "argtypes": [ "Uint256", "Uint256" ]
+          }
+        ]
+      },
+      {
+        "tname": "BancorFormula.PowerResultAndPrecision",
+        "tparams": [],
+        "tmap": [
+          {
+            "cname": "BancorFormula.PowerResultAndPrecision",
+            "argtypes": [ "Uint256", "Uint256" ]
+          }
+        ]
+      },
+      {
+        "tname": "Bool",
+        "tparams": [],
+        "tmap": [
+          { "cname": "True", "argtypes": [] },
+          { "cname": "False", "argtypes": [] }
+        ]
+      },
+      {
+        "tname": "Nat",
+        "tparams": [],
+        "tmap": [
+          { "cname": "Zero", "argtypes": [] },
+          { "cname": "Succ", "argtypes": [ "Nat" ] }
+        ]
+      },
+      {
+        "tname": "List",
+        "tparams": [ "'A" ],
+        "tmap": [
+          { "cname": "Cons", "argtypes": [ "'A", "List ('A)" ] },
+          { "cname": "Nil", "argtypes": [] }
+        ]
+      },
+      {
+        "tname": "Pair",
+        "tparams": [ "'A", "'B" ],
+        "tmap": [ { "cname": "Pair", "argtypes": [ "'A", "'B" ] } ]
+      },
+      {
+        "tname": "BancorFormula.NAndRes",
+        "tparams": [],
+        "tmap": [
+          {
+            "cname": "BancorFormula.NAndRes",
+            "argtypes": [ "Uint256", "Uint256" ]
+          }
+        ]
+      }
+    ]
+  },
+  "warnings": [],
+  "gas_remaining": "9847"
+}
+
