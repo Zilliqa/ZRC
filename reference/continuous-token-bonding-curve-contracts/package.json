@@ -5,7 +5,7 @@
     "test:token": "ts-node ./src/Token/__tests__/run.ts",
     "test:bancor": "ts-node ./src/BancorFormula/__tests__/run.ts",
     "test:operator": "ts-node ./src/Operator/__tests__/run.ts",
-    "demo": "git clone https://github.com/Zilliqa/zilliqa-isolated-server.git && cd zilliqa-isolated-server && docker build --rm -f \"Dockerfile\" -t isolatedserver:1 \".\" && docker run -d -p 5555:5555 isolatedserver:1 && cd .. && npm i && npm run test"
+    "demo": "git clone https://github.com/Zilliqa/zilliqa-isolated-server.git && cd zilliqa-isolated-server && docker build --rm -f \"Dockerfile\" -t isolatedserver:1 \".\" && docker run -d -p 5555:5555 isolatedserver:1 && cd .. && npm i && npm run test && docker stop $(docker ps -lq) && rm -rf ./zilliqa-isolated-server"
   },
   "dependencies": {
     "@zilliqa-js/zilliqa": "^3.0.0",
