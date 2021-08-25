@@ -49,9 +49,13 @@ All tests are located in ./src/*./\_\_tests\_\_ directories!
 
 In this directory (we need to run local isolated server for integration testing):
 
+Make sure that you have the Docker desktop daemon runnnig and run
+
 ```bash
-git clone https://github.com/Zilliqa/zilliqa-isolated-server.git && cd zilliqa-isolated-server && docker build --rm -f "Dockerfile" -t isolatedserver:1 "." && docker run -d -p 5555:5555 isolatedserver:1 && cd .. && npm i && npm run test
+npm run demo
 ```
+
+If you want to work on this just go to package json and look how the demo script is implemented. It clones and runs the zilliqa isolated server which is needed for integration testing and then runs it on port 5555 and calls npm i && npm run test
 
 # Other
 
