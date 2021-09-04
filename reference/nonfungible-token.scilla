@@ -74,7 +74,7 @@ let make_error =
       | CodeNotApprovedSpenderOrOperator => Int32 -10
       end
     in
-    { _exception : "Error"; code : result_code }
+    { _exception : "ZRC6_Error"; code : result_code }
 
 (***************************************************)
 (*             The contract definition             *)
