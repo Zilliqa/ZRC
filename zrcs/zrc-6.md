@@ -411,7 +411,7 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
 
 - [Non-Fungible Token](../reference/nonfungible-token.scilla)
 
-To test the reference contract, simply go to the [`example/zrc1`](../example/zrc1) folder and run one of the JS scripts. For example, to deploy the contract, run:
+To test the reference contract, simply go to the [`example/zrc6`](../example/zrc6) folder and run one of the JS scripts. For example, to deploy the contract, run:
 
 ```shell
 yarn deploy.js
