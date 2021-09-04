@@ -90,9 +90,9 @@ transition BalanceOf(address: ByStr20)
 
 **Messages sent:**
 
-|        | Name                | Description                                                | Callback Parameters                                                                                        |
-| ------ | ------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `_tag` | `balanceOfCallBack` | Provide the sender the balance of the queried token_owner. | `balance` of type `Uint256` representing the current balance of NFTs owned by the queried for token_owner. |
+|        | Name                     | Description                                                | Callback Parameters                                                                                        |
+| ------ | -------------------------| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_BalanceOfCallBack` | Provide the sender the balance of the queried token_owner. | `balance` of type `Uint256` representing the current balance of NFTs owned by the queried for token_owner. |
 
 #### 2. TotalSupply()
 
@@ -103,9 +103,9 @@ transition TotalSupply()
 
 **Messages sent:**
 
-|        | Name                  | Description                                                 | Callback Parameters                                                                    |
-| ------ | --------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| `_tag` | `TotalSupplyCallBack` | Provide the sender the current total supply of NFTs minted. | `total_supply` of type `Uint256` representing the current total supply of NFTs minted. |
+|        | Name                       | Description                                                 | Callback Parameters                                                                    |
+| ------ | ---------------------------| ----------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_TotalSupplyCallBack` | Provide the sender the current total supply of NFTs minted. | `total_supply` of type `Uint256` representing the current total supply of NFTs minted. |
 
 #### 3. Name()
 
@@ -116,9 +116,9 @@ transition Name()
 
 **Messages sent:**
 
-|        | Name           | Description                                      | Callback Parameters                                                |
-| ------ | -------------- | ------------------------------------------------ | ------------------------------------------------------------------ |
-| `_tag` | `NameCallBack` | Provide the sender the current name of the NFTs. | `name` of type `String` representing the current name of the NFTs. |
+|        | Name                | Description                                      | Callback Parameters                                                |
+| ------ | --------------------| ------------------------------------------------ | ------------------------------------------------------------------ |
+| `_tag` | `ZRC6_NameCallBack` | Provide the sender the current name of the NFTs. | `name` of type `String` representing the current name of the NFTs. |
 
 #### 4. Symbol()
 
@@ -129,9 +129,9 @@ transition Symbol()
 
 **Messages sent:**
 
-|        | Name             | Description                                        | Callback Parameters                                                    |
-| ------ | ---------------- | -------------------------------------------------- | ---------------------------------------------------------------------- |
-| `_tag` | `SymbolCallBack` | Provide the sender the current symbol of the NFTs. | `symbol` of type `String` representing the current symbol of the NFTs. |
+|        | Name                  | Description                                        | Callback Parameters                                                    |
+| ------ | ----------------------| -------------------------------------------------- | ---------------------------------------------------------------------- |
+| `_tag` | `ZRC6_SymbolCallBack` | Provide the sender the current symbol of the NFTs. | `symbol` of type `String` representing the current symbol of the NFTs. |
 
 #### 5. GetApproved()
 
@@ -148,9 +148,9 @@ transition GetApproved(token_id: Uint256)
 
 **Messages sent:**
 
-|        | Name                  | Description                                                                                              | Callback Parameters                                                                                                                                                                         |
-| ------ | --------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `GetApprovedCallBack` | Provide the sender an address of the approved_spender address for the queried token_id and the token_id. | `approved_addr` of type `ByStr20` representing the address of the approved_spender for the token_id, and `token_id` of type `Uint256` representing the unique token_id of that queried NFT. |
+|        | Name                       | Description                                                                                              | Callback Parameters                                                                                                                                                                         |
+| ------ | ---------------------------| -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_GetApprovedCallBack` | Provide the sender an address of the approved_spender address for the queried token_id and the token_id. | `approved_addr` of type `ByStr20` representing the address of the approved_spender for the token_id, and `token_id` of type `Uint256` representing the unique token_id of that queried NFT. |
 
 #### 6. GetTokenURI()
 
@@ -167,9 +167,9 @@ transition getTokenURI(token_id: Uint256)
 
 **Messages sent:**
 
-|        | Name                 | Description                                           | Callback Parameters                                                           |
-| ------ | -------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------- |
-| `_tag` | GetTokenURICallBack` | Provide the sender a token_uri of a queried token_id. | `token_uri` of type `String` representing the token_uri of a unique token_id. |
+|        | Name                      | Description                                           | Callback Parameters                                                           |
+| ------ | --------------------------| ----------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `_tag` | ZRC6_GetTokenURICallBack` | Provide the sender a token_uri of a queried token_id. | `token_uri` of type `String` representing the token_uri of a unique token_id. |
 
 #### 7. CheckTokenOwner()
 
@@ -187,9 +187,9 @@ transition CheckTokenOwner(token_id: Uint256, address: ByStr20)
 
 **Messages sent:**
 
-|        | Name              | Description                                                                                                              | Callback Parameters |
-| ------ | ----------------- | ------------------------------------------------------------------------------------------------------------------------ | ------------------- |
-| `_tag` | `IsOwnerCallBack` | Check if the queried address is the owner of the queried token_id, throw CodeNotTokenOwner error if that's not the case. | -                   |
+|        | Name                   | Description                                                                                                              | Callback Parameters |
+| ------ | -----------------------| ------------------------------------------------------------------------------------------------------------------------ | ------------------- |
+| `_tag` | `ZRC6_IsOwnerCallBack` | Check if the queried address is the owner of the queried token_id, throw CodeNotTokenOwner error if that's not the case. | -                   |
 
 #### 8. CheckApprovedForAll()
 
@@ -207,9 +207,9 @@ transition CheckApprovedForAll(token_owner: ByStr20, operator: ByStr20)
 
 **Messages sent:**
 
-|        | Name                       | Description                                                                                                                       | Callback Parameters                                                                                                                                                                             |
-| ------ | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `IsApprovedForAllCallBack` | Check if the queried operator is an approved operator of a token_owner, throw CodeNotApprovedForAll error if that's not the case. | `token_owner` of type `ByStr20` representing the address of the token owner of the NFTs, and `operator` of type `ByStr20` representing the address of the approved operator of the token owner. |
+|        | Name                            | Description                                                                                                                       | Callback Parameters                                                                                                                                                                             |
+| ------ | --------------------------------| --------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_IsApprovedForAllCallBack` | Check if the queried operator is an approved operator of a token_owner, throw CodeNotApprovedForAll error if that's not the case. | `token_owner` of type `ByStr20` representing the address of the token owner of the NFTs, and `operator` of type `ByStr20` representing the address of the approved operator of the token owner. |
 
 ### F. Interface Transitions
 
@@ -229,10 +229,10 @@ transition ConfigureMinter(minter: ByStr20)
 
 **Events:**
 
-|              | Name                   | Description                    | Event Parameters                                                                |
-| ------------ | ---------------------- | ------------------------------ | ------------------------------------------------------------------------------- |
-| `_eventname` | `RemovedMinterSuccess` | Removing minter is successful. | `minter`: `ByStr20`, where `minter` is the address removed as a minter of NFTs. |
-| `_eventname` | `AddMinterSuccess`     | Adding minter is successful.   | `minter`: `ByStr20`, where `minter` is the address added as a minter of NFTs.   |
+|              | Name                        | Description                    | Event Parameters                                                                |
+| ------------ | ----------------------------| ------------------------------ | ------------------------------------------------------------------------------- |
+| `_eventname` | `ZRC6_RemovedMinterSuccess` | Removing minter is successful. | `minter`: `ByStr20`, where `minter` is the address removed as a minter of NFTs. |
+| `_eventname` | `ZRC6_AddMinterSuccess`     | Adding minter is successful.   | `minter`: `ByStr20`, where `minter` is the address added as a minter of NFTs.   |
 
 #### 2. Mint()
 
@@ -252,16 +252,16 @@ transition Mint(to: ByStr20, token_uri: String)
 
 **Messages sent:**
 
-|        | Name                  | Description                                           | Callback Parameters                                                                                                                                                                                                                    |
-| ------ | --------------------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `RecipientAcceptMint` | Dummy callback to prevent invalid recipient contract. |                                                                                                                                                                                                                                        |
-| `_tag` | `MintCallBack`        | Provide the sender the status of the mint.            | `recipient`: `ByStr20`, `token_id`: `Uint256`, `token_uri`: `String`, where `to` is the address of the recipient, `token_id` is the unique token_id of the NFT to be minted, and `token_uri` is the token URI of the NFT to be minted. |
+|        | Name                       | Description                                           | Callback Parameters                                                                                                                                                                                                                    |
+| ------ | ---------------------------| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_RecipientAcceptMint` | Dummy callback to prevent invalid recipient contract. |                                                                                                                                                                                                                                        |
+| `_tag` | `ZRC6_MintCallBack`        | Provide the sender the status of the mint.            | `recipient`: `ByStr20`, `token_id`: `Uint256`, `token_uri`: `String`, where `to` is the address of the recipient, `token_id` is the unique token_id of the NFT to be minted, and `token_uri` is the token URI of the NFT to be minted. |
 
 **Events:**
 
-|              | Name          | Description            | Event Parameters                                                                                                                                                                                                                                                                                              |
-| ------------ | ------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `MintSuccess` | Minting is successful. | `by`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, `token_uri`: `String`, where `by` is the address of caller,`recipient` is the `to` address the token is sent to, `token_id` is the unique token_id of the new NFT to be minted, and `token_uri` is the token URI of the new NFT to be minted. |
+|              | Name               | Description            | Event Parameters                                                                                                                                                                                                                                                                                              |
+| ------------ | -------------------| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `ZRC6_MintSuccess` | Minting is successful. | `by`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, `token_uri`: `String`, where `by` is the address of caller,`recipient` is the `to` address the token is sent to, `token_id` is the unique token_id of the new NFT to be minted, and `token_uri` is the token URI of the new NFT to be minted. |
 
 #### 3. Burn()
 
@@ -281,15 +281,15 @@ transition Burn(tokenId: Uint256)
 
 **Messages sent:**
 
-|        | Name           | Description                                | Callback Parameters                                                                                                                                                                                                                                                                  |
-| ------ | -------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `_tag` | `BurnCallBack` | Provide the sender the status of the burn. | `initiator`: `ByStr20`, `burn_address`: `ByStr20`, `token_id`: `Uint256`, where `initiator` is the address of the burner, `to` is the address of the recipient, `token_id` is the unique token_id of the NFT to be minted, and `token_uri` is the token URI of the NFT to be minted. |
+|        | Name                | Description                                | Callback Parameters                                                                                                                                                                                                                                                                  |
+| ------ | --------------------| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `_tag` | `ZRC6_BurnCallBack` | Provide the sender the status of the burn. | `initiator`: `ByStr20`, `burn_address`: `ByStr20`, `token_id`: `Uint256`, where `initiator` is the address of the burner, `to` is the address of the recipient, `token_id` is the unique token_id of the NFT to be minted, and `token_uri` is the token URI of the NFT to be minted. |
 
 **Events:**
 
-|           | Name          | Description            | Event Parameters                                                                                                                                                                                                                                                            |
-| --------- | ------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `BurnSuccess` | Burning is successful. | `initiator`: `ByStr20`, `burn_address`: `ByStr20`, `token_id`: `Uint256`, where, `initiator` is the address of caller, `burn_address` is the address of the token_owner whose NFT is being burned, and `token_id` is the unique token_id of the token that has been burned. |
+|           | Name               | Description            | Event Parameters                                                                                                                                                                                                                                                            |
+| --------- | -------------------| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `ZRC6_BurnSuccess` | Burning is successful. | `initiator`: `ByStr20`, `burn_address`: `ByStr20`, `token_id`: `Uint256`, where, `initiator` is the address of caller, `burn_address` is the address of the token_owner whose NFT is being burned, and `token_id` is the unique token_id of the token that has been burned. |
 
 #### 4. SetApprove()
 
@@ -310,17 +310,17 @@ transition SetApprove(to: ByStr20, token_id: Uint256)
 
 **Messages sent:**
 
-|        | Name                            | Description                                                            | Callback Parameters                                                                                                                                                                                       |
-| ------ | ------------------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `AddApprovalSuccessCallBack`    | Provide the sender the status of the approval for an approved_spender. | `approved_spender`: `ByStr20`, `token_id`: `Uint256`, where `approved_spender` is address to be set as an approved_spender of a given token_id, and `token_id` is the unique token_id of an existing NFT. |
-| `_tag` | `RemoveApprovalSuccessCallBack` | Provide the sender the status of the approval for an approved_spender. | `removed_spender`: `ByStr20`, `token_id`: `Uint256`, where `removed_spender` is address to be set as an removed_spender of a given token_id, and `token_id` is the unique token_id of an existing NFT.    |
+|        | Name                                 | Description                                                            | Callback Parameters                                                                                                                                                                                       |
+| ------ | -------------------------------------| ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_AddApprovalSuccessCallBack`    | Provide the sender the status of the approval for an approved_spender. | `approved_spender`: `ByStr20`, `token_id`: `Uint256`, where `approved_spender` is address to be set as an approved_spender of a given token_id, and `token_id` is the unique token_id of an existing NFT. |
+| `_tag` | `ZRC6_RemoveApprovalSuccessCallBack` | Provide the sender the status of the approval for an approved_spender. | `removed_spender`: `ByStr20`, `token_id`: `Uint256`, where `removed_spender` is address to be set as an removed_spender of a given token_id, and `token_id` is the unique token_id of an existing NFT.    |
 
 **Events:**
 
-|           | Name                    | Description                                 | Event Parameters                                                                                                                                                                                                                                                              |
-| --------- | ----------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `AddApprovalSuccess`    | Adding of approved_spender is successful.   | `initiator`: `ByStr20`, `approved_spender`: `ByStr20`, `token_id`: `Uint256`, where `initiator` is the address of the \_sender, `approved_spender` is address to be set as an approved_spender of a given token_id, and `token_id` is the unique token_id of an existing NFT. |
-| eventName | `RemoveApprovalSuccess` | Removing of approved_spender is successful. | `initiator`: `ByStr20`, `removed_spender`: `ByStr20`, `token_id`: `Uint256`, where `initiator` is the address of the \_sender, `removed_spender` is address to removed as an approved_spender of a given token_id, and `token_id` is the unique token_id of an existing NFT.  |
+|           | Name                         | Description                                 | Event Parameters                                                                                                                                                                                                                                                              |
+| --------- | -----------------------------| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `ZRC6_AddApprovalSuccess`    | Adding of approved_spender is successful.   | `initiator`: `ByStr20`, `approved_spender`: `ByStr20`, `token_id`: `Uint256`, where `initiator` is the address of the \_sender, `approved_spender` is address to be set as an approved_spender of a given token_id, and `token_id` is the unique token_id of an existing NFT. |
+| eventName | `ZRC6_RemoveApprovalSuccess` | Removing of approved_spender is successful. | `initiator`: `ByStr20`, `removed_spender`: `ByStr20`, `token_id`: `Uint256`, where `initiator` is the address of the \_sender, `removed_spender` is address to removed as an approved_spender of a given token_id, and `token_id` is the unique token_id of an existing NFT.  |
 
 #### 5. SetApprovalForAll()
 
@@ -338,16 +338,16 @@ transition SetApprovalForAll(to: ByStr20)
 
 **Messages sent:**
 
-|        | Name                               | Description                                                   | Callback Parameters                                                                                                                                                     |
-| ------ | ---------------------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `SetApprovalForAllSuccessCallBack` | Provide the sender the status of the approval of an operator. | `operator`: `ByStr20`, `status`: `Bool`, where `operator` is the address of the approved_spender whose status was being set, and `status` is status it is being set to. |
+|        | Name                                    | Description                                                   | Callback Parameters                                                                                                                                                     |
+| ------ | ----------------------------------------| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_SetApprovalForAllSuccessCallBack` | Provide the sender the status of the approval of an operator. | `operator`: `ByStr20`, `status`: `Bool`, where `operator` is the address of the approved_spender whose status was being set, and `status` is status it is being set to. |
 
 **Events:**
 
-|           | Name                          | Description                                     | Event Parameters                                                                                                                                                          |
-| --------- | ----------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `AddApprovalForAllSuccess`    | Addition of an operator's status is successful. | `initiator`: `ByStr20`, `operator`: `ByStr20`, where `initiator` is the address of the \_sender, and `operator` is the address of the approved_spender which was added.   |
-| eventName | `RemoveApprovalForAllSuccess` | Removal of an operator's status is successful.  | `initiator`: `ByStr20`, `operator`: `ByStr20`, where `initiator` is the address of the \_sender, and `operator` is the address of the approved_spender which was removed. |
+|           | Name                               | Description                                     | Event Parameters                                                                                                                                                          |
+| --------- | -----------------------------------| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `ZRC6_AddApprovalForAllSuccess`    | Addition of an operator's status is successful. | `initiator`: `ByStr20`, `operator`: `ByStr20`, where `initiator` is the address of the \_sender, and `operator` is the address of the approved_spender which was added.   |
+| eventName | `ZRC6_RemoveApprovalForAllSuccess` | Removal of an operator's status is successful.  | `initiator`: `ByStr20`, `operator`: `ByStr20`, where `initiator` is the address of the \_sender, and `operator` is the address of the approved_spender which was removed. |
 
 #### 6. Transfer()
 
@@ -368,15 +368,15 @@ transition Transfer(to: ByStr20, token_id: Uint256)
 **Messages sent:**
 
 |        | Name                           | Description                                                                                                                             | Callback Parameters                                                                                                                                                                                           |
-| ------ | -------------------------      | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ------ | -------------------------------| --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_tag` | `ZRC6_RecipientAcceptTransfer` | Provide the recipient the status of the transfer of an NFT. Revert the whole transition if it is a non-NFT supporting contract address. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the \_sender address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |
 | `_tag` | `ZRC6_TransferSuccessCallBack` | Provide the sender the status of the transfer of an NFT.                                                                                | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the \_sender address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |
 
 **Events:**
 
-|           | Name              | Description                    | Event Parameters                                                                                                                                                                                              |
-| --------- | ----------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `TransferSuccess` | Transfer of NFT is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the \_sender address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |
+|           | Name                   | Description                    | Event Parameters                                                                                                                                                                                              |
+| --------- | -----------------------| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `ZRC6_TransferSuccess` | Transfer of NFT is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the \_sender address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |
 
 #### 7. TransferFrom()
 
@@ -397,15 +397,15 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
 **Messages sent:**
 
 |        | Name                               | Description                                                 | Callback Parameters                                                                                                                                                                                              |
-| ------ | -----------------------------      | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ------ | -----------------------------------| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_tag` | `ZRC6_RecipientAcceptTransferFrom` | Provide the recipient the status of the transfer of an NFT. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the token_owner address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |
 | `_tag` | `ZRC6_TransferFromSuccessCallBack` | Provide the sender the status of the transfer of an NFT.    | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the token_owner address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |
 
 **Events:**
 
-|           | Name                  | Description                    | Event Parameters                                                                                                                                                                                                 |
-| --------- | --------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| eventName | `TransferFromSuccess` | Transfer of NFT is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the token_owner address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |
+|           | Name                       | Description                    | Event Parameters                                                                                                                                                                                                 |
+| --------- | ---------------------------| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| eventName | `ZRC6_TransferFromSuccess` | Transfer of NFT is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the token_owner address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |
 
 ## V. Existing Implementation(s)
 
