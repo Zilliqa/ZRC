@@ -252,7 +252,7 @@ transition Mint(to: ByStr20, token_uri: String)
 |        | Name                  | Description                                           | Callback Parameters                                                                                                                                                                                                                    |
 | ------ | --------------------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_tag` | `RecipientAcceptMint` | Dummy callback to prevent invalid recipient contract. |                                                                                                                                                                                                                                        |
-| `_tag` | `MintCallBack`        | Provide the sender the status of the mint.            | `recipient`: `ByStr20`, `token_id`: `Uint256`, `token_uri`: `String`, where `to` is the address of the recipient, `token_id` is the unique token_id of the NFT to be minted, and `token_uri` is the token URI of the NFT to be minted. |
+| `_tag` | `MintCallBack`        | Provide the sender the status of the mint.            | `recipient`: `ByStr20`, `token_id`: `Uint256`, `token_uri`: `String`, where `recipient` is the address of the recipient, `token_id` is the unique token_id of the NFT to be minted, and `token_uri` is the token URI of the NFT to be minted. |
 
 **Events:**
 
