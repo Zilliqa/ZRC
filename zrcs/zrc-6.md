@@ -42,7 +42,7 @@ The NFT contract specification describes:
 | Name                | Description                                                                                                                                                                                                                      |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `contract_owner`    | The owner of the contract is initialized by the creator of the contract.                                                                                                                                                         |
-| `royalty_recipient` | The royalty recipient gets a royalty amount each time the NFT is sold or re-sold.                                                                                                                                                |
+| `royalty_recipient` | The royalty recipient gets a royalty amount each time the NFT is sold or re-sold. This is optional.                                                                                                                              |
 | `token_owner`       | A user (identified by an address) that owns a token tied to a token ID.                                                                                                                                                          |
 | `approved_spender`  | A user (identified by an address) that can transfer a token tied to a token ID on behalf of the token owner.                                                                                                                     |
 | `minter`            | A user (identified by an address) that is approved by the contract owner to mint NFTs.                                                                                                                                           |
@@ -64,7 +64,7 @@ The NFT contract must define the following constants for use as error codes for 
 | `NotApprovedForAllError`            | `Int32` | `-8`  | Emit when the address is not an operator for the token owner.                       |
 | `NotOwnerOrOperatorError`           | `Int32` | `-9`  | Emit when the sender is neither a token owner nor a token operator.                 |
 | `NotApprovedSpenderOrOperatorError` | `Int32` | `-10` | Emit when the sender is neither an approved sender nor a token operator.            |
-| `InvalidFeeBpsError`                | `Int32` | `-11` | Emit when the fee bps is out of range.                                              |
+| `InvalidFeeBpsError`                | `Int32` | `-11` | Emit when the fee bps is out of range. This is optional.                            |
 
 ### C. Immutable Variables
 
@@ -79,8 +79,8 @@ The NFT contract must define the following constants for use as error codes for 
 | Name                 | Type                             | Description                                                                                                                  |
 | -------------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | `minters`            | `Map ByStr20 Unit`               | Mapping containing the addresses approved to mint NFTs.                                                                      |
-| `royalty_recipient`  | `ByStr20`                        | Address to send royalties to.                                                                                                |
-| `royalty_fee_bps`    | `Uint256`                        | Royality fee BPS (1/100ths of a percent, e.g. 1000 = 10%).                                                                   |
+| `royalty_recipient`  | `ByStr20`                        | Address to send royalties to. This is optional.                                                                              |
+| `royalty_fee_bps`    | `Uint256`                        | Royality fee BPS (1/100ths of a percent, e.g. 1000 = 10%). This is optional.                                                 |
 | `token_owners`       | `Map Uint256 ByStr20`            | Mapping between token ID (that identifies each token) to its owner.                                                          |
 | `owned_token_count`  | `Map ByStr20 Uint256`            | Mapping from token owner to the number of NFTs he/she owns.                                                                  |
 | `token_approvals`    | `Map Uint256 ByStr20`            | Mapping between token ID to an approved spender address. There can only be one approved address per token at any given time. |
@@ -90,7 +90,7 @@ The NFT contract must define the following constants for use as error codes for 
 
 ### E. Getter Transitions
 
-#### 1. RoyaltyInfo()
+#### 1. RoyaltyInfo() (Optional)
 
 **Arguments:**
 
@@ -225,7 +225,7 @@ The NFT contract must define the following constants for use as error codes for 
 | `_eventname` | `AddMinterSuccess`    | Adding minter is successful.   | `minter` : `ByStr20`<br/>Address of a minter |
 | `_eventname` | `RemoveMinterSuccess` | Removing minter is successful. | `minter` : `ByStr20`<br/>Address of a minter |
 
-#### 2. BatchMint()
+#### 2. BatchMint() (Optional)
 
 **Arguments:**
 
@@ -262,7 +262,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `MintSuccess` | Minting is successful. | <ul><li>`by` : `ByStr20`<br/>Address of the `_sender`</li><li> `recipient` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li><li>`token_uri` : `String`<br/>Token URI of a token</li></ul> |
 
-#### 4. Burn()
+#### 4. Burn() (Optional)
 
 **Arguments:**
 
@@ -282,7 +282,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `BurnSuccess` | Burning is successful. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`burn_address` : `ByStr20`</br>Address of the token owner whose NFT is being burned</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
-#### 5. SetRoyaltyRecipient()
+#### 5. SetRoyaltyRecipient() (Optional)
 
 **Arguments:**
 
@@ -302,7 +302,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ---------------------------- | ----------------------------------- | -------------------------------------------------------------------- |
 | `_eventname` | `SetRoyaltyRecipientSuccess` | Royalty recipient has been updated. | `royalty_recipient` : `ByStr20`<br/>Address of the royalty recipient |
 
-#### 6. SetRoyaltyFeeBPS()
+#### 6. SetRoyaltyFeeBPS() (Optional)
 
 **Arguments:**
 
