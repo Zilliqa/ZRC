@@ -1,0 +1,656 @@
+scilla_version 0
+
+(***************************************************)
+(*               Associated library                *)
+(***************************************************)
+import BoolUtils PairUtils ListUtils IntUtils
+library NonfungibleToken
+
+(* User-defined ADTs *)
+type Dummy =
+| Dummy
+
+type Operation =
+| Add
+| Sub
+
+(* Global variables *)
+let zero = Uint256 0
+let one = Uint256 1
+let verdad = Dummy
+let add_operation = Add
+let sub_operation = Sub
+let royalty_fee_bps_min = Uint256 1
+let royalty_fee_bps_max = Uint256 10000
+
+(* Library functions *)
+let one_msg = 
+  fun (msg : Message) => 
+    let nil_msg = Nil {Message} in
+    Cons {Message} msg nil_msg
+
+let two_msgs =
+  fun (msg1 : Message) =>
+  fun (msg2 : Message) =>
+    let msgs_tmp = one_msg msg2 in
+    Cons {Message} msg1 msgs_tmp
+
+let get_bal =
+  fun (some_bal: Option Uint256) =>
+    match some_bal with
+    | Some bal => bal
+    | None => zero
+    end
+
+let build_pair =
+  fun (input_to_address : ByStr20) =>
+  fun (input_token_uri : String) =>
+    Pair {ByStr20 String} input_to_address input_token_uri
+
+(* Error exception *)
+type Error =
+  | NotFoundError
+  | ConflictError
+  | SelfError
+  | NotContractOwnerError
+  | NotTokenOwnerError
+  | NotMinterError
+  | NotApprovedError
+  | NotApprovedForAllError
+  | NotOwnerOrOperatorError
+  | NotApprovedSpenderOrOperatorError
+  | InvalidFeeBpsError
+
+let make_error =
+  fun (result : Error) =>
+    let result_code = 
+      match result with
+      | NotFoundError                     => Int32 -1
+      | ConflictError                     => Int32 -2
+      | SelfError                         => Int32 -3
+      | NotContractOwnerError             => Int32 -4
+      | NotTokenOwnerError                => Int32 -5
+      | NotMinterError                    => Int32 -6
+      | NotApprovedError                  => Int32 -7
+      | NotApprovedForAllError            => Int32 -8
+      | NotOwnerOrOperatorError           => Int32 -9
+      | NotApprovedSpenderOrOperatorError => Int32 -10
+      | InvalidFeeBpsError                => Int32 -11
+      end
+    in
+    { _exception : "Error"; code : result_code }
+
+(***************************************************)
+(*             The contract definition             *)
+(***************************************************)
+
+contract NonfungibleToken
+(
+  contract_owner: ByStr20,
+  name : String,
+  symbol: String
+)
+
+(* Mutable fields *)
+
+(* Mapping of minters available *)
+field minters: Map ByStr20 Dummy =
+    let emp_map = Emp ByStr20 Dummy in
+    builtin put emp_map contract_owner verdad
+
+(* Mapping between token_id to token_owner *)
+field token_owners: Map Uint256 ByStr20 = Emp Uint256 ByStr20
+
+(* Mapping from owner to number of owned tokens *)
+field owned_token_count: Map ByStr20 Uint256 = Emp ByStr20 Uint256
+
+(* Mapping between token_id to approved address                              *)
+(* @dev: There can only be one approved address per token at any given time. *)
+field token_approvals: Map Uint256 ByStr20 = Emp Uint256 ByStr20
+
+(* Mapping of token_owner to operator  *)
+field operator_approvals: Map ByStr20 (Map ByStr20 Dummy)
+                            = Emp ByStr20 (Map ByStr20 Dummy)
+
+(* Mapping from token_id to token_uri *)
+field token_uris: Map Uint256 String = Emp Uint256 String
+
+(* Total token count *)
+field total_supply: Uint256 = Uint256 0
+
+(* Used token id *)
+field token_id_count: Uint256 = Uint256 0
+
+(* royality fee BPS (1/100ths of a percent, e.g. 1000 = 10%) *)
+field royalty_fee_bps: Uint256 = Uint256 1000
+
+(* address to send royalties to *)
+field royalty_recipient: ByStr20 = contract_owner
+
+
+(* Emit Errors *)
+procedure ThrowError(err : Error)
+  e = make_error err;
+  throw e
+end
+
+procedure IsValidRoyaltyFeeBPS(fee_bps: Uint256)
+  is_gte_min = uint256_ge fee_bps royalty_fee_bps_min;
+  is_lte_max = uint256_le fee_bps royalty_fee_bps_max;
+  
+  is_valid = andb is_gte_min is_lte_max;
+  match is_valid with 
+    | True => 
+    | False =>
+      err = InvalidFeeBpsError;
+      ThrowError err
+  end
+end
+
+procedure IsContractOwner()
+  is_contract_owner = builtin eq contract_owner _sender;
+  match is_contract_owner with
+  | True => 
+  | False =>
+    err = NotContractOwnerError;
+    ThrowError err
+  end
+end
+
+procedure IsNotSelf(address_a: ByStr20, address_b: ByStr20)
+  is_self = builtin eq address_a address_b;
+  match is_self with
+  | False =>
+  | True =>
+    err = SelfError;
+    ThrowError err
+  end
+end
+
+procedure IsTokenIdUnique(token_id: Uint256)
+  token_exist <- exists token_owners[token_id];
+  match token_exist with
+  | False =>
+  | True =>
+    err = ConflictError;
+    ThrowError err
+  end
+end
+
+procedure IsTokenFound(token_id: Uint256)
+  token_exist <- exists token_owners[token_id];
+  match token_exist with
+  | True =>
+  | False =>
+    err = NotFoundError;
+    ThrowError err
+  end
+end
+
+procedure IsMinter(address: ByStr20)
+  is_minter <- exists minters[address];
+  match is_minter with
+  | True =>
+  | False =>
+    err = NotMinterError;
+    ThrowError err
+  end
+end
+
+procedure IsTokenOwner(token_id: Uint256, address: ByStr20)
+  some_token_owner <- token_owners[token_id];
+  match some_token_owner with
+  | Some addr => 
+    is_token_owner = builtin eq addr address;
+    match is_token_owner with
+    | True =>
+    | False =>
+      err = NotTokenOwnerError;
+      ThrowError err
+    end
+  | None =>
+    err = NotFoundError;
+    ThrowError err
+  end
+end
+
+procedure IsApprovedForAll(token_owner: ByStr20, operator: ByStr20)
+  is_operator_approved <- exists operator_approvals[token_owner][operator];
+  match is_operator_approved with
+  | True =>
+  | False =>
+    err = NotApprovedForAllError;
+    ThrowError err
+  end
+end
+
+procedure IsOwnerOrOperator(token_owner: ByStr20)
+  is_owner = builtin eq _sender token_owner;
+  is_approved_for_all <- exists operator_approvals[token_owner][_sender];
+  is_authorised = orb is_owner is_approved_for_all;
+  match is_authorised with
+  | True =>
+  | False =>
+    err = NotOwnerOrOperatorError;
+    ThrowError err
+  end
+end
+
+procedure IsApprovedSpenderOrOperator(token_id: Uint256, token_owner: ByStr20)
+  some_token_approval <- token_approvals[token_id];
+  is_approved = match some_token_approval with
+    | None => False
+    | Some approved_address => 
+      builtin eq _sender approved_address
+    end;
+  is_operator <- exists operator_approvals[token_owner][_sender];
+  is_authorised = orb is_approved is_operator;
+  match is_authorised with
+  | True =>
+  | False =>
+    err = NotApprovedSpenderOrOperatorError;
+    ThrowError err
+  end
+end
+
+procedure UpdateTokenCount(operation: Operation, address: ByStr20)
+  match operation with
+  | Add =>
+    some_to_count <- owned_token_count[address];
+    new_to_count = 
+      let current_count = get_bal some_to_count in
+      builtin add current_count one;
+    owned_token_count[address] := new_to_count
+  | Sub =>
+    some_from_count <- owned_token_count[address];
+    new_from_count = 
+      let current_count = get_bal some_from_count in
+        let is_zero = builtin eq current_count zero in
+          match is_zero with
+          | True => zero
+          | False => builtin sub current_count one
+          end;
+    owned_token_count[address] := new_from_count
+  end
+end
+
+(* Getter transitions *)
+
+(* @dev: Get number of NFTs assigned to a token_owner *)
+transition BalanceOf(address: ByStr20)
+  some_bal <- owned_token_count[address];
+  balance = get_bal some_bal;
+  msg_to_sender = { _tag : "ZRC6_BalanceOfCallback"; _recipient : _sender; _amount : Uint128 0;
+                   balance : balance};
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* @dev: Get total supply of NFTs minted *)
+transition TotalSupply()
+  current_supply <- total_supply;
+  msg_to_sender = { _tag : "ZRC6_TotalSupplyCallback"; _recipient : _sender; _amount : Uint128 0;
+                   total_supply : current_supply};
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* @dev: Get name of the NFTs *)
+transition Name()
+  msg_to_sender = { _tag : "ZRC6_NameCallback"; _recipient : _sender; _amount : Uint128 0;
+                   name : name};
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* @dev: Get name of the NFTs *)
+transition Symbol()
+  msg_to_sender = { _tag : "ZRC6_SymbolCallback"; _recipient : _sender; _amount : Uint128 0;
+                   symbol : symbol};
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* @dev: Get approved_address for token_id *)
+transition GetApproved(token_id: Uint256)
+  some_token_approval <- token_approvals[token_id];
+  match some_token_approval with
+  | Some address => 
+    msg_to_sender = { 
+      _tag : "ZRC6_GetApprovedCallback";
+      _recipient : _sender;
+      _amount : Uint128 0;
+      approved_address : address;
+      token_id : token_id
+    };
+    msgs = one_msg msg_to_sender;
+    send msgs
+  | None => 
+    err = NotApprovedError;
+    ThrowError err
+  end
+end
+
+(* @dev: Get the token_uri of a certain token_id *)
+transition GetTokenURI(token_id: Uint256)
+  some_token_uri <- token_uris[token_id];
+  match some_token_uri with
+  | Some token_uri =>
+    msg_to_sender = { _tag : "ZRC6_GetTokenURICallback"; _recipient : _sender; _amount : Uint128 0; 
+                      token_uri : token_uri};
+    msgs = one_msg msg_to_sender;
+    send msgs
+  | None =>
+    err = NotFoundError;
+    ThrowError err
+  end
+end
+
+(* @dev: Check if a token_id is owned by a token_owner *)
+transition CheckTokenOwner(token_id: Uint256, address: ByStr20)
+  IsTokenOwner token_id address;
+  msg_to_sender = { _tag : "ZRC6_IsTokenOwnerCallback"; _recipient : _sender; _amount : Uint128 0};
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* @dev: Check if address is operator for token_owner *)
+transition CheckApprovedForAll(token_owner: ByStr20, operator: ByStr20)
+  IsApprovedForAll token_owner operator;
+  msg_to_sender = { _tag : "ZRC6_IsApprovedForAllCallback"; _recipient : _sender; _amount : Uint128 0;
+                    token_owner : token_owner; operator : operator};
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* Interface transitions *)
+
+(* @dev:    Add or remove approved minters. Only contract_owner can approve minters. *)
+(* @param:  minter      - Address of the minter to be approved or removed            *)
+transition ConfigureMinter(minter: ByStr20)
+  IsContractOwner;
+  some_minter <- minters[minter];
+  match some_minter with
+  | Some Dummy => 
+    (* Remove minter *)
+    delete minters[minter];
+    e = {_eventname: "RemoveMinterSuccess"; minter: minter};
+    event e;
+    msg_to_sender = { _tag : "ZRC6_RemoveMinterCallback"; _recipient : _sender; _amount : Uint128 0 };
+    msgs = one_msg msg_to_sender;
+    send msgs
+  | None =>
+    (* Add minter *)
+    minters[minter] := verdad;
+    e = {_eventname: "AddMinterSuccess"; minter: minter};
+    event e;
+    msg_to_sender = { _tag : "ZRC6_AddMinterCallback"; _recipient : _sender; _amount : Uint128 0 };
+    msgs = one_msg msg_to_sender;
+    send msgs
+  end
+end
+
+procedure Minting(input_pair: Pair ByStr20 String)
+  to = let fst_string_bystr20 = @fst ByStr20 String in
+    fst_string_bystr20 input_pair;
+  token_uri = let snd_string_bystr20 = @snd ByStr20 String in
+    snd_string_bystr20 input_pair;
+  IsMinter _sender;
+  (* Add to owner count *)
+  UpdateTokenCount add_operation to;
+  (* Add to total_supply *)
+  current_supply <- total_supply;
+  new_supply = builtin add current_supply one;
+  total_supply := new_supply;
+  (* Initiate token_id and check if exists *)
+  current_token_id_count <- token_id_count;
+  new_token_id_count = builtin add current_token_id_count one;
+  token_id_count := new_token_id_count;
+  token_id = new_token_id_count;
+  IsTokenIdUnique token_id;
+  (* Mint new non-fungible token *)
+  token_owners[token_id] := to;
+  (* Add token_uri for token_id *)
+  token_uris[token_id] := token_uri;
+  e = {_eventname: "MintSuccess"; by: _sender; recipient: to;
+        token_id: token_id; token_uri: token_uri};
+  event e
+end
+
+(* @dev:    Mint new tokens. Only minters can mint.           *)
+(* @param:  to        - Address of the token recipient        *)
+(* @param:  token_uri - URI of the the new token to be minted *)
+transition Mint(to: ByStr20, token_uri: String)
+  input_pair = build_pair to token_uri;
+  Minting input_pair;
+  token_id <- token_id_count;
+  msg_to_recipient = { _tag : "ZRC6_RecipientAcceptMint"; _recipient : to; _amount : Uint128 0 };
+  msg_to_sender = { _tag : "ZRC6_MintCallback"; _recipient : _sender; _amount : Uint128 0;
+                    recipient : _sender; token_id : token_id; token_uri : token_uri };
+  msgs = two_msgs msg_to_recipient msg_to_sender;
+  send msgs
+end
+
+(* @dev:    Mint multiple new tokens at once. Only minters can mint. *)
+(* @param:  to_list         - Addressses of the token recipient      *)
+(* @param:  token_uri_list - URIs of the the new token to be minted *)
+transition BatchMint(to_list: List ByStr20, token_uri_list: List String)
+  pair_two_list = @list_zip ByStr20 String;
+  input_list = pair_two_list to_list token_uri_list;
+  forall input_list Minting;
+  msg_to_sender = { _tag : "ZRC6_BatchMintCallback"; _recipient : _sender; _amount : Uint128 0 };
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+
+(* @dev:    Burn existing tokens. Only token_owner or an operator can burn a NFT. *)
+(* @param:  token_id - Unique ID of the NFT to be destroyed                       *)
+transition Burn(token_id: Uint256)
+  (* Check if token exists *)
+  some_token_owner <- token_owners[token_id];
+  match some_token_owner with
+  | None =>
+    err = NotFoundError;
+    ThrowError err
+  | Some token_owner =>
+    IsOwnerOrOperator token_owner;
+    (* Destroy existing token *)
+    delete token_owners[token_id];
+    delete token_approvals[token_id];
+    delete token_uris[token_id];
+    (* Deduct from owned_token_count *)
+    UpdateTokenCount sub_operation token_owner;
+    (* Deduct from total_supply *)
+    current_supply <- total_supply;
+    new_supply = builtin sub current_supply one;
+    total_supply := new_supply;
+    e = {_eventname: "BurnSuccess"; initiator: _sender; burn_address: token_owner; token_id: token_id};
+    event e;
+    msg_to_sender = { _tag : "ZRC6_BurnCallback"; _recipient : _sender; _amount : Uint128 0;
+                      initiator : _sender; burn_address : token_owner; token_id : token_id };
+    msgs = one_msg msg_to_sender;
+    send msgs
+  end
+end
+
+
+(* @dev: Approves OR remove an address ability to transfer a given token_id *)
+(* There can only be one approved_spender per token at any given time       *)
+(* param: to       - Address to be approved for the given token_id          *)
+(* param: token_id - Unique ID of the NFT to be approved                    *)
+transition SetApprove(to: ByStr20, token_id: Uint256)
+  some_token_owner <- token_owners[token_id];
+  match some_token_owner with
+  | None =>
+    err = NotFoundError;
+    ThrowError err
+  | Some token_owner =>
+    IsOwnerOrOperator token_owner;
+    is_approved <- token_approvals[token_id];
+    match is_approved with
+    | Some approved_spender =>
+      (* Remove approved_spender *)
+      is_approved_spender = builtin eq to approved_spender;
+      match is_approved_spender with
+      | True =>
+        delete token_approvals[token_id];
+        e = {_eventname: "RemoveApprovalSuccess"; initiator: _sender; removed_spender: to; token_id: token_id};
+        event e;
+        msg_to_sender = { _tag : "ZRC6_RemoveApprovalCallback"; _recipient : _sender; _amount : Uint128 0; 
+                          removed_spender : to; token_id : token_id };
+        msgs = one_msg msg_to_sender;
+        send msgs
+      | False =>
+        err = NotApprovedError;
+        ThrowError err
+      end
+    | None =>
+      (* Add approved_spender *)
+      token_approvals[token_id] := to;
+      e = {_eventname: "AddApprovalSuccess"; initiator: _sender; approved_spender: to; token_id: token_id};
+      event e;
+      msg_to_sender = { _tag : "ZRC6_AddApprovalCallback"; _recipient : _sender; _amount : Uint128 0; 
+                        approved_spender : to; token_id : token_id };
+      msgs = one_msg msg_to_sender;
+      send msgs
+    end
+  end
+end
+
+(* @dev: Sets or unsets an operator for the _sender       *)
+(* @param: to - Address to be set or unset as an operator *)
+transition SetApprovalForAll(to: ByStr20)
+  IsNotSelf to _sender;
+  is_operator <- exists operator_approvals[_sender][to];
+  match is_operator with
+  | False =>
+    (* Add operator *)
+    operator_approvals[_sender][to] := verdad;
+    e = {_eventname: "AddApprovalForAllSuccess"; initiator: _sender; operator: to};
+    event e
+  | True =>
+    (* Remove operator *)
+    delete operator_approvals[_sender][to];
+    e = {_eventname: "RemoveApprovalForAllSuccess"; initiator: _sender; operator: to};
+    event e
+  end;
+  new_status = negb is_operator;
+  msg_to_sender = { _tag : "ZRC6_SetApprovalForAllCallback"; _recipient : _sender; _amount : Uint128 0; 
+                    operator : to; status : new_status};
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* @dev: Transfer the ownership of a given token_id to another address. token_owner only transition. *)
+(* @param: to       - Recipient address for the token                                                *)
+(* @param: token_id - Unique ID of the NFT to be transferred                                         *)
+transition Transfer(to: ByStr20, token_id: Uint256)
+  IsNotSelf to _sender;
+  IsTokenOwner token_id _sender;
+  (* Change token_owner for that token_id *)
+  token_owners[token_id] := to;
+  (* Delete tokenApproval entry for that token_id *)
+  delete token_approvals[token_id];
+  (* Subtract one from previous token owner count *)
+  UpdateTokenCount sub_operation _sender;
+  (* Add one to the new token owner count *)
+  UpdateTokenCount add_operation to;
+  e = {_eventname: "TransferSuccess"; from: _sender; recipient: to; token_id: token_id};
+  event e;
+  msg_to_recipient = { _tag : "ZRC6_RecipientAcceptTransfer"; _recipient : to; _amount : Uint128 0; 
+                      from : _sender; recipient : to; token_id : token_id };
+  msg_to_sender = { _tag : "ZRC6_TransferCallback"; _recipient : _sender; _amount : Uint128 0; 
+                    from : _sender; recipient : to; token_id : token_id };
+  msgs = two_msgs msg_to_recipient msg_to_sender;
+  send msgs
+end
+
+(* @dev: Transfer the ownership of a given token_id to another address. approved_spender or operator only transition. *)
+(* @param: to       - Recipient address for the NFT                                                                   *)
+(* @param: token_id - Unique ID of the NFT to be transferred                                                          *)
+transition TransferFrom(to: ByStr20, token_id: Uint256)
+  some_token_owner <- token_owners[token_id];
+  match some_token_owner with
+  | None =>
+    err = NotFoundError;
+    ThrowError err
+  | Some token_owner =>
+    IsNotSelf to token_owner;
+    IsApprovedSpenderOrOperator token_id token_owner;
+    (* Change token_owner for that token_id *)
+    token_owners[token_id] := to;
+    (* Delete tokenApproval entry for that token_id *)
+    delete token_approvals[token_id];
+    (* Subtract one from previous token owner count *)
+    UpdateTokenCount sub_operation token_owner;
+    (* Add one to the new token owner count *)
+    UpdateTokenCount add_operation to;
+    e = {_eventname: "TransferFromSuccess"; from: token_owner; recipient: to; token_id: token_id};
+    event e;
+    msg_to_recipient = { _tag : "ZRC6_RecipientAcceptTransferFrom"; _recipient : to; _amount : Uint128 0; 
+                        from : token_owner; recipient : to; token_id : token_id };
+    msg_to_sender = { _tag : "ZRC6_TransferFromCallback"; _recipient : _sender; _amount : Uint128 0; 
+                      from : token_owner; recipient : to; token_id : token_id };
+    msgs = two_msgs msg_to_recipient msg_to_sender;
+    send msgs
+  end
+end
+
+(* @dev: Set address that royalties are sent to. Only contract_owner can set royalty recipient. *)
+transition SetRoyaltyRecipient(to: ByStr20)
+  IsContractOwner;
+  royalty_recipient := to;
+  
+  e = {_eventname: "SetRoyaltyRecipientSuccess"; royalty_recipient: to};
+  event e;
+  
+  msg_to_sender = { 
+    _tag : "ZRC6_SetRoyaltyRecipientCallback"; 
+    _recipient : _sender;
+    _amount : Uint128 0;
+    royalty_recipient : to
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs  
+end
+
+(* @dev: Set royalty fee bps. Only contract_owner can set royalty fee bps. *)
+transition SetRoyaltyFeeBPS(fee_bps: Uint256)
+  IsContractOwner;
+  IsValidRoyaltyFeeBPS fee_bps;
+  royalty_fee_bps := fee_bps;
+  
+  e = {_eventname: "SetRoyaltyFeeBPSSuccess"; royalty_fee_bps: fee_bps};
+  event e;
+
+  msg_to_sender = { 
+    _tag : "ZRC6_SetRoyaltyFeeBPSCallback"; 
+    _recipient : _sender;
+    _amount : Uint128 0;
+    royalty_fee_bps : fee_bps
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* @dev Called with the sale price to determine how much royalty is owed and to whom. *)
+transition RoyaltyInfo(token_id: Uint256, sale_price: Uint256)
+  IsTokenFound token_id;
+
+  current_royalty_fee_bps <- royalty_fee_bps;
+  current_royalty_recipient <- royalty_recipient;
+
+  x = builtin div royalty_fee_bps_max current_royalty_fee_bps;
+  royalty_amount = builtin div sale_price x;
+
+  msg_to_sender = { 
+    _tag : "ZRC6_RoyaltyInfoCallback"; 
+    _recipient : _sender;
+    _amount : Uint128 0;
+    royalty_recipient : current_royalty_recipient;
+    royalty_amount : royalty_amount
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
