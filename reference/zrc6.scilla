@@ -121,7 +121,7 @@ field total_supply: Uint256 = Uint256 0
 (* Used token id *)
 field token_id_count: Uint256 = Uint256 0
 
-(* royality fee BPS (1/100ths of a percent, e.g. 1000 = 10%) *)
+(* royalty fee BPS (1/100ths of a percent, e.g. 1000 = 10%) *)
 field royalty_fee_bps: Uint256 = Uint256 1000
 
 (* address to send royalties to *)
