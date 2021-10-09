@@ -78,7 +78,7 @@ The NFT contract must define the following constants for use as error codes for 
 
 | Name                 | Type                             | Description                                                                                                                  |
 | -------------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `minters`            | `Map ByStr20 Unit`               | Mapping containing the addresses approved to mint NFTs.                                                                      |
+| `minters`            | `Map ByStr20 Dummy`              | Mapping containing the addresses approved to mint NFTs.                                                                      |
 | `royalty_recipient`  | `ByStr20`                        | Address to send royalties to. This is optional.                                                                              |
 | `royalty_fee_bps`    | `Uint256`                        | Royalty fee BPS (1/100ths of a percent, e.g. 1000 = 10%). This is optional.                                                  |
 | `token_owners`       | `Map Uint256 ByStr20`            | Mapping between token ID (that identifies each token) to its owner.                                                          |
