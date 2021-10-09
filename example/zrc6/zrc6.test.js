@@ -207,14 +207,14 @@ describe("Token", () => {
   it("gets token URI", async () => {
     const testCases = [
       {
-        transition: "GetTokenURI",
+        transition: "TokenURI",
         params: {
           token_id: "1",
         },
         want: [
           {
             params: [toMsgParam("String", sampleTokens[0], "token_uri")],
-            tag: "ZRC6_GetTokenURICallback",
+            tag: "ZRC6_TokenURICallback",
           },
         ],
       },

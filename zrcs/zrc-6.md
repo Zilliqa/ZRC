@@ -157,7 +157,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------ | -------------------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | `_tag` | `ZRC6_GetApprovedCallback` | Provide the sender an address of the approved spender address for the queried token ID and the token ID. | <ul><li>`approved_address` : `ByStr20`<br/>Address of approved spender</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
-#### 7. GetTokenURI()
+#### 7. TokenURI()
 
 **Arguments:**
 
@@ -167,9 +167,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Messages sent:**
 
-|        | Name                       | Description                                           | Callback Parameters                             |
-| ------ | -------------------------- | ----------------------------------------------------- | ----------------------------------------------- |
-| `_tag` | `ZRC6_GetTokenURICallback` | Provide the sender a token URI of a queried token ID. | `token_uri` : `String`<br/>Token URI of a token |
+|        | Name                    | Description                                           | Callback Parameters                             |
+| ------ | ----------------------- | ----------------------------------------------------- | ----------------------------------------------- |
+| `_tag` | `ZRC6_TokenURICallback` | Provide the sender a token URI of a queried token ID. | `token_uri` : `String`<br/>Token URI of a token |
 
 #### 8. CheckTokenOwner()
 
