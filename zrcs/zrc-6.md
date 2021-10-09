@@ -321,28 +321,27 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ------------------------- | --------------------------------- | ------------------------------------------------- |
 | `_eventname` | `SetRoyaltyFeeBPSSuccess` | Royalty fee BPS has been updated. | `royalty_fee_bps` : `Uint256`<br/>Royalty Fee BPS |
 
-#### 7. SetApprove()
+#### 7. SetApproval()
 
 **Arguments:**
 
-| Name       | Type      | Description                                                   |
-| ---------- | --------- | ------------------------------------------------------------- |
-| `to`       | `ByStr20` | Address to be set as an approved spender of a given token ID. |
-| `token_id` | `Uint256` | Unique token ID of an existing NFT.                           |
+| Name       | Type      | Description                                                            |
+| ---------- | --------- | ---------------------------------------------------------------------- |
+| `to`       | `ByStr20` | Address to be set or unset as an approved spender of a given token ID. |
+| `token_id` | `Uint256` | Unique token ID of an existing NFT.                                    |
 
 **Messages sent:**
 
-|        | Name                          | Description                                                            | Callback Parameters                                                                                                                                                       |
-| ------ | ----------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_AddApprovalCallback`    | Provide the sender the status of the approval for an approved spender. | <ul><li>`approved_spender` : `ByStr20`<br/>Address to be set as an approved spender of a given token ID</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
-| `_tag` | `ZRC6_RemoveApprovalCallback` | Provide the sender the status of the approval for an approved spender. | <ul><li>`removed_spender` : `ByStr20`<br/>Address to be set as an removed spender of a given token ID</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul>   |
+|        | Name                       | Description                                                            | Callback Parameters                                                                                                                                                                                                                                                   |
+| ------ | -------------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_SetApprovalCallback` | Provide the sender the status of the approval for an approved spender. | <ul><li>`approved_spender` : `ByStr20`<br/>Address of the approved spender of a given token ID whose status was being set</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li><li>`is_approved_spender` : `Bool`<br/>Status it is being set to</li></ul></ul> |
 
 **Events:**
 
-|              | Name                    | Description                                 | Event Parameters                                                                                                                                                                                                                        |
-| ------------ | ----------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `AddApprovalSuccess`    | Adding of approved spender is successful.   | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`approved_spender` : `ByStr20`<br/>Address to removed as an approved spender of a given token ID</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
-| `_eventname` | `RemoveApprovalSuccess` | Removing of approved spender is successful. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`removed_spender` : `ByStr20`<br/>Address to removed as an removed spender of a given token ID</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul>   |
+|              | Name                    | Description                        | Event Parameters                                                                                                                                                                                                                        |
+| ------------ | ----------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `AddApprovalSuccess`    | Approved spender has been added.   | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`approved_spender` : `ByStr20`<br/>Address to removed as an approved spender of a given token ID</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
+| `_eventname` | `RemoveApprovalSuccess` | Approved spender has been removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`approved_spender` : `ByStr20`<br/>Address to removed as an removed spender of a given token ID</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul>  |
 
 #### 8. SetApprovalForAll()
 

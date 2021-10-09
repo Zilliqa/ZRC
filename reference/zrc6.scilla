@@ -479,11 +479,11 @@ transition Burn(token_id: Uint256)
 end
 
 
-(* @dev: Approves OR remove an address ability to transfer a given token_id *)
+(* @dev: Set or unset a approved spender of a given token_id                *)
 (* There can only be one approved_spender per token at any given time       *)
 (* param: to       - Address to be approved for the given token_id          *)
 (* param: token_id - Unique ID of the NFT to be approved                    *)
-transition SetApprove(to: ByStr20, token_id: Uint256)
+transition SetApproval(to: ByStr20, token_id: Uint256)
   some_token_owner <- token_owners[token_id];
   match some_token_owner with
   | None =>
@@ -491,18 +491,25 @@ transition SetApprove(to: ByStr20, token_id: Uint256)
     ThrowError err
   | Some token_owner =>
     IsOwnerOrOperator token_owner;
-    is_approved <- token_approvals[token_id];
-    match is_approved with
+    some_approved <- token_approvals[token_id];
+    match some_approved with
     | Some approved_spender =>
       (* Remove approved_spender *)
       is_approved_spender = builtin eq to approved_spender;
       match is_approved_spender with
       | True =>
         delete token_approvals[token_id];
-        e = {_eventname: "RemoveApprovalSuccess"; initiator: _sender; removed_spender: to; token_id: token_id};
+        new_status = False;
+        e = {_eventname: "RemoveApprovalSuccess"; initiator: _sender; approved_spender: to; token_id: token_id};
         event e;
-        msg_to_sender = { _tag : "ZRC6_RemoveApprovalCallback"; _recipient : _sender; _amount : Uint128 0; 
-                          removed_spender : to; token_id : token_id };
+        msg_to_sender = { 
+          _tag : "ZRC6_SetApprovalCallback";
+          _recipient : _sender;
+          _amount : Uint128 0;
+          approved_spender : to;
+          token_id : token_id;
+          is_approved_spender: new_status 
+        };
         msgs = one_msg msg_to_sender;
         send msgs
       | False =>
@@ -512,17 +519,24 @@ transition SetApprove(to: ByStr20, token_id: Uint256)
     | None =>
       (* Add approved_spender *)
       token_approvals[token_id] := to;
+      new_status = True;
       e = {_eventname: "AddApprovalSuccess"; initiator: _sender; approved_spender: to; token_id: token_id};
       event e;
-      msg_to_sender = { _tag : "ZRC6_AddApprovalCallback"; _recipient : _sender; _amount : Uint128 0; 
-                        approved_spender : to; token_id : token_id };
+      msg_to_sender = { 
+        _tag : "ZRC6_SetApprovalCallback";
+        _recipient : _sender;
+        _amount : Uint128 0;
+        approved_spender : to;
+        token_id : token_id;
+        is_approved_spender: new_status 
+      };
       msgs = one_msg msg_to_sender;
       send msgs
     end
   end
 end
 
-(* @dev: Sets or unsets an operator for the _sender       *)
+(* @dev: Set or unset an operator for the _sender       *)
 (* @param: to - Address to be set or unset as an operator *)
 transition SetApprovalForAll(to: ByStr20)
   IsNotSelf to _sender;

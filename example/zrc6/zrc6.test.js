@@ -131,7 +131,7 @@ beforeEach(async () => {
     throw new Error();
   }
 
-  tx = await callGlobalContract("SetApprove", globalApprovedSpender, "1");
+  tx = await callGlobalContract("SetApproval", globalApprovedSpender, "1");
   if (!tx.receipt.success) {
     throw new Error();
   }
@@ -673,10 +673,32 @@ describe("Transfer", () => {
         },
         want: [
           {
-            tag: "ZRC6_RemoveApprovalCallback",
+            tag: "ZRC6_SetApprovalCallback",
             params: [
-              toMsgParam("ByStr20", globalApprovedSpender, "removed_spender"),
+              toMsgParam("ByStr20", globalApprovedSpender, "approved_spender"),
               toMsgParam("Uint256", 1, "token_id"),
+              toMsgParam("Bool", "False", "is_approved_spender"),
+            ],
+          },
+        ],
+      },
+      {
+        sender: globalContractOwner,
+        params: {
+          to: globalTestAccounts[9].address,
+          token_id: "2",
+        },
+        want: [
+          {
+            tag: "ZRC6_SetApprovalCallback",
+            params: [
+              toMsgParam(
+                "ByStr20",
+                globalTestAccounts[9].address,
+                "approved_spender"
+              ),
+              toMsgParam("Uint256", 2, "token_id"),
+              toMsgParam("Bool", "True", "is_approved_spender"),
             ],
           },
         ],
@@ -686,7 +708,7 @@ describe("Transfer", () => {
     for (const testCase of testCases) {
       zilliqa.wallet.setDefault(testCase.sender);
       const tx = await callGlobalContract(
-        "SetApprove",
+        "SetApproval",
         testCase.params.to,
         testCase.params.token_id
       );
