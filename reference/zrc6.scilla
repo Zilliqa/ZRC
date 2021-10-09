@@ -528,9 +528,9 @@ transition Burn(token_id: Uint256)
   end
 end
 
-(* @dev: Set or unset a approved spender of a given token_id                *)
+(* @dev: Set or unset a approved spender of a given token ID                *)
 (* There can only be one approved_spender per token at any given time       *)
-(* param: to       - Address to be approved for the given token_id          *)
+(* param: to       - Address to be approved for the given token ID          *)
 (* param: token_id - Unique ID of the NFT to be approved                    *)
 transition SetApproval(to: ByStr20, token_id: Uint256)
   some_token_owner <- token_owners[token_id];
@@ -632,7 +632,7 @@ transition SetApprovalForAll(to: ByStr20)
   send msgs
 end
 
-(* @dev: Transfer the ownership of a given token_id to another address.   *)
+(* @dev: Transfer the ownership of a given token ID to another address.   *)
 (* token_owner only transition.                                           *)
 (* @param: to       - Recipient address for the token                     *)
 (* @param: token_id - Unique ID of the NFT to be transferred              *)
@@ -676,7 +676,7 @@ transition Transfer(to: ByStr20, token_id: Uint256)
   send msgs
 end
 
-(* @dev: Transfer the ownership of a given token_id to another address. *)
+(* @dev: Transfer the ownership of a given token ID to another address. *)
 (* approved_spender or operator only transition.                        *)
 (* @param: to       - Recipient address for the NFT                     *)
 (* @param: token_id - Unique ID of the NFT to be transferred            *)
@@ -727,6 +727,7 @@ end
 
 (* @dev: Set address that royalties are sent to.  *)
 (* Only contract_owner can set royalty recipient. *)
+(* @param: to - Royalty recipient address         *)
 transition SetRoyaltyRecipient(to: ByStr20)
   IsContractOwner;
   royalty_recipient := to;
@@ -746,6 +747,7 @@ end
 
 (* @dev: Set royalty fee bps.                   *)
 (* Only contract_owner can set royalty fee bps. *)
+(* @param: fee_bps - Royalty fee BPS            *)
 transition SetRoyaltyFeeBPS(fee_bps: Uint256)
   IsContractOwner;
   IsValidRoyaltyFeeBPS fee_bps;
@@ -764,7 +766,10 @@ transition SetRoyaltyFeeBPS(fee_bps: Uint256)
   send msgs
 end
 
-(* @dev Called with the sale price to determine how much royalty is owed and to whom. *)
+(* @dev Retrieve royalty payment information for a given token ID and sale price. *)
+(* It specifies how much royalty is owed and to whom for a given sale price.      *)
+(* @param: token_id   - Unique ID of the NFT                                      *)
+(* @param: sale_price - Token sale price                                          *)
 transition RoyaltyInfo(token_id: Uint256, sale_price: Uint256)
   IsTokenFound token_id;
 
