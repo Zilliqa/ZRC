@@ -540,8 +540,13 @@ transition SetApprovalForAll(to: ByStr20)
     event e
   end;
   new_status = negb is_operator;
-  msg_to_sender = { _tag : "ZRC6_SetApprovalForAllCallback"; _recipient : _sender; _amount : Uint128 0; 
-                    operator : to; status : new_status};
+  msg_to_sender = { 
+    _tag : "ZRC6_SetApprovalForAllCallback";
+    _recipient : _sender;
+    _amount : Uint128 0;
+    operator : to;
+    is_operator : new_status
+  };
   msgs = one_msg msg_to_sender;
   send msgs
 end

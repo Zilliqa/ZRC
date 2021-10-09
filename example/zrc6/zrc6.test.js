@@ -732,7 +732,7 @@ describe("Transfer", () => {
             tag: "ZRC6_SetApprovalForAllCallback",
             params: [
               toMsgParam("ByStr20", globalOperator, "operator"),
-              toMsgParam("Bool", "False", "status"),
+              toMsgParam("Bool", "False", "is_operator"),
             ],
           },
         ],
@@ -747,7 +747,7 @@ describe("Transfer", () => {
             tag: "ZRC6_SetApprovalForAllCallback",
             params: [
               toMsgParam("ByStr20", globalTestAccounts[9].address, "operator"),
-              toMsgParam("Bool", "True", "status"),
+              toMsgParam("Bool", "True", "is_operator"),
             ],
           },
         ],

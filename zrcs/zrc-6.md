@@ -354,9 +354,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Messages sent:**
 
-|        | Name                             | Description                                                   | Callback Parameters                                                                                                                                               |
-| ------ | -------------------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_SetApprovalForAllCallback` | Provide the sender the status of the approval of an operator. | <ul><li>`operator` : `ByStr20`<br/>Address of the `approved_spender` whose status was being set</li><li>`status` : `Bool`<br/>Status it is being set to</li></ul> |
+|        | Name                             | Description                                                   | Callback Parameters                                                                                                                                            |
+| ------ | -------------------------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_SetApprovalForAllCallback` | Provide the sender the status of the approval of an operator. | <ul><li>`operator` : `ByStr20`<br/>Address of the `operator` whose status was being set</li><li>`is_operator` : `Bool`<br/>Status it is being set to</li></ul> |
 
 **Events:**
 
