@@ -300,6 +300,16 @@ describe("Mint & Burn", () => {
   it("removes a minter", async () => {
     const tx = await callGlobalContract("SetMinter", globalMinter);
     expect(tx.receipt.success).toBe(true);
+
+    const event = tx.receipt.event_logs.pop();
+    expect(event._eventname).toBe("SetMinterSuccess");
+    expect(JSON.stringify(event.params)).toBe(
+      JSON.stringify([
+        toMsgParam("ByStr20", globalMinter, "minter"),
+        toMsgParam("Bool", "False", "is_minter"),
+      ])
+    );
+
     const { msg } = tx.receipt.transitions.pop();
     expect(msg._tag).toBe("ZRC6_SetMinterCallback");
     expect(JSON.stringify(msg.params)).toBe(
@@ -316,6 +326,16 @@ describe("Mint & Burn", () => {
       globalTestAccounts[9].address
     );
     expect(tx.receipt.success).toBe(true);
+
+    const event = tx.receipt.event_logs.pop();
+    expect(event._eventname).toBe("SetMinterSuccess");
+    expect(JSON.stringify(event.params)).toBe(
+      JSON.stringify([
+        toMsgParam("ByStr20", globalTestAccounts[9].address, "minter"),
+        toMsgParam("Bool", "True", "is_minter"),
+      ])
+    );
+
     const { msg } = tx.receipt.transitions.pop();
     expect(msg._tag).toBe("ZRC6_SetMinterCallback");
     expect(JSON.stringify(msg.params)).toBe(
@@ -671,16 +691,37 @@ describe("Transfer", () => {
           to: globalApprovedSpender,
           token_id: "1",
         },
-        want: [
-          {
-            tag: "ZRC6_SetApprovalCallback",
-            params: [
-              toMsgParam("ByStr20", globalApprovedSpender, "approved_spender"),
-              toMsgParam("Uint256", 1, "token_id"),
-              toMsgParam("Bool", "False", "is_approved_spender"),
-            ],
-          },
-        ],
+        want: {
+          events: [
+            {
+              name: "SetApprovalSuccess",
+              params: [
+                toMsgParam("ByStr20", globalContractOwner, "initiator"),
+                toMsgParam(
+                  "ByStr20",
+                  globalApprovedSpender,
+                  "approved_spender"
+                ),
+                toMsgParam("Uint256", 1, "token_id"),
+                toMsgParam("Bool", "False", "is_approved_spender"),
+              ],
+            },
+          ],
+          transitions: [
+            {
+              tag: "ZRC6_SetApprovalCallback",
+              params: [
+                toMsgParam(
+                  "ByStr20",
+                  globalApprovedSpender,
+                  "approved_spender"
+                ),
+                toMsgParam("Uint256", 1, "token_id"),
+                toMsgParam("Bool", "False", "is_approved_spender"),
+              ],
+            },
+          ],
+        },
       },
       {
         sender: globalContractOwner,
@@ -688,20 +729,37 @@ describe("Transfer", () => {
           to: globalTestAccounts[9].address,
           token_id: "2",
         },
-        want: [
-          {
-            tag: "ZRC6_SetApprovalCallback",
-            params: [
-              toMsgParam(
-                "ByStr20",
-                globalTestAccounts[9].address,
-                "approved_spender"
-              ),
-              toMsgParam("Uint256", 2, "token_id"),
-              toMsgParam("Bool", "True", "is_approved_spender"),
-            ],
-          },
-        ],
+        want: {
+          events: [
+            {
+              name: "SetApprovalSuccess",
+              params: [
+                toMsgParam("ByStr20", globalContractOwner, "initiator"),
+                toMsgParam(
+                  "ByStr20",
+                  globalTestAccounts[9].address,
+                  "approved_spender"
+                ),
+                toMsgParam("Uint256", 2, "token_id"),
+                toMsgParam("Bool", "True", "is_approved_spender"),
+              ],
+            },
+          ],
+          transitions: [
+            {
+              tag: "ZRC6_SetApprovalCallback",
+              params: [
+                toMsgParam(
+                  "ByStr20",
+                  globalTestAccounts[9].address,
+                  "approved_spender"
+                ),
+                toMsgParam("Uint256", 2, "token_id"),
+                toMsgParam("Bool", "True", "is_approved_spender"),
+              ],
+            },
+          ],
+        },
       },
     ];
 
@@ -723,11 +781,18 @@ describe("Transfer", () => {
         // Positive Cases
         expect(tx.receipt.success).toBe(true);
 
-        tx.receipt.transitions.forEach((cur, index) => {
-          const { msg } = cur;
-          expect(msg._tag).toBe(testCase.want[index].tag);
+        tx.receipt.event_logs.forEach((event, index) => {
+          expect(event._eventname).toBe(testCase.want.events[index].name);
+          expect(JSON.stringify(event.params)).toBe(
+            JSON.stringify(testCase.want.events[index].params)
+          );
+        });
+
+        tx.receipt.transitions.forEach((transition, index) => {
+          const { msg } = transition;
+          expect(msg._tag).toBe(testCase.want.transitions[index].tag);
           expect(JSON.stringify(msg.params)).toBe(
-            JSON.stringify(testCase.want[index].params)
+            JSON.stringify(testCase.want.transitions[index].params)
           );
         });
       }
@@ -749,30 +814,62 @@ describe("Transfer", () => {
         params: {
           to: globalOperator,
         },
-        want: [
-          {
-            tag: "ZRC6_SetApprovalForAllCallback",
-            params: [
-              toMsgParam("ByStr20", globalOperator, "operator"),
-              toMsgParam("Bool", "False", "is_operator"),
-            ],
-          },
-        ],
+        want: {
+          events: [
+            {
+              name: "SetApprovalForAllSuccess",
+              params: [
+                toMsgParam("ByStr20", globalContractOwner, "initiator"),
+                toMsgParam("ByStr20", globalOperator, "operator"),
+                toMsgParam("Bool", "False", "is_operator"),
+              ],
+            },
+          ],
+          transitions: [
+            {
+              tag: "ZRC6_SetApprovalForAllCallback",
+              params: [
+                toMsgParam("ByStr20", globalOperator, "operator"),
+                toMsgParam("Bool", "False", "is_operator"),
+              ],
+            },
+          ],
+        },
       },
       {
         sender: globalContractOwner,
         params: {
           to: globalTestAccounts[9].address,
         },
-        want: [
-          {
-            tag: "ZRC6_SetApprovalForAllCallback",
-            params: [
-              toMsgParam("ByStr20", globalTestAccounts[9].address, "operator"),
-              toMsgParam("Bool", "True", "is_operator"),
-            ],
-          },
-        ],
+        want: {
+          events: [
+            {
+              name: "SetApprovalForAllSuccess",
+              params: [
+                toMsgParam("ByStr20", globalContractOwner, "initiator"),
+                toMsgParam(
+                  "ByStr20",
+                  globalTestAccounts[9].address,
+                  "operator"
+                ),
+                toMsgParam("Bool", "True", "is_operator"),
+              ],
+            },
+          ],
+          transitions: [
+            {
+              tag: "ZRC6_SetApprovalForAllCallback",
+              params: [
+                toMsgParam(
+                  "ByStr20",
+                  globalTestAccounts[9].address,
+                  "operator"
+                ),
+                toMsgParam("Bool", "True", "is_operator"),
+              ],
+            },
+          ],
+        },
       },
     ];
 
@@ -793,11 +890,18 @@ describe("Transfer", () => {
         // Positive Cases
         expect(tx.receipt.success).toBe(true);
 
-        tx.receipt.transitions.forEach((cur, index) => {
-          const { msg } = cur;
-          expect(msg._tag).toBe(testCase.want[index].tag);
+        tx.receipt.event_logs.forEach((event, index) => {
+          expect(event._eventname).toBe(testCase.want.events[index].name);
+          expect(JSON.stringify(event.params)).toBe(
+            JSON.stringify(testCase.want.events[index].params)
+          );
+        });
+
+        tx.receipt.transitions.forEach((transition, index) => {
+          const { msg } = transition;
+          expect(msg._tag).toBe(testCase.want.transitions[index].tag);
           expect(JSON.stringify(msg.params)).toBe(
-            JSON.stringify(testCase.want[index].params)
+            JSON.stringify(testCase.want.transitions[index].params)
           );
         });
       }

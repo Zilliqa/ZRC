@@ -219,10 +219,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name                  | Description              | Event Parameters                             |
-| ------------ | --------------------- | ------------------------ | -------------------------------------------- |
-| `_eventname` | `AddMinterSuccess`    | Minter has been added.   | `minter` : `ByStr20`<br/>Address of a minter |
-| `_eventname` | `RemoveMinterSuccess` | Minter has been removed. | `minter` : `ByStr20`<br/>Address of a minter |
+|              | Name               | Description                   | Event Parameters                                                                                                          |
+| ------------ | ------------------ | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `SetMinterSuccess` | Minter has been set or unset. | <ul><li>`minter` : `ByStr20`<br/>Address of a minter</li><li>`is_minter` : `Bool`<br/>Status it is being set to</li></ul> |
 
 #### 2. BatchMint() (Optional)
 
@@ -338,10 +337,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name                    | Description                        | Event Parameters                                                                                                                                                                                                                        |
-| ------------ | ----------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `AddApprovalSuccess`    | Approved spender has been added.   | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`approved_spender` : `ByStr20`<br/>Address to removed as an approved spender of a given token ID</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
-| `_eventname` | `RemoveApprovalSuccess` | Approved spender has been removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`approved_spender` : `ByStr20`<br/>Address to removed as an removed spender of a given token ID</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul>  |
+|              | Name                 | Description                             | Event Parameters                                                                                                                                                                                                                                                                                             |
+| ------------ | -------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `_eventname` | `SetApprovalSuccess` | Approved spender has been set or unset. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`approved_spender` : `ByStr20`<br/>Address to removed as an approved spender of a given token ID</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li><li>`is_approved_spender` : `Bool`<br/>Status it is being set to</li></ul> |
 
 #### 8. SetApprovalForAll()
 
@@ -359,10 +357,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name                          | Description                | Event Parameters                                                                                                                                            |
-| ------------ | ----------------------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `AddApprovalForAllSuccess`    | Operator has been added.   | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`operator` : `ByStr20`<br/>Address of the approved spender which was added</li></ul>   |
-| `_eventname` | `RemoveApprovalForAllSuccess` | Operator has been removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`operator` : `ByStr20`<br/>Address of the approved spender which was removed</li></ul> |
+|              | Name                       | Description                          | Event Parameters                                                                                                                                                                                                       |
+| ------------ | -------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `SetApprovalForAllSuccess` | Operator has been been set or unset. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`operator` : `ByStr20`<br/>Address of the approved spender which was added</li><li>`is_operator` : `Bool`<br/>Status it is being set to</li></ul> |
 
 #### 9. Transfer()
 

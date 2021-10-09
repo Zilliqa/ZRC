@@ -397,16 +397,18 @@ transition SetMinter(minter: ByStr20)
   match is_minter with
   | True => 
     (* Remove minter *)
-    delete minters[minter];
-    e = { _eventname : "RemoveMinterSuccess"; minter : minter };
-    event e
+    delete minters[minter]
   | False =>
     (* Add minter *)
-    minters[minter] := verdad;
-    e = { _eventname : "AddMinterSuccess"; minter : minter };
-    event e
+    minters[minter] := verdad
   end;
   new_status = negb is_minter;
+  e = { 
+    _eventname : "SetMinterSuccess";
+    minter : minter;
+    is_minter: new_status
+  };
+  event e;
   msg_to_sender = { 
     _tag : "ZRC6_SetMinterCallback";
     _recipient : _sender;
@@ -550,10 +552,11 @@ transition SetApproval(to: ByStr20, token_id: Uint256)
         delete token_approvals[token_id];
         new_status = False;
         e = {
-          _eventname : "RemoveApprovalSuccess";
+          _eventname : "SetApprovalSuccess";
           initiator : _sender;
           approved_spender : to;
-          token_id : token_id
+          token_id : token_id;
+          is_approved_spender: new_status
         };
         event e;
         msg_to_sender = { 
@@ -562,7 +565,7 @@ transition SetApproval(to: ByStr20, token_id: Uint256)
           _amount : Uint128 0;
           approved_spender : to;
           token_id : token_id;
-          is_approved_spender: new_status 
+          is_approved_spender: new_status
         };
         msgs = one_msg msg_to_sender;
         send msgs
@@ -575,10 +578,11 @@ transition SetApproval(to: ByStr20, token_id: Uint256)
       token_approvals[token_id] := to;
       new_status = True;
       e = {
-        _eventname : "AddApprovalSuccess";
+        _eventname : "SetApprovalSuccess";
         initiator : _sender;
         approved_spender : to;
-        token_id : token_id
+        token_id : token_id;
+        is_approved_spender: new_status
       };
       event e;
       msg_to_sender = { 
@@ -587,7 +591,7 @@ transition SetApproval(to: ByStr20, token_id: Uint256)
         _amount : Uint128 0;
         approved_spender : to;
         token_id : token_id;
-        is_approved_spender: new_status 
+        is_approved_spender: new_status
       };
       msgs = one_msg msg_to_sender;
       send msgs
@@ -603,24 +607,19 @@ transition SetApprovalForAll(to: ByStr20)
   match is_operator with
   | False =>
     (* Add operator *)
-    operator_approvals[_sender][to] := verdad;
-    e = {
-      _eventname : "AddApprovalForAllSuccess";
-      initiator : _sender;
-      operator : to
-    };
-    event e
+    operator_approvals[_sender][to] := verdad
   | True =>
     (* Remove operator *)
-    delete operator_approvals[_sender][to];
-    e = {
-      _eventname : "RemoveApprovalForAllSuccess";
-      initiator : _sender;
-      operator : to
-    };
-    event e
+    delete operator_approvals[_sender][to]
   end;
   new_status = negb is_operator;
+  e = {
+    _eventname : "SetApprovalForAllSuccess";
+    initiator : _sender;
+    operator : to;
+    is_operator : new_status
+  };
+  event e;
   msg_to_sender = { 
     _tag : "ZRC6_SetApprovalForAllCallback";
     _recipient : _sender;
