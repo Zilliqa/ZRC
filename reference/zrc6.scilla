@@ -127,7 +127,6 @@ field royalty_fee_bps: Uint256 = Uint256 1000
 (* address to send royalties to *)
 field royalty_recipient: ByStr20 = contract_owner
 
-
 (* Emit Errors *)
 procedure ThrowError(err : Error)
   e = make_error err;
@@ -274,14 +273,16 @@ procedure UpdateTokenCount(operation: Operation, address: ByStr20)
   end
 end
 
-(* Getter transitions *)
-
 (* @dev: Get number of NFTs assigned to a token_owner *)
 transition BalanceOf(address: ByStr20)
   some_bal <- owned_token_count[address];
   balance = get_bal some_bal;
-  msg_to_sender = { _tag : "ZRC6_BalanceOfCallback"; _recipient : _sender; _amount : Uint128 0;
-                   balance : balance};
+  msg_to_sender = { 
+    _tag : "ZRC6_BalanceOfCallback";
+    _recipient : _sender;
+    _amount : Uint128 0;
+    balance : balance
+  };
   msgs = one_msg msg_to_sender;
   send msgs
 end
@@ -289,24 +290,36 @@ end
 (* @dev: Get total supply of NFTs minted *)
 transition TotalSupply()
   current_supply <- total_supply;
-  msg_to_sender = { _tag : "ZRC6_TotalSupplyCallback"; _recipient : _sender; _amount : Uint128 0;
-                   total_supply : current_supply};
+  msg_to_sender = { 
+    _tag : "ZRC6_TotalSupplyCallback";
+    _recipient : _sender;
+    _amount : Uint128 0;
+    total_supply : current_supply
+  };
   msgs = one_msg msg_to_sender;
   send msgs
 end
 
 (* @dev: Get name of the NFTs *)
 transition Name()
-  msg_to_sender = { _tag : "ZRC6_NameCallback"; _recipient : _sender; _amount : Uint128 0;
-                   name : name};
+  msg_to_sender = {
+    _tag : "ZRC6_NameCallback";
+    _recipient : _sender;
+    _amount : Uint128 0;
+    name : name
+  };
   msgs = one_msg msg_to_sender;
   send msgs
 end
 
 (* @dev: Get name of the NFTs *)
 transition Symbol()
-  msg_to_sender = { _tag : "ZRC6_SymbolCallback"; _recipient : _sender; _amount : Uint128 0;
-                   symbol : symbol};
+  msg_to_sender = {
+    _tag : "ZRC6_SymbolCallback";
+    _recipient : _sender;
+    _amount : Uint128 0;
+    symbol : symbol
+  };
   msgs = one_msg msg_to_sender;
   send msgs
 end
@@ -336,8 +349,12 @@ transition TokenURI(token_id: Uint256)
   some_token_uri <- token_uris[token_id];
   match some_token_uri with
   | Some token_uri =>
-    msg_to_sender = { _tag : "ZRC6_TokenURICallback"; _recipient : _sender; _amount : Uint128 0; 
-                      token_uri : token_uri};
+    msg_to_sender = { 
+      _tag : "ZRC6_TokenURICallback";
+      _recipient : _sender;
+      _amount : Uint128 0;
+      token_uri : token_uri
+    };
     msgs = one_msg msg_to_sender;
     send msgs
   | None =>
@@ -349,7 +366,11 @@ end
 (* @dev: Check if a token_id is owned by a token_owner *)
 transition CheckTokenOwner(token_id: Uint256, address: ByStr20)
   IsTokenOwner token_id address;
-  msg_to_sender = { _tag : "ZRC6_IsTokenOwnerCallback"; _recipient : _sender; _amount : Uint128 0};
+  msg_to_sender = {
+    _tag : "ZRC6_IsTokenOwnerCallback";
+    _recipient : _sender;
+    _amount : Uint128 0
+  };
   msgs = one_msg msg_to_sender;
   send msgs
 end
@@ -357,16 +378,19 @@ end
 (* @dev: Check if address is operator for token_owner *)
 transition CheckApprovedForAll(token_owner: ByStr20, operator: ByStr20)
   IsApprovedForAll token_owner operator;
-  msg_to_sender = { _tag : "ZRC6_IsApprovedForAllCallback"; _recipient : _sender; _amount : Uint128 0;
-                    token_owner : token_owner; operator : operator};
+  msg_to_sender = { 
+    _tag : "ZRC6_IsApprovedForAllCallback";
+    _recipient : _sender;
+    _amount : Uint128 0;
+    token_owner : token_owner;
+    operator : operator
+  };
   msgs = one_msg msg_to_sender;
   send msgs
 end
 
-(* Interface transitions *)
-
-(* @dev:    Add or remove a minter. Only contract_owner can set minters.              *)
-(* @param:  minter      - Address of the minter to be approved or removed            *)
+(* @dev:   Add or remove a minter. Only contract_owner can set minters. *)
+(* @param: minter - Address of the minter to be approved or removed     *)
 transition SetMinter(minter: ByStr20)
   IsContractOwner;
   is_minter <- exists minters[minter];
@@ -374,12 +398,12 @@ transition SetMinter(minter: ByStr20)
   | True => 
     (* Remove minter *)
     delete minters[minter];
-    e = {_eventname: "RemoveMinterSuccess"; minter: minter};
+    e = { _eventname : "RemoveMinterSuccess"; minter : minter };
     event e
   | False =>
     (* Add minter *)
     minters[minter] := verdad;
-    e = {_eventname: "AddMinterSuccess"; minter: minter};
+    e = { _eventname : "AddMinterSuccess"; minter : minter };
     event e
   end;
   new_status = negb is_minter;
@@ -416,40 +440,55 @@ procedure Minting(input_pair: Pair ByStr20 String)
   token_owners[token_id] := to;
   (* Add token_uri for token_id *)
   token_uris[token_id] := token_uri;
-  e = {_eventname: "MintSuccess"; by: _sender; recipient: to;
-        token_id: token_id; token_uri: token_uri};
+  e = {
+    _eventname : "MintSuccess";
+    by : _sender;
+    recipient : to;
+    token_id : token_id;
+    token_uri : token_uri
+  };
   event e
 end
 
-(* @dev:    Mint new tokens. Only minters can mint.           *)
-(* @param:  to        - Address of the token recipient        *)
-(* @param:  token_uri - URI of the the new token to be minted *)
+(* @dev:   Mint new tokens. Only minters can mint.           *)
+(* @param: to        - Address of the token recipient        *)
+(* @param: token_uri - URI of the the new token to be minted *)
 transition Mint(to: ByStr20, token_uri: String)
   input_pair = build_pair to token_uri;
   Minting input_pair;
   token_id <- token_id_count;
   msg_to_recipient = { _tag : "ZRC6_RecipientAcceptMint"; _recipient : to; _amount : Uint128 0 };
-  msg_to_sender = { _tag : "ZRC6_MintCallback"; _recipient : _sender; _amount : Uint128 0;
-                    recipient : _sender; token_id : token_id; token_uri : token_uri };
+  msg_to_sender = { 
+    _tag : "ZRC6_MintCallback";
+    _recipient : _sender;
+    _amount : Uint128 0;
+    recipient : _sender;
+    token_id : token_id;
+    token_uri : token_uri
+  };
   msgs = two_msgs msg_to_recipient msg_to_sender;
   send msgs
 end
 
-(* @dev:    Mint multiple new tokens at once. Only minters can mint. *)
-(* @param:  to_list         - Addressses of the token recipient      *)
-(* @param:  token_uri_list - URIs of the the new token to be minted *)
+(* @dev:   Mint multiple new tokens at once. Only minters can mint. *)
+(* @param: to_list         - Addressses of the token recipient      *)
+(* @param: token_uri_list - URIs of the the new token to be minted  *)
 transition BatchMint(to_list: List ByStr20, token_uri_list: List String)
   pair_two_list = @list_zip ByStr20 String;
   input_list = pair_two_list to_list token_uri_list;
   forall input_list Minting;
-  msg_to_sender = { _tag : "ZRC6_BatchMintCallback"; _recipient : _sender; _amount : Uint128 0 };
+  msg_to_sender = { 
+    _tag : "ZRC6_BatchMintCallback";
+    _recipient : _sender;
+    _amount : Uint128 0
+  };
   msgs = one_msg msg_to_sender;
   send msgs
 end
 
 
-(* @dev:    Burn existing tokens. Only token_owner or an operator can burn a NFT. *)
-(* @param:  token_id - Unique ID of the NFT to be destroyed                       *)
+(* @dev:   Burn existing tokens. Only token_owner or an operator can burn a NFT. *)
+(* @param: token_id - Unique ID of the NFT to be destroyed                       *)
 transition Burn(token_id: Uint256)
   (* Check if token exists *)
   some_token_owner <- token_owners[token_id];
@@ -469,15 +508,25 @@ transition Burn(token_id: Uint256)
     current_supply <- total_supply;
     new_supply = builtin sub current_supply one;
     total_supply := new_supply;
-    e = {_eventname: "BurnSuccess"; initiator: _sender; burn_address: token_owner; token_id: token_id};
+    e = {
+      _eventname : "BurnSuccess";
+      initiator : _sender;
+      burn_address : token_owner;
+      token_id : token_id
+    };
     event e;
-    msg_to_sender = { _tag : "ZRC6_BurnCallback"; _recipient : _sender; _amount : Uint128 0;
-                      initiator : _sender; burn_address : token_owner; token_id : token_id };
+    msg_to_sender = { 
+      _tag : "ZRC6_BurnCallback";
+      _recipient : _sender;
+      _amount : Uint128 0;
+      initiator : _sender;
+      burn_address : token_owner;
+      token_id : token_id
+    };
     msgs = one_msg msg_to_sender;
     send msgs
   end
 end
-
 
 (* @dev: Set or unset a approved spender of a given token_id                *)
 (* There can only be one approved_spender per token at any given time       *)
@@ -500,7 +549,12 @@ transition SetApproval(to: ByStr20, token_id: Uint256)
       | True =>
         delete token_approvals[token_id];
         new_status = False;
-        e = {_eventname: "RemoveApprovalSuccess"; initiator: _sender; approved_spender: to; token_id: token_id};
+        e = {
+          _eventname : "RemoveApprovalSuccess";
+          initiator : _sender;
+          approved_spender : to;
+          token_id : token_id
+        };
         event e;
         msg_to_sender = { 
           _tag : "ZRC6_SetApprovalCallback";
@@ -520,7 +574,12 @@ transition SetApproval(to: ByStr20, token_id: Uint256)
       (* Add approved_spender *)
       token_approvals[token_id] := to;
       new_status = True;
-      e = {_eventname: "AddApprovalSuccess"; initiator: _sender; approved_spender: to; token_id: token_id};
+      e = {
+        _eventname : "AddApprovalSuccess";
+        initiator : _sender;
+        approved_spender : to;
+        token_id : token_id
+      };
       event e;
       msg_to_sender = { 
         _tag : "ZRC6_SetApprovalCallback";
@@ -536,7 +595,7 @@ transition SetApproval(to: ByStr20, token_id: Uint256)
   end
 end
 
-(* @dev: Set or unset an operator for the _sender       *)
+(* @dev:   Set or unset an operator for the _sender       *)
 (* @param: to - Address to be set or unset as an operator *)
 transition SetApprovalForAll(to: ByStr20)
   IsNotSelf to _sender;
@@ -545,12 +604,20 @@ transition SetApprovalForAll(to: ByStr20)
   | False =>
     (* Add operator *)
     operator_approvals[_sender][to] := verdad;
-    e = {_eventname: "AddApprovalForAllSuccess"; initiator: _sender; operator: to};
+    e = {
+      _eventname : "AddApprovalForAllSuccess";
+      initiator : _sender;
+      operator : to
+    };
     event e
   | True =>
     (* Remove operator *)
     delete operator_approvals[_sender][to];
-    e = {_eventname: "RemoveApprovalForAllSuccess"; initiator: _sender; operator: to};
+    e = {
+      _eventname : "RemoveApprovalForAllSuccess";
+      initiator : _sender;
+      operator : to
+    };
     event e
   end;
   new_status = negb is_operator;
@@ -565,9 +632,10 @@ transition SetApprovalForAll(to: ByStr20)
   send msgs
 end
 
-(* @dev: Transfer the ownership of a given token_id to another address. token_owner only transition. *)
-(* @param: to       - Recipient address for the token                                                *)
-(* @param: token_id - Unique ID of the NFT to be transferred                                         *)
+(* @dev: Transfer the ownership of a given token_id to another address.   *)
+(* token_owner only transition.                                           *)
+(* @param: to       - Recipient address for the token                     *)
+(* @param: token_id - Unique ID of the NFT to be transferred              *)
 transition Transfer(to: ByStr20, token_id: Uint256)
   IsNotSelf to _sender;
   IsTokenOwner token_id _sender;
@@ -579,19 +647,39 @@ transition Transfer(to: ByStr20, token_id: Uint256)
   UpdateTokenCount sub_operation _sender;
   (* Add one to the new token owner count *)
   UpdateTokenCount add_operation to;
-  e = {_eventname: "TransferSuccess"; from: _sender; recipient: to; token_id: token_id};
+  e = {
+    _eventname : "TransferSuccess";
+    from : _sender;
+    recipient : to;
+    token_id : token_id
+  };
   event e;
-  msg_to_recipient = { _tag : "ZRC6_RecipientAcceptTransfer"; _recipient : to; _amount : Uint128 0; 
-                      from : _sender; recipient : to; token_id : token_id };
-  msg_to_sender = { _tag : "ZRC6_TransferCallback"; _recipient : _sender; _amount : Uint128 0; 
-                    from : _sender; recipient : to; token_id : token_id };
+
+  msg_to_recipient = { 
+    _tag : "ZRC6_RecipientAcceptTransfer";
+    _recipient : to;
+    _amount : Uint128 0;
+    from : _sender;
+    recipient : to;
+    token_id : token_id
+  };
+
+  msg_to_sender = { 
+    _tag : "ZRC6_TransferCallback";
+    _recipient : _sender;
+    _amount : Uint128 0;
+    from : _sender;
+    recipient : to;
+    token_id : token_id
+  };
   msgs = two_msgs msg_to_recipient msg_to_sender;
   send msgs
 end
 
-(* @dev: Transfer the ownership of a given token_id to another address. approved_spender or operator only transition. *)
-(* @param: to       - Recipient address for the NFT                                                                   *)
-(* @param: token_id - Unique ID of the NFT to be transferred                                                          *)
+(* @dev: Transfer the ownership of a given token_id to another address. *)
+(* approved_spender or operator only transition.                        *)
+(* @param: to       - Recipient address for the NFT                     *)
+(* @param: token_id - Unique ID of the NFT to be transferred            *)
 transition TransferFrom(to: ByStr20, token_id: Uint256)
   some_token_owner <- token_owners[token_id];
   match some_token_owner with
@@ -609,23 +697,41 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
     UpdateTokenCount sub_operation token_owner;
     (* Add one to the new token owner count *)
     UpdateTokenCount add_operation to;
-    e = {_eventname: "TransferFromSuccess"; from: token_owner; recipient: to; token_id: token_id};
+    e = {
+      _eventname : "TransferFromSuccess";
+      from : token_owner;
+      recipient : to;
+      token_id : token_id
+    };
     event e;
-    msg_to_recipient = { _tag : "ZRC6_RecipientAcceptTransferFrom"; _recipient : to; _amount : Uint128 0; 
-                        from : token_owner; recipient : to; token_id : token_id };
-    msg_to_sender = { _tag : "ZRC6_TransferFromCallback"; _recipient : _sender; _amount : Uint128 0; 
-                      from : token_owner; recipient : to; token_id : token_id };
+    msg_to_recipient = { 
+      _tag : "ZRC6_RecipientAcceptTransferFrom";
+      _recipient : to;
+      _amount : Uint128 0;
+      from : token_owner;
+      recipient : to;
+      token_id : token_id
+    };
+    msg_to_sender = { 
+      _tag : "ZRC6_TransferFromCallback";
+      _recipient : _sender;
+      _amount : Uint128 0;
+      from : token_owner;
+      recipient : to;
+      token_id : token_id
+    };
     msgs = two_msgs msg_to_recipient msg_to_sender;
     send msgs
   end
 end
 
-(* @dev: Set address that royalties are sent to. Only contract_owner can set royalty recipient. *)
+(* @dev: Set address that royalties are sent to.  *)
+(* Only contract_owner can set royalty recipient. *)
 transition SetRoyaltyRecipient(to: ByStr20)
   IsContractOwner;
   royalty_recipient := to;
   
-  e = {_eventname: "SetRoyaltyRecipientSuccess"; royalty_recipient: to};
+  e = { _eventname : "SetRoyaltyRecipientSuccess"; royalty_recipient : to };
   event e;
   
   msg_to_sender = { 
@@ -638,13 +744,14 @@ transition SetRoyaltyRecipient(to: ByStr20)
   send msgs  
 end
 
-(* @dev: Set royalty fee bps. Only contract_owner can set royalty fee bps. *)
+(* @dev: Set royalty fee bps.                   *)
+(* Only contract_owner can set royalty fee bps. *)
 transition SetRoyaltyFeeBPS(fee_bps: Uint256)
   IsContractOwner;
   IsValidRoyaltyFeeBPS fee_bps;
   royalty_fee_bps := fee_bps;
   
-  e = {_eventname: "SetRoyaltyFeeBPSSuccess"; royalty_fee_bps: fee_bps};
+  e = { _eventname : "SetRoyaltyFeeBPSSuccess"; royalty_fee_bps : fee_bps };
   event e;
 
   msg_to_sender = { 
