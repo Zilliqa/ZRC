@@ -141,7 +141,7 @@ beforeEach(async () => {
     throw new Error();
   }
 
-  tx = await callGlobalContract("ConfigureMinter", globalMinter);
+  tx = await callGlobalContract("SetMinter", globalMinter);
   if (!tx.receipt.success) {
     throw new Error();
   }
@@ -298,22 +298,32 @@ describe("Token", () => {
 
 describe("Mint & Burn", () => {
   it("removes a minter", async () => {
-    const tx = await callGlobalContract("ConfigureMinter", globalMinter);
+    const tx = await callGlobalContract("SetMinter", globalMinter);
     expect(tx.receipt.success).toBe(true);
     const { msg } = tx.receipt.transitions.pop();
-    expect(msg._tag).toBe("ZRC6_RemoveMinterCallback");
-    expect(JSON.stringify(msg.params)).toBe(JSON.stringify([]));
+    expect(msg._tag).toBe("ZRC6_SetMinterCallback");
+    expect(JSON.stringify(msg.params)).toBe(
+      JSON.stringify([
+        toMsgParam("ByStr20", globalMinter, "minter"),
+        toMsgParam("Bool", "False", "is_minter"),
+      ])
+    );
   });
 
   it("adds a minter", async () => {
     const tx = await callGlobalContract(
-      "ConfigureMinter",
+      "SetMinter",
       globalTestAccounts[9].address
     );
     expect(tx.receipt.success).toBe(true);
     const { msg } = tx.receipt.transitions.pop();
-    expect(msg._tag).toBe("ZRC6_AddMinterCallback");
-    expect(JSON.stringify(msg.params)).toBe(JSON.stringify([]));
+    expect(msg._tag).toBe("ZRC6_SetMinterCallback");
+    expect(JSON.stringify(msg.params)).toBe(
+      JSON.stringify([
+        toMsgParam("ByStr20", globalTestAccounts[9].address, "minter"),
+        toMsgParam("Bool", "True", "is_minter"),
+      ])
+    );
   });
 
   it("mints a token", async () => {

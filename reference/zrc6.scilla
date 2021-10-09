@@ -365,29 +365,33 @@ end
 
 (* Interface transitions *)
 
-(* @dev:    Add or remove approved minters. Only contract_owner can approve minters. *)
+(* @dev:    Add or remove a minter. Only contract_owner can set minters.              *)
 (* @param:  minter      - Address of the minter to be approved or removed            *)
-transition ConfigureMinter(minter: ByStr20)
+transition SetMinter(minter: ByStr20)
   IsContractOwner;
-  some_minter <- minters[minter];
-  match some_minter with
-  | Some Dummy => 
+  is_minter <- exists minters[minter];
+  match is_minter with
+  | True => 
     (* Remove minter *)
     delete minters[minter];
     e = {_eventname: "RemoveMinterSuccess"; minter: minter};
-    event e;
-    msg_to_sender = { _tag : "ZRC6_RemoveMinterCallback"; _recipient : _sender; _amount : Uint128 0 };
-    msgs = one_msg msg_to_sender;
-    send msgs
-  | None =>
+    event e
+  | False =>
     (* Add minter *)
     minters[minter] := verdad;
     e = {_eventname: "AddMinterSuccess"; minter: minter};
-    event e;
-    msg_to_sender = { _tag : "ZRC6_AddMinterCallback"; _recipient : _sender; _amount : Uint128 0 };
-    msgs = one_msg msg_to_sender;
-    send msgs
-  end
+    event e
+  end;
+  new_status = negb is_minter;
+  msg_to_sender = { 
+    _tag : "ZRC6_SetMinterCallback";
+    _recipient : _sender;
+    _amount : Uint128 0;
+    minter: minter;
+    is_minter: new_status
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
 end
 
 procedure Minting(input_pair: Pair ByStr20 String)

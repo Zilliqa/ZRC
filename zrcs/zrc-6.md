@@ -203,20 +203,19 @@ The NFT contract must define the following constants for use as error codes for 
 
 ### F. Interface Transitions
 
-#### 1. ConfigureMinter()
+#### 1. SetMinter()
 
 **Arguments:**
 
-| Name     | Type      | Description                                                      |
-| -------- | --------- | ---------------------------------------------------------------- |
-| `minter` | `ByStr20` | An address that will be approved or removed as a minter of NFTs. |
+| Name     | Type      | Description                           |
+| -------- | --------- | ------------------------------------- |
+| `minter` | `ByStr20` | Address to be set or unset as minter. |
 
 **Messages sent:**
 
-|        | Name                        | Description                    | Callback Parameters |
-| ------ | --------------------------- | ------------------------------ | ------------------- |
-| `_tag` | `ZRC6_AddMinterCallback`    | Provide the sender the result. |                     |
-| `_tag` | `ZRC6_RemoveMinterCallback` | Provide the sender the result. |                     |
+|        | Name                     | Description                    | Callback Parameters                                                                                                                                      |
+| ------ | ------------------------ | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_SetMinterCallback` | Provide the sender the result. | <ul><li>`minter` : `ByStr20`<br/>Address of the `minter` whose status was being set</li><li>`is_minter` : `Bool`<br/>Status it is being set to</li></ul> |
 
 **Events:**
 
