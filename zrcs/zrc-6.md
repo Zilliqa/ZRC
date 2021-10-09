@@ -57,7 +57,7 @@ The NFT contract must define the following constants for use as error codes for 
 | `NotFoundError`                     | `Int32` | `-1`  | Emit when a value is not found.                                                     |
 | `ConflictError`                     | `Int32` | `-2`  | Emit when a value already exists.                                                   |
 | `SelfError`                         | `Int32` | `-3`  | Emit when the sender attempts a transition call wrongly to his/her own address .    |
-| `NotContractOwnerError`             | `Int32` | `-4`  | Emit when the sender attempts a transition call only authorised for contract owner. |
+| `NotContractOwnerError`             | `Int32` | `-4`  | Emit when the sender attempts a transition call only authorized for contract owner. |
 | `NotTokenOwnerError`                | `Int32` | `-5`  | Emit when a given address is not an owner of the token.                             |
 | `NotMinterError`                    | `Int32` | `-6`  | Emit when the sender is not an approved token minter.                               |
 | `NotApprovedError`                  | `Int32` | `-7`  | Emit when there is no approved address for the given token ID.                      |
@@ -80,11 +80,11 @@ The NFT contract must define the following constants for use as error codes for 
 | -------------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | `minters`            | `Map ByStr20 Unit`               | Mapping containing the addresses approved to mint NFTs.                                                                      |
 | `royalty_recipient`  | `ByStr20`                        | Address to send royalties to. This is optional.                                                                              |
-| `royalty_fee_bps`    | `Uint256`                        | Royality fee BPS (1/100ths of a percent, e.g. 1000 = 10%). This is optional.                                                 |
+| `royalty_fee_bps`    | `Uint256`                        | Royalty fee BPS (1/100ths of a percent, e.g. 1000 = 10%). This is optional.                                                  |
 | `token_owners`       | `Map Uint256 ByStr20`            | Mapping between token ID (that identifies each token) to its owner.                                                          |
 | `owned_token_count`  | `Map ByStr20 Uint256`            | Mapping from token owner to the number of NFTs he/she owns.                                                                  |
 | `token_approvals`    | `Map Uint256 ByStr20`            | Mapping between token ID to an approved spender address. There can only be one approved address per token at any given time. |
-| `operator_approvals` | `Map ByStr20 (Map ByStr20 Bool)` | Mapping from token owner to approved operators authorised by the token owner.                                                |
+| `operator_approvals` | `Map ByStr20 (Map ByStr20 Bool)` | Mapping from token owner to approved operators authorized by the token owner.                                                |
 | `token_uris`         | `Map Uint256 String`             | Mapping from token ID to token URI.                                                                                          |
 | `total_supply`       | `Uint256`                        | Current total supply of NFTs minted.                                                                                         |
 
@@ -109,15 +109,15 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Arguments:**
 
-| Name      | Type      | Description                                     |
-| --------- | --------- | ----------------------------------------------- |
-| `address` | `ByStr20` | Address of the token owner to check balance of. |
+| Name      | Type      | Description                                         |
+| --------- | --------- | --------------------------------------------------- |
+| `address` | `ByStr20` | Address of the token owner to check the balance of. |
 
 **Messages sent:**
 
-|        | Name                     | Description                                                | Callback Parameters                                                                |
-| ------ | ------------------------ | ---------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_BalanceOfCallback` | Provide the sender the balance of the queried token owner. | `balance` : `Uint256`<br/>The balance of NFTs owned by the queried for token owner |
+|        | Name                     | Description                                                     | Callback Parameters                                                                |
+| ------ | ------------------------ | --------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_BalanceOfCallback` | Provide the sender with the balance of the queried token owner. | `balance` : `Uint256`<br/>The balance of NFTs owned by the queried for token owner |
 
 #### 3. TotalSupply()
 
@@ -167,9 +167,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Messages sent:**
 
-|        | Name                    | Description                                           | Callback Parameters                             |
-| ------ | ----------------------- | ----------------------------------------------------- | ----------------------------------------------- |
-| `_tag` | `ZRC6_TokenURICallback` | Provide the sender a token URI of a queried token ID. | `token_uri` : `String`<br/>Token URI of a token |
+|        | Name                    | Description                                                | Callback Parameters                             |
+| ------ | ----------------------- | ---------------------------------------------------------- | ----------------------------------------------- |
+| `_tag` | `ZRC6_TokenURICallback` | Provide the sender with a token URI of a queried token ID. | `token_uri` : `String`<br/>Token URI of a token |
 
 #### 8. CheckTokenOwner()
 
@@ -219,10 +219,10 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name                  | Description                    | Event Parameters                             |
-| ------------ | --------------------- | ------------------------------ | -------------------------------------------- |
-| `_eventname` | `AddMinterSuccess`    | Adding minter is successful.   | `minter` : `ByStr20`<br/>Address of a minter |
-| `_eventname` | `RemoveMinterSuccess` | Removing minter is successful. | `minter` : `ByStr20`<br/>Address of a minter |
+|              | Name                  | Description              | Event Parameters                             |
+| ------------ | --------------------- | ------------------------ | -------------------------------------------- |
+| `_eventname` | `AddMinterSuccess`    | Minter has been added.   | `minter` : `ByStr20`<br/>Address of a minter |
+| `_eventname` | `RemoveMinterSuccess` | Minter has been removed. | `minter` : `ByStr20`<br/>Address of a minter |
 
 #### 2. BatchMint() (Optional)
 
@@ -235,9 +235,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Messages sent:**
 
-|        | Name                     | Description                                | Callback Parameters |
-| ------ | ------------------------ | ------------------------------------------ | ------------------- |
-| `_tag` | `ZRC6_BatchMintCallback` | Provide the sender the status of the mint. |                     |
+|        | Name                     | Description                                     | Callback Parameters |
+| ------ | ------------------------ | ----------------------------------------------- | ------------------- |
+| `_tag` | `ZRC6_BatchMintCallback` | Provide the sender with the status of the mint. |                     |
 
 #### 3. Mint()
 
@@ -257,9 +257,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name          | Description            | Event Parameters                                                                                                                                                                                                                            |
-| ------------ | ------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `MintSuccess` | Minting is successful. | <ul><li>`by` : `ByStr20`<br/>Address of the `_sender`</li><li> `recipient` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li><li>`token_uri` : `String`<br/>Token URI of a token</li></ul> |
+|              | Name          | Description          | Event Parameters                                                                                                                                                                                                                            |
+| ------------ | ------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `MintSuccess` | NFT has been minted. | <ul><li>`by` : `ByStr20`<br/>Address of the `_sender`</li><li> `recipient` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li><li>`token_uri` : `String`<br/>Token URI of a token</li></ul> |
 
 #### 4. Burn() (Optional)
 
@@ -277,9 +277,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name          | Description            | Event Parameters                                                                                                                                                                                                           |
-| ------------ | ------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `BurnSuccess` | Burning is successful. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`burn_address` : `ByStr20`</br>Address of the token owner whose NFT is being burned</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+|              | Name          | Description          | Event Parameters                                                                                                                                                                                                           |
+| ------------ | ------------- | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `BurnSuccess` | NFT has been burned. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`burn_address` : `ByStr20`</br>Address of the token owner whose NFT is being burned</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
 #### 5. SetRoyaltyRecipient() (Optional)
 
@@ -291,9 +291,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Messages sent:**
 
-|        | Name                               | Description                         | Callback Parameters                                                  |
-| ------ | ---------------------------------- | ----------------------------------- | -------------------------------------------------------------------- |
-| `_tag` | `ZRC6_SetRoyaltyRecipientCallback` | Royalty recipient has been updated. | `royalty_recipient` : `ByStr20`<br/>Address of the royalty recipient |
+|        | Name                               | Description                               | Callback Parameters                                                  |
+| ------ | ---------------------------------- | ----------------------------------------- | -------------------------------------------------------------------- |
+| `_tag` | `ZRC6_SetRoyaltyRecipientCallback` | Provide the sender the royalty recipient. | `royalty_recipient` : `ByStr20`<br/>Address of the royalty recipient |
 
 **Events:**
 
@@ -311,9 +311,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Messages sent:**
 
-|        | Name                            | Description                       | Callback Parameters                               |
-| ------ | ------------------------------- | --------------------------------- | ------------------------------------------------- |
-| `_tag` | `ZRC6_SetRoyaltyFeeBPSCallback` | Royalty fee BPS has been updated. | `royalty_fee_bps` : `Uint256`<br/>Royalty Fee BPS |
+|        | Name                            | Description                             | Callback Parameters                               |
+| ------ | ------------------------------- | --------------------------------------- | ------------------------------------------------- |
+| `_tag` | `ZRC6_SetRoyaltyFeeBPSCallback` | Provide the sender the royalty fee BPS. | `royalty_fee_bps` : `Uint256`<br/>Royalty Fee BPS |
 
 **Events:**
 
@@ -359,10 +359,10 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name                          | Description                                     | Event Parameters                                                                                                                                            |
-| ------------ | ----------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `AddApprovalForAllSuccess`    | Addition of an operator's status is successful. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`operator` : `ByStr20`<br/>Address of the approved spender which was added</li></ul>   |
-| `_eventname` | `RemoveApprovalForAllSuccess` | Removal of an operator's status is successful.  | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`operator` : `ByStr20`<br/>Address of the approved spender which was removed</li></ul> |
+|              | Name                          | Description                | Event Parameters                                                                                                                                            |
+| ------------ | ----------------------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `AddApprovalForAllSuccess`    | Operator has been added.   | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`operator` : `ByStr20`<br/>Address of the approved spender which was added</li></ul>   |
+| `_eventname` | `RemoveApprovalForAllSuccess` | Operator has been removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`operator` : `ByStr20`<br/>Address of the approved spender which was removed</li></ul> |
 
 #### 9. Transfer()
 
@@ -382,9 +382,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name              | Description                    | Event Parameters                                                                                                                                                                     |
-| ------------ | ----------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `_eventname` | `TransferSuccess` | Transfer of NFT is successful. | <ul><li>`from` : `ByStr20`<br/>Address of the `_sender`</li><li>`recipient` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+|              | Name              | Description               | Event Parameters                                                                                                                                                                     |
+| ------------ | ----------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `_eventname` | `TransferSuccess` | NFT has been transferred. | <ul><li>`from` : `ByStr20`<br/>Address of the `_sender`</li><li>`recipient` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
 #### 10. TransferFrom()
 
@@ -404,9 +404,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name                  | Description                    | Event Parameters                                                                                                                                                                     |
-| ------------ | --------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `_eventname` | `TransferFromSuccess` | Transfer of NFT is successful. | <ul><li>`from` : `ByStr20`<br/>Address of the `_sender`</li><li>`recipient` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+|              | Name                  | Description               | Event Parameters                                                                                                                                                                     |
+| ------------ | --------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `_eventname` | `TransferFromSuccess` | NFT has been transferred. | <ul><li>`from` : `ByStr20`<br/>Address of the `_sender`</li><li>`recipient` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
 ## V. Existing Implementation(s)
 
