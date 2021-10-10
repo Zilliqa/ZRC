@@ -464,7 +464,7 @@ transition Mint(to: ByStr20, token_uri: String)
     _tag : "ZRC6_MintCallback";
     _recipient : _sender;
     _amount : Uint128 0;
-    recipient : _sender;
+    recipient : to;
     token_id : token_id;
     token_uri : token_uri
   };
