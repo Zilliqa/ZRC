@@ -382,7 +382,7 @@ transition Mint(to: ByStr20, token_uri: String)
   token_id <- token_id_count;
   msg_to_recipient = { _tag : "RecipientAcceptMint"; _recipient : to; _amount : Uint128 0 };
   msg_to_sender = { _tag : "MintCallBack"; _recipient : _sender; _amount : Uint128 0;
-                    recipient : _sender; token_id : token_id; token_uri : token_uri };
+                    recipient : to; token_id : token_id; token_uri : token_uri };
   msgs = two_msgs msg_to_recipient msg_to_sender;
   send msgs
 end
