@@ -144,7 +144,7 @@ procedure IsNotSelf(address_a: ByStr20, address_b: ByStr20)
   end
 end
 
-procedure IsTokenExists(token_id: Uint256)
+procedure IsTokenNotFound(token_id: Uint256)
   token_exist <- exists token_owners[token_id];
   match token_exist with
   | False =>
@@ -363,7 +363,7 @@ procedure Minting(input_pair: Pair ByStr20 String)
   new_token_id_count = builtin add current_token_id_count one;
   token_id_count := new_token_id_count;
   token_id = new_token_id_count;
-  IsTokenExists token_id;
+  IsTokenNotFound token_id;
   (* Mint new non-fungible token *)
   token_owners[token_id] := to;
   (* Add token_uri for token_id *)
