@@ -171,20 +171,19 @@ The NFT contract must define the following constants for use as error codes for 
 | ------ | ----------------------- | ---------------------------------------------------------- | ----------------------------------------------- |
 | `_tag` | `ZRC6_TokenURICallback` | Provide the sender with a token URI of a queried token ID. | `token_uri` : `String`<br/>Token URI of a token |
 
-#### 8. CheckTokenOwner()
+#### 8. OwnerOf()
 
 **Arguments:**
 
 | Name       | Type      | Description                      |
 | ---------- | --------- | -------------------------------- |
 | `token_id` | `Uint256` | A token ID that will be queried. |
-| `address`  | `ByStr20` | An address that will be queried. |
 
 **Messages sent:**
 
-|        | Name                        | Description                                                                                                           | Callback Parameters |
-| ------ | --------------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------------- |
-| `_tag` | `ZRC6_IsTokenOwnerCallback` | Check if the queried address is the owner of the queried token ID, throw `NotTokenOwnerError` if that's not the case. |                     |
+|        | Name                   | Description                                                  | Callback Parameters                                  |
+| ------ | ---------------------- | ------------------------------------------------------------ | ---------------------------------------------------- |
+| `_tag` | `ZRC6_OwnerOfCallback` | Provide the sender with a token owner of a queried token ID. | `token_owner` : `ByStr20`<br/>Token owner of a token |
 
 #### 9. CheckApprovedForAll()
 
