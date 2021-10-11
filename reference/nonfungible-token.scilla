@@ -134,7 +134,7 @@ procedure IsContractOwner()
   end
 end
 
-procedure IsSelf(address_a: ByStr20, address_b: ByStr20)
+procedure IsNotSelf(address_a: ByStr20, address_b: ByStr20)
   is_self = builtin eq address_a address_b;
   match is_self with
   | False =>
@@ -477,7 +477,7 @@ end
 (* @dev: Sets or unsets an operator for the _sender       *)
 (* @param: to - Address to be set or unset as an operator *)
 transition SetApprovalForAll(to: ByStr20)
-  IsSelf to _sender;
+  IsNotSelf to _sender;
   is_operator <- exists operator_approvals[_sender][to];
   match is_operator with
   | False =>
@@ -502,7 +502,7 @@ end
 (* @param: to       - Recipient address for the token                                                *)
 (* @param: token_id - Unique ID of the NFT to be transferred                                         *)
 transition Transfer(to: ByStr20, token_id: Uint256)
-  IsSelf to _sender;
+  IsNotSelf to _sender;
   IsTokenOwner token_id _sender;
   (* Change token_owner for that token_id *)
   token_owners[token_id] := to;
@@ -532,7 +532,7 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
     err = CodeNotFound;
     ThrowError err
   | Some token_owner =>
-    IsSelf to token_owner;
+    IsNotSelf to token_owner;
     IsApprovedSpenderOrOperator token_id token_owner;
     (* Change token_owner for that token_id *)
     token_owners[token_id] := to;
