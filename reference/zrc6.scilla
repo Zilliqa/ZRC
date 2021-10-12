@@ -36,8 +36,8 @@ let two_msgs =
     Cons {Message} msg1 msgs_tmp
 
 let get_bal =
-  fun (some_bal: Option Uint256) =>
-    match some_bal with
+  fun (opt_bal: Option Uint256) =>
+    match opt_bal with
     | Some bal => bal
     | None => zero
     end
@@ -197,8 +197,8 @@ procedure IsMinter(address: ByStr20)
 end
 
 procedure IsTokenOwner(token_id: Uint256, address: ByStr20)
-  some_token_owner <- token_owners[token_id];
-  match some_token_owner with
+  opt_token_owner <- token_owners[token_id];
+  match opt_token_owner with
   | Some addr => 
     is_token_owner = builtin eq addr address;
     match is_token_owner with
@@ -236,8 +236,8 @@ procedure IsOwnerOrOperator(token_owner: ByStr20)
 end
 
 procedure IsApprovedSpenderOrOperator(token_id: Uint256, token_owner: ByStr20)
-  some_token_approval <- token_approvals[token_id];
-  is_approved = match some_token_approval with
+  opt_token_approval <- token_approvals[token_id];
+  is_approved = match opt_token_approval with
     | None => False
     | Some approved_address => 
       builtin eq _sender approved_address
@@ -326,8 +326,8 @@ end
 
 (* @dev: Get approved spender for token ID *)
 transition GetApproved(token_id: Uint256)
-  some_token_approval <- token_approvals[token_id];
-  match some_token_approval with
+  opt_token_approval <- token_approvals[token_id];
+  match opt_token_approval with
   | Some address => 
     msg_to_sender = { 
       _tag : "ZRC6_GetApprovedCallback";
@@ -346,8 +346,8 @@ end
 
 (* @dev: Get the token URI of a certain token ID *)
 transition TokenURI(token_id: Uint256)
-  some_token_uri <- token_uris[token_id];
-  match some_token_uri with
+  opt_token_uri <- token_uris[token_id];
+  match opt_token_uri with
   | Some token_uri =>
     msg_to_sender = { 
       _tag : "ZRC6_TokenURICallback";
@@ -365,8 +365,8 @@ end
 
 (* @dev: Get the token owner of a certain token ID *)
 transition OwnerOf(token_id: Uint256)
-  some_token_owner <- token_owners[token_id];
-  match some_token_owner with
+  opt_token_owner <- token_owners[token_id];
+  match opt_token_owner with
   | Some token_owner =>
     msg_to_sender = { 
       _tag : "ZRC6_OwnerOfCallback";
@@ -500,8 +500,8 @@ end
 (* @param: token_id - Unique ID of the NFT to be destroyed                       *)
 transition Burn(token_id: Uint256)
   (* Check if token exists *)
-  some_token_owner <- token_owners[token_id];
-  match some_token_owner with
+  opt_token_owner <- token_owners[token_id];
+  match opt_token_owner with
   | None =>
     err = NotFoundError;
     ThrowError err
@@ -542,15 +542,15 @@ end
 (* param: to       - Address to be approved for the given token ID          *)
 (* param: token_id - Unique ID of the NFT to be approved                    *)
 transition SetApproval(to: ByStr20, token_id: Uint256)
-  some_token_owner <- token_owners[token_id];
-  match some_token_owner with
+  opt_token_owner <- token_owners[token_id];
+  match opt_token_owner with
   | None =>
     err = NotFoundError;
     ThrowError err
   | Some token_owner =>
     IsOwnerOrOperator token_owner;
-    some_approved <- token_approvals[token_id];
-    match some_approved with
+    opt_approved <- token_approvals[token_id];
+    match opt_approved with
     | Some approved_spender =>
       (* Remove approved_spender *)
       is_approved_spender = builtin eq to approved_spender;
@@ -687,8 +687,8 @@ end
 (* @param: to       - Recipient address for the NFT                     *)
 (* @param: token_id - Unique ID of the NFT to be transferred            *)
 transition TransferFrom(to: ByStr20, token_id: Uint256)
-  some_token_owner <- token_owners[token_id];
-  match some_token_owner with
+  opt_token_owner <- token_owners[token_id];
+  match opt_token_owner with
   | None =>
     err = NotFoundError;
     ThrowError err
