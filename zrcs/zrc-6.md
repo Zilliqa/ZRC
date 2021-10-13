@@ -404,7 +404,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | --------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `_eventname` | `TransferFromSuccess` | NFT has been transferred. | <ul><li>`from` : `ByStr20`<br/>Address of the `_sender`</li><li>`recipient` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
-## V. Existing Implementation(s)
+## V. Testing
 
 Prerequisites:
 
@@ -414,7 +414,7 @@ Prerequisites:
 To test the [ZRC-6](../reference/zrc6.scilla), run:
 
 ```shell
-cd example/zrc6
+cd tests/zrc6
 npm i
 npm test
 ```
