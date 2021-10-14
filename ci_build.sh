@@ -12,9 +12,9 @@ for src in reference/*scilla; do
     copy="docker cp ./$src $container:${scilla}/$file"
     cleanup="docker exec $container rm -rf ${scilla}/$file"
 
-    $copy > /dev/null || { echo "failed to copy $file"; exit 1; }
-    $check > /dev/null || { echo "failed to check $file"; exit 1; }
-    $cleanup > /dev/null || { echo "failed to cleanup $file"; exit 1; } 
+    $copy > /dev/null || { echo "copy failed: $file"; exit 1; }
+    $check > /dev/null || { echo "type-checking failed: $file"; exit 1; }
+    $cleanup > /dev/null || { echo "cleanup failed: $file"; exit 1; }
     
     echo "PASS:$file"
 done
