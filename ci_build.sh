@@ -6,7 +6,7 @@ checker="${scilla}bin/scilla-checker"
 stdlib="${scilla}src/stdlib"
 gas_limit="9999999"
 
-for src in reference/*scilla; do
+for src in reference/*.scilla; do
     file="zrc_${src##*/}"
     check="docker exec $container $checker -libdir $stdlib -gaslimit $gas_limit ${scilla}${file}"
     copy="docker cp ./$src $container:${scilla}/$file"
