@@ -1,8 +1,22 @@
-const { exec } = require("child_process");
-const { promisify } = require("util");
+import { exec } from "child_process";
+import { promisify } from "util";
+import { getAddressFromPrivateKey, schnorr } from "@zilliqa-js/crypto";
+
 const execAsync = promisify(exec);
 
-const toMsgParam = (type, value, vname) => {
+export const genAccounts = (n) =>
+  new Array(n)
+    .fill(undefined)
+    .map(schnorr.generatePrivateKey)
+    .map((privateKey) => ({
+      privateKey,
+      address: getAddressFromPrivateKey(privateKey),
+    }));
+
+export const toErrorMsg = (code) =>
+  `Exception thrown: (Message [(_exception : (String "Error")) ; (code : (Int32 ${code}))])`;
+
+export const toMsgParam = (type, value, vname) => {
   value = value.toString();
   if (type.includes("ByStr")) {
     value = value.toLowerCase();
@@ -56,7 +70,7 @@ const transitionParamsGetter =
     return res;
   };
 
-const useContractInfo = async (container, src, gasLimit) => {
+export const useContractInfo = async (container, src, gasLimit) => {
   try {
     const contractFilename = src.split("/").pop();
     const scillaPath = "/scilla/0/";
@@ -88,11 +102,40 @@ const useContractInfo = async (container, src, gasLimit) => {
       contractInfo,
       getInitParams: initParamsGetter(contractInfo),
       getTransitionParams: transitionParamsGetter(contractInfo),
+      callGetter:
+        (contract, txParams) =>
+        (transitionName, ...args) => {
+          return contract.call(
+            transitionName,
+            transitionParamsGetter(contractInfo)(transitionName, ...args),
+            txParams
+          );
+        },
     };
   } catch (error) {
     console.error(error);
   }
 };
 
-module.exports.useContractInfo = useContractInfo;
-module.exports.toMsgParam = toMsgParam;
+export const checkEvents = (events, want, fn) => {
+  if (events === undefined) {
+    fn(events).toBe(want);
+  } else {
+    events.forEach((event, index) => {
+      fn(event._eventname).toBe(want[index].name);
+      fn(JSON.stringify(event.params)).toBe(JSON.stringify(want[index].params));
+    });
+  }
+};
+
+export const checkTransitions = (transitions, want, fn) => {
+  if (transitions === undefined) {
+    fn(transitions).toBe(want);
+  } else {
+    transitions.forEach((transition, index) => {
+      const { msg } = transition;
+      fn(msg._tag).toBe(want[index].tag);
+      fn(JSON.stringify(msg.params)).toBe(JSON.stringify(want[index].params));
+    });
+  }
+};
