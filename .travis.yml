@@ -1,0 +1,22 @@
+language: generic
+sudo: required
+services:
+  - docker
+
+matrix:
+  include:
+    - os: linux
+      dist: xenial
+
+cache:
+  directories:
+    - docker_images
+
+before_cache:
+  - docker save -o docker_images/images.tar $(docker images -aq)
+
+before_script:
+  - docker load -i docker_images/images.tar || true
+
+script: ./ci_build.sh
+skip_cleanup: true
