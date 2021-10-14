@@ -1,4 +1,4 @@
-container=`docker run -d -p 5555:5555 --entrypoint isolatedServer zilliqa/zilliqa-isolated-server:latest -f boot.json`
+container=`docker run -d -t zilliqa/scilla:latest`
 echo $container
 
 scilla="/scilla/0/"
