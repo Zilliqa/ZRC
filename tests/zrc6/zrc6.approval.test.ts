@@ -497,6 +497,20 @@ describe("Approval", () => {
   });
 
   it("checks operator", async () => {
+    const state = await zilliqa.contracts.at(globalContractAddress).getState();
+
+    expect(
+      Object.keys(
+        state.operator_approvals[toTestAddr(CONTRACT_OWNER).toLowerCase()]
+      ).includes(toTestAddr(STRANGER).toLowerCase())
+    ).toBe(false);
+
+    expect(
+      Object.keys(
+        state.operator_approvals[toTestAddr(CONTRACT_OWNER).toLowerCase()]
+      ).includes(toTestAddr(OPERATOR).toLowerCase())
+    ).toBe(true);
+
     const testCases = [
       {
         sender: toTestAddr(STRANGER),
@@ -504,8 +518,16 @@ describe("Approval", () => {
           tokenOwner: toTestAddr(CONTRACT_OWNER),
           operator: toTestAddr(STRANGER),
         },
-        error: ZRC6_ERROR.NotApprovedForAllError,
-        want: undefined,
+        error: undefined,
+        want: {
+          events: undefined,
+          transitions: [
+            {
+              params: [toMsgParam("Bool", "False", "is_operator")],
+              tag: "ZRC6_IsApprovedForAllCallback",
+            },
+          ],
+        },
       },
       {
         sender: toTestAddr(STRANGER),
@@ -518,14 +540,7 @@ describe("Approval", () => {
           events: undefined,
           transitions: [
             {
-              params: [
-                toMsgParam(
-                  "ByStr20",
-                  toTestAddr(CONTRACT_OWNER),
-                  "token_owner"
-                ),
-                toMsgParam("ByStr20", toTestAddr(OPERATOR), "operator"),
-              ],
+              params: [toMsgParam("Bool", "True", "is_operator")],
               tag: "ZRC6_IsApprovedForAllCallback",
             },
           ],
@@ -555,16 +570,6 @@ describe("Approval", () => {
           testCase.want.transitions,
           expect
         );
-
-        const state = await zilliqa.contracts
-          .at(globalContractAddress)
-          .getState();
-
-        expect(
-          Object.keys(
-            state.operator_approvals[testCase.params.tokenOwner.toLowerCase()]
-          ).includes(testCase.params.operator.toLowerCase())
-        ).toBe(true);
       }
     }
   });

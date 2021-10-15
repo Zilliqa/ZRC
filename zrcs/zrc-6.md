@@ -65,10 +65,9 @@ The NFT contract must define the following constants for use as error codes for 
 | `NotTokenOwnerError`        | `Int32` | `-5`  | Emit when a given address is not an owner of the token.                             |
 | `NotMinterError`            | `Int32` | `-6`  | Emit when the sender is not an approved token minter.                               |
 | `NotApprovedError`          | `Int32` | `-7`  | Emit when there is no approved address for the given token ID.                      |
-| `NotApprovedForAllError`    | `Int32` | `-8`  | Emit when the address is not an operator for the token owner.                       |
-| `NotOwnerOrOperatorError`   | `Int32` | `-9`  | Emit when the sender is neither a token owner nor a token operator.                 |
-| `NotSpenderOrOperatorError` | `Int32` | `-10` | Emit when the sender is neither an spender nor a token operator.                    |
-| `InvalidFeeBpsError`        | `Int32` | `-11` | Emit when the fee bps is out of range. This is optional.                            |
+| `NotOwnerOrOperatorError`   | `Int32` | `-8`  | Emit when the sender is neither a token owner nor a token operator.                 |
+| `NotSpenderOrOperatorError` | `Int32` | `-9`  | Emit when the sender is neither an spender nor a token operator.                    |
+| `InvalidFeeBpsError`        | `Int32` | `-10` | Emit when the fee bps is out of range. This is optional.                            |
 
 ### C. Immutable Variables
 
@@ -201,9 +200,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Messages sent:**
 
-|        | Name                            | Description                                                                                                                    | Callback Parameters                                                                                                                |     |
-| ------ | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- | --- |
-| `_tag` | `ZRC6_IsApprovedForAllCallback` | Check if the queried operator is an approved operator of a token owner, throw `NotApprovedForAllError` if that's not the case. | <ul><li>`token_owner` : `ByStr20`</li><br/>Address of a token owner<li>`operator` : `ByStr20`<br/>Address of an operator</li></ul> |
+|        | Name                            | Description                                                            | Callback Parameters                                               |
+| ------ | ------------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `_tag` | `ZRC6_IsApprovedForAllCallback` | Check if the queried operator is an approved operator of a token owner | `is_operator` : `Bool`<br/> `True` if approved, otherwise `False` |
 
 ### F. Interface Transitions
 

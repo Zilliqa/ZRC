@@ -20,10 +20,9 @@ export const ZRC6_ERROR = {
   NotTokenOwnerError: -5,
   NotMinterError: -6,
   NotApprovedError: -7,
-  NotApprovedForAllError: -8,
-  NotOwnerOrOperatorError: -9,
-  NotSpenderOrOperatorError: -10,
-  InvalidFeeBpsError: -11,
+  NotOwnerOrOperatorError: -8,
+  NotSpenderOrOperatorError: -9,
+  InvalidFeeBpsError: -10,
 };
 
 export const TOKEN_NAME = "TEST";

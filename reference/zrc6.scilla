@@ -51,7 +51,6 @@ type Error =
   | NotTokenOwnerError
   | NotMinterError
   | NotApprovedError
-  | NotApprovedForAllError
   | NotOwnerOrOperatorError
   | NotSpenderOrOperatorError
   | InvalidFeeBpsError
@@ -67,10 +66,9 @@ let make_error =
       | NotTokenOwnerError                => Int32 -5
       | NotMinterError                    => Int32 -6
       | NotApprovedError                  => Int32 -7
-      | NotApprovedForAllError            => Int32 -8
-      | NotOwnerOrOperatorError           => Int32 -9
-      | NotSpenderOrOperatorError         => Int32 -10
-      | InvalidFeeBpsError                => Int32 -11
+      | NotOwnerOrOperatorError           => Int32 -8
+      | NotSpenderOrOperatorError         => Int32 -9
+      | InvalidFeeBpsError                => Int32 -10
       end
     in
     { _exception : "Error"; code : result_code }
@@ -418,22 +416,15 @@ end
 
 (* @dev: Checks if address is operator for token owner *)
 transition IsApprovedForAll(token_owner: ByStr20, operator: ByStr20)
-  is_operator_approved <- exists operator_approvals[token_owner][operator];
-  match is_operator_approved with
-  | True =>
-    msg_to_sender = { 
-      _tag : "ZRC6_IsApprovedForAllCallback";
-      _recipient : _sender;
-      _amount : Uint128 0;
-      token_owner : token_owner;
-      operator : operator
-    };
-    msgs = one_msg msg_to_sender;
-    send msgs
-  | False =>
-    err = NotApprovedForAllError;
-    ThrowError err
-  end
+  is_operator <- exists operator_approvals[token_owner][operator];
+  msg_to_sender = { 
+    _tag : "ZRC6_IsApprovedForAllCallback";
+    _recipient : _sender;
+    _amount : Uint128 0;
+    is_operator: is_operator
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
 end
 
 (* @dev: Sets address that royalties are sent to. *)
