@@ -20,8 +20,9 @@ import {
   ZRC6_ERROR,
   TOKEN_NAME,
   TOKEN_SYMBOL,
-  SAMPLE_TOKEN_URIS,
   FAUCET_PARAMS,
+  BASE_TOKEN_URI,
+  INITIAL_TOTAL_SUPPLY,
 } from "./config";
 
 const JEST_WORKER_ID = Number(process.env.JEST_WORKER_ID);
@@ -93,18 +94,23 @@ beforeEach(async () => {
 
 describe("Token", () => {
   beforeEach(async () => {
-    const tx = await globalContractInfo.callGetter(
+    let tx = await globalContractInfo.callGetter(
       zilliqa.contracts.at(globalContractAddress),
       TX_PARAMS
     )(
       "BatchMint",
-      [
-        toTestAddr(TOKEN_OWNER),
-        toTestAddr(TOKEN_OWNER),
-        toTestAddr(TOKEN_OWNER),
-      ],
-      SAMPLE_TOKEN_URIS
+      Array.from({ length: INITIAL_TOTAL_SUPPLY }, () =>
+        toTestAddr(TOKEN_OWNER)
+      )
     );
+    if (!tx.receipt.success) {
+      throw new Error();
+    }
+
+    tx = await globalContractInfo.callGetter(
+      zilliqa.contracts.at(globalContractAddress),
+      TX_PARAMS
+    )("SetBaseTokenURI", BASE_TOKEN_URI);
     if (!tx.receipt.success) {
       throw new Error();
     }
@@ -121,7 +127,7 @@ describe("Token", () => {
           transitions: [
             {
               params: [
-                toMsgParam("Uint256", SAMPLE_TOKEN_URIS.length, "total_supply"),
+                toMsgParam("Uint256", INITIAL_TOTAL_SUPPLY, "total_supply"),
               ],
               tag: "ZRC6_TotalSupplyCallback",
             },
@@ -166,7 +172,7 @@ describe("Token", () => {
           events: undefined,
           transitions: [
             {
-              params: [toMsgParam("String", SAMPLE_TOKEN_URIS[0], "token_uri")],
+              params: [toMsgParam("String", `${BASE_TOKEN_URI}1`, "token_uri")],
               tag: "ZRC6_TokenURICallback",
             },
           ],
@@ -295,6 +301,86 @@ describe("Token", () => {
           testCase.want.transitions,
           expect
         );
+      }
+    }
+  });
+});
+
+describe("Base Token URI", () => {
+  it("sets a new base token URI ", async () => {
+    let state = await zilliqa.contracts.at(globalContractAddress).getState();
+    expect(state.base_token_uri).toBe("");
+
+    const testCases = [
+      {
+        sender: toTestAddr(STRANGER),
+        params: {
+          base_token_uri: BASE_TOKEN_URI,
+        },
+        error: ZRC6_ERROR.NotContractOwnerError,
+        want: undefined,
+      },
+      {
+        sender: toTestAddr(CONTRACT_OWNER),
+        params: {
+          base_token_uri: "http://localhost:1111/testcase/1",
+        },
+        error: undefined,
+        want: {
+          events: [
+            {
+              name: "SetBaseTokenURISuccess",
+              params: [
+                toMsgParam(
+                  "String",
+                  "http://localhost:1111/testcase/1",
+                  "base_token_uri"
+                ),
+              ],
+            },
+          ],
+          transitions: [
+            {
+              tag: "ZRC6_SetBaseTokenURICallback",
+              params: [
+                toMsgParam(
+                  "String",
+                  "http://localhost:1111/testcase/1",
+                  "base_token_uri"
+                ),
+              ],
+            },
+          ],
+        },
+      },
+    ];
+    for (const testCase of testCases) {
+      zilliqa.wallet.setDefault(testCase.sender);
+      const tx = await globalContractInfo.callGetter(
+        zilliqa.contracts.at(globalContractAddress),
+        TX_PARAMS
+      )("SetBaseTokenURI", ...Object.values(testCase.params));
+      if (testCase.want === undefined) {
+        // Nagative Cases
+        expect(tx.receipt.success).toBe(false);
+        expect(tx.receipt.exceptions[0].message).toBe(
+          toErrorMsg(testCase.error)
+        );
+      } else {
+        // Positive Cases
+        expect(tx.receipt.success).toBe(true);
+        checkEvents(tx.receipt.event_logs, testCase.want.events, expect);
+        checkTransitions(
+          tx.receipt.transitions,
+          testCase.want.transitions,
+          expect
+        );
+
+        const state = await zilliqa.contracts
+          .at(globalContractAddress)
+          .getState();
+
+        expect(state.base_token_uri).toBe(testCase.params.base_token_uri);
       }
     }
   });
@@ -455,7 +541,6 @@ describe("Mint", () => {
         sender: toTestAddr(STRANGER),
         params: {
           to: toTestAddr(STRANGER),
-          tokenUri: "X",
         },
         error: ZRC6_ERROR.NotMinterError,
         want: undefined,
@@ -464,7 +549,6 @@ describe("Mint", () => {
         sender: toTestAddr(CONTRACT_OWNER),
         params: {
           to: toTestAddr(STRANGER),
-          tokenUri: "X",
         },
         error: undefined,
         want: {
@@ -478,7 +562,6 @@ describe("Mint", () => {
                 toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "by"),
                 toMsgParam("ByStr20", toTestAddr(STRANGER), "recipient"),
                 toMsgParam("Uint256", 1, "token_id"),
-                toMsgParam("String", "X", "token_uri"),
               ],
             },
           ],
@@ -492,7 +575,6 @@ describe("Mint", () => {
               params: [
                 toMsgParam("ByStr20", toTestAddr(STRANGER), "recipient"),
                 toMsgParam("Uint256", 1, "token_id"),
-                toMsgParam("String", "X", "token_uri"),
               ],
             },
           ],
@@ -502,7 +584,6 @@ describe("Mint", () => {
         sender: toTestAddr(MINTER),
         params: {
           to: toTestAddr(MINTER),
-          tokenUri: "Y",
         },
         error: undefined,
         want: {
@@ -516,7 +597,6 @@ describe("Mint", () => {
                 toMsgParam("ByStr20", toTestAddr(MINTER), "by"),
                 toMsgParam("ByStr20", toTestAddr(MINTER), "recipient"),
                 toMsgParam("Uint256", 2, "token_id"),
-                toMsgParam("String", "Y", "token_uri"),
               ],
             },
           ],
@@ -530,7 +610,6 @@ describe("Mint", () => {
               params: [
                 toMsgParam("ByStr20", toTestAddr(MINTER), "recipient"),
                 toMsgParam("Uint256", 2, "token_id"),
-                toMsgParam("String", "Y", "token_uri"),
               ],
             },
           ],
@@ -574,9 +653,6 @@ describe("Mint", () => {
         expect(state.token_owners[testCase.want.state.token_id]).toBe(
           testCase.params.to.toLowerCase()
         );
-        expect(state.token_uris[testCase.want.state.token_id]).toBe(
-          testCase.params.tokenUri
-        );
         expect(Number(state.token_id_count)).toBe(prevTokenIdCount + 1);
       }
     }
@@ -590,24 +666,26 @@ describe("Mint", () => {
     const tx = await globalContractInfo.callGetter(
       zilliqa.contracts.at(globalContractAddress),
       TX_PARAMS
-    )(
-      "BatchMint",
-      [toTestAddr(STRANGER), toTestAddr(STRANGER), toTestAddr(STRANGER)],
-      SAMPLE_TOKEN_URIS
-    );
+    )("BatchMint", [
+      toTestAddr(STRANGER),
+      toTestAddr(STRANGER),
+      toTestAddr(STRANGER),
+    ]);
 
     expect(tx.receipt.success).toBe(true);
+
     checkEvents(
       tx.receipt.event_logs,
-      SAMPLE_TOKEN_URIS.map((x, index) => ({
-        name: "MintSuccess",
-        params: [
-          toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "by"),
-          toMsgParam("ByStr20", toTestAddr(STRANGER), "recipient"),
-          toMsgParam("Uint256", index + 1, "token_id"),
-          toMsgParam("String", x, "token_uri"),
-        ],
-      })).reverse(),
+      Array.from({ length: INITIAL_TOTAL_SUPPLY }, () => undefined)
+        .map((_, index) => ({
+          name: "MintSuccess",
+          params: [
+            toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "by"),
+            toMsgParam("ByStr20", toTestAddr(STRANGER), "recipient"),
+            toMsgParam("Uint256", index + 1, "token_id"),
+          ],
+        }))
+        .reverse(),
       expect
     );
     const { msg } = tx.receipt.transitions.shift();
@@ -616,14 +694,15 @@ describe("Mint", () => {
 
     state = await zilliqa.contracts.at(globalContractAddress).getState();
 
-    SAMPLE_TOKEN_URIS.forEach((uri, index) => {
-      expect(state.token_owners.hasOwnProperty(index + 1)).toBe(true);
-      expect(state.token_owners[index + 1]).toBe(
-        toTestAddr(STRANGER).toLowerCase()
-      );
-      expect(state.token_uris[index + 1]).toBe(uri);
-    });
-    expect(Number(state.token_id_count)).toBe(SAMPLE_TOKEN_URIS.length);
+    Array.from({ length: INITIAL_TOTAL_SUPPLY }, () => undefined).forEach(
+      (_, index) => {
+        expect(state.token_owners.hasOwnProperty(index + 1)).toBe(true);
+        expect(state.token_owners[index + 1]).toBe(
+          toTestAddr(STRANGER).toLowerCase()
+        );
+      }
+    );
+    expect(Number(state.token_id_count)).toBe(INITIAL_TOTAL_SUPPLY);
   });
 });
 
@@ -634,12 +713,9 @@ describe("Burn", () => {
       TX_PARAMS
     )(
       "BatchMint",
-      [
-        toTestAddr(TOKEN_OWNER),
-        toTestAddr(TOKEN_OWNER),
-        toTestAddr(TOKEN_OWNER),
-      ],
-      SAMPLE_TOKEN_URIS
+      Array.from({ length: INITIAL_TOTAL_SUPPLY }, () => undefined).map(() =>
+        toTestAddr(TOKEN_OWNER)
+      )
     );
     if (!tx.receipt.success) {
       throw new Error();

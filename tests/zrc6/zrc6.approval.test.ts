@@ -20,8 +20,8 @@ import {
   ZRC6_ERROR,
   TOKEN_NAME,
   TOKEN_SYMBOL,
-  SAMPLE_TOKEN_URIS,
   FAUCET_PARAMS,
+  INITIAL_TOTAL_SUPPLY,
 } from "./config";
 
 const JEST_WORKER_ID = Number(process.env.JEST_WORKER_ID);
@@ -97,8 +97,7 @@ beforeEach(async () => {
     TX_PARAMS
   )(
     "BatchMint",
-    [toTestAddr(TOKEN_OWNER), toTestAddr(TOKEN_OWNER), toTestAddr(TOKEN_OWNER)],
-    SAMPLE_TOKEN_URIS
+    Array.from({ length: INITIAL_TOTAL_SUPPLY }, () => toTestAddr(TOKEN_OWNER))
   );
   if (!tx.receipt.success) {
     throw new Error();

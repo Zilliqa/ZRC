@@ -5,8 +5,7 @@ import { getAddressFromPrivateKey, schnorr } from "@zilliqa-js/crypto";
 const execAsync = promisify(exec);
 
 export const genAccounts = (n) =>
-  new Array(n)
-    .fill(undefined)
+  Array.from({ length: n }, () => undefined)
     .map(schnorr.generatePrivateKey)
     .map((privateKey) => ({
       privateKey,
