@@ -442,6 +442,15 @@ npm i
 npm test
 ```
 
-## VI. Copyright
+## VI. References
+
+- [EIP-721: Non-Fungible Token Standard](https://eips.ethereum.org/EIPS/eip-721)
+- [EIP-2981: NFT Royalty Standard](https://eips.ethereum.org/EIPS/eip-2981)
+- [OpenZeppelin ERC721.sol Implementation](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/ERC721.sol)
+- [OpenZeppelin IERC2981.sol Implementation](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/interfaces/IERC2981.sol)
+- [OpenSea - Metadata Standards](https://docs.opensea.io/docs/metadata-standards)
+- [ZRC issue #88 - ZRC contracts must have unique names for callback transitions](https://github.com/Zilliqa/ZRC/issues/88)
+
+## VII. Copyright
 
 Copyright and related rights waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
