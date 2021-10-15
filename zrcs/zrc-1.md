@@ -69,6 +69,7 @@ The NFT contract must define the following constants for use as error codes for 
 | `operator_approvals` | `Map ByStr20 (Map ByStr20 Bool)` | Mapping from token_owner to approved operators authorised by the token_owner.                                                |
 | `token_uris`         | `Map Uint256 String`             | Mapping from token_id to token_uri                                                                                           |
 | `total_supply`       | `Uint256`                        | Current total supply of NFTs minted                                                                                          |
+| `token_id_count`     | `Uint256`                        | Current token ID count.                                                                                                      |
 
 ### E. Getter Transitions
 
