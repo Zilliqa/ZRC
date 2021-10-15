@@ -1,0 +1,69 @@
+{
+    "title": "ZRC7",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "Cloud Quackers"
+        },
+        "description": {
+            "type": "string",
+            "description": "Non-Fungible Ducks"
+        },
+        "resource": {
+            "type": "string",
+            "description": "ipfs://QmTwmV66VMgq5YzEUZj48oqvznkiUGVMCT4UnWRjr1L9gU"
+        },
+        "resource_mimetype": {
+            "type": "string",
+            "description": "image/png"
+        },
+        "external_url": {
+            "type": "string",
+            "description": "https://duck.community"
+        },
+        "external_description": {
+            "type": "string",
+            "description": "Non-Fungible Ducks are the first randomised, hard-cap project on the Zilliqa blockchain. Each NFD is unique, with a total supply of 8192."
+        },
+        "attributes": [ 
+          {
+            "display_type" : "string",
+            "trait_type": "Base name", 
+            "value": "Mandarin Shiny"
+          }, 
+          {
+            "display_type" : "string",
+            "trait_type": "Base rarity percent", 
+            "value": "10%"
+          }, 
+          {
+            "display_type" : "string",
+            "trait_type": "Base occurance chance", 
+            "value": "0.91%"
+          }, 
+        ],
+        "localization": {
+                "type": "object",
+                "properties": {
+                    "uri": {
+                        "type": "string",
+                        "description": "ipfs://QmeG9NNvM9iAjZzJA8aFr7aUqLzwz4VevJqNWscZoAXveP/{locale}.json"
+                    },
+                    "default": {
+                        "type": "string",
+                        "description": "en"
+                    },
+                    "locales": {
+                        "type": "array",
+                        "description": 
+                        [
+                          "en",
+                          "es",
+                          "fr"
+                        ]
+                    }
+                }
+        }
+    }
+}
