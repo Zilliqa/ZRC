@@ -84,7 +84,7 @@ The NFT contract must define the following constants for use as error codes for 
 | -------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | `royalty_recipient`  | `ByStr20`                        | Address to send royalties to. This is optional.                                                                      |
 | `royalty_fee_bps`    | `Uint256`                        | Royalty fee BPS (1/100ths of a percent, e.g. 1000 = 10%). This is optional.                                          |
-| `base_token_uri`     | `String`                         | Base token URI. e.g. `https://creatures-api.zil.xyz/api/creature/`                                                   |
+| `base_uri`           | `String`                         | Base URI. e.g. `https://creatures-api.zil.xyz/api/creature/`                                                         |
 | `minters`            | `Map ByStr20 Dummy`              | Mapping containing the addresses approved to mint NFTs.                                                              |
 | `token_owners`       | `Map Uint256 ByStr20`            | Mapping between token ID to its owner.                                                                               |
 | `owned_token_count`  | `Map ByStr20 Uint256`            | Mapping from token owner to the number of NFTs.                                                                      |
@@ -247,25 +247,25 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ------------------------- | --------------------------------- | ------------------------------------------------- |
 | `_eventname` | `SetRoyaltyFeeBPSSuccess` | Royalty fee BPS has been updated. | `royalty_fee_bps` : `Uint256`<br/>Royalty Fee BPS |
 
-#### 3. SetBaseTokenURI()
+#### 3. SetBaseURI()
 
 **Arguments:**
 
-| Name             | Type     | Description     |
-| ---------------- | -------- | --------------- |
-| `base_token_uri` | `String` | base token URI. |
+| Name       | Type     | Description |
+| ---------- | -------- | ----------- |
+| `base_uri` | `String` | Base URI.   |
 
 **Messages sent:**
 
-|        | Name                           | Description                            | Callback Parameters                            |
-| ------ | ------------------------------ | -------------------------------------- | ---------------------------------------------- |
-| `_tag` | `ZRC6_SetBaseTokenURICallback` | Provide the sender the base token URI. | `base_token_uri` : `String`<br/>Base token URI |
+|        | Name                      | Description                      | Callback Parameters                |
+| ------ | ------------------------- | -------------------------------- | ---------------------------------- |
+| `_tag` | `ZRC6_SetBaseURICallback` | Provide the sender the base URI. | `base_uri` : `String`<br/>Base URI |
 
 **Events:**
 
-|              | Name                     | Description                      | Event Parameters                               |
-| ------------ | ------------------------ | -------------------------------- | ---------------------------------------------- |
-| `_eventname` | `SetBaseTokenURISuccess` | Base token URI has been updated. | `base_token_uri` : `String`<br/>Base token URI |
+|              | Name                | Description                | Event Parameters                   |
+| ------------ | ------------------- | -------------------------- | ---------------------------------- |
+| `_eventname` | `SetBaseURISuccess` | Base URI has been updated. | `base_uri` : `String`<br/>Base URI |
 
 #### 4. SetMinter()
 
