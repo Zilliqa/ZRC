@@ -258,7 +258,7 @@ procedure UpdateTokenCount(operation: Operation, address: ByStr20)
   end
 end
 
-procedure Minting(to: ByStr20)
+procedure MintToken(to: ByStr20)
   IsMinter _sender;
   (* Add to owner count *)
   UpdateTokenCount add_operation to;
@@ -534,7 +534,7 @@ end
 (* Only minter can be _sender.                 *)
 (* @param: to - Address of the token recipient *)
 transition Mint(to: ByStr20)
-  Minting to;
+  MintToken to;
   token_id <- token_id_count;
   msg_to_recipient = { _tag : "ZRC6_RecipientAcceptMint"; _recipient : to; _amount : Uint128 0 };
   msg_to_sender = { 
@@ -552,7 +552,7 @@ end
 (* Only minter can be _sender.                         *)
 (* @param: to_list - Addressses of the token recipient *)
 transition BatchMint(to_list: List ByStr20)
-  forall to_list Minting;
+  forall to_list MintToken;
   msg_to_sender = { 
     _tag : "ZRC6_BatchMintCallback";
     _recipient : _sender;
