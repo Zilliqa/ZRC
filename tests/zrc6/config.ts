@@ -22,7 +22,7 @@ export const ZRC6_ERROR = {
   NotApprovedError: -7,
   NotApprovedForAllError: -8,
   NotOwnerOrOperatorError: -9,
-  NotApprovedSpenderOrOperatorError: -10,
+  NotSpenderOrOperatorError: -10,
   InvalidFeeBpsError: -11,
 };
 

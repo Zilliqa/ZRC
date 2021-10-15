@@ -53,7 +53,7 @@ type Error =
   | NotApprovedError
   | NotApprovedForAllError
   | NotOwnerOrOperatorError
-  | NotApprovedSpenderOrOperatorError
+  | NotSpenderOrOperatorError
   | InvalidFeeBpsError
 
 let make_error =
@@ -69,7 +69,7 @@ let make_error =
       | NotApprovedError                  => Int32 -7
       | NotApprovedForAllError            => Int32 -8
       | NotOwnerOrOperatorError           => Int32 -9
-      | NotApprovedSpenderOrOperatorError => Int32 -10
+      | NotSpenderOrOperatorError         => Int32 -10
       | InvalidFeeBpsError                => Int32 -11
       end
     in
@@ -113,8 +113,7 @@ field owned_token_count: Map ByStr20 Uint256 = Emp ByStr20 Uint256
 field token_approvals: Map Uint256 ByStr20 = Emp Uint256 ByStr20
 
 (* Mapping of token owner to operator  *)
-field operator_approvals: Map ByStr20 (Map ByStr20 Dummy)
-                            = Emp ByStr20 (Map ByStr20 Dummy)
+field operator_approvals: Map ByStr20 (Map ByStr20 Dummy) = Emp ByStr20 (Map ByStr20 Dummy)
 
 (* Total token count *)
 field total_supply: Uint256 = Uint256 0
@@ -220,7 +219,7 @@ procedure IsOwnerOrOperator(token_owner: ByStr20)
   end
 end
 
-procedure IsApprovedSpenderOrOperator(token_id: Uint256, token_owner: ByStr20)
+procedure IsSpenderOrOperator(token_id: Uint256, token_owner: ByStr20)
   opt_token_approval <- token_approvals[token_id];
   is_approved = match opt_token_approval with
     | None => False
@@ -232,7 +231,7 @@ procedure IsApprovedSpenderOrOperator(token_id: Uint256, token_owner: ByStr20)
   match is_authorised with
   | True =>
   | False =>
-    err = NotApprovedSpenderOrOperatorError;
+    err = NotSpenderOrOperatorError;
     ThrowError err
   end
 end
@@ -536,7 +535,11 @@ end
 transition Mint(to: ByStr20)
   MintToken to;
   token_id <- token_id_count;
-  msg_to_recipient = { _tag : "ZRC6_RecipientAcceptMint"; _recipient : to; _amount : Uint128 0 };
+  msg_to_recipient = { 
+    _tag : "ZRC6_RecipientAcceptMint";
+    _recipient : to;
+    _amount : Uint128 0
+  };
   msg_to_sender = { 
     _tag : "ZRC6_MintCallback";
     _recipient : _sender;
@@ -604,9 +607,9 @@ transition Burn(token_id: Uint256)
   end
 end
 
-(* @dev: Adds or removes an approved spender of a given token ID.      *)
+(* @dev: Adds or removes an spender of a given token ID.      *)
 (* Only token_owner or operator can be _sender.                        *)
-(* There can only be one approved_spender per token at any given time. *)
+(* There can only be one spender per token at any given time. *)
 (* The approval is cleared when the token is transferred.              *)
 (* param: to - Address to be approved for the given token ID           *)
 (* param: token_id - Unique ID of the NFT to be approved               *)
@@ -620,28 +623,28 @@ transition SetApproval(to: ByStr20, token_id: Uint256)
     IsOwnerOrOperator token_owner;
     opt_approved <- token_approvals[token_id];
     match opt_approved with
-    | Some approved_spender =>
-      (* Remove approved_spender *)
-      is_approved_spender = builtin eq to approved_spender;
-      match is_approved_spender with
+    | Some spender =>
+      (* Remove spender *)
+      is_spender = builtin eq to spender;
+      match is_spender with
       | True =>
         delete token_approvals[token_id];
         new_status = False;
         e = {
           _eventname : "SetApprovalSuccess";
           initiator : _sender;
-          approved_spender : to;
+          spender : to;
           token_id : token_id;
-          is_approved_spender: new_status
+          is_spender: new_status
         };
         event e;
         msg_to_sender = { 
           _tag : "ZRC6_SetApprovalCallback";
           _recipient : _sender;
           _amount : Uint128 0;
-          approved_spender : to;
+          spender : to;
           token_id : token_id;
-          is_approved_spender: new_status
+          is_spender: new_status
         };
         msgs = one_msg msg_to_sender;
         send msgs
@@ -650,24 +653,24 @@ transition SetApproval(to: ByStr20, token_id: Uint256)
         ThrowError err
       end
     | None =>
-      (* Add approved_spender *)
+      (* Add spender *)
       token_approvals[token_id] := to;
       new_status = True;
       e = {
         _eventname : "SetApprovalSuccess";
         initiator : _sender;
-        approved_spender : to;
+        spender : to;
         token_id : token_id;
-        is_approved_spender: new_status
+        is_spender: new_status
       };
       event e;
       msg_to_sender = { 
         _tag : "ZRC6_SetApprovalCallback";
         _recipient : _sender;
         _amount : Uint128 0;
-        approved_spender : to;
+        spender : to;
         token_id : token_id;
-        is_approved_spender: new_status
+        is_spender: new_status
       };
       msgs = one_msg msg_to_sender;
       send msgs
@@ -753,7 +756,7 @@ transition Transfer(to: ByStr20, token_id: Uint256)
 end
 
 (* @dev: Transfers the ownership of a given token ID to another address. *)
-(* Only approved_spender or operator can be _sender.                     *)
+(* Only spender or operator can be _sender.                     *)
 (* @param: to       - Recipient address for the NFT                      *)
 (* @param: token_id - Unique ID of the NFT to be transferred             *)
 transition TransferFrom(to: ByStr20, token_id: Uint256)
@@ -764,7 +767,7 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
     ThrowError err
   | Some token_owner =>
     IsNotSelf to token_owner;
-    IsApprovedSpenderOrOperator token_id token_owner;
+    IsSpenderOrOperator token_id token_owner;
     (* Change token_owner for that token_id *)
     token_owners[token_id] := to;
     (* Delete tokenApproval entry for that token_id *)

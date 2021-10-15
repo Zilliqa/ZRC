@@ -40,7 +40,7 @@ let globalTestAccounts: Array<{
 const CONTRACT_OWNER = 0;
 const TOKEN_OWNER = 0;
 const OPERATOR = 1;
-const APPROVED_SPENDER = 2;
+const SPENDER = 2;
 const STRANGER = 9;
 const toTestAddr = (index) => globalTestAccounts[index].address;
 
@@ -69,7 +69,7 @@ beforeAll(async () => {
     CONTRACT_OWNER: toTestAddr(CONTRACT_OWNER),
     TOKEN_OWNER: toTestAddr(TOKEN_OWNER),
     OPERATOR: toTestAddr(OPERATOR),
-    APPROVED_SPENDER: toTestAddr(APPROVED_SPENDER),
+    SPENDER: toTestAddr(SPENDER),
     STRANGER: toTestAddr(STRANGER),
   });
 
@@ -109,7 +109,7 @@ describe("Approval", () => {
     let tx = await globalContractInfo.callGetter(
       zilliqa.contracts.at(globalContractAddress),
       TX_PARAMS
-    )("SetApproval", toTestAddr(APPROVED_SPENDER), "1");
+    )("SetApproval", toTestAddr(SPENDER), "1");
     if (!tx.receipt.success) {
       throw new Error();
     }
@@ -123,7 +123,7 @@ describe("Approval", () => {
     }
   });
 
-  it("adds approved spender", async () => {
+  it("adds spender", async () => {
     const testCases = [
       {
         sender: toTestAddr(CONTRACT_OWNER),
@@ -156,9 +156,9 @@ describe("Approval", () => {
               name: "SetApprovalSuccess",
               params: [
                 toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
-                toMsgParam("ByStr20", toTestAddr(STRANGER), "approved_spender"),
+                toMsgParam("ByStr20", toTestAddr(STRANGER), "spender"),
                 toMsgParam("Uint256", 2, "token_id"),
-                toMsgParam("Bool", "True", "is_approved_spender"),
+                toMsgParam("Bool", "True", "is_spender"),
               ],
             },
           ],
@@ -166,9 +166,9 @@ describe("Approval", () => {
             {
               tag: "ZRC6_SetApprovalCallback",
               params: [
-                toMsgParam("ByStr20", toTestAddr(STRANGER), "approved_spender"),
+                toMsgParam("ByStr20", toTestAddr(STRANGER), "spender"),
                 toMsgParam("Uint256", 2, "token_id"),
-                toMsgParam("Bool", "True", "is_approved_spender"),
+                toMsgParam("Bool", "True", "is_spender"),
               ],
             },
           ],
@@ -286,7 +286,7 @@ describe("Approval", () => {
     }
   });
 
-  it("updates or removes approved spender", async () => {
+  it("updates or removes spender", async () => {
     const testCases = [
       {
         sender: toTestAddr(CONTRACT_OWNER),
@@ -294,15 +294,15 @@ describe("Approval", () => {
           to: toTestAddr(STRANGER),
           token_id: "1",
         },
-        // APPROVED_SPENDER should be removed first to update it.
-        // It throws NotApprovedError if there is APPROVED_SPENDER in the token_approvals.
+        // SPENDER should be removed first to update it.
+        // It throws NotApprovedError if there is SPENDER in the token_approvals.
         error: ZRC6_ERROR.NotApprovedError,
         want: undefined,
       },
       {
         sender: toTestAddr(CONTRACT_OWNER),
         params: {
-          to: toTestAddr(APPROVED_SPENDER),
+          to: toTestAddr(SPENDER),
           token_id: "1",
         },
         error: undefined,
@@ -312,13 +312,9 @@ describe("Approval", () => {
               name: "SetApprovalSuccess",
               params: [
                 toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
-                toMsgParam(
-                  "ByStr20",
-                  toTestAddr(APPROVED_SPENDER),
-                  "approved_spender"
-                ),
+                toMsgParam("ByStr20", toTestAddr(SPENDER), "spender"),
                 toMsgParam("Uint256", 1, "token_id"),
-                toMsgParam("Bool", "False", "is_approved_spender"),
+                toMsgParam("Bool", "False", "is_spender"),
               ],
             },
           ],
@@ -326,13 +322,9 @@ describe("Approval", () => {
             {
               tag: "ZRC6_SetApprovalCallback",
               params: [
-                toMsgParam(
-                  "ByStr20",
-                  toTestAddr(APPROVED_SPENDER),
-                  "approved_spender"
-                ),
+                toMsgParam("ByStr20", toTestAddr(SPENDER), "spender"),
                 toMsgParam("Uint256", 1, "token_id"),
-                toMsgParam("Bool", "False", "is_approved_spender"),
+                toMsgParam("Bool", "False", "is_spender"),
               ],
             },
           ],
@@ -460,11 +452,7 @@ describe("Approval", () => {
           transitions: [
             {
               params: [
-                toMsgParam(
-                  "ByStr20",
-                  toTestAddr(APPROVED_SPENDER),
-                  "approved_address"
-                ),
+                toMsgParam("ByStr20", toTestAddr(SPENDER), "approved_address"),
                 toMsgParam("Uint256", 1, "token_id"),
               ],
               tag: "ZRC6_GetApprovedCallback",
@@ -502,7 +490,7 @@ describe("Approval", () => {
           .getState();
 
         expect(state.token_approvals[testCase.params.token_id]).toBe(
-          toTestAddr(APPROVED_SPENDER).toLowerCase()
+          toTestAddr(SPENDER).toLowerCase()
         );
       }
     }
@@ -604,7 +592,7 @@ describe("Approval", () => {
       {
         sender: toTestAddr(TOKEN_OWNER),
         params: {
-          to: toTestAddr(APPROVED_SPENDER),
+          to: toTestAddr(SPENDER),
           token_id: "1",
         },
         error: undefined,
@@ -614,11 +602,7 @@ describe("Approval", () => {
               name: "TransferSuccess",
               params: [
                 toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER), "from"),
-                toMsgParam(
-                  "ByStr20",
-                  toTestAddr(APPROVED_SPENDER),
-                  "recipient"
-                ),
+                toMsgParam("ByStr20", toTestAddr(SPENDER), "recipient"),
                 toMsgParam("Uint256", 1, "token_id"),
               ],
             },
@@ -628,11 +612,7 @@ describe("Approval", () => {
               tag: "ZRC6_RecipientAcceptTransfer",
               params: [
                 toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER), "from"),
-                toMsgParam(
-                  "ByStr20",
-                  toTestAddr(APPROVED_SPENDER),
-                  "recipient"
-                ),
+                toMsgParam("ByStr20", toTestAddr(SPENDER), "recipient"),
                 toMsgParam("Uint256", 1, "token_id"),
               ],
             },
@@ -640,11 +620,7 @@ describe("Approval", () => {
               tag: "ZRC6_TransferCallback",
               params: [
                 toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER), "from"),
-                toMsgParam(
-                  "ByStr20",
-                  toTestAddr(APPROVED_SPENDER),
-                  "recipient"
-                ),
+                toMsgParam("ByStr20", toTestAddr(SPENDER), "recipient"),
                 toMsgParam("Uint256", 1, "token_id"),
               ],
             },
@@ -702,10 +678,10 @@ describe("Approval", () => {
     }
   });
 
-  it("transfers token (approved spender or operator only)", async () => {
+  it("transfers token (spender or operator only)", async () => {
     const testCases = [
       {
-        sender: toTestAddr(APPROVED_SPENDER),
+        sender: toTestAddr(SPENDER),
         params: {
           to: toTestAddr(TOKEN_OWNER), // Self
           token_id: "1",
@@ -714,7 +690,7 @@ describe("Approval", () => {
         want: undefined,
       },
       {
-        sender: toTestAddr(APPROVED_SPENDER),
+        sender: toTestAddr(SPENDER),
         params: {
           to: toTestAddr(STRANGER),
           token_id: "1",

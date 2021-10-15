@@ -48,7 +48,7 @@ The NFT contract specification describes:
 | `contract_owner`    | The owner of the contract is initialized by the creator of the contract.                                                                                                                                                         |
 | `royalty_recipient` | The royalty recipient gets a royalty amount each time the NFT is sold or re-sold. This is optional.                                                                                                                              |
 | `token_owner`       | A user (identified by an address) that owns a token tied to a token ID.                                                                                                                                                          |
-| `approved_spender`  | A user (identified by an address) that can transfer a token tied to a token ID on behalf of the token owner.                                                                                                                     |
+| `spender`           | A user (identified by an address) that can transfer a token tied to a token ID on behalf of the token owner.                                                                                                                     |
 | `minter`            | A user (identified by an address) that is approved by the contract owner to mint NFTs.                                                                                                                                           |
 | `operator`          | A user (identified by an address) that is approved to operate all and any tokens owned by another user (identified by another address). The operators can make any transfer, approve, or burn the tokens on behalf of that user. |
 
@@ -56,19 +56,19 @@ The NFT contract specification describes:
 
 The NFT contract must define the following constants for use as error codes for the `Error` event.
 
-| Name                                | Type    | Code  | Description                                                                         |
-| ----------------------------------- | ------- | ----- | ----------------------------------------------------------------------------------- |
-| `NotFoundError`                     | `Int32` | `-1`  | Emit when a value is not found.                                                     |
-| `ConflictError`                     | `Int32` | `-2`  | Emit when a value already exists.                                                   |
-| `SelfError`                         | `Int32` | `-3`  | Emit when the sender attempts a transition call wrongly to his/her own address .    |
-| `NotContractOwnerError`             | `Int32` | `-4`  | Emit when the sender attempts a transition call only authorized for contract owner. |
-| `NotTokenOwnerError`                | `Int32` | `-5`  | Emit when a given address is not an owner of the token.                             |
-| `NotMinterError`                    | `Int32` | `-6`  | Emit when the sender is not an approved token minter.                               |
-| `NotApprovedError`                  | `Int32` | `-7`  | Emit when there is no approved address for the given token ID.                      |
-| `NotApprovedForAllError`            | `Int32` | `-8`  | Emit when the address is not an operator for the token owner.                       |
-| `NotOwnerOrOperatorError`           | `Int32` | `-9`  | Emit when the sender is neither a token owner nor a token operator.                 |
-| `NotApprovedSpenderOrOperatorError` | `Int32` | `-10` | Emit when the sender is neither an approved sender nor a token operator.            |
-| `InvalidFeeBpsError`                | `Int32` | `-11` | Emit when the fee bps is out of range. This is optional.                            |
+| Name                        | Type    | Code  | Description                                                                         |
+| --------------------------- | ------- | ----- | ----------------------------------------------------------------------------------- |
+| `NotFoundError`             | `Int32` | `-1`  | Emit when a value is not found.                                                     |
+| `ConflictError`             | `Int32` | `-2`  | Emit when a value already exists.                                                   |
+| `SelfError`                 | `Int32` | `-3`  | Emit when the sender attempts a transition call wrongly to his/her own address .    |
+| `NotContractOwnerError`     | `Int32` | `-4`  | Emit when the sender attempts a transition call only authorized for contract owner. |
+| `NotTokenOwnerError`        | `Int32` | `-5`  | Emit when a given address is not an owner of the token.                             |
+| `NotMinterError`            | `Int32` | `-6`  | Emit when the sender is not an approved token minter.                               |
+| `NotApprovedError`          | `Int32` | `-7`  | Emit when there is no approved address for the given token ID.                      |
+| `NotApprovedForAllError`    | `Int32` | `-8`  | Emit when the address is not an operator for the token owner.                       |
+| `NotOwnerOrOperatorError`   | `Int32` | `-9`  | Emit when the sender is neither a token owner nor a token operator.                 |
+| `NotSpenderOrOperatorError` | `Int32` | `-10` | Emit when the sender is neither an spender nor a token operator.                    |
+| `InvalidFeeBpsError`        | `Int32` | `-11` | Emit when the fee bps is out of range. This is optional.                            |
 
 ### C. Immutable Variables
 
@@ -271,9 +271,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Arguments:**
 
-| Name     | Type      | Description                           |
-| -------- | --------- | ------------------------------------- |
-| `minter` | `ByStr20` | Address to be set or unset as minter. |
+| Name     | Type      | Description                               |
+| -------- | --------- | ----------------------------------------- |
+| `minter` | `ByStr20` | Address to be added or removed as minter. |
 
 **Messages sent:**
 
@@ -283,9 +283,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name               | Description                   | Event Parameters                                                                                                          |
-| ------------ | ------------------ | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `SetMinterSuccess` | Minter has been set or unset. | <ul><li>`minter` : `ByStr20`<br/>Address of a minter</li><li>`is_minter` : `Bool`<br/>Status it is being set to</li></ul> |
+|              | Name               | Description                       | Event Parameters                                                                                                          |
+| ------------ | ------------------ | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `SetMinterSuccess` | Minter has been added or removed. | <ul><li>`minter` : `ByStr20`<br/>Address of a minter</li><li>`is_minter` : `Bool`<br/>Status it is being set to</li></ul> |
 
 #### 5. BatchMint() (Optional)
 
@@ -346,30 +346,30 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Arguments:**
 
-| Name       | Type      | Description                                                            |
-| ---------- | --------- | ---------------------------------------------------------------------- |
-| `to`       | `ByStr20` | Address to be set or unset as an approved spender of a given token ID. |
-| `token_id` | `Uint256` | Unique token ID of an existing NFT.                                    |
+| Name       | Type      | Description                                                       |
+| ---------- | --------- | ----------------------------------------------------------------- |
+| `to`       | `ByStr20` | Address to be added or removed as an spender of a given token ID. |
+| `token_id` | `Uint256` | Unique token ID of an existing NFT.                               |
 
 **Messages sent:**
 
-|        | Name                       | Description                                                            | Callback Parameters                                                                                                                                                                                                                                                   |
-| ------ | -------------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_SetApprovalCallback` | Provide the sender the status of the approval for an approved spender. | <ul><li>`approved_spender` : `ByStr20`<br/>Address of the approved spender of a given token ID whose status was being set</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li><li>`is_approved_spender` : `Bool`<br/>Status it is being set to</li></ul></ul> |
+|        | Name                       | Description                                                   | Callback Parameters                                                                                                                                                                                                                        |
+| ------ | -------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `_tag` | `ZRC6_SetApprovalCallback` | Provide the sender the status of the approval for an spender. | <ul><li>`spender` : `ByStr20`<br/>Address of the spender of a given token ID whose status was being set</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li><li>`is_spender` : `Bool`<br/>Status it is being set to</li></ul></ul> |
 
 **Events:**
 
-|              | Name                 | Description                             | Event Parameters                                                                                                                                                                                                                                                                                             |
-| ------------ | -------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `_eventname` | `SetApprovalSuccess` | Approved spender has been set or unset. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`approved_spender` : `ByStr20`<br/>Address to removed as an approved spender of a given token ID</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li><li>`is_approved_spender` : `Bool`<br/>Status it is being set to</li></ul> |
+|              | Name                 | Description                        | Event Parameters                                                                                                                                                                                                                                                                  |
+| ------------ | -------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `SetApprovalSuccess` | Spender has been added or removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`spender` : `ByStr20`<br/>Address to removed as an spender of a given token ID</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li><li>`is_spender` : `Bool`<br/>Status it is being set to</li></ul> |
 
 #### 9. SetApprovalForAll()
 
 **Arguments:**
 
-| Name | Type      | Description                             |
-| ---- | --------- | --------------------------------------- |
-| `to` | `ByStr20` | Address to be set or unset as operator. |
+| Name | Type      | Description                                 |
+| ---- | --------- | ------------------------------------------- |
+| `to` | `ByStr20` | Address to be added or removed as operator. |
 
 **Messages sent:**
 
@@ -379,9 +379,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name                       | Description                          | Event Parameters                                                                                                                                                                                                       |
-| ------------ | -------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `SetApprovalForAllSuccess` | Operator has been been set or unset. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`operator` : `ByStr20`<br/>Address of the approved spender which was added</li><li>`is_operator` : `Bool`<br/>Status it is being set to</li></ul> |
+|              | Name                       | Description                         | Event Parameters                                                                                                                                                                               |
+| ------------ | -------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `SetApprovalForAllSuccess` | Operator has been added or removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`operator` : `ByStr20`<br/>Address of the operator</li><li>`is_operator` : `Bool`<br/>Status it is being set to</li></ul> |
 
 #### 10. Transfer()
 
