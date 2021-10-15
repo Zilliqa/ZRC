@@ -42,11 +42,6 @@ let get_bal =
     | None => zero
     end
 
-let build_pair =
-  fun (input_to_address : ByStr20) =>
-  fun (input_token_uri : String) =>
-    Pair {ByStr20 String} input_to_address input_token_uri
-
 (* Error exception *)
 type Error =
   | NotFoundError
@@ -112,8 +107,8 @@ field token_approvals: Map Uint256 ByStr20 = Emp Uint256 ByStr20
 field operator_approvals: Map ByStr20 (Map ByStr20 Dummy)
                             = Emp ByStr20 (Map ByStr20 Dummy)
 
-(* Mapping from token ID to token URI *)
-field token_uris: Map Uint256 String = Emp Uint256 String
+(* Base token URI e.g. https://creatures-api.zilliqa.com/api/creature/ *)
+field base_token_uri: String = ""
 
 (* Total token count *)
 field total_supply: Uint256 = Uint256 0
@@ -273,7 +268,7 @@ procedure UpdateTokenCount(operation: Operation, address: ByStr20)
   end
 end
 
-(* @dev: Get number of NFTs assigned to a token owner *)
+(* @dev: Gets number of NFTs assigned to a token owner *)
 transition BalanceOf(address: ByStr20)
   some_bal <- owned_token_count[address];
   balance = get_bal some_bal;
@@ -287,7 +282,7 @@ transition BalanceOf(address: ByStr20)
   send msgs
 end
 
-(* @dev: Get total supply of NFTs minted *)
+(* @dev: Gets total supply of NFTs minted *)
 transition TotalSupply()
   current_supply <- total_supply;
   msg_to_sender = { 
@@ -300,7 +295,7 @@ transition TotalSupply()
   send msgs
 end
 
-(* @dev: Get name of the NFTs *)
+(* @dev: Gets name of the NFTs *)
 transition Name()
   msg_to_sender = {
     _tag : "ZRC6_NameCallback";
@@ -312,7 +307,7 @@ transition Name()
   send msgs
 end
 
-(* @dev: Get symbol of the NFTs *)
+(* @dev: Gets symbol of the NFTs *)
 transition Symbol()
   msg_to_sender = {
     _tag : "ZRC6_SymbolCallback";
@@ -324,7 +319,7 @@ transition Symbol()
   send msgs
 end
 
-(* @dev: Get approved spender for token ID *)
+(* @dev: Gets approved spender for token ID *)
 transition GetApproved(token_id: Uint256)
   opt_token_approval <- token_approvals[token_id];
   match opt_token_approval with
@@ -344,26 +339,26 @@ transition GetApproved(token_id: Uint256)
   end
 end
 
-(* @dev: Get the token URI of a certain token ID *)
+(* @dev: Gets an URI for a given token ID *)
 transition TokenURI(token_id: Uint256)
-  opt_token_uri <- token_uris[token_id];
-  match opt_token_uri with
-  | Some token_uri =>
-    msg_to_sender = { 
-      _tag : "ZRC6_TokenURICallback";
-      _recipient : _sender;
-      _amount : Uint128 0;
-      token_uri : token_uri
-    };
-    msgs = one_msg msg_to_sender;
-    send msgs
-  | None =>
-    err = NotFoundError;
-    ThrowError err
-  end
+  IsTokenFound token_id;
+
+  base_uri <- base_token_uri;
+  id = builtin to_string token_id;
+  token_uri = builtin concat base_uri id;
+  (* e.g. `https://creatures-api.zilliqa.com/api/creature/1` *)
+
+  msg_to_sender = { 
+    _tag : "ZRC6_TokenURICallback";
+    _recipient : _sender;
+    _amount : Uint128 0;
+    token_uri : token_uri
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
 end
 
-(* @dev: Get the token owner of a certain token ID *)
+(* @dev: Gets the address of token owner for a given token ID *)
 transition OwnerOf(token_id: Uint256)
   opt_token_owner <- token_owners[token_id];
   match opt_token_owner with
@@ -382,7 +377,7 @@ transition OwnerOf(token_id: Uint256)
   end
 end
 
-(* @dev: Check if address is operator for token owner *)
+(* @dev: Checks if address is operator for token owner *)
 transition CheckApprovedForAll(token_owner: ByStr20, operator: ByStr20)
   IsApprovedForAll token_owner operator;
   msg_to_sender = { 
@@ -396,8 +391,8 @@ transition CheckApprovedForAll(token_owner: ByStr20, operator: ByStr20)
   send msgs
 end
 
-(* @dev:   Add or remove a minter. Only contract_owner can set minters. *)
-(* @param: minter - Address of the minter to be approved or removed     *)
+(* @dev:   Adds or removes a minter. Only contract_owner can set minters. *)
+(* @param: minter - Address of the minter to be approved or removed       *)
 transition SetMinter(minter: ByStr20)
   IsContractOwner;
   is_minter <- exists minters[minter];
@@ -427,11 +422,7 @@ transition SetMinter(minter: ByStr20)
   send msgs
 end
 
-procedure Minting(input_pair: Pair ByStr20 String)
-  to = let fst_string_bystr20 = @fst ByStr20 String in
-    fst_string_bystr20 input_pair;
-  token_uri = let snd_string_bystr20 = @snd ByStr20 String in
-    snd_string_bystr20 input_pair;
+procedure Minting(to: ByStr20)
   IsMinter _sender;
   (* Add to owner count *)
   UpdateTokenCount add_operation to;
@@ -447,24 +438,21 @@ procedure Minting(input_pair: Pair ByStr20 String)
   IsTokenIdUnique token_id;
   (* Mint new non-fungible token *)
   token_owners[token_id] := to;
-  (* Add token_uri for token_id *)
-  token_uris[token_id] := token_uri;
+  
   e = {
     _eventname : "MintSuccess";
     by : _sender;
     recipient : to;
-    token_id : token_id;
-    token_uri : token_uri
+    token_id : token_id
   };
   event e
 end
 
-(* @dev:   Mint new tokens. Only minters can mint.           *)
-(* @param: to        - Address of the token recipient        *)
-(* @param: token_uri - URI of the the new token to be minted *)
-transition Mint(to: ByStr20, token_uri: String)
-  input_pair = build_pair to token_uri;
-  Minting input_pair;
+
+(* @dev:   Mints new tokens. Only minters can mint.    *)
+(* @param: to        - Address of the token recipient  *)
+transition Mint(to: ByStr20)
+  Minting to;
   token_id <- token_id_count;
   msg_to_recipient = { _tag : "ZRC6_RecipientAcceptMint"; _recipient : to; _amount : Uint128 0 };
   msg_to_sender = { 
@@ -472,20 +460,16 @@ transition Mint(to: ByStr20, token_uri: String)
     _recipient : _sender;
     _amount : Uint128 0;
     recipient : to;
-    token_id : token_id;
-    token_uri : token_uri
+    token_id : token_id
   };
   msgs = two_msgs msg_to_recipient msg_to_sender;
   send msgs
 end
 
-(* @dev:   Mint multiple new tokens at once. Only minters can mint. *)
-(* @param: to_list         - Addressses of the token recipient      *)
-(* @param: token_uri_list - URIs of the the new token to be minted  *)
-transition BatchMint(to_list: List ByStr20, token_uri_list: List String)
-  pair_two_list = @list_zip ByStr20 String;
-  input_list = pair_two_list to_list token_uri_list;
-  forall input_list Minting;
+(* @dev:   Mints multiple new tokens at once. Only minters can mint. *)
+(* @param: to_list         - Addressses of the token recipient       *)
+transition BatchMint(to_list: List ByStr20)
+  forall to_list Minting;
   msg_to_sender = { 
     _tag : "ZRC6_BatchMintCallback";
     _recipient : _sender;
@@ -496,8 +480,8 @@ transition BatchMint(to_list: List ByStr20, token_uri_list: List String)
 end
 
 
-(* @dev:   Burn existing tokens. Only token_owner or an operator can burn a NFT. *)
-(* @param: token_id - Unique ID of the NFT to be destroyed                       *)
+(* @dev:   Burns existing tokens. Only token_owner or an operator can burn a NFT. *)
+(* @param: token_id - Unique ID of the NFT to be destroyed                        *)
 transition Burn(token_id: Uint256)
   (* Check if token exists *)
   opt_token_owner <- token_owners[token_id];
@@ -510,7 +494,7 @@ transition Burn(token_id: Uint256)
     (* Destroy existing token *)
     delete token_owners[token_id];
     delete token_approvals[token_id];
-    delete token_uris[token_id];
+
     (* Deduct from owned_token_count *)
     UpdateTokenCount sub_operation token_owner;
     (* Deduct from total_supply *)
@@ -537,10 +521,10 @@ transition Burn(token_id: Uint256)
   end
 end
 
-(* @dev: Set or unset a approved spender of a given token ID                *)
-(* There can only be one approved_spender per token at any given time       *)
-(* param: to       - Address to be approved for the given token ID          *)
-(* param: token_id - Unique ID of the NFT to be approved                    *)
+(* @dev: Sets or unsets a approved spender of a given token ID        *)
+(* There can only be one approved_spender per token at any given time *)
+(* param: to       - Address to be approved for the given token ID    *)
+(* param: token_id - Unique ID of the NFT to be approved              *)
 transition SetApproval(to: ByStr20, token_id: Uint256)
   opt_token_owner <- token_owners[token_id];
   match opt_token_owner with
@@ -606,7 +590,7 @@ transition SetApproval(to: ByStr20, token_id: Uint256)
   end
 end
 
-(* @dev:   Set or unset an operator for the _sender       *)
+(* @dev:   Sets or unsets an operator for the _sender     *)
 (* @param: to - Address to be set or unset as an operator *)
 transition SetApprovalForAll(to: ByStr20)
   IsNotSelf to _sender;
@@ -638,10 +622,10 @@ transition SetApprovalForAll(to: ByStr20)
   send msgs
 end
 
-(* @dev: Transfer the ownership of a given token ID to another address.   *)
-(* token_owner only transition.                                           *)
-(* @param: to       - Recipient address for the token                     *)
-(* @param: token_id - Unique ID of the NFT to be transferred              *)
+(* @dev: Transfers the ownership of a given token ID to another address. *)
+(* token_owner only transition.                                          *)
+(* @param: to       - Recipient address for the token                    *)
+(* @param: token_id - Unique ID of the NFT to be transferred             *)
 transition Transfer(to: ByStr20, token_id: Uint256)
   IsNotSelf to _sender;
   IsTokenOwner token_id _sender;
@@ -682,10 +666,10 @@ transition Transfer(to: ByStr20, token_id: Uint256)
   send msgs
 end
 
-(* @dev: Transfer the ownership of a given token ID to another address. *)
-(* approved_spender or operator only transition.                        *)
-(* @param: to       - Recipient address for the NFT                     *)
-(* @param: token_id - Unique ID of the NFT to be transferred            *)
+(* @dev: Transfers the ownership of a given token ID to another address. *)
+(* approved_spender or operator only transition.                         *)
+(* @param: to       - Recipient address for the NFT                      *)
+(* @param: token_id - Unique ID of the NFT to be transferred             *)
 transition TransferFrom(to: ByStr20, token_id: Uint256)
   opt_token_owner <- token_owners[token_id];
   match opt_token_owner with
@@ -731,7 +715,7 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
   end
 end
 
-(* @dev: Set address that royalties are sent to.  *)
+(* @dev: Sets address that royalties are sent to. *)
 (* Only contract_owner can set royalty recipient. *)
 (* @param: to - Royalty recipient address         *)
 transition SetRoyaltyRecipient(to: ByStr20)
@@ -751,7 +735,7 @@ transition SetRoyaltyRecipient(to: ByStr20)
   send msgs  
 end
 
-(* @dev: Set royalty fee bps.                   *)
+(* @dev: Sets royalty fee bps.                  *)
 (* Only contract_owner can set royalty fee bps. *)
 (* @param: fee_bps - Royalty fee BPS            *)
 transition SetRoyaltyFeeBPS(fee_bps: Uint256)
@@ -772,7 +756,7 @@ transition SetRoyaltyFeeBPS(fee_bps: Uint256)
   send msgs
 end
 
-(* @dev Retrieve royalty payment information for a given token ID and sale price. *)
+(* @dev Gets royalty payment information for a given token ID and sale price.     *)
 (* It specifies how much royalty is owed and to whom for a given sale price.      *)
 (* @param: token_id   - Unique ID of the NFT                                      *)
 (* @param: sale_price - Token sale price                                          *)
@@ -794,4 +778,24 @@ transition RoyaltyInfo(token_id: Uint256, sale_price: Uint256)
   };
   msgs = one_msg msg_to_sender;
   send msgs
+end
+
+(* @dev: Sets base token URI.                  *)
+(* Only contract_owner can set base token URI. *)
+(* @param: base_token_uri - base token URI     *)
+transition SetBaseTokenURI(base_token_uri: String)
+  IsContractOwner;
+  base_token_uri := base_token_uri;
+
+  e = { _eventname : "SetBaseTokenURISuccess"; base_token_uri : base_token_uri };
+  event e;
+  
+  msg_to_sender = { 
+    _tag : "ZRC6_SetBaseTokenURICallback"; 
+    _recipient : _sender;
+    _amount : Uint128 0;
+    base_token_uri : base_token_uri
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs  
 end
