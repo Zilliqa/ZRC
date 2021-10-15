@@ -1,6 +1,6 @@
 | ZRC | Title                       | Status | Type     | Author                       | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
 | --- | --------------------------- | ------ | -------- | ---------------------------- | -------------------- | -------------------- |
-| 6   | Non-Fungible Token Standard | Ready  | Standard | Neuti Yoo <noel@zilliqa.com> | 2021-10-01           | 2021-10-08           |
+| 6   | Non-Fungible Token Standard | Ready  | Standard | Neuti Yoo <noel@zilliqa.com> | 2021-10-01           | 2021-10-15           |
 
 ## I. What are NFTs and NFT royalties?
 
@@ -16,13 +16,17 @@ The main advantages of this standard are:
 
 1. ZRC-6 implements standardized royalty information retrieval with a percentage-based royalty fee model. For simplicity, it mandates royalty payments to a single address and unit-less royalty payments across all NFT marketplaces. Funds will be paid for secondary sales only if a marketplace chooses to implement ZRC-6.
 
-2. ZRC-6 includes batch minting such that multiple NFTs can be minted in one transaction.
+2. ZRC-6 implements standardized token URI with the concatenation of base token URI and token ID. A token URI is an HTTP or IPFS URL. This URL should return a JSON blob of data with the metadata for the NFT when queried.
 
-3. ZRC-6 is compatible with ZRC-X since every callback name is prefixed with `ZRC6_`.
+3. ZRC-6 includes batch minting such that multiple NFTs can be minted in one transaction.
+
+4. ZRC-6 is compatible with ZRC-X since every callback name is prefixed with `ZRC6_`.
 
 ## III. Motivation
 
 Many of the largest NFT marketplaces have implemented incompatible royalty payment solutions. ZRC-6 provides a standardized way to retrieve royalty information for NFTs. The marketplace should transfer the actual funds.
+
+The marketplace builders had to customize to each NFT contract since there was no standard for token URI.
 
 In ZRC-1 minting can be very inefficient since multiple transactions are required to mint multiple NFTs.
 
@@ -76,17 +80,17 @@ The NFT contract must define the following constants for use as error codes for 
 
 ### D. Mutable Fields
 
-| Name                 | Type                             | Description                                                                                                                  |
-| -------------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `minters`            | `Map ByStr20 Dummy`              | Mapping containing the addresses approved to mint NFTs.                                                                      |
-| `royalty_recipient`  | `ByStr20`                        | Address to send royalties to. This is optional.                                                                              |
-| `royalty_fee_bps`    | `Uint256`                        | Royalty fee BPS (1/100ths of a percent, e.g. 1000 = 10%). This is optional.                                                  |
-| `token_owners`       | `Map Uint256 ByStr20`            | Mapping between token ID (that identifies each token) to its owner.                                                          |
-| `owned_token_count`  | `Map ByStr20 Uint256`            | Mapping from token owner to the number of NFTs he/she owns.                                                                  |
-| `token_approvals`    | `Map Uint256 ByStr20`            | Mapping between token ID to an approved spender address. There can only be one approved address per token at any given time. |
-| `operator_approvals` | `Map ByStr20 (Map ByStr20 Bool)` | Mapping from token owner to approved operators authorized by the token owner.                                                |
-| `token_uris`         | `Map Uint256 String`             | Mapping from token ID to token URI.                                                                                          |
-| `total_supply`       | `Uint256`                        | Current total supply of NFTs minted.                                                                                         |
+| Name                 | Type                             | Description                                                                                                          |
+| -------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `royalty_recipient`  | `ByStr20`                        | Address to send royalties to. This is optional.                                                                      |
+| `royalty_fee_bps`    | `Uint256`                        | Royalty fee BPS (1/100ths of a percent, e.g. 1000 = 10%). This is optional.                                          |
+| `base_token_uri`     | `String`                         | Base token URI. e.g. `https://creatures-api.zil.xyz/api/creature/`                                                   |
+| `minters`            | `Map ByStr20 Dummy`              | Mapping containing the addresses approved to mint NFTs.                                                              |
+| `token_owners`       | `Map Uint256 ByStr20`            | Mapping between token ID to its owner.                                                                               |
+| `owned_token_count`  | `Map ByStr20 Uint256`            | Mapping from token owner to the number of NFTs.                                                                      |
+| `token_approvals`    | `Map Uint256 ByStr20`            | Mapping between token ID to an approved spender. There can only be one approved address per token at any given time. |
+| `operator_approvals` | `Map ByStr20 (Map ByStr20 Bool)` | Mapping from token owner to approved operators authorized by the token owner.                                        |
+| `total_supply`       | `Uint256`                        | Current total supply of NFTs minted.                                                                                 |
 
 ### E. Getter Transitions
 
@@ -105,27 +109,33 @@ The NFT contract must define the following constants for use as error codes for 
 | ------ | -------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `_tag` | `ZRC6_RoyaltyInfoCallback` | Provide the sender how much royalty is owed and to whom. | <ul><li>`royalty_amount` : `Uint256`<br/>Amount of funds to be paid to the royalty recipient</li><li>`royalty_recipient` : `ByStr20`</li>Address of the royalty recipient</ul> |
 
-#### 2. BalanceOf()
+#### 2. TokenURI()
 
 **Arguments:**
 
-| Name      | Type      | Description                                         |
-| --------- | --------- | --------------------------------------------------- |
-| `address` | `ByStr20` | Address of the token owner to check the balance of. |
+| Name       | Type      | Description                    |
+| ---------- | --------- | ------------------------------ |
+| `token_id` | `Uint256` | A token ID that to be queried. |
 
 **Messages sent:**
 
-|        | Name                     | Description                                                     | Callback Parameters                                                                |
-| ------ | ------------------------ | --------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_BalanceOfCallback` | Provide the sender with the balance of the queried token owner. | `balance` : `Uint256`<br/>The balance of NFTs owned by the queried for token owner |
+|        | Name                    | Description                                                | Callback Parameters                                                                                      |
+| ------ | ----------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_TokenURICallback` | Provide the sender with a token URI of a queried token ID. | `token_uri` : `String`<br/>Token URI of a token<br/> e.g. `https://creatures-api.zil.xyz/api/creature/1` |
 
-#### 3. TotalSupply()
+#### 3. OwnerOf()
+
+**Arguments:**
+
+| Name       | Type      | Description                      |
+| ---------- | --------- | -------------------------------- |
+| `token_id` | `Uint256` | A token ID that will be queried. |
 
 **Messages sent:**
 
-|        | Name                       | Description                                                 | Callback Parameters                                            |
-| ------ | -------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------- |
-| `_tag` | `ZRC6_TotalSupplyCallback` | Provide the sender the current total supply of NFTs minted. | `total_supply` : `Uint256`<br/>The total supply of NFTs minted |
+|        | Name                   | Description                                                  | Callback Parameters                                  |
+| ------ | ---------------------- | ------------------------------------------------------------ | ---------------------------------------------------- |
+| `_tag` | `ZRC6_OwnerOfCallback` | Provide the sender with a token owner of a queried token ID. | `token_owner` : `ByStr20`<br/>Token owner of a token |
 
 #### 4. Name()
 
@@ -143,7 +153,29 @@ The NFT contract must define the following constants for use as error codes for 
 | ------ | --------------------- | -------------------------------------------------- | ---------------------------------------------- |
 | `_tag` | `ZRC6_SymbolCallback` | Provide the sender the current symbol of the NFTs. | `symbol` : `String`<br/>The symbol of the NFTs |
 
-#### 6. GetApproved()
+#### 6. BalanceOf()
+
+**Arguments:**
+
+| Name      | Type      | Description                                         |
+| --------- | --------- | --------------------------------------------------- |
+| `address` | `ByStr20` | Address of the token owner to check the balance of. |
+
+**Messages sent:**
+
+|        | Name                     | Description                                                     | Callback Parameters                                                                |
+| ------ | ------------------------ | --------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_BalanceOfCallback` | Provide the sender with the balance of the queried token owner. | `balance` : `Uint256`<br/>The balance of NFTs owned by the queried for token owner |
+
+#### 7. TotalSupply()
+
+**Messages sent:**
+
+|        | Name                       | Description                                                 | Callback Parameters                                            |
+| ------ | -------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------- |
+| `_tag` | `ZRC6_TotalSupplyCallback` | Provide the sender the current total supply of NFTs minted. | `total_supply` : `Uint256`<br/>The total supply of NFTs minted |
+
+#### 8. GetApproved()
 
 **Arguments:**
 
@@ -156,34 +188,6 @@ The NFT contract must define the following constants for use as error codes for 
 |        | Name                       | Description                                                                                              | Callback Parameters                                                                                                                      |
 | ------ | -------------------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | `_tag` | `ZRC6_GetApprovedCallback` | Provide the sender an address of the approved spender address for the queried token ID and the token ID. | <ul><li>`approved_address` : `ByStr20`<br/>Address of approved spender</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
-
-#### 7. TokenURI()
-
-**Arguments:**
-
-| Name       | Type      | Description                    |
-| ---------- | --------- | ------------------------------ |
-| `token_id` | `Uint256` | A token ID that to be queried. |
-
-**Messages sent:**
-
-|        | Name                    | Description                                                | Callback Parameters                             |
-| ------ | ----------------------- | ---------------------------------------------------------- | ----------------------------------------------- |
-| `_tag` | `ZRC6_TokenURICallback` | Provide the sender with a token URI of a queried token ID. | `token_uri` : `String`<br/>Token URI of a token |
-
-#### 8. OwnerOf()
-
-**Arguments:**
-
-| Name       | Type      | Description                      |
-| ---------- | --------- | -------------------------------- |
-| `token_id` | `Uint256` | A token ID that will be queried. |
-
-**Messages sent:**
-
-|        | Name                   | Description                                                  | Callback Parameters                                  |
-| ------ | ---------------------- | ------------------------------------------------------------ | ---------------------------------------------------- |
-| `_tag` | `ZRC6_OwnerOfCallback` | Provide the sender with a token owner of a queried token ID. | `token_owner` : `ByStr20`<br/>Token owner of a token |
 
 #### 9. CheckApprovedForAll()
 
@@ -202,84 +206,7 @@ The NFT contract must define the following constants for use as error codes for 
 
 ### F. Interface Transitions
 
-#### 1. SetMinter()
-
-**Arguments:**
-
-| Name     | Type      | Description                           |
-| -------- | --------- | ------------------------------------- |
-| `minter` | `ByStr20` | Address to be set or unset as minter. |
-
-**Messages sent:**
-
-|        | Name                     | Description                    | Callback Parameters                                                                                                                                      |
-| ------ | ------------------------ | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_SetMinterCallback` | Provide the sender the result. | <ul><li>`minter` : `ByStr20`<br/>Address of the `minter` whose status was being set</li><li>`is_minter` : `Bool`<br/>Status it is being set to</li></ul> |
-
-**Events:**
-
-|              | Name               | Description                   | Event Parameters                                                                                                          |
-| ------------ | ------------------ | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `SetMinterSuccess` | Minter has been set or unset. | <ul><li>`minter` : `ByStr20`<br/>Address of a minter</li><li>`is_minter` : `Bool`<br/>Status it is being set to</li></ul> |
-
-#### 2. BatchMint() (Optional)
-
-**Arguments:**
-
-| Name             | Type           | Description                         |
-| ---------------- | -------------- | ----------------------------------- |
-| `to_list`        | `List ByStr20` | Addresses of the token recipient.   |
-| `token_uri_list` | `List String`  | URIs of the new token to be minted. |
-
-**Messages sent:**
-
-|        | Name                     | Description                                     | Callback Parameters |
-| ------ | ------------------------ | ----------------------------------------------- | ------------------- |
-| `_tag` | `ZRC6_BatchMintCallback` | Provide the sender with the status of the mint. |                     |
-
-#### 3. Mint()
-
-**Arguments:**
-
-| Name        | Type      | Description                                       |
-| ----------- | --------- | ------------------------------------------------- |
-| `to`        | `ByStr20` | Address of the recipient of the NFT to be minted. |
-| `token_uri` | `String`  | Token URI of the NFT to be minted.                |
-
-**Messages sent:**
-
-|        | Name                       | Description                                           | Callback Parameters                                                                                                                                                                  |
-| ------ | -------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `_tag` | `ZRC6_RecipientAcceptMint` | Dummy callback to prevent invalid recipient contract. |                                                                                                                                                                                      |
-| `_tag` | `ZRC6_MintCallback`        | Provide the sender the status of the mint.            | <ul><li>`recipient` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li><li>`token_uri` : `String`<br/>Token URI of a token</li></ul> |
-
-**Events:**
-
-|              | Name          | Description          | Event Parameters                                                                                                                                                                                                                            |
-| ------------ | ------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `MintSuccess` | NFT has been minted. | <ul><li>`by` : `ByStr20`<br/>Address of the `_sender`</li><li> `recipient` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li><li>`token_uri` : `String`<br/>Token URI of a token</li></ul> |
-
-#### 4. Burn() (Optional)
-
-**Arguments:**
-
-| Name       | Type      | Description                                   |
-| ---------- | --------- | --------------------------------------------- |
-| `token_id` | `Uint256` | Unique ID of an existing NFT to be destroyed. |
-
-**Messages sent:**
-
-|        | Name                | Description                                | Callback Parameters                                                                                                                                                                                                        |
-| ------ | ------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_BurnCallback` | Provide the sender the status of the burn. | <ul><li>`initiator` : `ByStr20`</br>Address of the `_sender`</li><li>`burn_address` : `ByStr20`<br/>Address of the token owner whose NFT is being burned</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
-
-**Events:**
-
-|              | Name          | Description          | Event Parameters                                                                                                                                                                                                           |
-| ------------ | ------------- | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `BurnSuccess` | NFT has been burned. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`burn_address` : `ByStr20`</br>Address of the token owner whose NFT is being burned</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
-
-#### 5. SetRoyaltyRecipient() (Optional)
+#### 1. SetRoyaltyRecipient() (Optional)
 
 **Arguments:**
 
@@ -299,7 +226,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ---------------------------- | ----------------------------------- | -------------------------------------------------------------------- |
 | `_eventname` | `SetRoyaltyRecipientSuccess` | Royalty recipient has been updated. | `royalty_recipient` : `ByStr20`<br/>Address of the royalty recipient |
 
-#### 6. SetRoyaltyFeeBPS() (Optional)
+#### 2. SetRoyaltyFeeBPS() (Optional)
 
 **Arguments:**
 
@@ -319,7 +246,102 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ------------------------- | --------------------------------- | ------------------------------------------------- |
 | `_eventname` | `SetRoyaltyFeeBPSSuccess` | Royalty fee BPS has been updated. | `royalty_fee_bps` : `Uint256`<br/>Royalty Fee BPS |
 
-#### 7. SetApproval()
+#### 3. SetBaseTokenURI()
+
+**Arguments:**
+
+| Name             | Type     | Description     |
+| ---------------- | -------- | --------------- |
+| `base_token_uri` | `String` | base token URI. |
+
+**Messages sent:**
+
+|        | Name                           | Description                            | Callback Parameters                            |
+| ------ | ------------------------------ | -------------------------------------- | ---------------------------------------------- |
+| `_tag` | `ZRC6_SetBaseTokenURICallback` | Provide the sender the base token URI. | `base_token_uri` : `String`<br/>Base token URI |
+
+**Events:**
+
+|              | Name                     | Description                      | Event Parameters                               |
+| ------------ | ------------------------ | -------------------------------- | ---------------------------------------------- |
+| `_eventname` | `SetBaseTokenURISuccess` | Base token URI has been updated. | `base_token_uri` : `String`<br/>Base token URI |
+
+#### 4. SetMinter()
+
+**Arguments:**
+
+| Name     | Type      | Description                           |
+| -------- | --------- | ------------------------------------- |
+| `minter` | `ByStr20` | Address to be set or unset as minter. |
+
+**Messages sent:**
+
+|        | Name                     | Description                    | Callback Parameters                                                                                                                                      |
+| ------ | ------------------------ | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_SetMinterCallback` | Provide the sender the result. | <ul><li>`minter` : `ByStr20`<br/>Address of the `minter` whose status was being set</li><li>`is_minter` : `Bool`<br/>Status it is being set to</li></ul> |
+
+**Events:**
+
+|              | Name               | Description                   | Event Parameters                                                                                                          |
+| ------------ | ------------------ | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `SetMinterSuccess` | Minter has been set or unset. | <ul><li>`minter` : `ByStr20`<br/>Address of a minter</li><li>`is_minter` : `Bool`<br/>Status it is being set to</li></ul> |
+
+#### 5. BatchMint() (Optional)
+
+**Arguments:**
+
+| Name      | Type           | Description                       |
+| --------- | -------------- | --------------------------------- |
+| `to_list` | `List ByStr20` | Addresses of the token recipient. |
+
+**Messages sent:**
+
+|        | Name                     | Description                                     | Callback Parameters |
+| ------ | ------------------------ | ----------------------------------------------- | ------------------- |
+| `_tag` | `ZRC6_BatchMintCallback` | Provide the sender with the status of the mint. |                     |
+
+#### 6. Mint()
+
+**Arguments:**
+
+| Name | Type      | Description                                       |
+| ---- | --------- | ------------------------------------------------- |
+| `to` | `ByStr20` | Address of the recipient of the NFT to be minted. |
+
+**Messages sent:**
+
+|        | Name                       | Description                                           | Callback Parameters                                                                                                          |
+| ------ | -------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_RecipientAcceptMint` | Dummy callback to prevent invalid recipient contract. |                                                                                                                              |
+| `_tag` | `ZRC6_MintCallback`        | Provide the sender the status of the mint.            | <ul><li>`recipient` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+
+**Events:**
+
+|              | Name          | Description          | Event Parameters                                                                                                                                                                    |
+| ------------ | ------------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `MintSuccess` | NFT has been minted. | <ul><li>`by` : `ByStr20`<br/>Address of the `_sender`</li><li> `recipient` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+
+#### 7. Burn() (Optional)
+
+**Arguments:**
+
+| Name       | Type      | Description                                   |
+| ---------- | --------- | --------------------------------------------- |
+| `token_id` | `Uint256` | Unique ID of an existing NFT to be destroyed. |
+
+**Messages sent:**
+
+|        | Name                | Description                                | Callback Parameters                                                                                                                                                                                                        |
+| ------ | ------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_BurnCallback` | Provide the sender the status of the burn. | <ul><li>`initiator` : `ByStr20`</br>Address of the `_sender`</li><li>`burn_address` : `ByStr20`<br/>Address of the token owner whose NFT is being burned</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+
+**Events:**
+
+|              | Name          | Description          | Event Parameters                                                                                                                                                                                                           |
+| ------------ | ------------- | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `BurnSuccess` | NFT has been burned. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`burn_address` : `ByStr20`</br>Address of the token owner whose NFT is being burned</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+
+#### 8. SetApproval()
 
 **Arguments:**
 
@@ -340,7 +362,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | -------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `_eventname` | `SetApprovalSuccess` | Approved spender has been set or unset. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`approved_spender` : `ByStr20`<br/>Address to removed as an approved spender of a given token ID</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li><li>`is_approved_spender` : `Bool`<br/>Status it is being set to</li></ul> |
 
-#### 8. SetApprovalForAll()
+#### 9. SetApprovalForAll()
 
 **Arguments:**
 
@@ -360,7 +382,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | -------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `SetApprovalForAllSuccess` | Operator has been been set or unset. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`operator` : `ByStr20`<br/>Address of the approved spender which was added</li><li>`is_operator` : `Bool`<br/>Status it is being set to</li></ul> |
 
-#### 9. Transfer()
+#### 10. Transfer()
 
 **Arguments:**
 
@@ -382,7 +404,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ----------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `_eventname` | `TransferSuccess` | NFT has been transferred. | <ul><li>`from` : `ByStr20`<br/>Address of the `_sender`</li><li>`recipient` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
-#### 10. TransferFrom()
+#### 11. TransferFrom()
 
 **Arguments:**
 
