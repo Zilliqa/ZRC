@@ -48,7 +48,7 @@ The NFT contract must define the following constants for use as error codes for 
 | `CodeNotFound`                     | `Int32` | `-7`  | Emit when a value is missing.                                                       |
 | `CodeNotApprovedForAll`            | `Int32` | `-8`  | Emit when the address is not an operator for the token owner.                       |
 | `CodeNotOwnerOrOperator`           | `Int32` | `-9`  | Emit when the sender is neither a token owner nor a token operator.                 |
-| `CodeNotApprovedSpenderOrOperator` | `Int32` | `-10` | Emit when the sender is neither an approved sender nor a token operator.            |
+| `CodeNotApprovedSpenderOrOperator` | `Int32` | `-10` | Emit when the sender is neither an approved spender nor a token operator.            |
 
 ### C. Immutable Variables
 
