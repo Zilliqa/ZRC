@@ -208,16 +208,6 @@ procedure IsTokenOwner(token_id: Uint256, address: ByStr20)
   end
 end
 
-procedure IsApprovedForAll(token_owner: ByStr20, operator: ByStr20)
-  is_operator_approved <- exists operator_approvals[token_owner][operator];
-  match is_operator_approved with
-  | True =>
-  | False =>
-    err = NotApprovedForAllError;
-    ThrowError err
-  end
-end
-
 procedure IsOwnerOrOperator(token_owner: ByStr20)
   is_owner = builtin eq _sender token_owner;
   is_approved_for_all <- exists operator_approvals[token_owner][_sender];
@@ -294,10 +284,10 @@ procedure Minting(to: ByStr20)
   event e
 end
 
-(* @dev Gets royalty payment information for a given token ID and sale price.     *)
-(* It specifies how much royalty is owed and to whom for a given sale price.      *)
-(* @param: token_id   - Unique ID of the NFT                                      *)
-(* @param: sale_price - Token sale price                                          *)
+(* @dev Gets royalty payment information for a given token ID and sale price. *)
+(* It specifies how much royalty is owed and to whom for a given sale price.  *)
+(* @param: token_id   - Unique ID of the NFT                                  *)
+(* @param: sale_price - Token sale price                                      *)
 transition RoyaltyInfo(token_id: Uint256, sale_price: Uint256)
   IsTokenFound token_id;
 
@@ -428,21 +418,27 @@ transition GetApproved(token_id: Uint256)
 end
 
 (* @dev: Checks if address is operator for token owner *)
-transition CheckApprovedForAll(token_owner: ByStr20, operator: ByStr20)
-  IsApprovedForAll token_owner operator;
-  msg_to_sender = { 
-    _tag : "ZRC6_IsApprovedForAllCallback";
-    _recipient : _sender;
-    _amount : Uint128 0;
-    token_owner : token_owner;
-    operator : operator
-  };
-  msgs = one_msg msg_to_sender;
-  send msgs
+transition IsApprovedForAll(token_owner: ByStr20, operator: ByStr20)
+  is_operator_approved <- exists operator_approvals[token_owner][operator];
+  match is_operator_approved with
+  | True =>
+    msg_to_sender = { 
+      _tag : "ZRC6_IsApprovedForAllCallback";
+      _recipient : _sender;
+      _amount : Uint128 0;
+      token_owner : token_owner;
+      operator : operator
+    };
+    msgs = one_msg msg_to_sender;
+    send msgs
+  | False =>
+    err = NotApprovedForAllError;
+    ThrowError err
+  end
 end
 
 (* @dev: Sets address that royalties are sent to. *)
-(* Only contract_owner can set royalty recipient. *)
+(* Only contract_owner can be _sender.            *)
 (* @param: to - Royalty recipient address         *)
 transition SetRoyaltyRecipient(to: ByStr20)
   IsContractOwner;
@@ -461,9 +457,10 @@ transition SetRoyaltyRecipient(to: ByStr20)
   send msgs  
 end
 
-(* @dev: Sets royalty fee bps.                  *)
-(* Only contract_owner can set royalty fee bps. *)
-(* @param: fee_bps - Royalty fee BPS            *)
+(* @dev: Sets royalty fee bps.                   *)
+(* Only contract_owner can be _sender.           *)
+(* Fee bps should be in the range of 1 and 1000. *)
+(* @param: fee_bps - Royalty fee BPS             *)
 transition SetRoyaltyFeeBPS(fee_bps: Uint256)
   IsContractOwner;
   IsValidRoyaltyFeeBPS fee_bps;
@@ -482,8 +479,8 @@ transition SetRoyaltyFeeBPS(fee_bps: Uint256)
   send msgs
 end
 
-(* @dev: Sets base URI.                  *)
-(* Only contract_owner can set base URI. *)
+(* @dev: Sets base URI.                *)
+(* Only contract_owner can be _sender. *)
 transition SetBaseURI(base_uri: String)
   IsContractOwner;
   base_uri := base_uri;
@@ -501,8 +498,9 @@ transition SetBaseURI(base_uri: String)
   send msgs  
 end
 
-(* @dev:   Adds or removes a minter. Only contract_owner can set minters. *)
-(* @param: minter - Address of the minter to be approved or removed       *)
+(* @dev: Adds or removes a minter.                                  *)
+(* Only contract_owner can be _sender.                              *)
+(* @param: minter - Address of the minter to be approved or removed *)
 transition SetMinter(minter: ByStr20)
   IsContractOwner;
   is_minter <- exists minters[minter];
@@ -532,8 +530,9 @@ transition SetMinter(minter: ByStr20)
   send msgs
 end
 
-(* @dev:   Mints new tokens. Only minters can mint.    *)
-(* @param: to        - Address of the token recipient  *)
+(* @dev: Mints new tokens.                     *)
+(* Only minter can be _sender.                 *)
+(* @param: to - Address of the token recipient *)
 transition Mint(to: ByStr20)
   Minting to;
   token_id <- token_id_count;
@@ -549,8 +548,9 @@ transition Mint(to: ByStr20)
   send msgs
 end
 
-(* @dev:   Mints multiple new tokens at once. Only minters can mint. *)
-(* @param: to_list         - Addressses of the token recipient       *)
+(* @dev: Mints multiple tokens in single transaction.  *)
+(* Only minter can be _sender.                         *)
+(* @param: to_list - Addressses of the token recipient *)
 transition BatchMint(to_list: List ByStr20)
   forall to_list Minting;
   msg_to_sender = { 
@@ -562,9 +562,9 @@ transition BatchMint(to_list: List ByStr20)
   send msgs
 end
 
-
-(* @dev:   Burns existing tokens. Only token_owner or an operator can burn a NFT. *)
-(* @param: token_id - Unique ID of the NFT to be destroyed                        *)
+(* @dev: Burns existing tokens.                            *)
+(* Only token_owner or operator can be _sender.            *)
+(* @param: token_id - Unique ID of the NFT to be destroyed *)
 transition Burn(token_id: Uint256)
   (* Check if token exists *)
   opt_token_owner <- token_owners[token_id];
@@ -604,10 +604,12 @@ transition Burn(token_id: Uint256)
   end
 end
 
-(* @dev: Sets or unsets a approved spender of a given token ID        *)
-(* There can only be one approved_spender per token at any given time *)
-(* param: to       - Address to be approved for the given token ID    *)
-(* param: token_id - Unique ID of the NFT to be approved              *)
+(* @dev: Adds or removes an approved spender of a given token ID.      *)
+(* Only token_owner or operator can be _sender.                        *)
+(* There can only be one approved_spender per token at any given time. *)
+(* The approval is cleared when the token is transferred.              *)
+(* param: to - Address to be approved for the given token ID           *)
+(* param: token_id - Unique ID of the NFT to be approved               *)
 transition SetApproval(to: ByStr20, token_id: Uint256)
   opt_token_owner <- token_owners[token_id];
   match opt_token_owner with
@@ -673,8 +675,9 @@ transition SetApproval(to: ByStr20, token_id: Uint256)
   end
 end
 
-(* @dev:   Sets or unsets an operator for the _sender     *)
-(* @param: to - Address to be set or unset as an operator *)
+(* @dev: Adds or removes operator as an operator for the _sender *)
+(* Only operator can be _sender.                                 *)
+(* @param: to - Address to be set or unset as an operator        *)
 transition SetApprovalForAll(to: ByStr20)
   IsNotSelf to _sender;
   is_operator <- exists operator_approvals[_sender][to];
@@ -706,8 +709,8 @@ transition SetApprovalForAll(to: ByStr20)
 end
 
 (* @dev: Transfers the ownership of a given token ID to another address. *)
-(* token_owner only transition.                                          *)
-(* @param: to       - Recipient address for the token                    *)
+(* Only token_owner can be _sender.                                      *)
+(* @param: to - Recipient address for the token                          *)
 (* @param: token_id - Unique ID of the NFT to be transferred             *)
 transition Transfer(to: ByStr20, token_id: Uint256)
   IsNotSelf to _sender;
@@ -750,7 +753,7 @@ transition Transfer(to: ByStr20, token_id: Uint256)
 end
 
 (* @dev: Transfers the ownership of a given token ID to another address. *)
-(* approved_spender or operator only transition.                         *)
+(* Only approved_spender or operator can be _sender.                     *)
 (* @param: to       - Recipient address for the NFT                      *)
 (* @param: token_id - Unique ID of the NFT to be transferred             *)
 transition TransferFrom(to: ByStr20, token_id: Uint256)

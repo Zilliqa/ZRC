@@ -550,7 +550,7 @@ describe("Approval", () => {
       const tx = await globalContractInfo.callGetter(
         zilliqa.contracts.at(globalContractAddress),
         TX_PARAMS
-      )("CheckApprovedForAll", ...Object.values(testCase.params));
+      )("IsApprovedForAll", ...Object.values(testCase.params));
 
       if (testCase.want === undefined) {
         // Negative Cases

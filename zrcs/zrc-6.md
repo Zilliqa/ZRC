@@ -190,7 +190,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------ | -------------------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | `_tag` | `ZRC6_GetApprovedCallback` | Provide the sender an address of the approved spender address for the queried token ID and the token ID. | <ul><li>`approved_address` : `ByStr20`<br/>Address of approved spender</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
-#### 9. CheckApprovedForAll()
+#### 9. IsApprovedForAll()
 
 **Arguments:**
 
