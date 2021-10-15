@@ -21,7 +21,7 @@ import {
   TOKEN_NAME,
   TOKEN_SYMBOL,
   FAUCET_PARAMS,
-  BASE_TOKEN_URI,
+  BASE_URI,
   INITIAL_TOTAL_SUPPLY,
 } from "./config";
 
@@ -110,7 +110,7 @@ describe("Token", () => {
     tx = await globalContractInfo.callGetter(
       zilliqa.contracts.at(globalContractAddress),
       TX_PARAMS
-    )("SetBaseTokenURI", BASE_TOKEN_URI);
+    )("SetBaseURI", BASE_URI);
     if (!tx.receipt.success) {
       throw new Error();
     }
@@ -172,7 +172,7 @@ describe("Token", () => {
           events: undefined,
           transitions: [
             {
-              params: [toMsgParam("String", `${BASE_TOKEN_URI}1`, "token_uri")],
+              params: [toMsgParam("String", `${BASE_URI}1`, "token_uri")],
               tag: "ZRC6_TokenURICallback",
             },
           ],
@@ -309,13 +309,13 @@ describe("Token", () => {
 describe("Base Token URI", () => {
   it("sets a new base token URI ", async () => {
     let state = await zilliqa.contracts.at(globalContractAddress).getState();
-    expect(state.base_token_uri).toBe("");
+    expect(state.base_uri).toBe("");
 
     const testCases = [
       {
         sender: toTestAddr(STRANGER),
         params: {
-          base_token_uri: BASE_TOKEN_URI,
+          base_uri: BASE_URI,
         },
         error: ZRC6_ERROR.NotContractOwnerError,
         want: undefined,
@@ -323,30 +323,30 @@ describe("Base Token URI", () => {
       {
         sender: toTestAddr(CONTRACT_OWNER),
         params: {
-          base_token_uri: "http://localhost:1111/testcase/1",
+          base_uri: "http://localhost:1111/testcase/1",
         },
         error: undefined,
         want: {
           events: [
             {
-              name: "SetBaseTokenURISuccess",
+              name: "SetBaseURISuccess",
               params: [
                 toMsgParam(
                   "String",
                   "http://localhost:1111/testcase/1",
-                  "base_token_uri"
+                  "base_uri"
                 ),
               ],
             },
           ],
           transitions: [
             {
-              tag: "ZRC6_SetBaseTokenURICallback",
+              tag: "ZRC6_SetBaseURICallback",
               params: [
                 toMsgParam(
                   "String",
                   "http://localhost:1111/testcase/1",
-                  "base_token_uri"
+                  "base_uri"
                 ),
               ],
             },
@@ -359,7 +359,7 @@ describe("Base Token URI", () => {
       const tx = await globalContractInfo.callGetter(
         zilliqa.contracts.at(globalContractAddress),
         TX_PARAMS
-      )("SetBaseTokenURI", ...Object.values(testCase.params));
+      )("SetBaseURI", ...Object.values(testCase.params));
       if (testCase.want === undefined) {
         // Nagative Cases
         expect(tx.receipt.success).toBe(false);
@@ -380,7 +380,7 @@ describe("Base Token URI", () => {
           .at(globalContractAddress)
           .getState();
 
-        expect(state.base_token_uri).toBe(testCase.params.base_token_uri);
+        expect(state.base_uri).toBe(testCase.params.base_uri);
       }
     }
   });

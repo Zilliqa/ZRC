@@ -94,8 +94,8 @@ field royalty_fee_bps: Uint256 = Uint256 1000
 (* address to send royalties to *)
 field royalty_recipient: ByStr20 = contract_owner
 
-(* Base token URI e.g. https://creatures-api.zilliqa.com/api/creature/ *)
-field base_token_uri: String = ""
+(* Base URI e.g. https://creatures-api.zilliqa.com/api/creature/ *)
+field base_uri: String = ""
 
 (* Mapping of minters available *)
 field minters: Map ByStr20 Dummy =
@@ -322,9 +322,9 @@ end
 transition TokenURI(token_id: Uint256)
   IsTokenFound token_id;
 
-  base_uri <- base_token_uri;
+  uri <- base_uri;
   id = builtin to_string token_id;
-  token_uri = builtin concat base_uri id;
+  token_uri = builtin concat uri id;
   (* e.g. `https://creatures-api.zilliqa.com/api/creature/1` *)
 
   msg_to_sender = { 
@@ -482,21 +482,20 @@ transition SetRoyaltyFeeBPS(fee_bps: Uint256)
   send msgs
 end
 
-(* @dev: Sets base token URI.                  *)
-(* Only contract_owner can set base token URI. *)
-(* @param: base_token_uri - base token URI     *)
-transition SetBaseTokenURI(base_token_uri: String)
+(* @dev: Sets base URI.                  *)
+(* Only contract_owner can set base URI. *)
+transition SetBaseURI(base_uri: String)
   IsContractOwner;
-  base_token_uri := base_token_uri;
+  base_uri := base_uri;
 
-  e = { _eventname : "SetBaseTokenURISuccess"; base_token_uri : base_token_uri };
+  e = { _eventname : "SetBaseURISuccess"; base_uri : base_uri };
   event e;
   
   msg_to_sender = { 
-    _tag : "ZRC6_SetBaseTokenURICallback"; 
+    _tag : "ZRC6_SetBaseURICallback"; 
     _recipient : _sender;
     _amount : Uint128 0;
-    base_token_uri : base_token_uri
+    base_uri : base_uri
   };
   msgs = one_msg msg_to_sender;
   send msgs  
