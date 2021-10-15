@@ -337,7 +337,7 @@ transition SetApprovalForAll(to: ByStr20)
 
 |        | Name                               | Description                                                   | Callback Parameters                                                                                                                                                     |
 | ------ | ---------------------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `SetApprovalForAllSuccessCallBack` | Provide the sender the status of the approval of an operator. | `operator`: `ByStr20`, `status`: `Bool`, where `operator` is the address of the approved_spender whose status was being set, and `status` is status it is being set to. |
+| `_tag` | `SetApprovalForAllSuccessCallBack` | Provide the sender the status of the approval of an operator. | `operator`: `ByStr20`, `status`: `Bool`, where `operator` is the address of the operator whose status was being set, and `status` is status it is being set to. |
 
 **Events:**
 
