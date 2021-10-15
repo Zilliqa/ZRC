@@ -88,6 +88,15 @@ contract NonfungibleToken
 
 (* Mutable fields *)
 
+(* royalty fee BPS (1/100ths of a percent, e.g. 1000 = 10%) *)
+field royalty_fee_bps: Uint256 = Uint256 1000
+
+(* address to send royalties to *)
+field royalty_recipient: ByStr20 = contract_owner
+
+(* Base token URI e.g. https://creatures-api.zilliqa.com/api/creature/ *)
+field base_token_uri: String = ""
+
 (* Mapping of minters available *)
 field minters: Map ByStr20 Dummy =
     let emp_map = Emp ByStr20 Dummy in
@@ -107,20 +116,11 @@ field token_approvals: Map Uint256 ByStr20 = Emp Uint256 ByStr20
 field operator_approvals: Map ByStr20 (Map ByStr20 Dummy)
                             = Emp ByStr20 (Map ByStr20 Dummy)
 
-(* Base token URI e.g. https://creatures-api.zilliqa.com/api/creature/ *)
-field base_token_uri: String = ""
-
 (* Total token count *)
 field total_supply: Uint256 = Uint256 0
 
 (* Used token ID *)
 field token_id_count: Uint256 = Uint256 0
-
-(* royalty fee BPS (1/100ths of a percent, e.g. 1000 = 10%) *)
-field royalty_fee_bps: Uint256 = Uint256 1000
-
-(* address to send royalties to *)
-field royalty_recipient: ByStr20 = contract_owner
 
 (* Emit Errors *)
 procedure ThrowError(err : Error)
@@ -268,75 +268,54 @@ procedure UpdateTokenCount(operation: Operation, address: ByStr20)
   end
 end
 
-(* @dev: Gets number of NFTs assigned to a token owner *)
-transition BalanceOf(address: ByStr20)
-  some_bal <- owned_token_count[address];
-  balance = get_bal some_bal;
-  msg_to_sender = { 
-    _tag : "ZRC6_BalanceOfCallback";
-    _recipient : _sender;
-    _amount : Uint128 0;
-    balance : balance
-  };
-  msgs = one_msg msg_to_sender;
-  send msgs
-end
-
-(* @dev: Gets total supply of NFTs minted *)
-transition TotalSupply()
+procedure Minting(to: ByStr20)
+  IsMinter _sender;
+  (* Add to owner count *)
+  UpdateTokenCount add_operation to;
+  (* Add to total_supply *)
   current_supply <- total_supply;
+  new_supply = builtin add current_supply one;
+  total_supply := new_supply;
+  (* Initiate token_id and check if exists *)
+  current_token_id_count <- token_id_count;
+  new_token_id_count = builtin add current_token_id_count one;
+  token_id_count := new_token_id_count;
+  token_id = new_token_id_count;
+  IsTokenIdUnique token_id;
+  (* Mint new non-fungible token *)
+  token_owners[token_id] := to;
+  
+  e = {
+    _eventname : "MintSuccess";
+    by : _sender;
+    recipient : to;
+    token_id : token_id
+  };
+  event e
+end
+
+(* @dev Gets royalty payment information for a given token ID and sale price.     *)
+(* It specifies how much royalty is owed and to whom for a given sale price.      *)
+(* @param: token_id   - Unique ID of the NFT                                      *)
+(* @param: sale_price - Token sale price                                          *)
+transition RoyaltyInfo(token_id: Uint256, sale_price: Uint256)
+  IsTokenFound token_id;
+
+  current_royalty_fee_bps <- royalty_fee_bps;
+  current_royalty_recipient <- royalty_recipient;
+
+  x = builtin div royalty_fee_bps_max current_royalty_fee_bps;
+  royalty_amount = builtin div sale_price x;
+
   msg_to_sender = { 
-    _tag : "ZRC6_TotalSupplyCallback";
+    _tag : "ZRC6_RoyaltyInfoCallback"; 
     _recipient : _sender;
     _amount : Uint128 0;
-    total_supply : current_supply
+    royalty_recipient : current_royalty_recipient;
+    royalty_amount : royalty_amount
   };
   msgs = one_msg msg_to_sender;
   send msgs
-end
-
-(* @dev: Gets name of the NFTs *)
-transition Name()
-  msg_to_sender = {
-    _tag : "ZRC6_NameCallback";
-    _recipient : _sender;
-    _amount : Uint128 0;
-    name : name
-  };
-  msgs = one_msg msg_to_sender;
-  send msgs
-end
-
-(* @dev: Gets symbol of the NFTs *)
-transition Symbol()
-  msg_to_sender = {
-    _tag : "ZRC6_SymbolCallback";
-    _recipient : _sender;
-    _amount : Uint128 0;
-    symbol : symbol
-  };
-  msgs = one_msg msg_to_sender;
-  send msgs
-end
-
-(* @dev: Gets approved spender for token ID *)
-transition GetApproved(token_id: Uint256)
-  opt_token_approval <- token_approvals[token_id];
-  match opt_token_approval with
-  | Some address => 
-    msg_to_sender = { 
-      _tag : "ZRC6_GetApprovedCallback";
-      _recipient : _sender;
-      _amount : Uint128 0;
-      approved_address : address;
-      token_id : token_id
-    };
-    msgs = one_msg msg_to_sender;
-    send msgs
-  | None => 
-    err = NotApprovedError;
-    ThrowError err
-  end
 end
 
 (* @dev: Gets an URI for a given token ID *)
@@ -377,6 +356,77 @@ transition OwnerOf(token_id: Uint256)
   end
 end
 
+(* @dev: Gets name of the NFTs *)
+transition Name()
+  msg_to_sender = {
+    _tag : "ZRC6_NameCallback";
+    _recipient : _sender;
+    _amount : Uint128 0;
+    name : name
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* @dev: Gets symbol of the NFTs *)
+transition Symbol()
+  msg_to_sender = {
+    _tag : "ZRC6_SymbolCallback";
+    _recipient : _sender;
+    _amount : Uint128 0;
+    symbol : symbol
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* @dev: Gets number of NFTs assigned to a token owner *)
+transition BalanceOf(address: ByStr20)
+  some_bal <- owned_token_count[address];
+  balance = get_bal some_bal;
+  msg_to_sender = { 
+    _tag : "ZRC6_BalanceOfCallback";
+    _recipient : _sender;
+    _amount : Uint128 0;
+    balance : balance
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* @dev: Gets total supply of NFTs minted *)
+transition TotalSupply()
+  current_supply <- total_supply;
+  msg_to_sender = { 
+    _tag : "ZRC6_TotalSupplyCallback";
+    _recipient : _sender;
+    _amount : Uint128 0;
+    total_supply : current_supply
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* @dev: Gets approved spender for token ID *)
+transition GetApproved(token_id: Uint256)
+  opt_token_approval <- token_approvals[token_id];
+  match opt_token_approval with
+  | Some address => 
+    msg_to_sender = { 
+      _tag : "ZRC6_GetApprovedCallback";
+      _recipient : _sender;
+      _amount : Uint128 0;
+      approved_address : address;
+      token_id : token_id
+    };
+    msgs = one_msg msg_to_sender;
+    send msgs
+  | None => 
+    err = NotApprovedError;
+    ThrowError err
+  end
+end
+
 (* @dev: Checks if address is operator for token owner *)
 transition CheckApprovedForAll(token_owner: ByStr20, operator: ByStr20)
   IsApprovedForAll token_owner operator;
@@ -389,6 +439,67 @@ transition CheckApprovedForAll(token_owner: ByStr20, operator: ByStr20)
   };
   msgs = one_msg msg_to_sender;
   send msgs
+end
+
+(* @dev: Sets address that royalties are sent to. *)
+(* Only contract_owner can set royalty recipient. *)
+(* @param: to - Royalty recipient address         *)
+transition SetRoyaltyRecipient(to: ByStr20)
+  IsContractOwner;
+  royalty_recipient := to;
+  
+  e = { _eventname : "SetRoyaltyRecipientSuccess"; royalty_recipient : to };
+  event e;
+  
+  msg_to_sender = { 
+    _tag : "ZRC6_SetRoyaltyRecipientCallback"; 
+    _recipient : _sender;
+    _amount : Uint128 0;
+    royalty_recipient : to
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs  
+end
+
+(* @dev: Sets royalty fee bps.                  *)
+(* Only contract_owner can set royalty fee bps. *)
+(* @param: fee_bps - Royalty fee BPS            *)
+transition SetRoyaltyFeeBPS(fee_bps: Uint256)
+  IsContractOwner;
+  IsValidRoyaltyFeeBPS fee_bps;
+  royalty_fee_bps := fee_bps;
+  
+  e = { _eventname : "SetRoyaltyFeeBPSSuccess"; royalty_fee_bps : fee_bps };
+  event e;
+
+  msg_to_sender = { 
+    _tag : "ZRC6_SetRoyaltyFeeBPSCallback"; 
+    _recipient : _sender;
+    _amount : Uint128 0;
+    royalty_fee_bps : fee_bps
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* @dev: Sets base token URI.                  *)
+(* Only contract_owner can set base token URI. *)
+(* @param: base_token_uri - base token URI     *)
+transition SetBaseTokenURI(base_token_uri: String)
+  IsContractOwner;
+  base_token_uri := base_token_uri;
+
+  e = { _eventname : "SetBaseTokenURISuccess"; base_token_uri : base_token_uri };
+  event e;
+  
+  msg_to_sender = { 
+    _tag : "ZRC6_SetBaseTokenURICallback"; 
+    _recipient : _sender;
+    _amount : Uint128 0;
+    base_token_uri : base_token_uri
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs  
 end
 
 (* @dev:   Adds or removes a minter. Only contract_owner can set minters. *)
@@ -421,33 +532,6 @@ transition SetMinter(minter: ByStr20)
   msgs = one_msg msg_to_sender;
   send msgs
 end
-
-procedure Minting(to: ByStr20)
-  IsMinter _sender;
-  (* Add to owner count *)
-  UpdateTokenCount add_operation to;
-  (* Add to total_supply *)
-  current_supply <- total_supply;
-  new_supply = builtin add current_supply one;
-  total_supply := new_supply;
-  (* Initiate token_id and check if exists *)
-  current_token_id_count <- token_id_count;
-  new_token_id_count = builtin add current_token_id_count one;
-  token_id_count := new_token_id_count;
-  token_id = new_token_id_count;
-  IsTokenIdUnique token_id;
-  (* Mint new non-fungible token *)
-  token_owners[token_id] := to;
-  
-  e = {
-    _eventname : "MintSuccess";
-    by : _sender;
-    recipient : to;
-    token_id : token_id
-  };
-  event e
-end
-
 
 (* @dev:   Mints new tokens. Only minters can mint.    *)
 (* @param: to        - Address of the token recipient  *)
@@ -713,89 +797,4 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
     msgs = two_msgs msg_to_recipient msg_to_sender;
     send msgs
   end
-end
-
-(* @dev: Sets address that royalties are sent to. *)
-(* Only contract_owner can set royalty recipient. *)
-(* @param: to - Royalty recipient address         *)
-transition SetRoyaltyRecipient(to: ByStr20)
-  IsContractOwner;
-  royalty_recipient := to;
-  
-  e = { _eventname : "SetRoyaltyRecipientSuccess"; royalty_recipient : to };
-  event e;
-  
-  msg_to_sender = { 
-    _tag : "ZRC6_SetRoyaltyRecipientCallback"; 
-    _recipient : _sender;
-    _amount : Uint128 0;
-    royalty_recipient : to
-  };
-  msgs = one_msg msg_to_sender;
-  send msgs  
-end
-
-(* @dev: Sets royalty fee bps.                  *)
-(* Only contract_owner can set royalty fee bps. *)
-(* @param: fee_bps - Royalty fee BPS            *)
-transition SetRoyaltyFeeBPS(fee_bps: Uint256)
-  IsContractOwner;
-  IsValidRoyaltyFeeBPS fee_bps;
-  royalty_fee_bps := fee_bps;
-  
-  e = { _eventname : "SetRoyaltyFeeBPSSuccess"; royalty_fee_bps : fee_bps };
-  event e;
-
-  msg_to_sender = { 
-    _tag : "ZRC6_SetRoyaltyFeeBPSCallback"; 
-    _recipient : _sender;
-    _amount : Uint128 0;
-    royalty_fee_bps : fee_bps
-  };
-  msgs = one_msg msg_to_sender;
-  send msgs
-end
-
-(* @dev Gets royalty payment information for a given token ID and sale price.     *)
-(* It specifies how much royalty is owed and to whom for a given sale price.      *)
-(* @param: token_id   - Unique ID of the NFT                                      *)
-(* @param: sale_price - Token sale price                                          *)
-transition RoyaltyInfo(token_id: Uint256, sale_price: Uint256)
-  IsTokenFound token_id;
-
-  current_royalty_fee_bps <- royalty_fee_bps;
-  current_royalty_recipient <- royalty_recipient;
-
-  x = builtin div royalty_fee_bps_max current_royalty_fee_bps;
-  royalty_amount = builtin div sale_price x;
-
-  msg_to_sender = { 
-    _tag : "ZRC6_RoyaltyInfoCallback"; 
-    _recipient : _sender;
-    _amount : Uint128 0;
-    royalty_recipient : current_royalty_recipient;
-    royalty_amount : royalty_amount
-  };
-  msgs = one_msg msg_to_sender;
-  send msgs
-end
-
-(* @dev: Sets base token URI.                  *)
-(* Only contract_owner can set base token URI. *)
-(* @param: base_token_uri - base token URI     *)
-transition SetBaseTokenURI(base_token_uri: String)
-  IsContractOwner;
-  base_token_uri := base_token_uri;
-
-  e = { _eventname : "SetBaseTokenURISuccess"; base_token_uri : base_token_uri };
-  event e;
-  
-  msg_to_sender = { 
-    _tag : "ZRC6_SetBaseTokenURICallback"; 
-    _recipient : _sender;
-    _amount : Uint128 0;
-    base_token_uri : base_token_uri
-  };
-  msgs = one_msg msg_to_sender;
-  send msgs  
 end
