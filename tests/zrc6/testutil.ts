@@ -122,7 +122,9 @@ export const checkEvents = (events, want, fn) => {
   } else {
     events.forEach((event, index) => {
       fn(event._eventname).toBe(want[index].name);
-      fn(JSON.stringify(event.params)).toBe(JSON.stringify(want[index].params));
+      fn(JSON.stringify(event.params)).toBe(
+        JSON.stringify(want[index].getParams())
+      );
     });
   }
 };
@@ -134,7 +136,9 @@ export const checkTransitions = (transitions, want, fn) => {
     transitions.forEach((transition, index) => {
       const { msg } = transition;
       fn(msg._tag).toBe(want[index].tag);
-      fn(JSON.stringify(msg.params)).toBe(JSON.stringify(want[index].params));
+      fn(JSON.stringify(msg.params)).toBe(
+        JSON.stringify(want[index].getParams())
+      );
     });
   }
 };
