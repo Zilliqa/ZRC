@@ -394,6 +394,8 @@ end
 
 (* @dev: Gets approved spender for token ID *)
 transition GetApproved(token_id: Uint256)
+  IsTokenFound token_id;
+
   opt_token_approval <- token_approvals[token_id];
   match opt_token_approval with
   | Some address => 
