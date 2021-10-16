@@ -272,7 +272,7 @@ procedure MintToken(to: ByStr20)
   
   e = {
     _eventname : "MintSuccess";
-    by : _sender;
+    initiator : _sender;
     recipient : to;
     token_id : token_id
   };

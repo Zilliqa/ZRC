@@ -255,7 +255,7 @@ describe("Mint", () => {
           {
             name: "MintSuccess",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "by"),
+              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(STRANGER), "recipient"),
               toMsgParam(
                 "Uint256",
@@ -304,7 +304,7 @@ describe("Mint", () => {
           {
             name: "MintSuccess",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(MINTER), "by"),
+              toMsgParam("ByStr20", toTestAddr(MINTER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(MINTER), "recipient"),
               toMsgParam(
                 "Uint256",
@@ -429,7 +429,7 @@ describe("Mint", () => {
           .map((id) => ({
             name: "MintSuccess",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "by"),
+              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(STRANGER), "recipient"),
               toMsgParam("Uint256", id, "token_id"),
             ],

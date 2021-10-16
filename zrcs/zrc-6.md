@@ -316,9 +316,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name          | Description          | Event Parameters                                                                                                                                                                    |
-| ------------ | ------------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `MintSuccess` | NFT has been minted. | <ul><li>`by` : `ByStr20`<br/>Address of the `_sender`</li><li> `recipient` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+|              | Name          | Description          | Event Parameters                                                                                                                                                                           |
+| ------------ | ------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `_eventname` | `MintSuccess` | NFT has been minted. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li> `recipient` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
 #### 7. Burn() (Optional)
 
