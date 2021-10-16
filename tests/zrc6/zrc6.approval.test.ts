@@ -436,6 +436,14 @@ describe("Approval", () => {
       {
         sender: toTestAddr(STRANGER),
         params: {
+          token_id: "999",
+        },
+        error: ZRC6_ERROR.NotFoundError,
+        want: undefined,
+      },
+      {
+        sender: toTestAddr(STRANGER),
+        params: {
           token_id: "2",
         },
         error: ZRC6_ERROR.NotApprovedError,
