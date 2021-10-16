@@ -286,7 +286,7 @@ describe("Approval", () => {
     }
   });
 
-  it("updates or removes spender", async () => {
+  it("puts or removes spender", async () => {
     const testCases = [
       {
         sender: toTestAddr(CONTRACT_OWNER),
@@ -294,9 +294,10 @@ describe("Approval", () => {
           to: toTestAddr(STRANGER),
           token_id: "1",
         },
-        // SPENDER should be removed first to update it.
-        // It throws NotApprovedError if there is SPENDER in the token_approvals.
-        error: ZRC6_ERROR.NotApprovedError,
+        // The existing spender should be removed first to put another spender.
+        // If you try to put another spender when there is a spender in the token_approvals,
+        // it throws ConflictError
+        error: ZRC6_ERROR.ConflictError,
         want: undefined,
       },
       {
