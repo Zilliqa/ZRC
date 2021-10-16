@@ -56,18 +56,17 @@ The NFT contract specification describes:
 
 The NFT contract must define the following constants for use as error codes for the `Error` event.
 
-| Name                        | Type    | Code  | Description                                                                         |
-| --------------------------- | ------- | ----- | ----------------------------------------------------------------------------------- |
-| `NotFoundError`             | `Int32` | `-1`  | Emit when a value is not found.                                                     |
-| `ConflictError`             | `Int32` | `-2`  | Emit when a value already exists.                                                   |
-| `SelfError`                 | `Int32` | `-3`  | Emit when the sender attempts a transition call wrongly to his/her own address .    |
-| `NotContractOwnerError`     | `Int32` | `-4`  | Emit when the sender attempts a transition call only authorized for contract owner. |
-| `NotTokenOwnerError`        | `Int32` | `-5`  | Emit when a given address is not an owner of the token.                             |
-| `NotMinterError`            | `Int32` | `-6`  | Emit when the sender is not an approved token minter.                               |
-| `NotApprovedError`          | `Int32` | `-7`  | Emit when there is no approved address for the given token ID.                      |
-| `NotOwnerOrOperatorError`   | `Int32` | `-8`  | Emit when the sender is neither a token owner nor a token operator.                 |
-| `NotSpenderOrOperatorError` | `Int32` | `-9`  | Emit when the sender is neither an spender nor a token operator.                    |
-| `InvalidFeeBpsError`        | `Int32` | `-10` | Emit when the fee bps is out of range. This is optional.                            |
+| Name                      | Type    | Code | Description                                                                         |
+| ------------------------- | ------- | ---- | ----------------------------------------------------------------------------------- |
+| `NotFoundError`           | `Int32` | `-1` | Emit when a value is not found.                                                     |
+| `ConflictError`           | `Int32` | `-2` | Emit when a value already exists.                                                   |
+| `SelfError`               | `Int32` | `-3` | Emit when the sender attempts a transition call wrongly to his/her own address .    |
+| `NotContractOwnerError`   | `Int32` | `-4` | Emit when the sender attempts a transition call only authorized for contract owner. |
+| `NotTokenOwnerError`      | `Int32` | `-5` | Emit when a given address is not an owner of the token.                             |
+| `NotMinterError`          | `Int32` | `-6` | Emit when the sender is not an approved token minter.                               |
+| `NotApprovedError`        | `Int32` | `-7` | Emit when the sender is neither a spender nor a operator for the token.             |
+| `NotOwnerOrOperatorError` | `Int32` | `-8` | Emit when the sender is neither a token owner nor a token operator.                 |
+| `InvalidFeeBpsError`      | `Int32` | `-9` | Emit when the fee bps is out of range. This is optional.                            |
 
 ### C. Immutable Variables
 

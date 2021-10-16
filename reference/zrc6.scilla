@@ -52,7 +52,6 @@ type Error =
   | NotMinterError
   | NotApprovedError
   | NotOwnerOrOperatorError
-  | NotSpenderOrOperatorError
   | InvalidFeeBpsError
 
 let make_error =
@@ -67,8 +66,7 @@ let make_error =
       | NotMinterError                    => Int32 -6
       | NotApprovedError                  => Int32 -7
       | NotOwnerOrOperatorError           => Int32 -8
-      | NotSpenderOrOperatorError         => Int32 -9
-      | InvalidFeeBpsError                => Int32 -10
+      | InvalidFeeBpsError                => Int32 -9
       end
     in
     { _exception : "Error"; code : result_code }
@@ -229,7 +227,7 @@ procedure IsSpenderOrOperator(token_id: Uint256, token_owner: ByStr20)
   match is_authorised with
   | True =>
   | False =>
-    err = NotSpenderOrOperatorError;
+    err = NotApprovedError;
     ThrowError err
   end
 end
