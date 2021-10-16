@@ -116,29 +116,37 @@ export const useContractInfo = async (container, src, gasLimit) => {
   }
 };
 
-export const checkEvents = (events, want, fn) => {
+export const verifyEvents = (events, want) => {
   if (events === undefined) {
-    fn(events).toBe(want);
-  } else {
-    events.forEach((event, index) => {
-      fn(event._eventname).toBe(want[index].name);
-      fn(JSON.stringify(event.params)).toBe(
-        JSON.stringify(want[index].getParams())
-      );
-    });
+    return want === undefined;
   }
+  for (const [index, event] of events.entries()) {
+    if (event._eventname !== want[index].name) {
+      return false;
+    }
+    if (
+      JSON.stringify(event.params) !== JSON.stringify(want[index].getParams())
+    ) {
+      return false;
+    }
+  }
+  return true;
 };
 
-export const checkTransitions = (transitions, want, fn) => {
+export const verifyTransitions = (transitions, want) => {
   if (transitions === undefined) {
-    fn(transitions).toBe(want);
-  } else {
-    transitions.forEach((transition, index) => {
-      const { msg } = transition;
-      fn(msg._tag).toBe(want[index].tag);
-      fn(JSON.stringify(msg.params)).toBe(
-        JSON.stringify(want[index].getParams())
-      );
-    });
+    return want === undefined;
   }
+  for (const [index, transition] of transitions.entries()) {
+    const { msg } = transition;
+    if (msg._tag !== want[index].tag) {
+      return false;
+    }
+    if (
+      JSON.stringify(msg.params) !== JSON.stringify(want[index].getParams())
+    ) {
+      return false;
+    }
+  }
+  return true;
 };

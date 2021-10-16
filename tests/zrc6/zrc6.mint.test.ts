@@ -6,8 +6,8 @@ import {
   toErrorMsg,
   toMsgParam,
   useContractInfo,
-  checkTransitions,
-  checkEvents,
+  verifyTransitions,
+  verifyEvents,
 } from "./testutil";
 
 import {
@@ -206,12 +206,12 @@ describe("Mint", () => {
       } else {
         // Positive Cases
         expect(tx.receipt.success).toBe(true);
-        checkEvents(tx.receipt.event_logs, testCase.want.events, expect);
-        checkTransitions(
-          tx.receipt.transitions,
-          testCase.want.transitions,
-          expect
+        expect(verifyEvents(tx.receipt.event_logs, testCase.want.events)).toBe(
+          true
         );
+        expect(
+          verifyTransitions(tx.receipt.transitions, testCase.want.transitions)
+        ).toBe(true);
 
         const state = await zilliqa.contracts
           .at(globalContractAddress)
@@ -462,12 +462,12 @@ describe("Mint", () => {
       } else {
         // Positive Cases
         expect(tx.receipt.success).toBe(true);
-        checkEvents(tx.receipt.event_logs, testCase.want.events, expect);
-        checkTransitions(
-          tx.receipt.transitions,
-          testCase.want.transitions,
-          expect
+        expect(verifyEvents(tx.receipt.event_logs, testCase.want.events)).toBe(
+          true
         );
+        expect(
+          verifyTransitions(tx.receipt.transitions, testCase.want.transitions)
+        ).toBe(true);
 
         const state = await zilliqa.contracts
           .at(globalContractAddress)
