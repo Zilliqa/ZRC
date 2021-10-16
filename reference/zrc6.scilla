@@ -640,7 +640,7 @@ transition SetApproval(to: ByStr20, token_id: Uint256)
         msgs = one_msg msg_to_sender;
         send msgs
       | False =>
-        err = NotApprovedError;
+        err = ConflictError;
         ThrowError err
       end
     | None =>
