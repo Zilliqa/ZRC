@@ -344,22 +344,22 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Arguments:**
 
-| Name       | Type      | Description                                                       |
-| ---------- | --------- | ----------------------------------------------------------------- |
-| `to`       | `ByStr20` | Address to be added or removed as an spender of a given token ID. |
-| `token_id` | `Uint256` | Unique token ID of an existing NFT.                               |
+| Name       | Type      | Description                                                      |
+| ---------- | --------- | ---------------------------------------------------------------- |
+| `to`       | `ByStr20` | Address to be added or removed as a spender of a given token ID. |
+| `token_id` | `Uint256` | Unique token ID of an existing NFT.                              |
 
 **Messages sent:**
 
-|        | Name                       | Description                                                   | Callback Parameters                                                                                                                                                                                                                        |
-| ------ | -------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `_tag` | `ZRC6_SetApprovalCallback` | Provide the sender the status of the approval for an spender. | <ul><li>`spender` : `ByStr20`<br/>Address of the spender of a given token ID whose status was being set</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li><li>`is_spender` : `Bool`<br/>Status it is being set to</li></ul></ul> |
+|        | Name                       | Description                                                  | Callback Parameters                                                                                                                                                                                                                        |
+| ------ | -------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `_tag` | `ZRC6_SetApprovalCallback` | Provide the sender the status of the approval for a spender. | <ul><li>`spender` : `ByStr20`<br/>Address of the spender of a given token ID whose status was being set</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li><li>`is_spender` : `Bool`<br/>Status it is being set to</li></ul></ul> |
 
 **Events:**
 
-|              | Name                 | Description                        | Event Parameters                                                                                                                                                                                                                                                                  |
-| ------------ | -------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `SetApprovalSuccess` | Spender has been added or removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`spender` : `ByStr20`<br/>Address to removed as an spender of a given token ID</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li><li>`is_spender` : `Bool`<br/>Status it is being set to</li></ul> |
+|              | Name                 | Description                        | Event Parameters                                                                                                                                                                                                                                                                 |
+| ------------ | -------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `SetApprovalSuccess` | Spender has been added or removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`spender` : `ByStr20`<br/>Address to removed as a spender of a given token ID</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li><li>`is_spender` : `Bool`<br/>Status it is being set to</li></ul> |
 
 #### 9. SetApprovalForAll()
 
