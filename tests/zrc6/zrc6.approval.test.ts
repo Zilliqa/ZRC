@@ -436,7 +436,7 @@ describe("Approval", () => {
       {
         sender: toTestAddr(STRANGER),
         params: {
-          token_id: "999",
+          token_id: "2",
         },
         error: ZRC6_ERROR.NotApprovedError,
         want: undefined,
@@ -573,20 +573,33 @@ describe("Approval", () => {
       }
     }
   });
+});
+
+describe("Transfer", () => {
+  beforeEach(async () => {
+    for (let i = 1; i <= INITIAL_TOTAL_SUPPLY; i++) {
+      const tx = await globalContractInfo.callGetter(
+        zilliqa.contracts.at(globalContractAddress),
+        TX_PARAMS
+      )("SetApproval", toTestAddr(SPENDER), i.toString());
+      if (!tx.receipt.success) {
+        throw new Error();
+      }
+    }
+
+    const tx = await globalContractInfo.callGetter(
+      zilliqa.contracts.at(globalContractAddress),
+      TX_PARAMS
+    )("SetApprovalForAll", toTestAddr(OPERATOR));
+    if (!tx.receipt.success) {
+      throw new Error();
+    }
+  });
 
   it("transfers token (token owner only)", async () => {
     const testCases = [
       {
-        sender: toTestAddr(TOKEN_OWNER),
-        params: {
-          to: toTestAddr(TOKEN_OWNER), // Self
-          token_id: "1",
-        },
-        error: ZRC6_ERROR.SelfError,
-        want: undefined,
-      },
-      {
-        sender: toTestAddr(OPERATOR), // Not Owner
+        sender: toTestAddr(STRANGER), // Not Owner
         params: {
           to: toTestAddr(TOKEN_OWNER),
           token_id: "1",
@@ -597,7 +610,16 @@ describe("Approval", () => {
       {
         sender: toTestAddr(TOKEN_OWNER),
         params: {
-          to: toTestAddr(SPENDER),
+          to: toTestAddr(TOKEN_OWNER), // Self
+          token_id: "1",
+        },
+        error: ZRC6_ERROR.SelfError,
+        want: undefined,
+      },
+      {
+        sender: toTestAddr(TOKEN_OWNER),
+        params: {
+          to: toTestAddr(STRANGER),
           token_id: "1",
         },
         error: undefined,
@@ -607,7 +629,7 @@ describe("Approval", () => {
               name: "TransferSuccess",
               params: [
                 toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER), "from"),
-                toMsgParam("ByStr20", toTestAddr(SPENDER), "recipient"),
+                toMsgParam("ByStr20", toTestAddr(STRANGER), "recipient"),
                 toMsgParam("Uint256", 1, "token_id"),
               ],
             },
@@ -617,7 +639,7 @@ describe("Approval", () => {
               tag: "ZRC6_RecipientAcceptTransfer",
               params: [
                 toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER), "from"),
-                toMsgParam("ByStr20", toTestAddr(SPENDER), "recipient"),
+                toMsgParam("ByStr20", toTestAddr(STRANGER), "recipient"),
                 toMsgParam("Uint256", 1, "token_id"),
               ],
             },
@@ -625,7 +647,7 @@ describe("Approval", () => {
               tag: "ZRC6_TransferCallback",
               params: [
                 toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER), "from"),
-                toMsgParam("ByStr20", toTestAddr(SPENDER), "recipient"),
+                toMsgParam("ByStr20", toTestAddr(STRANGER), "recipient"),
                 toMsgParam("Uint256", 1, "token_id"),
               ],
             },
@@ -671,11 +693,13 @@ describe("Approval", () => {
         );
 
         expect(
-          Number(state.owned_token_count[testCase.sender.toLowerCase()])
-        ).toBe(Number(prevOwnedTokenCount[testCase.sender.toLowerCase()]) - 1);
+          Number(state.owned_token_count[testCase.sender.toLowerCase()] || 0)
+        ).toBe(
+          Number(prevOwnedTokenCount[testCase.sender.toLowerCase()] || 0) - 1
+        );
 
         expect(
-          Number(state.owned_token_count[testCase.params.to.toLowerCase()])
+          Number(state.owned_token_count[testCase.params.to.toLowerCase()] || 0)
         ).toBe(
           Number(prevOwnedTokenCount[testCase.params.to.toLowerCase()] || 0) + 1
         );
@@ -686,18 +710,18 @@ describe("Approval", () => {
   it("transfers token (spender or operator only)", async () => {
     const testCases = [
       {
-        sender: toTestAddr(SPENDER),
+        sender: toTestAddr(STRANGER),
         params: {
-          to: toTestAddr(TOKEN_OWNER), // Self
+          to: toTestAddr(SPENDER),
           token_id: "1",
         },
-        error: ZRC6_ERROR.SelfError,
+        error: ZRC6_ERROR.NotApprovedError,
         want: undefined,
       },
       {
         sender: toTestAddr(SPENDER),
         params: {
-          to: toTestAddr(STRANGER),
+          to: toTestAddr(SPENDER),
           token_id: "1",
         },
         error: undefined,
@@ -707,7 +731,7 @@ describe("Approval", () => {
               name: "TransferFromSuccess",
               params: [
                 toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER), "from"),
-                toMsgParam("ByStr20", toTestAddr(STRANGER), "recipient"),
+                toMsgParam("ByStr20", toTestAddr(SPENDER), "recipient"),
                 toMsgParam("Uint256", 1, "token_id"),
               ],
             },
@@ -717,7 +741,7 @@ describe("Approval", () => {
               tag: "ZRC6_RecipientAcceptTransferFrom",
               params: [
                 toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER), "from"),
-                toMsgParam("ByStr20", toTestAddr(STRANGER), "recipient"),
+                toMsgParam("ByStr20", toTestAddr(SPENDER), "recipient"),
                 toMsgParam("Uint256", 1, "token_id"),
               ],
             },
@@ -725,7 +749,7 @@ describe("Approval", () => {
               tag: "ZRC6_TransferFromCallback",
               params: [
                 toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER), "from"),
-                toMsgParam("ByStr20", toTestAddr(STRANGER), "recipient"),
+                toMsgParam("ByStr20", toTestAddr(SPENDER), "recipient"),
                 toMsgParam("Uint256", 1, "token_id"),
               ],
             },
@@ -733,7 +757,7 @@ describe("Approval", () => {
         },
       },
       {
-        sender: toTestAddr(OPERATOR),
+        sender: toTestAddr(SPENDER),
         params: {
           to: toTestAddr(STRANGER),
           token_id: "2",
@@ -765,6 +789,44 @@ describe("Approval", () => {
                 toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER), "from"),
                 toMsgParam("ByStr20", toTestAddr(STRANGER), "recipient"),
                 toMsgParam("Uint256", 2, "token_id"),
+              ],
+            },
+          ],
+        },
+      },
+      {
+        sender: toTestAddr(OPERATOR),
+        params: {
+          to: toTestAddr(STRANGER),
+          token_id: "3",
+        },
+        error: undefined,
+        want: {
+          events: [
+            {
+              name: "TransferFromSuccess",
+              params: [
+                toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER), "from"),
+                toMsgParam("ByStr20", toTestAddr(STRANGER), "recipient"),
+                toMsgParam("Uint256", 3, "token_id"),
+              ],
+            },
+          ],
+          transitions: [
+            {
+              tag: "ZRC6_RecipientAcceptTransferFrom",
+              params: [
+                toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER), "from"),
+                toMsgParam("ByStr20", toTestAddr(STRANGER), "recipient"),
+                toMsgParam("Uint256", 3, "token_id"),
+              ],
+            },
+            {
+              tag: "ZRC6_TransferFromCallback",
+              params: [
+                toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER), "from"),
+                toMsgParam("ByStr20", toTestAddr(STRANGER), "recipient"),
+                toMsgParam("Uint256", 3, "token_id"),
               ],
             },
           ],
@@ -809,11 +871,7 @@ describe("Approval", () => {
         );
 
         expect(
-          Number(state.owned_token_count[testCase.sender.toLowerCase()])
-        ).toBe(Number(prevOwnedTokenCount[testCase.sender.toLowerCase()]) - 1);
-
-        expect(
-          Number(state.owned_token_count[testCase.params.to.toLowerCase()])
+          Number(state.owned_token_count[testCase.params.to.toLowerCase()] || 0)
         ).toBe(
           Number(prevOwnedTokenCount[testCase.params.to.toLowerCase()] || 0) + 1
         );
