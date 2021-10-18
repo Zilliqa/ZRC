@@ -143,21 +143,45 @@ describe("Approval", () => {
       want: undefined,
     },
     {
-      name: "throws conflict error",
+      name: "adds stranger as spender of token #1 by token owner A",
       transition: "SetApproval",
       getSender: () => toTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
         to: toTestAddr(STRANGER),
         token_id: "1",
       }),
-      // The existing spender should be removed first to put another spender.
-      // If you try to put another spender when there is a spender in the token_approvals,
-      // it throws ConflictError
-      error: ZRC6_ERROR.ConflictError,
-      want: undefined,
+      error: undefined,
+      want: {
+        verifyState: (state) => {
+          return (
+            state.token_approvals["1"] === toTestAddr(STRANGER).toLowerCase()
+          );
+        },
+        events: [
+          {
+            name: "SetApprovalSuccess",
+            getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "initiator"),
+              toMsgParam("ByStr20", toTestAddr(STRANGER), "spender"),
+              toMsgParam("Uint256", 1, "token_id"),
+              toMsgParam("Bool", "True", "is_spender"),
+            ],
+          },
+        ],
+        transitions: [
+          {
+            tag: "ZRC6_SetApprovalCallback",
+            getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(STRANGER), "spender"),
+              toMsgParam("Uint256", 1, "token_id"),
+              toMsgParam("Bool", "True", "is_spender"),
+            ],
+          },
+        ],
+      },
     },
     {
-      name: "adds stranger as spender of token #2 by token owner B (token owner A has a spender for token #1 already)",
+      name: "adds stranger as spender of token #2 by token owner B",
       transition: "SetApproval",
       getSender: () => toTestAddr(TOKEN_OWNER_B),
       getParams: () => ({

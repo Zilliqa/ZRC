@@ -619,59 +619,41 @@ transition SetApproval(to: ByStr20, token_id: Uint256)
   | Some token_owner =>
     IsOwnerOrOperator token_owner;
     opt_approved <- token_approvals[token_id];
-    match opt_approved with
-    | Some spender =>
-      (* Remove spender *)
-      is_spender = builtin eq to spender;
-      match is_spender with
+
+    (* remove if true, otherwise put *)
+    should_remove = match opt_approved with
+    | None => False
+    | Some spender => builtin eq to spender
+    end;
+    match should_remove with
       | True =>
-        delete token_approvals[token_id];
-        new_status = False;
-        e = {
-          _eventname : "SetApprovalSuccess";
-          initiator : _sender;
-          spender : to;
-          token_id : token_id;
-          is_spender: new_status
-        };
-        event e;
-        msg_to_sender = { 
-          _tag : "ZRC6_SetApprovalCallback";
-          _recipient : _sender;
-          _amount : Uint128 0;
-          spender : to;
-          token_id : token_id;
-          is_spender: new_status
-        };
-        msgs = one_msg msg_to_sender;
-        send msgs
+      (* Remove spender *)
+      delete token_approvals[token_id]
       | False =>
-        err = ConflictError;
-        ThrowError err
-      end
-    | None =>
       (* Add spender *)
-      token_approvals[token_id] := to;
-      new_status = True;
-      e = {
-        _eventname : "SetApprovalSuccess";
-        initiator : _sender;
-        spender : to;
-        token_id : token_id;
-        is_spender: new_status
-      };
-      event e;
-      msg_to_sender = { 
-        _tag : "ZRC6_SetApprovalCallback";
-        _recipient : _sender;
-        _amount : Uint128 0;
-        spender : to;
-        token_id : token_id;
-        is_spender: new_status
-      };
-      msgs = one_msg msg_to_sender;
-      send msgs
-    end
+      token_approvals[token_id] := to
+    end;
+    
+    new_status = negb should_remove;
+
+    e = {
+      _eventname : "SetApprovalSuccess";
+      initiator : _sender;
+      spender : to;
+      token_id : token_id;
+      is_spender: new_status
+    };
+    event e;
+    msg_to_sender = { 
+      _tag : "ZRC6_SetApprovalCallback";
+      _recipient : _sender;
+      _amount : Uint128 0;
+      spender : to;
+      token_id : token_id;
+      is_spender: new_status
+    };
+    msgs = one_msg msg_to_sender;
+    send msgs
   end
 end
 
