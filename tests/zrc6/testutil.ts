@@ -122,11 +122,19 @@ export const verifyEvents = (events, want) => {
   }
   for (const [index, event] of events.entries()) {
     if (event._eventname !== want[index].name) {
+      console.table({
+        got: event._eventname,
+        want: want[index].name,
+      });
       return false;
     }
     if (
       JSON.stringify(event.params) !== JSON.stringify(want[index].getParams())
     ) {
+      console.table({
+        got: JSON.stringify(event.params),
+        want: JSON.stringify(want[index].getParams()),
+      });
       return false;
     }
   }
@@ -140,11 +148,19 @@ export const verifyTransitions = (transitions, want) => {
   for (const [index, transition] of transitions.entries()) {
     const { msg } = transition;
     if (msg._tag !== want[index].tag) {
+      console.table({
+        got: msg._tag,
+        want: want[index].tag,
+      });
       return false;
     }
     if (
       JSON.stringify(msg.params) !== JSON.stringify(want[index].getParams())
     ) {
+      console.table({
+        got: JSON.stringify(msg.params),
+        want: JSON.stringify(want[index].getParams()),
+      });
       return false;
     }
   }
