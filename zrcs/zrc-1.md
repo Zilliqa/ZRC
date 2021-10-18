@@ -48,7 +48,7 @@ The NFT contract must define the following constants for use as error codes for 
 | `CodeNotFound`                     | `Int32` | `-7`  | Emit when a value is missing.                                                       |
 | `CodeNotApprovedForAll`            | `Int32` | `-8`  | Emit when the address is not an operator for the token owner.                       |
 | `CodeNotOwnerOrOperator`           | `Int32` | `-9`  | Emit when the sender is neither a token owner nor a token operator.                 |
-| `CodeNotApprovedSpenderOrOperator` | `Int32` | `-10` | Emit when the sender is neither an approved sender nor a token operator.            |
+| `CodeNotApprovedSpenderOrOperator` | `Int32` | `-10` | Emit when the sender is neither an approved spender nor a token operator.            |
 
 ### C. Immutable Variables
 
@@ -338,7 +338,7 @@ transition SetApprovalForAll(to: ByStr20)
 
 |        | Name                               | Description                                                   | Callback Parameters                                                                                                                                                     |
 | ------ | ---------------------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `SetApprovalForAllSuccessCallBack` | Provide the sender the status of the approval of an operator. | `operator`: `ByStr20`, `status`: `Bool`, where `operator` is the address of the approved_spender whose status was being set, and `status` is status it is being set to. |
+| `_tag` | `SetApprovalForAllSuccessCallBack` | Provide the sender the status of the approval of an operator. | `operator`: `ByStr20`, `status`: `Bool`, where `operator` is the address of the operator whose status was being set, and `status` is status it is being set to. |
 
 **Events:**
 
