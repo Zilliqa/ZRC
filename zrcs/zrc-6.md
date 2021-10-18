@@ -247,9 +247,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Arguments:**
 
-| Name       | Type     | Description |
-| ---------- | -------- | ----------- |
-| `base_uri` | `String` | Base URI.   |
+| Name  | Type     | Description |
+| ----- | -------- | ----------- |
+| `uri` | `String` | Base URI.   |
 
 **Messages sent:**
 

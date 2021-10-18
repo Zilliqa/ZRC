@@ -467,20 +467,20 @@ transition SetRoyaltyFeeBPS(fee_bps: Uint256)
   send msgs
 end
 
-(* @dev: Sets `base_uri` as the base URI. *)
+(* @dev: Sets `uri` as the base URI. *)
 (* Only contract_owner can be _sender.    *)
-transition SetBaseURI(base_uri: String)
+transition SetBaseURI(uri: String)
   IsContractOwner;
-  base_uri := base_uri;
+  base_uri := uri;
 
-  e = { _eventname : "SetBaseURISuccess"; base_uri : base_uri };
+  e = { _eventname : "SetBaseURISuccess"; base_uri : uri };
   event e;
   
   msg_to_sender = { 
     _tag : "ZRC6_SetBaseURICallback"; 
     _recipient : _sender;
     _amount : Uint128 0;
-    base_uri : base_uri
+    base_uri : uri
   };
   msgs = one_msg msg_to_sender;
   send msgs  

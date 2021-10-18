@@ -465,7 +465,7 @@ describe("Token", () => {
       transition: "SetBaseURI",
       getSender: () => toTestAddr(STRANGER),
       getParams: () => ({
-        base_uri: BASE_URI,
+        uri: BASE_URI,
       }),
       error: ZRC6_ERROR.NotContractOwnerError,
       want: undefined,
@@ -475,7 +475,7 @@ describe("Token", () => {
       transition: "SetBaseURI",
       getSender: () => toTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        base_uri: "http://localhost:1111/testcase/1",
+        uri: "http://localhost:1111/testcase/1",
       }),
       error: undefined,
       want: {
