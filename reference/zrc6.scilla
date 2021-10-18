@@ -15,6 +15,7 @@ type Operation =
 | Sub
 
 (* Global variables *)
+let empty_str = ""
 let zero = Uint256 0
 let one = Uint256 1
 let verdad = Dummy
@@ -306,9 +307,15 @@ transition TokenURI(token_id: Uint256)
   IsTokenFound token_id;
 
   uri <- base_uri;
-  id = builtin to_string token_id;
-  token_uri = builtin concat uri id;
-  (* e.g. `https://creatures-api.zilliqa.com/api/creature/1` *)
+
+  is_empty = builtin eq uri empty_str;
+  
+  token_uri = match is_empty with
+    | True => empty_str
+    | False => 
+      let id = builtin to_string token_id in
+      builtin concat uri id
+    end;
 
   msg_to_sender = { 
     _tag : "ZRC6_TokenURICallback";

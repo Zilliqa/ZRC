@@ -196,7 +196,7 @@ describe("Token", () => {
       },
     },
     {
-      name: "gets token URI",
+      name: "gets empty string for token URI as base URI is empty string",
       transition: "TokenURI",
       getSender: () => toTestAddr(STRANGER),
       getParams: () => ({
@@ -207,7 +207,7 @@ describe("Token", () => {
         events: undefined,
         transitions: [
           {
-            getParams: () => [toMsgParam("String", `1`, "token_uri")],
+            getParams: () => [toMsgParam("String", "", "token_uri")],
             tag: "ZRC6_TokenURICallback",
           },
         ],
@@ -513,6 +513,113 @@ describe("Token", () => {
     it(`${testCase.transition}: ${testCase.name}`, async () => {
       let state = await zilliqa.contracts.at(globalContractAddress).getState();
       expect(state.base_uri).toBe("");
+
+      zilliqa.wallet.setDefault(testCase.getSender());
+      const tx = await globalContractInfo.callGetter(
+        zilliqa.contracts.at(globalContractAddress),
+        TX_PARAMS
+      )(testCase.transition, ...Object.values(testCase.getParams()));
+      if (testCase.want === undefined) {
+        // Nagative Cases
+        expect(tx.receipt.success).toBe(false);
+        expect(tx.receipt.exceptions[0].message).toBe(
+          toErrorMsg(testCase.error)
+        );
+      } else {
+        // Positive Cases
+        expect(tx.receipt.success).toBe(true);
+        expect(verifyEvents(tx.receipt.event_logs, testCase.want.events)).toBe(
+          true
+        );
+        expect(
+          verifyTransitions(tx.receipt.transitions, testCase.want.transitions)
+        ).toBe(true);
+
+        const state = await zilliqa.contracts
+          .at(globalContractAddress)
+          .getState();
+
+        expect(testCase.want.verifyState(state)).toBe(true);
+      }
+    });
+  }
+});
+
+describe("Token with Base URI", () => {
+  beforeEach(async () => {
+    let tx = await globalContractInfo.callGetter(
+      zilliqa.contracts.at(globalContractAddress),
+      TX_PARAMS
+    )("SetBaseURI", BASE_URI);
+    if (!tx.receipt.success) {
+      throw new Error();
+    }
+  });
+
+  const testCases = [
+    {
+      name: "gets token URI",
+      transition: "TokenURI",
+      getSender: () => toTestAddr(STRANGER),
+      getParams: () => ({
+        token_id: "1",
+      }),
+      want: {
+        verifyState: () => true,
+        events: undefined,
+        transitions: [
+          {
+            getParams: () => [
+              toMsgParam("String", `${BASE_URI}1`, "token_uri"),
+            ],
+            tag: "ZRC6_TokenURICallback",
+          },
+        ],
+      },
+    },
+    {
+      name: "sets new base URI",
+      transition: "SetBaseURI",
+      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getParams: () => ({
+        uri: "http://localhost:1111/testcase/1",
+      }),
+      error: undefined,
+      want: {
+        verifyState: (state) =>
+          state.base_uri === "http://localhost:1111/testcase/1",
+        events: [
+          {
+            name: "SetBaseURISuccess",
+            getParams: () => [
+              toMsgParam(
+                "String",
+                "http://localhost:1111/testcase/1",
+                "base_uri"
+              ),
+            ],
+          },
+        ],
+        transitions: [
+          {
+            tag: "ZRC6_SetBaseURICallback",
+            getParams: () => [
+              toMsgParam(
+                "String",
+                "http://localhost:1111/testcase/1",
+                "base_uri"
+              ),
+            ],
+          },
+        ],
+      },
+    },
+  ];
+
+  for (const testCase of testCases) {
+    it(`${testCase.transition}: ${testCase.name}`, async () => {
+      let state = await zilliqa.contracts.at(globalContractAddress).getState();
+      expect(state.base_uri).toBe(BASE_URI);
 
       zilliqa.wallet.setDefault(testCase.getSender());
       const tx = await globalContractInfo.callGetter(
