@@ -1,6 +1,6 @@
 | ZRC | Title                       | Status | Type     | Author                       | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
 | --- | --------------------------- | ------ | -------- | ---------------------------- | -------------------- | -------------------- |
-| 6   | Non-Fungible Token Standard | Ready  | Standard | Neuti Yoo <noel@zilliqa.com> | 2021-10-01           | 2021-10-15           |
+| 6   | Non-Fungible Token Standard | Ready  | Standard | Neuti Yoo <noel@zilliqa.com> | 2021-10-01           | 2021-10-18           |
 
 ## I. What are NFTs and NFT royalties?
 
@@ -36,10 +36,10 @@ The ZRC-1 and ZRC-2 contracts can share the same callback names. It can cause th
 
 The NFT contract specification describes:
 
-1. the global error codes to be declared in the library part of the contract;
-2. the names and types of the immutable and mutable variables (aka `fields`);
-3. the transitions that will allow the changing of values of the mutable variables;
-4. the events to be emitted by them.
+1. the error codes
+2. the immutable contract parameters and mutable fields
+3. the transitions
+4. the messages and events
 
 ### A. Roles
 
@@ -91,7 +91,7 @@ The NFT contract must define the following constants for use as error codes for 
 | `total_supply`       | `Uint256`                        | Current total supply of NFTs minted.                                                                                 |
 | `token_id_count`     | `Uint256`                        | Current token ID count.                                                                                              |
 
-### E. Getter Transitions
+### E. Transitions
 
 #### 1. RoyaltyInfo() (Optional)
 
@@ -203,9 +203,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------ | ------------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------- |
 | `_tag` | `ZRC6_IsApprovedForAllCallback` | Check if the queried operator is an approved operator of a token owner | `is_operator` : `Bool`<br/> `True` if approved, otherwise `False` |
 
-### F. Interface Transitions
-
-#### 1. SetRoyaltyRecipient() (Optional)
+#### 10. SetRoyaltyRecipient() (Optional)
 
 **Arguments:**
 
@@ -225,7 +223,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ---------------------------- | ----------------------------------- | -------------------------------------------------------------------- |
 | `_eventname` | `SetRoyaltyRecipientSuccess` | Royalty recipient has been updated. | `royalty_recipient` : `ByStr20`<br/>Address of the royalty recipient |
 
-#### 2. SetRoyaltyFeeBPS() (Optional)
+#### 11. SetRoyaltyFeeBPS() (Optional)
 
 **Arguments:**
 
@@ -245,7 +243,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ------------------------- | --------------------------------- | ------------------------------------------------- |
 | `_eventname` | `SetRoyaltyFeeBPSSuccess` | Royalty fee BPS has been updated. | `royalty_fee_bps` : `Uint256`<br/>Royalty Fee BPS |
 
-#### 3. SetBaseURI()
+#### 12. SetBaseURI()
 
 **Arguments:**
 
@@ -265,7 +263,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ------------------- | -------------------------- | ---------------------------------- |
 | `_eventname` | `SetBaseURISuccess` | Base URI has been updated. | `base_uri` : `String`<br/>Base URI |
 
-#### 4. SetMinter()
+#### 13. SetMinter()
 
 **Arguments:**
 
@@ -285,7 +283,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ------------------ | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `SetMinterSuccess` | Minter has been added or removed. | <ul><li>`minter` : `ByStr20`<br/>Address of a minter</li><li>`is_minter` : `Bool`<br/>Status it is being set to</li></ul> |
 
-#### 5. BatchMint() (Optional)
+#### 14. BatchMint() (Optional)
 
 **Arguments:**
 
@@ -299,7 +297,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------ | ------------------------ | ----------------------------------------------- | ------------------- |
 | `_tag` | `ZRC6_BatchMintCallback` | Provide the sender with the status of the mint. |                     |
 
-#### 6. Mint()
+#### 15. Mint()
 
 **Arguments:**
 
@@ -320,7 +318,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `_eventname` | `MintSuccess` | NFT has been minted. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li> `recipient` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
-#### 7. Burn() (Optional)
+#### 16. Burn() (Optional)
 
 **Arguments:**
 
@@ -340,7 +338,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ------------- | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `BurnSuccess` | NFT has been burned. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`burn_address` : `ByStr20`</br>Address of the token owner whose NFT is being burned</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
-#### 8. SetApproval()
+#### 17. SetApproval()
 
 **Arguments:**
 
@@ -361,7 +359,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | -------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `SetApprovalSuccess` | Spender has been added or removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`spender` : `ByStr20`<br/>Address to removed as a spender of a given token ID</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li><li>`is_spender` : `Bool`<br/>Status it is being set to</li></ul> |
 
-#### 9. SetApprovalForAll()
+#### 18. SetApprovalForAll()
 
 **Arguments:**
 
@@ -381,7 +379,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | -------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `SetApprovalForAllSuccess` | Operator has been added or removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`operator` : `ByStr20`<br/>Address of the operator</li><li>`is_operator` : `Bool`<br/>Status it is being set to</li></ul> |
 
-#### 10. Transfer()
+#### 19. Transfer()
 
 **Arguments:**
 
@@ -403,7 +401,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ----------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `_eventname` | `TransferSuccess` | NFT has been transferred. | <ul><li>`from` : `ByStr20`<br/>Address of the `_sender`</li><li>`recipient` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
-#### 11. TransferFrom()
+#### 20. TransferFrom()
 
 **Arguments:**
 
