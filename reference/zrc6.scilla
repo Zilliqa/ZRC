@@ -279,10 +279,8 @@ procedure MintToken(to: ByStr20)
   event e
 end
 
-(* @dev Gets royalty payment information for a given token ID and sale price. *)
-(* It specifies how much royalty is owed and to whom for a given sale price.  *)
-(* @param: token_id   - Unique ID of the NFT                                  *)
-(* @param: sale_price - Token sale price                                      *)
+(* @dev Gets royalty payment information for `token_id` and `sale_price`.    *)
+(* It specifies how much royalty is owed and to whom for a given sale price. *)
 transition RoyaltyInfo(token_id: Uint256, sale_price: Uint256)
   IsTokenFound token_id;
 
@@ -303,7 +301,7 @@ transition RoyaltyInfo(token_id: Uint256, sale_price: Uint256)
   send msgs
 end
 
-(* @dev: Gets an URI for a given token ID *)
+(* @dev: Gets Uniform Resource Identifier(URI) for `token_id` *)
 transition TokenURI(token_id: Uint256)
   IsTokenFound token_id;
 
@@ -322,7 +320,7 @@ transition TokenURI(token_id: Uint256)
   send msgs
 end
 
-(* @dev: Gets the address of token owner for a given token ID *)
+(* @dev: Gets token owner for `token_id` *)
 transition OwnerOf(token_id: Uint256)
   opt_token_owner <- token_owners[token_id];
   match opt_token_owner with
@@ -341,7 +339,7 @@ transition OwnerOf(token_id: Uint256)
   end
 end
 
-(* @dev: Gets name of the NFTs *)
+(* @dev: Gets the NFT name *)
 transition Name()
   msg_to_sender = {
     _tag : "ZRC6_NameCallback";
@@ -353,7 +351,7 @@ transition Name()
   send msgs
 end
 
-(* @dev: Gets symbol of the NFTs *)
+(* @dev: Gets the NFT symbol *)
 transition Symbol()
   msg_to_sender = {
     _tag : "ZRC6_SymbolCallback";
@@ -365,7 +363,7 @@ transition Symbol()
   send msgs
 end
 
-(* @dev: Gets number of NFTs assigned to a token owner *)
+(* @dev: Gets the number of tokens in `owner`s account *)
 transition BalanceOf(address: ByStr20)
   some_bal <- owned_token_count[address];
   balance = get_bal some_bal;
@@ -379,7 +377,7 @@ transition BalanceOf(address: ByStr20)
   send msgs
 end
 
-(* @dev: Gets total supply of NFTs minted *)
+(* @dev: Gets total amount of tokens stored by the contract *)
 transition TotalSupply()
   current_supply <- total_supply;
   msg_to_sender = { 
@@ -392,7 +390,7 @@ transition TotalSupply()
   send msgs
 end
 
-(* @dev: Gets approved spender for token ID *)
+(* @dev: Gets account approved for `token_id` *)
 transition GetApproved(token_id: Uint256)
   IsTokenFound token_id;
 
@@ -414,7 +412,7 @@ transition GetApproved(token_id: Uint256)
   end
 end
 
-(* @dev: Checks if address is operator for token owner *)
+(* @dev: Checks if `operator` is allowed to manage all of the assets of `token_owner` *)
 transition IsApprovedForAll(token_owner: ByStr20, operator: ByStr20)
   is_operator <- exists operator_approvals[token_owner][operator];
   msg_to_sender = { 
@@ -427,9 +425,9 @@ transition IsApprovedForAll(token_owner: ByStr20, operator: ByStr20)
   send msgs
 end
 
-(* @dev: Sets address that royalties are sent to. *)
-(* Only contract_owner can be _sender.            *)
-(* @param: to - Royalty recipient address         *)
+(* @dev: Sets `to` as the royalty recipient. *)
+(* Only contract_owner can be _sender.       *)
+(* @param: to - Royalty recipient address    *)
 transition SetRoyaltyRecipient(to: ByStr20)
   IsContractOwner;
   royalty_recipient := to;
@@ -447,7 +445,7 @@ transition SetRoyaltyRecipient(to: ByStr20)
   send msgs  
 end
 
-(* @dev: Sets royalty fee bps.                   *)
+(* @dev: Sets `fee_bps` as royalty fee bps.      *)
 (* Only contract_owner can be _sender.           *)
 (* Fee bps should be in the range of 1 and 1000. *)
 (* @param: fee_bps - Royalty fee BPS             *)
@@ -469,8 +467,8 @@ transition SetRoyaltyFeeBPS(fee_bps: Uint256)
   send msgs
 end
 
-(* @dev: Sets base URI.                *)
-(* Only contract_owner can be _sender. *)
+(* @dev: Sets `base_uri` as the base URI. *)
+(* Only contract_owner can be _sender.    *)
 transition SetBaseURI(base_uri: String)
   IsContractOwner;
   base_uri := base_uri;
@@ -488,9 +486,9 @@ transition SetBaseURI(base_uri: String)
   send msgs  
 end
 
-(* @dev: Adds or removes a minter.                                  *)
-(* Only contract_owner can be _sender.                              *)
-(* @param: minter - Address of the minter to be approved or removed *)
+(* @dev: Adds or removes `minter` as minter        *)
+(* Only contract_owner can be _sender.             *)
+(* @param: minter - Address to be added or removed *)
 transition SetMinter(minter: ByStr20)
   IsContractOwner;
   is_minter <- exists minters[minter];
@@ -520,9 +518,9 @@ transition SetMinter(minter: ByStr20)
   send msgs
 end
 
-(* @dev: Mints new tokens.                     *)
-(* Only minter can be _sender.                 *)
-(* @param: to - Address of the token recipient *)
+(* @dev: Mints a token and transfers it to `to`. *)
+(* Only minter can be _sender.                   *)
+(* @param: to - Address of the token recipient   *)
 transition Mint(to: ByStr20)
   MintToken to;
   token_id <- token_id_count;
@@ -542,9 +540,9 @@ transition Mint(to: ByStr20)
   send msgs
 end
 
-(* @dev: Mints multiple tokens in single transaction.  *)
-(* Only minter can be _sender.                         *)
-(* @param: to_list - Addressses of the token recipient *)
+(* @dev: Mints tokens and transfers them to `to_list`.        *)
+(* Only minter can be _sender.                                *)
+(* @param: to_list - List of addresses of the token recipient *)
 transition BatchMint(to_list: List ByStr20)
   forall to_list MintToken;
   msg_to_sender = { 
@@ -556,8 +554,9 @@ transition BatchMint(to_list: List ByStr20)
   send msgs
 end
 
-(* @dev: Burns existing tokens.                            *)
+(* @dev: Destroys `token_id`                               *)
 (* Only token_owner or operator can be _sender.            *)
+(* The approval is cleared when the token is burned.       *)
 (* @param: token_id - Unique ID of the NFT to be destroyed *)
 transition Burn(token_id: Uint256)
   (* Check if token exists *)
@@ -598,12 +597,12 @@ transition Burn(token_id: Uint256)
   end
 end
 
-(* @dev: Adds or removes an spender of a given token ID.      *)
-(* Only token_owner or operator can be _sender.                        *)
+(* @dev: Adds or removes `to` as spender of `token_id`        *)
+(* Only token_owner or operator can be _sender.               *)
 (* There can only be one spender per token at any given time. *)
-(* The approval is cleared when the token is transferred.              *)
-(* param: to - Address to be approved for the given token ID           *)
-(* param: token_id - Unique ID of the NFT to be approved               *)
+(* The approval is cleared when the token is transferred.     *)
+(* param: to - Address to be added or removed                 *)
+(* param: token_id - Unique ID of the NFT                     *)
 transition SetApproval(to: ByStr20, token_id: Uint256)
   opt_token_owner <- token_owners[token_id];
   match opt_token_owner with
@@ -669,9 +668,9 @@ transition SetApproval(to: ByStr20, token_id: Uint256)
   end
 end
 
-(* @dev: Adds or removes operator as an operator for the _sender *)
-(* Only operator can be _sender.                                 *)
-(* @param: to - Address to be set or unset as an operator        *)
+(* @dev: Adds or removes `to` as an operator for the _sender *)
+(* Only operator can be _sender.                             *)
+(* @param: to - Address to be added or removed               *)
 transition SetApprovalForAll(to: ByStr20)
   IsNotSelf to _sender;
   is_operator <- exists operator_approvals[_sender][to];
@@ -702,10 +701,10 @@ transition SetApprovalForAll(to: ByStr20)
   send msgs
 end
 
-(* @dev: Transfers the ownership of a given token ID to another address. *)
-(* Only token_owner can be _sender.                                      *)
-(* @param: to - Recipient address for the token                          *)
-(* @param: token_id - Unique ID of the NFT to be transferred             *)
+(* @dev: Transfers `token_id` from the token owner to `to`.  *)
+(* Only token_owner can be _sender.                          *)
+(* @param: to - Recipient address for the token              *)
+(* @param: token_id - Unique ID of the NFT to be transferred *)
 transition Transfer(to: ByStr20, token_id: Uint256)
   IsNotSelf to _sender;
   IsTokenOwner token_id _sender;
@@ -746,10 +745,10 @@ transition Transfer(to: ByStr20, token_id: Uint256)
   send msgs
 end
 
-(* @dev: Transfers the ownership of a given token ID to another address. *)
-(* Only spender or operator can be _sender.                     *)
-(* @param: to       - Recipient address for the NFT                      *)
-(* @param: token_id - Unique ID of the NFT to be transferred             *)
+(* @dev: Transfers `token_id` from the token owner to `to`.  *)
+(* Only spender or operator can be _sender.                  *)
+(* @param: to       - Recipient address for the NFT          *)
+(* @param: token_id - Unique ID of the NFT to be transferred *)
 transition TransferFrom(to: ByStr20, token_id: Uint256)
   opt_token_owner <- token_owners[token_id];
   match opt_token_owner with
