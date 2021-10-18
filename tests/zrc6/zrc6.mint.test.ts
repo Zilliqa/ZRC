@@ -120,7 +120,7 @@ describe("Mint", () => {
       transition: "SetMinter",
       getSender: () => toTestAddr(STRANGER),
       getParams: () => ({
-        minter: toTestAddr(MINTER),
+        to: toTestAddr(MINTER),
       }),
       error: ZRC6_ERROR.NotContractOwnerError,
       want: undefined,
@@ -130,7 +130,7 @@ describe("Mint", () => {
       transition: "SetMinter",
       getSender: () => toTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        minter: toTestAddr(STRANGER),
+        to: toTestAddr(STRANGER),
       }),
       error: undefined,
       want: {

@@ -486,24 +486,24 @@ transition SetBaseURI(base_uri: String)
   send msgs  
 end
 
-(* @dev: Adds or removes `minter` as minter        *)
-(* Only contract_owner can be _sender.             *)
-(* @param: minter - Address to be added or removed *)
-transition SetMinter(minter: ByStr20)
+(* @dev: Adds or removes `to` as minter        *)
+(* Only contract_owner can be _sender.         *)
+(* @param: to - Address to be added or removed *)
+transition SetMinter(to: ByStr20)
   IsContractOwner;
-  is_minter <- exists minters[minter];
+  is_minter <- exists minters[to];
   match is_minter with
   | True => 
     (* Remove minter *)
-    delete minters[minter]
+    delete minters[to]
   | False =>
     (* Add minter *)
-    minters[minter] := verdad
+    minters[to] := verdad
   end;
   new_status = negb is_minter;
   e = { 
     _eventname : "SetMinterSuccess";
-    minter : minter;
+    minter : to;
     is_minter: new_status
   };
   event e;
@@ -511,7 +511,7 @@ transition SetMinter(minter: ByStr20)
     _tag : "ZRC6_SetMinterCallback";
     _recipient : _sender;
     _amount : Uint128 0;
-    minter: minter;
+    minter: to;
     is_minter: new_status
   };
   msgs = one_msg msg_to_sender;

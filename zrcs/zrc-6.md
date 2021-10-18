@@ -267,9 +267,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Arguments:**
 
-| Name     | Type      | Description                               |
-| -------- | --------- | ----------------------------------------- |
-| `minter` | `ByStr20` | Address to be added or removed as minter. |
+| Name | Type      | Description                               |
+| ---- | --------- | ----------------------------------------- |
+| `to` | `ByStr20` | Address to be added or removed as minter. |
 
 **Messages sent:**
 
