@@ -280,16 +280,28 @@ end
 
 (* @dev: Get approved_addr for token_id *)
 transition GetApproved(token_id: Uint256)
-  some_token_approval <- token_approvals[token_id];
-  match some_token_approval with
-  | Some addr => 
-    msg_to_sender = { _tag : "GetApprovedCallBack"; _recipient : _sender; _amount : Uint128 0; 
-                      approved_addr : addr; token_id : token_id};
-    msgs = one_msg msg_to_sender;
-    send msgs
-  | None => 
-    err = CodeNotApproved;
+  has_token <- exists token_owners[token_id];
+  match has_token with
+  | False => 
+    err = CodeNotFound;
     ThrowError err
+  | True => 
+    some_token_approval <- token_approvals[token_id];
+    match some_token_approval with
+    | Some addr => 
+      msg_to_sender = { 
+        _tag : "GetApprovedCallBack";
+        _recipient : _sender;
+        _amount : Uint128 0;
+        approved_addr : addr;
+        token_id : token_id
+      };
+      msgs = one_msg msg_to_sender;
+      send msgs
+    | None => 
+      err = CodeNotApproved;
+      ThrowError err
+    end
   end
 end
 
