@@ -412,16 +412,16 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Messages sent:**
 
-|        | Name                               | Description                                                 | Callback Parameters                                                                                                                                                                  |
-| ------ | ---------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `_tag` | `ZRC6_RecipientAcceptTransferFrom` | Provide the recipient the status of the transfer of an NFT. | <ul><li>`from` : `ByStr20`<br/>Address of the `_sender`</li><li>`recipient` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
-| `_tag` | `ZRC6_TransferFromCallback`        | Provide the sender the status of the transfer of an NFT.    | <ul><li>`from` : `ByStr20`<br/>Address of the `_sender`</li><li>`recipient` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+|        | Name                               | Description                                                 | Callback Parameters                                                                                                                                                                    |
+| ------ | ---------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_RecipientAcceptTransferFrom` | Provide the recipient the status of the transfer of an NFT. | <ul><li>`from` : `ByStr20`<br/>Address of the token owner</li><li>`recipient` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+| `_tag` | `ZRC6_TransferFromCallback`        | Provide the sender the status of the transfer of an NFT.    | <ul><li>`from` : `ByStr20`<br/>Address of the token owner</li><li>`recipient` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
 **Events:**
 
-|              | Name                  | Description               | Event Parameters                                                                                                                                                                     |
-| ------------ | --------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `_eventname` | `TransferFromSuccess` | NFT has been transferred. | <ul><li>`from` : `ByStr20`<br/>Address of the `_sender`</li><li>`recipient` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+|              | Name                  | Description               | Event Parameters                                                                                                                                                                       |
+| ------------ | --------------------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `TransferFromSuccess` | NFT has been transferred. | <ul><li>`from` : `ByStr20`<br/>Address of the token owner</li><li>`recipient` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
 ## V. Testing
 
