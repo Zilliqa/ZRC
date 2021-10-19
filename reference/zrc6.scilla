@@ -443,7 +443,11 @@ transition SetRoyaltyRecipient(to: ByStr20)
   IsContractOwner;
   royalty_recipient := to;
   
-  e = { _eventname : "SetRoyaltyRecipientSuccess"; royalty_recipient : to };
+  e = { 
+    _eventname : "SetRoyaltyRecipientSuccess";
+    initiator : _sender;
+    royalty_recipient : to
+  };
   event e;
   
   msg_to_sender = { 
@@ -465,7 +469,11 @@ transition SetRoyaltyFeeBPS(fee_bps: Uint256)
   IsValidRoyaltyFeeBPS fee_bps;
   royalty_fee_bps := fee_bps;
   
-  e = { _eventname : "SetRoyaltyFeeBPSSuccess"; royalty_fee_bps : fee_bps };
+  e = { 
+    _eventname : "SetRoyaltyFeeBPSSuccess";
+    initiator : _sender; 
+    royalty_fee_bps : fee_bps
+  };
   event e;
 
   msg_to_sender = { 
@@ -484,7 +492,11 @@ transition SetBaseURI(uri: String)
   IsContractOwner;
   base_uri := uri;
 
-  e = { _eventname : "SetBaseURISuccess"; base_uri : uri };
+  e = { 
+    _eventname : "SetBaseURISuccess";
+    initiator : _sender;
+    base_uri : uri
+  };
   event e;
   
   msg_to_sender = { 
@@ -514,6 +526,7 @@ transition SetMinter(to: ByStr20)
   new_status = negb is_minter;
   e = { 
     _eventname : "SetMinterSuccess";
+    initiator : _sender;
     minter : to;
     is_minter: new_status
   };
@@ -599,7 +612,6 @@ transition Burn(token_id: Uint256)
       _tag : "ZRC6_BurnCallback";
       _recipient : _sender;
       _amount : Uint128 0;
-      initiator : _sender;
       burn_address : token_owner;
       token_id : token_id
     };
@@ -710,6 +722,7 @@ transition Transfer(to: ByStr20, token_id: Uint256)
   UpdateTokenCount add_operation to;
   e = {
     _eventname : "TransferSuccess";
+    initiator : _sender;
     from : _sender;
     recipient : to;
     token_id : token_id
@@ -760,6 +773,7 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
     UpdateTokenCount add_operation to;
     e = {
       _eventname : "TransferFromSuccess";
+      initiator : _sender;
       from : token_owner;
       recipient : to;
       token_id : token_id

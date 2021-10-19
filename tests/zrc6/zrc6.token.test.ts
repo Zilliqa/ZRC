@@ -368,6 +368,7 @@ describe("Token", () => {
           {
             name: "SetRoyaltyRecipientSuccess",
             getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(STRANGER), "royalty_recipient"),
             ],
           },
@@ -425,7 +426,10 @@ describe("Token", () => {
         events: [
           {
             name: "SetRoyaltyFeeBPSSuccess",
-            getParams: () => [toMsgParam("Uint256", 10000, "royalty_fee_bps")],
+            getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
+              toMsgParam("Uint256", 10000, "royalty_fee_bps"),
+            ],
           },
         ],
         transitions: [
@@ -449,7 +453,10 @@ describe("Token", () => {
         events: [
           {
             name: "SetRoyaltyFeeBPSSuccess",
-            getParams: () => [toMsgParam("Uint256", 1, "royalty_fee_bps")],
+            getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
+              toMsgParam("Uint256", 1, "royalty_fee_bps"),
+            ],
           },
         ],
         transitions: [
@@ -485,6 +492,7 @@ describe("Token", () => {
           {
             name: "SetBaseURISuccess",
             getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam(
                 "String",
                 "http://localhost:1111/testcase/1",
@@ -592,6 +600,7 @@ describe("Token with Base URI", () => {
           {
             name: "SetBaseURISuccess",
             getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam(
                 "String",
                 "http://localhost:1111/testcase/1",

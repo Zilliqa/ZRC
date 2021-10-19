@@ -140,6 +140,7 @@ describe("Mint", () => {
           {
             name: "SetMinterSuccess",
             getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(STRANGER), "minter"),
               toMsgParam("Bool", "True", "is_minter"),
             ],
@@ -171,6 +172,7 @@ describe("Mint", () => {
           {
             name: "SetMinterSuccess",
             getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(MINTER), "minter"),
               toMsgParam("Bool", "False", "is_minter"),
             ],
@@ -378,7 +380,6 @@ describe("Mint", () => {
           {
             tag: "ZRC6_BurnCallback",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "burn_address"),
               toMsgParam("Uint256", 1, "token_id"),
             ],
