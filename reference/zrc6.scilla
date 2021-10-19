@@ -86,15 +86,19 @@ contract NonfungibleToken
 (* Mutable fields *)
 
 (* royalty fee BPS (1/100ths of a percent, e.g. 1000 = 10%) *)
+(* defaults to 1000 *)
 field royalty_fee_bps: Uint256 = Uint256 1000
 
 (* address to send royalties to *)
+(* defaults to `contract_owner` *)
 field royalty_recipient: ByStr20 = contract_owner
 
 (* Base URI e.g. https://creatures-api.zilliqa.com/api/creature/ *)
-field base_uri: String = ""
+(* defaults to empty string *)
+field base_uri: String = empty_str
 
 (* Mapping of minters available *)
+(* `contract_owner` is a minter by default *)
 field minters: Map ByStr20 Dummy =
     let emp_map = Emp ByStr20 Dummy in
     builtin put emp_map contract_owner verdad
