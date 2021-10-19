@@ -46,7 +46,6 @@ let get_bal =
 (* Error exception *)
 type Error =
   | NotFoundError
-  | ConflictError
   | SelfError
   | NotContractOwnerError
   | NotTokenOwnerError
@@ -60,14 +59,13 @@ let make_error =
     let result_code = 
       match result with
       | NotFoundError                     => Int32 -1
-      | ConflictError                     => Int32 -2
-      | SelfError                         => Int32 -3
-      | NotContractOwnerError             => Int32 -4
-      | NotTokenOwnerError                => Int32 -5
-      | NotMinterError                    => Int32 -6
-      | NotApprovedError                  => Int32 -7
-      | NotOwnerOrOperatorError           => Int32 -8
-      | InvalidFeeBpsError                => Int32 -9
+      | SelfError                         => Int32 -2
+      | NotContractOwnerError             => Int32 -3
+      | NotTokenOwnerError                => Int32 -4
+      | NotMinterError                    => Int32 -5
+      | NotApprovedError                  => Int32 -6
+      | NotOwnerOrOperatorError           => Int32 -7
+      | InvalidFeeBpsError                => Int32 -8
       end
     in
     { _exception : "Error"; code : result_code }
@@ -157,16 +155,6 @@ procedure IsNotSelf(address_a: ByStr20, address_b: ByStr20)
   | False =>
   | True =>
     err = SelfError;
-    ThrowError err
-  end
-end
-
-procedure IsTokenIdUnique(token_id: Uint256)
-  token_exist <- exists token_owners[token_id];
-  match token_exist with
-  | False =>
-  | True =>
-    err = ConflictError;
     ThrowError err
   end
 end
@@ -271,7 +259,7 @@ procedure MintToken(to: ByStr20)
   new_token_id_count = builtin add current_token_id_count one;
   token_id_count := new_token_id_count;
   token_id = new_token_id_count;
-  IsTokenIdUnique token_id;
+
   (* Mint new non-fungible token *)
   token_owners[token_id] := to;
   

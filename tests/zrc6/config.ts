@@ -14,14 +14,13 @@ export const CODE = fs.readFileSync(CODE_PATH).toString();
 
 export const ZRC6_ERROR = {
   NotFoundError: -1,
-  ConflictError: -2,
-  SelfError: -3,
-  NotContractOwnerError: -4,
-  NotTokenOwnerError: -5,
-  NotMinterError: -6,
-  NotApprovedError: -7,
-  NotOwnerOrOperatorError: -8,
-  InvalidFeeBpsError: -9,
+  SelfError: -2,
+  NotContractOwnerError: -3,
+  NotTokenOwnerError: -4,
+  NotMinterError: -5,
+  NotApprovedError: -6,
+  NotOwnerOrOperatorError: -7,
+  InvalidFeeBpsError: -8,
 };
 
 export const TOKEN_NAME = "TEST";
