@@ -658,7 +658,6 @@ transition SetApproval(to: ByStr20, token_id: Uint256)
 end
 
 (* @dev: Adds or removes `to` as an operator for the _sender *)
-(* Only operator can be _sender.                             *)
 (* @param: to - Address to be added or removed               *)
 transition SetApprovalForAll(to: ByStr20)
   IsNotSelf to _sender;
