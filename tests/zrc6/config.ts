@@ -13,14 +13,20 @@ export const CODE_PATH = "../../reference/zrc6.scilla";
 export const CODE = fs.readFileSync(CODE_PATH).toString();
 
 export const ZRC6_ERROR = {
-  NotFoundError: -1,
+  TokenNotFoundError: -1,
   SelfError: -2,
   NotContractOwnerError: -3,
   NotTokenOwnerError: -4,
   NotMinterError: -5,
-  NotApprovedError: -6,
+  NotSpenderOrOperatorError: -6,
   NotOwnerOrOperatorError: -7,
-  InvalidFeeBpsError: -8,
+  MinterFoundError: -8,
+  MinterNotFoundError: -9,
+  SpenderFoundError: -10,
+  SpenderNotFoundError: -11,
+  OperatorFoundError: -12,
+  OperatorNotFoundError: -13,
+  InvalidFeeBpsError: -14,
 };
 
 export const TOKEN_NAME = "TEST";

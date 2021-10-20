@@ -94,7 +94,7 @@ beforeEach(async () => {
   let tx = await globalContractInfo.callGetter(
     zilliqa.contracts.at(globalContractAddress),
     TX_PARAMS
-  )("SetMinter", toTestAddr(MINTER));
+  )("AddMinter", toTestAddr(MINTER));
   if (!tx.receipt.success) {
     throw new Error();
   }
@@ -116,18 +116,28 @@ beforeEach(async () => {
 describe("Mint", () => {
   const testCases = [
     {
-      name: "throws not contract error",
-      transition: "SetMinter",
+      name: "throws NotContractOwnerError by stranger",
+      transition: "AddMinter",
       getSender: () => toTestAddr(STRANGER),
       getParams: () => ({
-        to: toTestAddr(MINTER),
+        to: toTestAddr(STRANGER),
       }),
       error: ZRC6_ERROR.NotContractOwnerError,
       want: undefined,
     },
     {
+      name: "throws MinterFoundError",
+      transition: "AddMinter",
+      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getParams: () => ({
+        minter: toTestAddr(MINTER),
+      }),
+      error: ZRC6_ERROR.MinterFoundError,
+      want: undefined,
+    },
+    {
       name: "adds minter",
-      transition: "SetMinter",
+      transition: "AddMinter",
       getSender: () => toTestAddr(CONTRACT_OWNER),
       getParams: () => ({
         to: toTestAddr(STRANGER),
@@ -138,28 +148,46 @@ describe("Mint", () => {
           state.minters.hasOwnProperty(toTestAddr(STRANGER).toLowerCase()),
         events: [
           {
-            name: "SetMinterSuccess",
+            name: "AddMinterSuccess",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
-              toMsgParam("ByStr20", toTestAddr(STRANGER), "minter"),
-              toMsgParam("Bool", "True", "is_minter"),
+              toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
             ],
           },
         ],
         transitions: [
           {
-            tag: "ZRC6_SetMinterCallback",
+            tag: "ZRC6_AddMinterCallback",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER), "minter"),
-              toMsgParam("Bool", "True", "is_minter"),
+              toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
             ],
           },
         ],
       },
     },
     {
+      name: "throws NotContractOwnerError by stranger",
+      transition: "RemoveMinter",
+      getSender: () => toTestAddr(STRANGER),
+      getParams: () => ({
+        to: toTestAddr(MINTER),
+      }),
+      error: ZRC6_ERROR.NotContractOwnerError,
+      want: undefined,
+    },
+    {
+      name: "throws MinterNotFoundError",
+      transition: "RemoveMinter",
+      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getParams: () => ({
+        minter: toTestAddr(STRANGER),
+      }),
+      error: ZRC6_ERROR.MinterNotFoundError,
+      want: undefined,
+    },
+    {
       name: "removes minter",
-      transition: "SetMinter",
+      transition: "RemoveMinter",
       getSender: () => toTestAddr(CONTRACT_OWNER),
       getParams: () => ({
         minter: toTestAddr(MINTER),
@@ -170,21 +198,17 @@ describe("Mint", () => {
           !state.minters.hasOwnProperty(toTestAddr(STRANGER).toLowerCase()),
         events: [
           {
-            name: "SetMinterSuccess",
+            name: "RemoveMinterSuccess",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
-              toMsgParam("ByStr20", toTestAddr(MINTER), "minter"),
-              toMsgParam("Bool", "False", "is_minter"),
+              toMsgParam("ByStr20", toTestAddr(MINTER), "to"),
             ],
           },
         ],
         transitions: [
           {
-            tag: "ZRC6_SetMinterCallback",
-            getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(MINTER), "minter"),
-              toMsgParam("Bool", "False", "is_minter"),
-            ],
+            tag: "ZRC6_RemoveMinterCallback",
+            getParams: () => [toMsgParam("ByStr20", toTestAddr(MINTER), "to")],
           },
         ],
       },
@@ -228,7 +252,7 @@ describe("Mint", () => {
 describe("Mint", () => {
   const testCases = [
     {
-      name: "throws not minter error",
+      name: "throws NotMinterError",
       transition: "Mint",
       getSender: () => toTestAddr(STRANGER),
       getParams: () => ({
@@ -258,7 +282,7 @@ describe("Mint", () => {
             name: "MintSuccess",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
-              toMsgParam("ByStr20", toTestAddr(STRANGER), "recipient"),
+              toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
               toMsgParam(
                 "Uint256",
                 (INITIAL_TOTAL_SUPPLY + 1).toString(),
@@ -275,7 +299,7 @@ describe("Mint", () => {
           {
             tag: "ZRC6_MintCallback",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER), "recipient"),
+              toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
               toMsgParam(
                 "Uint256",
                 (INITIAL_TOTAL_SUPPLY + 1).toString(),
@@ -307,7 +331,7 @@ describe("Mint", () => {
             name: "MintSuccess",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(MINTER), "initiator"),
-              toMsgParam("ByStr20", toTestAddr(MINTER), "recipient"),
+              toMsgParam("ByStr20", toTestAddr(MINTER), "to"),
               toMsgParam(
                 "Uint256",
                 (INITIAL_TOTAL_SUPPLY + 1).toString(),
@@ -324,7 +348,7 @@ describe("Mint", () => {
           {
             tag: "ZRC6_MintCallback",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(MINTER), "recipient"),
+              toMsgParam("ByStr20", toTestAddr(MINTER), "to"),
               toMsgParam(
                 "Uint256",
                 (INITIAL_TOTAL_SUPPLY + 1).toString(),
@@ -337,7 +361,7 @@ describe("Mint", () => {
     },
 
     {
-      name: "throws not owner or operator error",
+      name: "throws NotOwnerOrOperatorError",
       transition: "Burn",
       getSender: () => toTestAddr(STRANGER),
       getParams: () => ({
@@ -347,13 +371,13 @@ describe("Mint", () => {
       want: undefined,
     },
     {
-      name: "throws not found error",
+      name: "throws TokenNotFoundError",
       transition: "Burn",
       getSender: () => toTestAddr(TOKEN_OWNER),
       getParams: () => ({
         token_id: "999",
       }),
-      error: ZRC6_ERROR.NotFoundError,
+      error: ZRC6_ERROR.TokenNotFoundError,
       want: undefined,
     },
     {
@@ -431,7 +455,7 @@ describe("Mint", () => {
             name: "MintSuccess",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
-              toMsgParam("ByStr20", toTestAddr(STRANGER), "recipient"),
+              toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
               toMsgParam("Uint256", id, "token_id"),
             ],
           }))

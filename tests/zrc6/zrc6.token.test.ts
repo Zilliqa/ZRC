@@ -104,14 +104,14 @@ beforeEach(async () => {
 describe("Token", () => {
   const testCases = [
     {
-      name: "throws not found error",
+      name: "throws TokenNotFoundError",
       transition: "RoyaltyInfo",
       getSender: () => toTestAddr(STRANGER),
       getParams: () => ({
         token_id: "999",
         sale_price: "1000",
       }),
-      error: ZRC6_ERROR.NotFoundError,
+      error: ZRC6_ERROR.TokenNotFoundError,
       want: undefined,
     },
     {
@@ -214,24 +214,24 @@ describe("Token", () => {
       },
     },
     {
-      name: "throws not found error",
+      name: "throws TokenNotFoundError",
       transition: "TokenURI",
       getSender: () => toTestAddr(STRANGER),
       getParams: () => ({
         token_id: "999",
       }),
       want: undefined,
-      error: ZRC6_ERROR.NotFoundError,
+      error: ZRC6_ERROR.TokenNotFoundError,
     },
     {
-      name: "throws not found error",
+      name: "throws TokenNotFoundError",
       transition: "OwnerOf",
       getSender: () => toTestAddr(STRANGER),
       getParams: () => ({
         token_id: "999",
       }),
       want: undefined,
-      error: ZRC6_ERROR.NotFoundError,
+      error: ZRC6_ERROR.TokenNotFoundError,
     },
     {
       name: "gets token owner",
@@ -252,7 +252,7 @@ describe("Token", () => {
           },
         ],
       },
-      error: ZRC6_ERROR.NotFoundError,
+      error: ZRC6_ERROR.TokenNotFoundError,
     },
     {
       name: "gets token name",
@@ -344,7 +344,7 @@ describe("Token", () => {
     },
 
     {
-      name: "throws not contract owner error",
+      name: "throws NotContractOwnerError",
       transition: "SetRoyaltyRecipient",
       getSender: () => toTestAddr(STRANGER),
       getParams: () => ({
@@ -369,7 +369,7 @@ describe("Token", () => {
             name: "SetRoyaltyRecipientSuccess",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
-              toMsgParam("ByStr20", toTestAddr(STRANGER), "royalty_recipient"),
+              toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
             ],
           },
         ],
@@ -377,14 +377,14 @@ describe("Token", () => {
           {
             tag: "ZRC6_SetRoyaltyRecipientCallback",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER), "royalty_recipient"),
+              toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
             ],
           },
         ],
       },
     },
     {
-      name: "throws not contract owner error",
+      name: "throws NotContractOwnerError",
       transition: "SetRoyaltyFeeBPS",
       getSender: () => toTestAddr(STRANGER),
       getParams: () => ({
@@ -468,7 +468,7 @@ describe("Token", () => {
       },
     },
     {
-      name: "throws not contract owner error",
+      name: "throws NotContractOwnerError",
       transition: "SetBaseURI",
       getSender: () => toTestAddr(STRANGER),
       getParams: () => ({
