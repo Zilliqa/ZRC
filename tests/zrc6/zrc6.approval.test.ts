@@ -257,6 +257,16 @@ describe("Approval", () => {
       },
     },
     {
+      name: "throws NotTokenOwnerError by stranger)",
+      transition: "AddOperator",
+      getSender: () => toTestAddr(STRANGER_B),
+      getParams: () => ({
+        to: toTestAddr(STRANGER_A),
+      }),
+      error: ZRC6_ERROR.NotTokenOwnerError,
+      want: undefined,
+    },
+    {
       name: "throws SelfError",
       transition: "AddOperator",
       getSender: () => toTestAddr(TOKEN_OWNER_A),
@@ -275,39 +285,6 @@ describe("Approval", () => {
       }),
       error: ZRC6_ERROR.OperatorFoundError,
       want: undefined,
-    },
-    {
-      name: "adds stranger A as operator by stranger B",
-      transition: "AddOperator",
-      getSender: () => toTestAddr(STRANGER_B),
-      getParams: () => ({
-        to: toTestAddr(STRANGER_A),
-      }),
-      error: undefined,
-      want: {
-        verifyState: (state) => {
-          return Object.keys(
-            state.operators[toTestAddr(STRANGER_B).toLowerCase()]
-          ).includes(toTestAddr(STRANGER_A).toLowerCase());
-        },
-        events: [
-          {
-            name: "AddOperatorSuccess",
-            getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER_B), "initiator"),
-              toMsgParam("ByStr20", toTestAddr(STRANGER_A), "to"),
-            ],
-          },
-        ],
-        transitions: [
-          {
-            tag: "ZRC6_AddOperatorCallback",
-            getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER_A), "to"),
-            ],
-          },
-        ],
-      },
     },
     {
       name: "adds stranger A as operator by token owner A",

@@ -729,31 +729,44 @@ transition RemoveSpender(to: ByStr20, token_id: Uint256)
 end
 
 (* @dev: Adds `to` as operator for the _sender *)
+(* Only token_owner can be _sender.            *)
 transition AddOperator(to: ByStr20)
   IsNotSelf to _sender;
-  has_operator <- exists operators[_sender][to];
-  match has_operator with
-  | False =>
-    (* Add operator *)
-    operators[_sender][to] := verdad
-  | True =>
-    err = OperatorFoundError;
+  
+  opt_bal <- balances[_sender];
+  balance = get_bal opt_bal;
+  
+  is_balance_zero = builtin eq zero balance;
+  (* _sender should have at least 1 token *)
+  match is_balance_zero with 
+  | True =>    
+    err = NotTokenOwnerError;
     ThrowError err
-  end;
-  e = {
-    _eventname : "AddOperatorSuccess";
-    initiator : _sender;
-    to : to
-  };
-  event e;
-  msg_to_sender = { 
-    _tag : "ZRC6_AddOperatorCallback";
-    _recipient : _sender;
-    _amount : Uint128 0;
-    to : to
-  };
-  msgs = one_msg msg_to_sender;
-  send msgs
+  | False =>
+    has_operator <- exists operators[_sender][to];
+    match has_operator with
+    | False =>
+      (* Add operator *)
+      operators[_sender][to] := verdad
+    | True =>
+      err = OperatorFoundError;
+      ThrowError err
+    end;
+    e = {
+      _eventname : "AddOperatorSuccess";
+      initiator : _sender;
+      to : to
+    };
+    event e;
+    msg_to_sender = {
+      _tag : "ZRC6_AddOperatorCallback";
+      _recipient : _sender;
+      _amount : Uint128 0;
+      to : to
+    };
+    msgs = one_msg msg_to_sender;
+    send msgs
+  end
 end
 
 (* @dev: Removes `to` from operator for the _sender *)

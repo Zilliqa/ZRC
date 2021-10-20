@@ -47,9 +47,9 @@ The NFT contract specification describes:
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :------: |
 | `contract_owner`    | The contract owner is the creator of the NFT. The contract owner can: <ul><li>set royalty recipient</li><li>set royalty fee BPS</li><li>set base URI</li><li>add/remove a minter</li></ul> |   Yes    |
 | `royalty_recipient` | The royalty recipient gets a royalty amount each time the NFT is sold or re-sold. Initially, the royalty recipient is the contract owner.                                                  |    No    |
-| `token_owner`       | A token owner owns a token. A token owner can: <ul><li>transfer a token </li><li>burn a token</li><li>add/remove a spender of a token</li><li>add/remove an operator</li></ul>             |   Yes    |
+| `token_owner`       | Each token has an token owner. A token owner can: <ul><li>transfer a token </li><li>burn a token</li><li>add/remove a spender of a token</li><li>add/remove an operator</li></ul>          |   Yes    |
 | `minter`            | A minter can mint tokens. Initially, the contract owner is a minter.                                                                                                                       |   Yes    |
-| `spender`           | On behalf of the token owner, a spender can transfer a token.                                                                                                                              |   Yes    |
+| `spender`           | On behalf of the token owner, a spender can transfer a token. There can only be one spender per token at any given time.                                                                   |   Yes    |
 | `operator`          | On behalf of the token owner, an operator can: <ul><li>transfer a token </li><li>burn a token</li><li>add/remove a spender of a token</li></ul>                                            |   Yes    |
 
 ### B. Error Codes
