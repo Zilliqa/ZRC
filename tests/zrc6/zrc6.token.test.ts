@@ -25,7 +25,7 @@ import {
   INITIAL_TOTAL_SUPPLY,
 } from "./config";
 
-const JEST_WORKER_ID = Number(process.env.JEST_WORKER_ID);
+const JEST_WORKER_ID = Number(process.env["JEST_WORKER_ID"]);
 const GENESIS_PRIVATE_KEY = global.GENESIS_PRIVATE_KEYS[JEST_WORKER_ID - 1];
 
 const zilliqa = new Zilliqa(API);
@@ -41,7 +41,7 @@ let globalTestAccounts: Array<{
 const CONTRACT_OWNER = 0;
 const TOKEN_OWNER = 0;
 const STRANGER = 9;
-const toTestAddr = (index) => globalTestAccounts[index].address;
+const toTestAddr = (index) => globalTestAccounts[index]?.address as string;
 
 beforeAll(async () => {
   const accounts = genAccounts(10);

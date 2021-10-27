@@ -69,7 +69,11 @@ const transitionParamsGetter =
     return res;
   };
 
-export const useContractInfo = async (container, src, gasLimit) => {
+export const useContractInfo = async (
+  container,
+  src,
+  gasLimit
+): Promise<any> => {
   try {
     const contractFilename = src.split("/").pop();
     const scillaPath = "/scilla/0/";

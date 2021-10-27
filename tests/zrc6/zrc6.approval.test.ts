@@ -23,7 +23,7 @@ import {
   FAUCET_PARAMS,
 } from "./config";
 
-const JEST_WORKER_ID = Number(process.env.JEST_WORKER_ID);
+const JEST_WORKER_ID = Number(process.env["JEST_WORKER_ID"]);
 const GENESIS_PRIVATE_KEY = global.GENESIS_PRIVATE_KEYS[JEST_WORKER_ID - 1];
 
 const zilliqa = new Zilliqa(API);
@@ -43,7 +43,7 @@ const OPERATOR = 2;
 const SPENDER = 3;
 const STRANGER_A = 8;
 const STRANGER_B = 9;
-const toTestAddr = (index) => globalTestAccounts[index].address;
+const toTestAddr = (index) => globalTestAccounts[index]?.address as string;
 
 beforeAll(async () => {
   const accounts = genAccounts(10);
@@ -459,19 +459,8 @@ describe("Approval", () => {
       },
     },
     {
-      name: "throws NotTokenOwnerError",
-      transition: "Transfer",
-      getSender: () => toTestAddr(STRANGER_A), // Not Owner
-      getParams: () => ({
-        to: toTestAddr(TOKEN_OWNER_A),
-        token_id: "1",
-      }),
-      error: ZRC6_ERROR.NotTokenOwnerError,
-      want: undefined,
-    },
-    {
-      name: "throws SelfError",
-      transition: "Transfer",
+      name: "throws SelfError by self giving",
+      transition: "TransferFrom",
       getSender: () => toTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
         to: toTestAddr(TOKEN_OWNER_A), // Self
@@ -481,8 +470,19 @@ describe("Approval", () => {
       want: undefined,
     },
     {
+      name: "throws NotAllowedToTransferError by stranger",
+      transition: "TransferFrom",
+      getSender: () => toTestAddr(STRANGER_A), // Not Owner
+      getParams: () => ({
+        to: toTestAddr(STRANGER_A),
+        token_id: "1",
+      }),
+      error: ZRC6_ERROR.NotAllowedToTransferError,
+      want: undefined,
+    },
+    {
       name: "token owner -> stranger by token owner",
-      transition: "Transfer",
+      transition: "TransferFrom",
       getSender: () => toTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
         to: toTestAddr(STRANGER_A),
@@ -498,7 +498,7 @@ describe("Approval", () => {
         },
         events: [
           {
-            name: "TransferSuccess",
+            name: "TransferFromSuccess",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "initiator"),
               toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
@@ -509,7 +509,7 @@ describe("Approval", () => {
         ],
         transitions: [
           {
-            tag: "ZRC6_RecipientAcceptTransfer",
+            tag: "ZRC6_RecipientAcceptTransferFrom",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
               toMsgParam("ByStr20", toTestAddr(STRANGER_A), "to"),
@@ -517,115 +517,10 @@ describe("Approval", () => {
             ],
           },
           {
-            tag: "ZRC6_TransferCallback",
+            tag: "ZRC6_TransferFromCallback",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
               toMsgParam("ByStr20", toTestAddr(STRANGER_A), "to"),
-              toMsgParam("Uint256", 1, "token_id"),
-            ],
-          },
-        ],
-      },
-    },
-    {
-      name: "throws NotSpenderOrOperatorError",
-      transition: "TransferFrom",
-      getSender: () => toTestAddr(STRANGER_A),
-      getParams: () => ({
-        to: toTestAddr(SPENDER),
-        token_id: "1",
-      }),
-      error: ZRC6_ERROR.NotSpenderOrOperatorError,
-      want: undefined,
-    },
-    {
-      name: "token owner -> spender by spender",
-      transition: "TransferFrom",
-      getSender: () => toTestAddr(SPENDER),
-      getParams: () => ({
-        to: toTestAddr(SPENDER),
-        token_id: "1",
-      }),
-      error: undefined,
-      want: {
-        verifyState: (state) => {
-          return (
-            state.balances[toTestAddr(SPENDER).toLowerCase()] === "1" &&
-            state.token_owners["1"] === toTestAddr(SPENDER).toLowerCase()
-          );
-        },
-        events: [
-          {
-            name: "TransferFromSuccess",
-            getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(SPENDER), "initiator"),
-              toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
-              toMsgParam("ByStr20", toTestAddr(SPENDER), "to"),
-              toMsgParam("Uint256", 1, "token_id"),
-            ],
-          },
-        ],
-        transitions: [
-          {
-            tag: "ZRC6_RecipientAcceptTransferFrom",
-            getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
-              toMsgParam("ByStr20", toTestAddr(SPENDER), "to"),
-              toMsgParam("Uint256", 1, "token_id"),
-            ],
-          },
-          {
-            tag: "ZRC6_TransferFromCallback",
-            getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
-              toMsgParam("ByStr20", toTestAddr(SPENDER), "to"),
-              toMsgParam("Uint256", 1, "token_id"),
-            ],
-          },
-        ],
-      },
-    },
-    {
-      name: "token owner -> operator by operator",
-      transition: "TransferFrom",
-      getSender: () => toTestAddr(OPERATOR),
-      getParams: () => ({
-        to: toTestAddr(OPERATOR),
-        token_id: "1",
-      }),
-      error: undefined,
-      want: {
-        verifyState: (state) => {
-          return (
-            state.balances[toTestAddr(OPERATOR).toLowerCase()] === "1" &&
-            state.token_owners["1"] === toTestAddr(OPERATOR).toLowerCase()
-          );
-        },
-        events: [
-          {
-            name: "TransferFromSuccess",
-            getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(OPERATOR), "initiator"),
-              toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
-              toMsgParam("ByStr20", toTestAddr(OPERATOR), "to"),
-              toMsgParam("Uint256", 1, "token_id"),
-            ],
-          },
-        ],
-        transitions: [
-          {
-            tag: "ZRC6_RecipientAcceptTransferFrom",
-            getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
-              toMsgParam("ByStr20", toTestAddr(OPERATOR), "to"),
-              toMsgParam("Uint256", 1, "token_id"),
-            ],
-          },
-          {
-            tag: "ZRC6_TransferFromCallback",
-            getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
-              toMsgParam("ByStr20", toTestAddr(OPERATOR), "to"),
               toMsgParam("Uint256", 1, "token_id"),
             ],
           },
@@ -720,6 +615,100 @@ describe("Approval", () => {
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
               toMsgParam("ByStr20", toTestAddr(STRANGER_A), "to"),
+              toMsgParam("Uint256", 1, "token_id"),
+            ],
+          },
+        ],
+      },
+    },
+    {
+      name: "token owner -> spender by spender",
+      transition: "TransferFrom",
+      getSender: () => toTestAddr(SPENDER),
+      getParams: () => ({
+        to: toTestAddr(SPENDER),
+        token_id: "1",
+      }),
+      error: undefined,
+      want: {
+        verifyState: (state) => {
+          return (
+            state.balances[toTestAddr(SPENDER).toLowerCase()] === "1" &&
+            state.token_owners["1"] === toTestAddr(SPENDER).toLowerCase()
+          );
+        },
+        events: [
+          {
+            name: "TransferFromSuccess",
+            getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(SPENDER), "initiator"),
+              toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
+              toMsgParam("ByStr20", toTestAddr(SPENDER), "to"),
+              toMsgParam("Uint256", 1, "token_id"),
+            ],
+          },
+        ],
+        transitions: [
+          {
+            tag: "ZRC6_RecipientAcceptTransferFrom",
+            getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
+              toMsgParam("ByStr20", toTestAddr(SPENDER), "to"),
+              toMsgParam("Uint256", 1, "token_id"),
+            ],
+          },
+          {
+            tag: "ZRC6_TransferFromCallback",
+            getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
+              toMsgParam("ByStr20", toTestAddr(SPENDER), "to"),
+              toMsgParam("Uint256", 1, "token_id"),
+            ],
+          },
+        ],
+      },
+    },
+    {
+      name: "token owner -> operator by operator",
+      transition: "TransferFrom",
+      getSender: () => toTestAddr(OPERATOR),
+      getParams: () => ({
+        to: toTestAddr(OPERATOR),
+        token_id: "1",
+      }),
+      error: undefined,
+      want: {
+        verifyState: (state) => {
+          return (
+            state.balances[toTestAddr(OPERATOR).toLowerCase()] === "1" &&
+            state.token_owners["1"] === toTestAddr(OPERATOR).toLowerCase()
+          );
+        },
+        events: [
+          {
+            name: "TransferFromSuccess",
+            getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(OPERATOR), "initiator"),
+              toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
+              toMsgParam("ByStr20", toTestAddr(OPERATOR), "to"),
+              toMsgParam("Uint256", 1, "token_id"),
+            ],
+          },
+        ],
+        transitions: [
+          {
+            tag: "ZRC6_RecipientAcceptTransferFrom",
+            getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
+              toMsgParam("ByStr20", toTestAddr(OPERATOR), "to"),
+              toMsgParam("Uint256", 1, "token_id"),
+            ],
+          },
+          {
+            tag: "ZRC6_TransferFromCallback",
+            getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
+              toMsgParam("ByStr20", toTestAddr(OPERATOR), "to"),
               toMsgParam("Uint256", 1, "token_id"),
             ],
           },

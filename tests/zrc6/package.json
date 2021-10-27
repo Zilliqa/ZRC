@@ -1,9 +1,9 @@
 {
   "name": "zrc6",
   "scripts": {
-    "run:local": "docker run --name zrc6_local -d -p 5555:5555 --entrypoint isolatedServer zilliqa/zilliqa-isolated-server:latest -t 5000 -f boot.json",
-    "rm:local": "docker stop zrc6_local | xargs docker rm",
-    "test:local": "PORT=5555 CONTAINER=zrc6_local jest",
+    "run:local": "docker run --name zrc_local -d -p 5555:5555 --entrypoint isolatedServer zilliqa/zilliqa-isolated-server:latest -t 5000 -f boot.json -u 0",
+    "rm:local": "docker stop zrc_local | xargs docker rm",
+    "test:local": "tsc --noEmit && PORT=5555 CONTAINER=zrc_local jest",
     "test": "npm run run:local; npm run test:local; npm run rm:local",
     "format": "npx prettier --write ."
   },

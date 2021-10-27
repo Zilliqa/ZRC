@@ -45,38 +45,38 @@ let get_bal =
 
 (* Error exception *)
 type Error =
-  | TokenNotFoundError
   | SelfError
   | NotContractOwnerError
   | NotTokenOwnerError
   | NotMinterError
-  | NotSpenderOrOperatorError
   | NotOwnerOrOperatorError
-  | InvalidFeeBpsError
-  | MinterFoundError
   | MinterNotFoundError
-  | SpenderFoundError
+  | MinterFoundError
   | SpenderNotFoundError
-  | OperatorFoundError
+  | SpenderFoundError
   | OperatorNotFoundError
+  | OperatorFoundError
+  | NotAllowedToTransferError
+  | TokenNotFoundError
+  | InvalidFeeBpsError
 
 let make_error =
   fun (result : Error) =>
     let result_code = 
       match result with
-      | TokenNotFoundError             => Int32 -1
-      | SelfError                      => Int32 -2
-      | NotContractOwnerError          => Int32 -3
-      | NotTokenOwnerError             => Int32 -4
-      | NotMinterError                 => Int32 -5
-      | NotSpenderOrOperatorError      => Int32 -6
-      | NotOwnerOrOperatorError        => Int32 -7
-      | MinterFoundError               => Int32 -8
-      | MinterNotFoundError            => Int32 -9
-      | SpenderFoundError              => Int32 -10
-      | SpenderNotFoundError           => Int32 -11
-      | OperatorFoundError             => Int32 -12
-      | OperatorNotFoundError          => Int32 -13
+      | SelfError                      => Int32 -1
+      | NotContractOwnerError          => Int32 -2
+      | NotTokenOwnerError             => Int32 -3
+      | NotMinterError                 => Int32 -4
+      | NotOwnerOrOperatorError        => Int32 -5
+      | MinterNotFoundError            => Int32 -6
+      | MinterFoundError               => Int32 -7
+      | SpenderNotFoundError           => Int32 -8
+      | SpenderFoundError              => Int32 -9
+      | OperatorNotFoundError          => Int32 -10
+      | OperatorFoundError             => Int32 -11
+      | NotAllowedToTransferError      => Int32 -12
+      | TokenNotFoundError             => Int32 -13
       | InvalidFeeBpsError             => Int32 -14
       end
     in
@@ -207,11 +207,11 @@ procedure IsTokenOwner(token_id: Uint256, address: ByStr20)
   end
 end
 
-procedure IsOwnerOrOperator(token_owner: ByStr20)
-  is_owner = builtin eq _sender token_owner;
-  has_operator <- exists operators[token_owner][_sender];
-  is_authorized = orb is_owner has_operator;
-  match is_authorized with
+procedure IsOwnerOrOperator(address: ByStr20)
+  is_owner = builtin eq _sender address;
+  has_operator <- exists operators[address][_sender];
+  is_allowed = orb is_owner has_operator;
+  match is_allowed with
   | True =>
   | False =>
     err = NotOwnerOrOperatorError;
@@ -219,19 +219,27 @@ procedure IsOwnerOrOperator(token_owner: ByStr20)
   end
 end
 
-procedure IsSpenderOrOperator(token_id: Uint256, token_owner: ByStr20)
+procedure IsSenderAllowedToTransfer(token_owner: ByStr20, token_id: Uint256)  
+  (* check if _sender is token owner *)
+  is_token_owner = builtin eq token_owner _sender;
+  
+  (* check if _sender is spender *)
   opt_spender <- spenders[token_id];
   is_spender = match opt_spender with
     | None => False
     | Some spender => 
-      builtin eq _sender spender
+      builtin eq spender _sender
     end;
-  has_operator <- exists operators[token_owner][_sender];
-  is_authorized = orb is_spender has_operator;
-  match is_authorized with
+
+  (* check if _sender is operator *)
+  is_operator <- exists operators[token_owner][_sender];
+  
+  is_spender_or_operator = orb is_spender is_operator;
+  is_allowed = orb is_spender_or_operator is_token_owner;
+  match is_allowed with
   | True =>
   | False =>
-    err = NotSpenderOrOperatorError;
+    err = NotAllowedToTransferError;
     ThrowError err
   end
 end
@@ -286,8 +294,10 @@ procedure MintToken(to: ByStr20)
   event e
 end
 
-(* @dev Gets royalty payment information for `token_id` and `sale_price`.    *)
+(* @dev Gets royalty payment information for `token_id` and `sale_price`. *)
 (* It specifies how much royalty is owed and to whom for a given sale price. *)
+(* @Requirements: *)
+(* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
 transition RoyaltyInfo(token_id: Uint256, sale_price: Uint256)
   IsTokenFound token_id;
 
@@ -309,6 +319,8 @@ transition RoyaltyInfo(token_id: Uint256, sale_price: Uint256)
 end
 
 (* @dev: Gets Uniform Resource Identifier(URI) for `token_id` *)
+(* @Requirements *)
+(* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
 transition TokenURI(token_id: Uint256)
   IsTokenFound token_id;
 
@@ -334,6 +346,8 @@ transition TokenURI(token_id: Uint256)
 end
 
 (* @dev: Gets token owner for `token_id` *)
+(* @Requirements: *)
+(* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
 transition OwnerOf(token_id: Uint256)
   opt_token_owner <- token_owners[token_id];
   match opt_token_owner with
@@ -404,6 +418,9 @@ transition TotalSupply()
 end
 
 (* @dev: Gets spender for `token_id` *)
+(* @Requirements: *)
+(* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
+(* - There should be a spender for the token. Otherwise, it should throw `SpenderNotFoundError` *)
 transition GetSpender(token_id: Uint256)
   IsTokenFound token_id;
 
@@ -439,8 +456,9 @@ transition IsOperator(token_owner: ByStr20, operator: ByStr20)
 end
 
 (* @dev: Sets `to` as the royalty recipient. *)
-(* Only contract_owner can be _sender.       *)
-(* @param: to - Royalty recipient address    *)
+(* @param: to - Royalty recipient address  *)
+(* @Requirements: *)
+(* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
 transition SetRoyaltyRecipient(to: ByStr20)
   IsContractOwner;
   royalty_recipient := to;
@@ -462,10 +480,11 @@ transition SetRoyaltyRecipient(to: ByStr20)
   send msgs  
 end
 
-(* @dev: Sets `fee_bps` as royalty fee bps.      *)
-(* Only contract_owner can be _sender.           *)
-(* Fee bps should be in the range of 1 and 1000. *)
-(* @param: fee_bps - Royalty fee BPS             *)
+(* @dev: Sets `fee_bps` as royalty fee bps. *)
+(* @param: fee_bps - Royalty fee BPS *)
+(* @Requirements: *)
+(* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
+(* - `fee_bps` should be in the range of 1 and 1000. Otherwise, it should throw `InvalidFeeBpsError` *)
 transition SetRoyaltyFeeBPS(fee_bps: Uint256)
   IsContractOwner;
   IsValidRoyaltyFeeBPS fee_bps;
@@ -489,7 +508,8 @@ transition SetRoyaltyFeeBPS(fee_bps: Uint256)
 end
 
 (* @dev: Sets `uri` as the base URI. *)
-(* Only contract_owner can be _sender.    *)
+(* @Requirements: *)
+(* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
 transition SetBaseURI(uri: String)
   IsContractOwner;
   base_uri := uri;
@@ -512,8 +532,9 @@ transition SetBaseURI(uri: String)
 end
 
 (* @dev: Mints a token and transfers it to `to`. *)
-(* Only minter can be _sender.                   *)
 (* @param: to - Address of the token recipient   *)
+(* @Requirements: *)
+(* - `_sender` should be a minter. Otherwise, it should throw `NotMinterError` *)
 transition Mint(to: ByStr20)
   MintToken to;
   token_id <- token_id_count;
@@ -533,9 +554,10 @@ transition Mint(to: ByStr20)
   send msgs
 end
 
-(* @dev: Mints tokens and transfers them to `to_list`.        *)
-(* Only minter can be _sender.                                *)
+(* @dev: Mints tokens and transfers them to `to_list`. *)
 (* @param: to_list - List of addresses of the token recipient *)
+(* @Requirements: *)
+(* - `_sender` should be a minter. Otherwise, it should throw `NotMinterError` *)
 transition BatchMint(to_list: List ByStr20)
   forall to_list MintToken;
   msg_to_sender = { 
@@ -547,9 +569,11 @@ transition BatchMint(to_list: List ByStr20)
   send msgs
 end
 
-(* @dev: Destroys `token_id`                               *)
-(* Only token_owner or operator can be _sender.            *)
+(* @dev: Destroys `token_id` *)
 (* @param: token_id - Unique ID of the NFT to be destroyed *)
+(* @Requirements: *)
+(* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
+(* - `_sender` should be a token owner or an operator. Otherwise, it should throw `NotOwnerOrOperatorError` *)
 transition Burn(token_id: Uint256)
   (* Check if token exists *)
   opt_token_owner <- token_owners[token_id];
@@ -588,8 +612,10 @@ transition Burn(token_id: Uint256)
   end
 end
 
-(* @dev: Adds `to` as minter           *)
-(* Only contract_owner can be _sender. *)
+(* @dev: Adds `to` as minter *)
+(* @Requirements: *)
+(* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
+(* - `to` should not be already a minter. Otherwise, it should throw `MinterFoundError` *)
 transition AddMinter(to: ByStr20)
   IsContractOwner;
   has_minter <- exists minters[to];
@@ -617,8 +643,10 @@ transition AddMinter(to: ByStr20)
   send msgs
 end
 
-(* @dev: Removes `to` from minter      *)
-(* Only contract_owner can be _sender. *)
+(* @dev: Removes `to` from minter *)
+(* @Requirements: *)
+(* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
+(* - `to` should be already a minter. Otherwise, it should throw `MinterNotFoundError` *)
 transition RemoveMinter(to: ByStr20)
   IsContractOwner;
   has_minter <- exists minters[to];
@@ -645,9 +673,12 @@ transition RemoveMinter(to: ByStr20)
   send msgs
 end
 
-(* @dev: Adds `to` as spender of `token_id`                   *)
-(* Only token_owner or operator can be _sender.               *)
+(* @dev: Adds `to` as spender of `token_id` *)
 (* There can only be one spender per token at any given time. *)
+(* @Requirements: *)
+(* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
+(* - `_sender` should be a token owner or an operator. Otherwise, it should throw `NotOwnerOrOperatorError` *)
+(* - `to` should not be already a spender. Otherwise, it should throw `SpenderFoundError` *)
 transition AddSpender(to: ByStr20, token_id: Uint256)
   opt_token_owner <- token_owners[token_id];
   match opt_token_owner with
@@ -687,8 +718,11 @@ transition AddSpender(to: ByStr20, token_id: Uint256)
   end
 end
 
-(* @dev: Removes `to` from spender of `token_id`              *)
-(* Only token_owner or operator can be _sender.               *)
+(* @dev: Removes `to` from spender of `token_id` *)
+(* @Requirements: *)
+(* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
+(* - `_sender` should be a token owner or an operator. Otherwise, it should throw `NotOwnerOrOperatorError` *)
+(* - `to` should be already a spender. Otherwise, it should throw `SpenderNotFoundError` *)
 transition RemoveSpender(to: ByStr20, token_id: Uint256)
   opt_token_owner <- token_owners[token_id];
   match opt_token_owner with
@@ -729,7 +763,10 @@ transition RemoveSpender(to: ByStr20, token_id: Uint256)
 end
 
 (* @dev: Adds `to` as operator for the _sender *)
-(* Only token_owner can be _sender.            *)
+(* @Requirements: *)
+(* - `_sender` should be the token owner. Otherwise, it should throw `NotTokenOwnerError` *)
+(* - `_sender` should not be `to`. Otherwise, it should throw `SelfError` *)
+(* - `to` should not be already an operator. Otherwise, it should throw `OperatorFoundError` *)
 transition AddOperator(to: ByStr20)
   IsNotSelf to _sender;
   
@@ -770,6 +807,10 @@ transition AddOperator(to: ByStr20)
 end
 
 (* @dev: Removes `to` from operator for the _sender *)
+(* @Requirements:  *)
+(* - `_sender` should be the token owner. Otherwise, it should throw `NotTokenOwnerError` *)
+(* - `_sender` should not be `to`. Otherwise, it should throw `SelfError` *)
+(* - `to` should be already an operator. Otherwise, it should throw `OperatorNotFoundError` *)
 transition RemoveOperator(to: ByStr20)
   IsNotSelf to _sender;
   has_operator <- exists operators[_sender][to];
@@ -798,50 +839,10 @@ transition RemoveOperator(to: ByStr20)
 end
 
 (* @dev: Transfers `token_id` from the token owner to `to`.  *)
-(* Only token_owner can be _sender.                          *)
-transition Transfer(to: ByStr20, token_id: Uint256)
-  IsNotSelf to _sender;
-  IsTokenOwner token_id _sender;
-  (* Change token_owner for that token_id *)
-  token_owners[token_id] := to;
-
-  delete spenders[token_id];
-  (* subtract one from previous token owner balance *)
-  UpdateBalance sub_operation _sender;
-  (* add one to the new token owner balance *)
-  UpdateBalance add_operation to;
-  e = {
-    _eventname : "TransferSuccess";
-    initiator : _sender;
-    from : _sender;
-    to : to;
-    token_id : token_id
-  };
-  event e;
-
-  msg_to_recipient = { 
-    _tag : "ZRC6_RecipientAcceptTransfer";
-    _recipient : to;
-    _amount : Uint128 0;
-    from : _sender;
-    to : to;
-    token_id : token_id
-  };
-
-  msg_to_sender = { 
-    _tag : "ZRC6_TransferCallback";
-    _recipient : _sender;
-    _amount : Uint128 0;
-    from : _sender;
-    to : to;
-    token_id : token_id
-  };
-  msgs = two_msgs msg_to_recipient msg_to_sender;
-  send msgs
-end
-
-(* @dev: Transfers `token_id` from the token owner to `to`.  *)
-(* Only spender or operator can be _sender.                  *)
+(* @Requirements: *)
+(* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
+(* - `_sender` should be a token owner, spender, or operator. Otherwise, it should throw `NotAllowedToTransferError` *)
+(* - `_sender` should not be `to`. Otherwise, it should throw `SelfError` *)
 transition TransferFrom(to: ByStr20, token_id: Uint256)
   opt_token_owner <- token_owners[token_id];
   match opt_token_owner with
@@ -849,16 +850,19 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
     err = TokenNotFoundError;
     ThrowError err
   | Some token_owner =>
-    IsNotSelf to token_owner;
-    IsSpenderOrOperator token_id token_owner;
-    (* Change token_owner for that token_id *)
+    IsSenderAllowedToTransfer token_owner token_id;
+    IsNotSelf token_owner to;
+    
+    (* change token_owner for that token_id *)
     token_owners[token_id] := to;
 
     delete spenders[token_id];
+
     (* subtract one from previous token owner balance *)
     UpdateBalance sub_operation token_owner;
     (* add one to the new token owner balance *)
     UpdateBalance add_operation to;
+
     e = {
       _eventname : "TransferFromSuccess";
       initiator : _sender;

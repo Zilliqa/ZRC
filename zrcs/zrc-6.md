@@ -1,6 +1,6 @@
 | ZRC | Title                       | Status | Type     | Author                       | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
 | :-: | --------------------------- | ------ | -------- | ---------------------------- | -------------------- | -------------------- |
-|  6  | Non-Fungible Token Standard | Ready  | Standard | Neuti Yoo <noel@zilliqa.com> | 2021-10-01           | 2021-10-20           |
+|  6  | Non-Fungible Token Standard | Ready  | Standard | Neuti Yoo <noel@zilliqa.com> | 2021-10-01           | 2021-10-25           |
 
 ## I. What are NFTs and NFT royalties?
 
@@ -45,33 +45,49 @@ The NFT contract specification describes:
 
 | Name                | Description                                                                                                                                                                                | Required |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :------: |
-| `contract_owner`    | The contract owner is the creator of the NFT. The contract owner can: <ul><li>set royalty recipient</li><li>set royalty fee BPS</li><li>set base URI</li><li>add/remove a minter</li></ul> |   Yes    |
-| `royalty_recipient` | The royalty recipient gets a royalty amount each time the NFT is sold or re-sold. Initially, the royalty recipient is the contract owner.                                                  |    No    |
-| `token_owner`       | Each token has an token owner. A token owner can: <ul><li>transfer a token </li><li>burn a token</li><li>add/remove a spender of a token</li><li>add/remove an operator</li></ul>          |   Yes    |
-| `minter`            | A minter can mint tokens. Initially, the contract owner is a minter.                                                                                                                       |   Yes    |
-| `spender`           | On behalf of the token owner, a spender can transfer a token. There can only be one spender per token at any given time.                                                                   |   Yes    |
-| `operator`          | On behalf of the token owner, an operator can: <ul><li>transfer a token </li><li>burn a token</li><li>add/remove a spender of a token</li></ul>                                            |   Yes    |
+| `contract_owner`    | The contract owner is the creator of the NFT. The contract owner can: <ul><li>set royalty recipient</li><li>set royalty fee BPS</li><li>set base URI</li><li>add/remove a minter</li></ul> |    ✓     |
+| `royalty_recipient` | The royalty recipient gets a royalty amount each time the NFT is sold or re-sold. Initially, the royalty recipient is the contract owner.                                                  |          |
+| `minter`            | A minter can mint tokens. Initially, the contract owner is a minter.                                                                                                                       |    ✓     |
+| `token_owner`       | Each token has an token owner. A token owner can: <ul><li>transfer a token </li><li>burn a token</li><li>add/remove a spender of a token</li><li>add/remove an operator</li></ul>          |    ✓     |
+| `spender`           | On behalf of the token owner, a spender can transfer a token. There can only be one spender per token at any given time.                                                                   |    ✓     |
+| `operator`          | On behalf of the token owner, an operator can: <ul><li>transfer a token </li><li>burn a token</li><li>add/remove a spender of a token</li></ul>                                            |    ✓     |
+
+| Transition            | `contract_owner` | `minter` | `token_owner` | `spender` | `operator` |
+| --------------------- | :--------------: | :------: | :-----------: | :-------: | :--------: |
+| `SetRoyaltyRecipient` |        ✓         |          |               |           |            |
+| `SetRoyaltyFeeBPS`    |        ✓         |          |               |           |            |
+| `SetBaseURI`          |        ✓         |          |               |           |            |
+| `AddMinter`           |        ✓         |          |               |           |            |
+| `RemoveMinter`        |        ✓         |          |               |           |            |
+| `BatchMint`           |                  |    ✓     |               |           |            |
+| `Mint`                |                  |    ✓     |               |           |            |
+| `Burn`                |                  |          |       ✓       |           |     ✓      |
+| `AddSpender`          |                  |          |       ✓       |           |     ✓      |
+| `RemoveSpender`       |                  |          |       ✓       |           |     ✓      |
+| `AddOperator`         |                  |          |       ✓       |           |            |
+| `RemoveOperator`      |                  |          |       ✓       |           |            |
+| `TransferFrom`        |                  |          |       ✓       |     ✓     |     ✓      |
 
 ### B. Error Codes
 
 The NFT contract must define the following constants for use as error codes for the `Error` event.
 
-| Name                        | Type    |  Code | Description                                                               | Required |
-| --------------------------- | ------- | ----: | ------------------------------------------------------------------------- | :------: |
-| `TokenNotFoundError`        | `Int32` |  `-1` | Emit when the token is not found.                                         |   Yes    |
-| `SelfError`                 | `Int32` |  `-2` | Emit when the address is self.                                            |   Yes    |
-| `NotContractOwnerError`     | `Int32` |  `-3` | Emit when the address is not a contract owner.                            |   Yes    |
-| `NotTokenOwnerError`        | `Int32` |  `-4` | Emit when the address is not a token owner.                               |   Yes    |
-| `NotMinterError`            | `Int32` |  `-5` | Emit when the address is not a minter.                                    |   Yes    |
-| `NotSpenderOrOperatorError` | `Int32` |  `-6` | Emit when the address is neither a spender nor an operator for the token. |   Yes    |
-| `NotOwnerOrOperatorError`   | `Int32` |  `-7` | Emit when the address is neither a token owner nor a token operator.      |   Yes    |
-| `MinterNotFoundError`       | `Int32` |  `-9` | Emit when the minter is found.                                            |   Yes    |
-| `MinterFoundError`          | `Int32` |  `-8` | Emit when the minter is not found.                                        |   Yes    |
-| `SpenderFoundError`         | `Int32` | `-10` | Emit when the spender is found.                                           |   Yes    |
-| `SpenderNotFoundError`      | `Int32` | `-11` | Emit when the spender is not found.                                       |   Yes    |
-| `OperatorFoundError`        | `Int32` | `-12` | Emit when the operator is found.                                          |   Yes    |
-| `OperatorNotFoundError`     | `Int32` | `-13` | Emit when the operator is not found.                                      |   Yes    |
-| `InvalidFeeBpsError`        | `Int32` | `-14` | Emit when the fee bps is out of range.                                    |    No    |
+| Name                        | Type    |  Code | Description                                                          | Required |
+| --------------------------- | ------- | ----: | -------------------------------------------------------------------- | :------: |
+| `SelfError`                 | `Int32` |  `-1` | Emit when the address is self.                                       |    ✓     |
+| `NotContractOwnerError`     | `Int32` |  `-2` | Emit when the address is not a contract owner.                       |    ✓     |
+| `NotTokenOwnerError`        | `Int32` |  `-3` | Emit when the address is not a token owner.                          |    ✓     |
+| `NotMinterError`            | `Int32` |  `-4` | Emit when the address is not a minter.                               |    ✓     |
+| `NotOwnerOrOperatorError`   | `Int32` |  `-5` | Emit when the address is neither a token owner nor a token operator. |    ✓     |
+| `MinterNotFoundError`       | `Int32` |  `-6` | Emit when the minter is found.                                       |    ✓     |
+| `MinterFoundError`          | `Int32` |  `-7` | Emit when the minter is not found.                                   |    ✓     |
+| `SpenderNotFoundError`      | `Int32` |  `-8` | Emit when the spender is not found.                                  |    ✓     |
+| `SpenderFoundError`         | `Int32` |  `-9` | Emit when the spender is found.                                      |    ✓     |
+| `OperatorNotFoundError`     | `Int32` | `-10` | Emit when the operator is not found.                                 |    ✓     |
+| `OperatorFoundError`        | `Int32` | `-11` | Emit when the operator is found.                                     |    ✓     |
+| `NotAllowedToTransferError` | `Int32` | `-12` | Emit when `_sender` is not allowed to transfer the token.            |    ✓     |
+| `TokenNotFoundError`        | `Int32` | `-13` | Emit when the token is not found.                                    |    ✓     |
+| `InvalidFeeBpsError`        | `Int32` | `-14` | Emit when the fee bps is out of range. The valid range is 1 ~ 1000   |          |
 
 ### C. Immutable Variables
 
@@ -85,20 +101,24 @@ The NFT contract must define the following constants for use as error codes for 
 
 | Name                | Type                             | Description                                                          | Required |
 | ------------------- | -------------------------------- | -------------------------------------------------------------------- | :------: |
-| `royalty_recipient` | `ByStr20`                        | Address to send royalties to.                                        |    No    |
-| `royalty_fee_bps`   | `Uint256`                        | Royalty fee BPS (1/100ths of a percent, e.g. 1000 = 10%).            |    No    |
-| `base_uri`          | `String`                         | Base URI. e.g. `https://creatures-api.zil.xyz/api/creature/`         |   Yes    |
-| `token_owners`      | `Map Uint256 ByStr20`            | Mapping from token ID to its owner.                                  |   Yes    |
-| `token_id_count`    | `Uint256`                        | The total number of tokens minted.                                   |   Yes    |
-| `total_supply`      | `Uint256`                        | The total number of existing tokens.                                 |   Yes    |
-| `balances`          | `Map ByStr20 Uint256`            | Mapping from token owner to the number of existing tokens.           |   Yes    |
-| `minters`           | `Map ByStr20 Dummy`              | Set for minters.                                                     |   Yes    |
-| `spenders`          | `Map Uint256 ByStr20`            | Mapping from token ID to a spender.                                  |   Yes    |
-| `operators`         | `Map ByStr20 (Map ByStr20 Bool)` | Mapping from token owner to operators authorized by the token owner. |   Yes    |
+| `royalty_recipient` | `ByStr20`                        | Address to send royalties to.                                        |          |
+| `royalty_fee_bps`   | `Uint256`                        | Royalty fee BPS (1/100ths of a percent, e.g. 1000 = 10%).            |          |
+| `base_uri`          | `String`                         | Base URI. e.g. `https://creatures-api.zil.xyz/api/creature/`         |    ✓     |
+| `token_owners`      | `Map Uint256 ByStr20`            | Mapping from token ID to its owner.                                  |    ✓     |
+| `token_id_count`    | `Uint256`                        | The total number of tokens minted.                                   |    ✓     |
+| `total_supply`      | `Uint256`                        | The total number of existing tokens.                                 |    ✓     |
+| `balances`          | `Map ByStr20 Uint256`            | Mapping from token owner to the number of existing tokens.           |    ✓     |
+| `minters`           | `Map ByStr20 Dummy`              | Set of minters.                                                      |    ✓     |
+| `spenders`          | `Map Uint256 ByStr20`            | Mapping from token ID to a spender.                                  |    ✓     |
+| `operators`         | `Map ByStr20 (Map ByStr20 Bool)` | Mapping from token owner to operators authorized by the token owner. |    ✓     |
 
 ### E. Transitions
 
-#### 1. RoyaltyInfo() (Optional)
+#### 1. `RoyaltyInfo()` (Optional)
+
+**Requirements:**
+
+- `token_id` should exist. Otherwise, it should throw `TokenNotFoundError`
 
 **Arguments:**
 
@@ -109,11 +129,15 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Messages:**
 
-|        | Name                       | Description                                              | Callback Parameters                                                                                                                                                            |
-| ------ | -------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `_tag` | `ZRC6_RoyaltyInfoCallback` | Provide the sender how much royalty is owed and to whom. | <ul><li>`royalty_amount` : `Uint256`<br/>Amount of funds to be paid to the royalty recipient</li><li>`royalty_recipient` : `ByStr20`</li>Address of the royalty recipient</ul> |
+|        | Name                       | Description                                                                     | Callback Parameters                                                                                                                                                            |
+| ------ | -------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `_tag` | `ZRC6_RoyaltyInfoCallback` | Provide the sender the address of the royalty recipient and the royalty amount. | <ul><li>`royalty_amount` : `Uint256`<br/>Amount of funds to be paid to the royalty recipient</li><li>`royalty_recipient` : `ByStr20`</li>Address of the royalty recipient</ul> |
 
-#### 2. TokenURI()
+#### 2. `TokenURI()`
+
+**Requirements:**
+
+- `token_id` should exist. Otherwise, it should throw `TokenNotFoundError`
 
 **Arguments:**
 
@@ -127,7 +151,11 @@ The NFT contract must define the following constants for use as error codes for 
 | ------ | ----------------------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
 | `_tag` | `ZRC6_TokenURICallback` | Provide the sender with the token URI of the token ID. | `token_uri` : `String`<br/>Token URI of a token<br/> e.g. `https://creatures-api.zil.xyz/api/creature/1` |
 
-#### 3. OwnerOf()
+#### 3. `OwnerOf()`
+
+**Requirements:**
+
+- `token_id` should exist. Otherwise, it should throw `TokenNotFoundError`
 
 **Arguments:**
 
@@ -137,11 +165,11 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Messages:**
 
-|        | Name                   | Description                              | Callback Parameters                       |
-| ------ | ---------------------- | ---------------------------------------- | ----------------------------------------- |
-| `_tag` | `ZRC6_OwnerOfCallback` | Provide the sender with the token owner. | `token_owner` : `ByStr20`<br/>Token owner |
+|        | Name                   | Description                                        | Callback Parameters                       |
+| ------ | ---------------------- | -------------------------------------------------- | ----------------------------------------- |
+| `_tag` | `ZRC6_OwnerOfCallback` | Provide the sender the address of the token owner. | `token_owner` : `ByStr20`<br/>Token owner |
 
-#### 4. Name()
+#### 4. `Name()`
 
 **Messages:**
 
@@ -149,7 +177,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------ | ------------------- | -------------------------------- | ------------------------------ |
 | `_tag` | `ZRC6_NameCallback` | Provide the sender the NFT name. | `name` : `String`<br/>NFT name |
 
-#### 5. Symbol()
+#### 5. `Symbol()`
 
 **Messages:**
 
@@ -157,7 +185,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------ | --------------------- | ---------------------------------- | ---------------------------------- |
 | `_tag` | `ZRC6_SymbolCallback` | Provide the sender the NFT symbol. | `symbol` : `String`<br/>NFT symbol |
 
-#### 6. BalanceOf()
+#### 6. `BalanceOf()`
 
 **Arguments:**
 
@@ -171,7 +199,7 @@ The NFT contract must define the following constants for use as error codes for 
 | ------ | ------------------------ | ------------------------------------------------------- | ------------------------------------------------------------------------ |
 | `_tag` | `ZRC6_BalanceOfCallback` | Provide the sender with the balance of the token owner. | `balance` : `Uint256`<br/>The balance of tokens owned by the token owner |
 
-#### 7. TotalSupply()
+#### 7. `TotalSupply()`
 
 **Messages:**
 
@@ -179,7 +207,12 @@ The NFT contract must define the following constants for use as error codes for 
 | ------ | -------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------- |
 | `_tag` | `ZRC6_TotalSupplyCallback` | Provide the sender the current total supply of tokens minted. | `total_supply` : `Uint256`<br/>The total supply of tokens minted |
 
-#### 8. GetSpender()
+#### 8. `GetSpender()`
+
+**Requirements:**
+
+- `token_id` should exist. Otherwise, it should throw `TokenNotFoundError`
+- There should be a spender for the token. Otherwise, it should throw `SpenderNotFoundError`
 
 **Arguments:**
 
@@ -189,11 +222,11 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Messages:**
 
-|        | Name                      | Description                                                            | Callback Parameters                                                                                                    |
-| ------ | ------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_GetSpenderCallback` | Provide the sender an address of the spender address and the token ID. | <ul><li>`spender` : `ByStr20`<br/>Address of spender</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+|        | Name                      | Description                                                     | Callback Parameters                                                                                                    |
+| ------ | ------------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_GetSpenderCallback` | Provide the sender the address of the spender and the token ID. | <ul><li>`spender` : `ByStr20`<br/>Address of spender</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
-#### 9. IsOperator()
+#### 9. `IsOperator()`
 
 **Arguments:**
 
@@ -204,11 +237,15 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Messages:**
 
-|        | Name                      | Description                                            | Callback Parameters                                               |
-| ------ | ------------------------- | ------------------------------------------------------ | ----------------------------------------------------------------- |
-| `_tag` | `ZRC6_IsOperatorCallback` | Check if the address is an operator of the token owner | `is_operator` : `Bool`<br/> `True` if operator, otherwise `False` |
+|        | Name                      | Description                                                                             | Callback Parameters                                               |
+| ------ | ------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `_tag` | `ZRC6_IsOperatorCallback` | Provide the sender a boolean for whether the address is an operator of the token owner. | `is_operator` : `Bool`<br/> `True` if operator, otherwise `False` |
 
-#### 10. SetRoyaltyRecipient() (Optional)
+#### 10. `SetRoyaltyRecipient()` (Optional)
+
+**Requirements:**
+
+- `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError`
 
 **Arguments:**
 
@@ -218,9 +255,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Messages:**
 
-|        | Name                               | Description                               | Callback Parameters                                   |
-| ------ | ---------------------------------- | ----------------------------------------- | ----------------------------------------------------- |
-| `_tag` | `ZRC6_SetRoyaltyRecipientCallback` | Provide the sender the royalty recipient. | `to` : `ByStr20`<br/>Address of the royalty recipient |
+|        | Name                               | Description                                          | Callback Parameters                                   |
+| ------ | ---------------------------------- | ---------------------------------------------------- | ----------------------------------------------------- |
+| `_tag` | `ZRC6_SetRoyaltyRecipientCallback` | Provide the sender the address of royalty recipient. | `to` : `ByStr20`<br/>Address of the royalty recipient |
 
 **Events:**
 
@@ -228,7 +265,12 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ---------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | `_eventname` | `SetRoyaltyRecipientSuccess` | Royalty recipient has been updated. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address of the royalty recipient</li></ul> |
 
-#### 11. SetRoyaltyFeeBPS() (Optional)
+#### 11. `SetRoyaltyFeeBPS()` (Optional)
+
+**Requirements:**
+
+- `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError`
+- `fee_bps` should be in the range of 1 and 1000. Otherwise, it should throw `InvalidFeeBpsError`
 
 **Arguments:**
 
@@ -248,7 +290,11 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ------------------------- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `SetRoyaltyFeeBPSSuccess` | Royalty fee BPS has been updated. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`royalty_fee_bps` : `Uint256`<br/>Royalty Fee BPS</li></ul> |
 
-#### 12. SetBaseURI()
+#### 12. `SetBaseURI()`
+
+**Requirements:**
+
+- `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError`
 
 **Arguments:**
 
@@ -268,7 +314,11 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ------------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `SetBaseURISuccess` | Base URI has been updated. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`base_uri` : `String`<br/>Base URI</li></ul> |
 
-#### 13. BatchMint() (Optional)
+#### 13. `BatchMint()` (Optional)
+
+**Requirements:**
+
+- `_sender` should be a minter. Otherwise, it should throw `NotMinterError`
 
 **Arguments:**
 
@@ -282,7 +332,11 @@ The NFT contract must define the following constants for use as error codes for 
 | ------ | ------------------------ | ----------------------------------- | ------------------- |
 | `_tag` | `ZRC6_BatchMintCallback` | Provide the sender with the result. |                     |
 
-#### 14. Mint()
+#### 14. `Mint()`
+
+**Requirements:**
+
+- `_sender` should be a minter. Otherwise, it should throw `NotMinterError`
 
 **Arguments:**
 
@@ -292,10 +346,10 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Messages:**
 
-|        | Name                       | Description                                                  | Callback Parameters                                                                                                   |
-| ------ | -------------------------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_RecipientAcceptMint` | Dummy callback to prevent invalid recipient contract.        |                                                                                                                       |
-| `_tag` | `ZRC6_MintCallback`        | Provide the sender the token recipient address and token ID. | <ul><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+|        | Name                       | Description                                                     | Callback Parameters                                                                                                   |
+| ------ | -------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_RecipientAcceptMint` | Dummy callback to prevent invalid recipient contract.           |                                                                                                                       |
+| `_tag` | `ZRC6_MintCallback`        | Provide the sender the address of token recipient and token ID. | <ul><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
 **Events:**
 
@@ -303,7 +357,12 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `MintSuccess` | Token has been minted. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li> `to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
-#### 15. Burn() (Optional)
+#### 15. `Burn()` (Optional)
+
+**Requirements:**
+
+- `token_id` should exist. Otherwise, it should throw `TokenNotFoundError`
+- `_sender` should be a token owner or an operator. Otherwise, it should throw `NotOwnerOrOperatorError`
 
 **Arguments:**
 
@@ -323,7 +382,12 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `_eventname` | `BurnSuccess` | Token has been burned. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`burn_address` : `ByStr20`</br>Address of the token owner</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
-#### 16. AddMinter()
+#### 16. `AddMinter()`
+
+**Requirements:**
+
+- `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError`
+- `to` should not be already a minter. Otherwise, it should throw `MinterFoundError`
 
 **Arguments:**
 
@@ -333,9 +397,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Messages:**
 
-|        | Name                     | Description                            | Callback Parameters                                                |
-| ------ | ------------------------ | -------------------------------------- | ------------------------------------------------------------------ |
-| `_tag` | `ZRC6_AddMinterCallback` | Provide the sender the minter address. | <ul><li>`to` : `ByStr20`<br/>Address that has been added</li></ul> |
+|        | Name                     | Description                                   | Callback Parameters                                                |
+| ------ | ------------------------ | --------------------------------------------- | ------------------------------------------------------------------ |
+| `_tag` | `ZRC6_AddMinterCallback` | Provide the sender the address of the minter. | <ul><li>`to` : `ByStr20`<br/>Address that has been added</li></ul> |
 
 **Events:**
 
@@ -343,7 +407,12 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ------------------ | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `AddMinterSuccess` | Minter has been added. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been added</li></ul> |
 
-#### 17. RemoveMinter()
+#### 17. `RemoveMinter()`
+
+**Requirements:**
+
+- `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError`
+- `to` should be already a minter. Otherwise, it should throw `MinterNotFoundError`
 
 **Arguments:**
 
@@ -363,7 +432,13 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | --------------------- | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `RemoveMinterSuccess` | Minter has been removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been removed</li></ul> |
 
-#### 18. AddSpender()
+#### 18. `AddSpender()`
+
+**Requirements:**
+
+- `token_id` should exist. Otherwise, it should throw `TokenNotFoundError`
+- `_sender` should be a token owner or an operator. Otherwise, it should throw `NotOwnerOrOperatorError`
+- `to` should not be already a spender. Otherwise, it should throw `SpenderFoundError`
 
 **Arguments:**
 
@@ -374,9 +449,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Messages:**
 
-|        | Name                      | Description                                          | Callback Parameters                                                                                                        |
-| ------ | ------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_AddSpenderCallback` | Provide the sender the spender address and token ID. | <ul><li>`to` : `ByStr20`<br/>Address that has been added</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
+|        | Name                      | Description                                                 | Callback Parameters                                                                                                        |
+| ------ | ------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_AddSpenderCallback` | Provide the sender the address of the spender and token ID. | <ul><li>`to` : `ByStr20`<br/>Address that has been added</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
 
 **Events:**
 
@@ -384,7 +459,13 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `AddSpenderSuccess` | Spender has been added. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been added</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
 
-#### 19. RemoveSpender()
+#### 19. `RemoveSpender()`
+
+**Requirements:**
+
+- `token_id` should exist. Otherwise, it should throw `TokenNotFoundError`
+- `_sender` should be a token owner or an operator. Otherwise, it should throw `NotOwnerOrOperatorError`
+- `to` should be already a spender. Otherwise, it should throw `SpenderNotFoundError`
 
 **Arguments:**
 
@@ -405,7 +486,13 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ---------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `RemoveSpenderSuccess` | Spender has been removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been removed</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
 
-#### 20. AddOperator()
+#### 20. `AddOperator()`
+
+**Requirements:**
+
+- `_sender` should be the token owner. Otherwise, it should throw `NotTokenOwnerError`
+- `_sender` should not be `to`. Otherwise, it should throw `SelfError`
+- `to` should not be already an operator. Otherwise, it should throw `OperatorFoundError`
 
 **Arguments:**
 
@@ -415,9 +502,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Messages:**
 
-|        | Name                       | Description                              | Callback Parameters                              |
-| ------ | -------------------------- | ---------------------------------------- | ------------------------------------------------ |
-| `_tag` | `ZRC6_AddOperatorCallback` | Provide the sender the operator address. | `to` : `ByStr20`<br/>Address that has been added |
+|        | Name                       | Description                                     | Callback Parameters                              |
+| ------ | -------------------------- | ----------------------------------------------- | ------------------------------------------------ |
+| `_tag` | `ZRC6_AddOperatorCallback` | Provide the sender the address of the operator. | `to` : `ByStr20`<br/>Address that has been added |
 
 **Events:**
 
@@ -425,7 +512,13 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | -------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `AddOperatorSuccess` | Operator has been added. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been added</li></ul> |
 
-#### 21. RemoveOperator()
+#### 21. `RemoveOperator()`
+
+**Requirements:**
+
+- `_sender` should be the token owner. Otherwise, it should throw `NotTokenOwnerError`
+- `_sender` should not be `to`. Otherwise, it should throw `SelfError`
+- `to` should be already an operator. Otherwise, it should throw `OperatorNotFoundError`
 
 **Arguments:**
 
@@ -445,29 +538,13 @@ The NFT contract must define the following constants for use as error codes for 
 | ------------ | ----------------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `RemoveOperatorSuccess` | Operator has been removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been removed</li></ul> |
 
-#### 22. Transfer()
+#### 22. `TransferFrom()`
 
-**Arguments:**
+**Requirements:**
 
-| Name       | Type      | Description                     |
-| ---------- | --------- | ------------------------------- |
-| `to`       | `ByStr20` | Recipient address of the token. |
-| `token_id` | `Uint256` | Unique ID of the token.         |
-
-**Messages:**
-
-|        | Name                           | Description                                             | Callback Parameters                                                                                                                                                           |
-| ------ | ------------------------------ | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_RecipientAcceptTransfer` | Provide the recipient the result of the token transfer. | <ul><li>`from` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
-| `_tag` | `ZRC6_TransferCallback`        | Provide the sender the result of the token transfer.    | <ul><li>`from` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
-
-**Events:**
-
-|              | Name              | Description                 | Event Parameters                                                                                                                                                                                                                           |
-| ------------ | ----------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `_eventname` | `TransferSuccess` | Token has been transferred. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`from` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
-
-#### 23. TransferFrom()
+- `token_id` should exist. Otherwise, it should throw `TokenNotFoundError`
+- `_sender` should be a token owner, spender, or operator. Otherwise, it should throw `NotAllowedToTransferError`
+- `_sender` should not be `to`. Otherwise, it should throw `SelfError`
 
 **Arguments:**
 

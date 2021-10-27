@@ -21,11 +21,10 @@ import {
   TOKEN_NAME,
   TOKEN_SYMBOL,
   FAUCET_PARAMS,
-  BASE_URI,
   INITIAL_TOTAL_SUPPLY,
 } from "./config";
 
-const JEST_WORKER_ID = Number(process.env.JEST_WORKER_ID);
+const JEST_WORKER_ID = Number(process.env["JEST_WORKER_ID"]);
 const GENESIS_PRIVATE_KEY = global.GENESIS_PRIVATE_KEYS[JEST_WORKER_ID - 1];
 
 const zilliqa = new Zilliqa(API);
@@ -42,7 +41,7 @@ const CONTRACT_OWNER = 0;
 const TOKEN_OWNER = 0;
 const MINTER = 1;
 const STRANGER = 9;
-const toTestAddr = (index) => globalTestAccounts[index].address;
+const toTestAddr = (index) => globalTestAccounts[index]?.address as string;
 
 beforeAll(async () => {
   const accounts = genAccounts(10);
