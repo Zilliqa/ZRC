@@ -2,6 +2,21 @@
 | :-: | --------------------------- | ------ | -------- | ---------------------------- | -------------------- | -------------------- |
 |  6  | Non-Fungible Token Standard | Ready  | Standard | Neuti Yoo <noel@zilliqa.com> | 2021-10-01           | 2021-10-25           |
 
+## Table of Contents
+
+- [I. What are NFTs and NFT royalties?](#i-what-are-nfts-and-nft-royalties)
+- [II. Abstract](#ii-abstract)
+- [III. Motivation](#iii-motivation)
+- [IV. Specification](#iv-specification)
+  - [A. Roles](#a-roles)
+  - [B. Error Codes](#b-error-codes)
+  - [C. Immutable Variables](#c-immutable-variables)
+  - [D. Mutable Fields](#d-mutable-fields)
+  - [E. Transitions](#e-transitions)
+- [V. Testing](#v-testing)
+- [VI. References](#vi-references)
+- [VII. Copyright](#vii-copyright)
+
 ## I. What are NFTs and NFT royalties?
 
 An NFT or Non-Fungible Token is an open standard to create collectible assets. Unlike fungible tokens, each token is unique and non-interchangeable with other tokens.
