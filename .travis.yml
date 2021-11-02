@@ -1,12 +1,10 @@
-language: generic
+language: node_js
+node_js:
+  - 16
+
 sudo: required
 services:
   - docker
-
-matrix:
-  include:
-    - os: linux
-      dist: xenial
 
 cache:
   directories:
@@ -18,5 +16,6 @@ before_cache:
 before_script:
   - docker load -i docker_images/images.tar || true
 
-script: ./ci_build.sh
+script: ./ci_scilla_type_check.sh && npm i && npm test
+
 skip_cleanup: true

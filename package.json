@@ -1,0 +1,32 @@
+{
+  "name": "zrc",
+  "scripts": {
+    "run:isolated-server": "docker run --name zrc_local -d -p 5555:5555 --entrypoint isolatedServer zilliqa/zilliqa-isolated-server:a01fe00 -t 5000 -f boot.json -u 0",
+    "rm:isolated-server": "docker stop zrc_local | xargs docker rm",
+    "test:zrc": "PORT=5555 CONTAINER=zrc_local jest --passWithNoTests",
+    "test": "npm run run:isolated-server; npm run test:zrc && npm run rm:isolated-server",
+    "format": "npx prettier --write ."
+  },
+  "devDependencies": {
+    "@types/jest": "^27.0.2",
+    "@zilliqa-js/zilliqa": "3.3.1",
+    "jest": "^27.2.4",
+    "prettier": "^2.4.1",
+    "ts-jest": "^27.0.5",
+    "typescript": "^4.4.4"
+  },
+  "type": "module",
+  "jest": {
+    "preset": "ts-jest",
+    "verbose": true,
+    "testTimeout": 60000,
+    "maxWorkers": 3,
+    "globals": {
+      "GENESIS_PRIVATE_KEYS": [
+        "e53d1c3edaffc7a7bab5418eb836cf75819a82872b4a1a0f1c7fcf5c3e020b89",
+        "d96e9eb5b782a80ea153c937fa83e5948485fbfc8b7e7c069d7b914dbc350aba",
+        "e7f59a4beb997a02a13e0d5e025b39a6f0adc64d37bb1e6a849a4863b4680411"
+      ]
+    }
+  }
+}

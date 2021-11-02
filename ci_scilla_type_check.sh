@@ -1,4 +1,4 @@
-container=`docker run -d -t zilliqa/scilla:latest`
+container=`docker run -d -p 5555:5555 --entrypoint isolatedServer zilliqa/zilliqa-isolated-server:a01fe00 -t 1000 -u 0 -f boot.json`
 echo $container
 
 scilla="/scilla/0/"
@@ -18,3 +18,7 @@ for src in reference/*.scilla; do
     
     echo "PASS:$file"
 done
+
+rm_container=`docker stop $container | xargs docker rm`
+echo $rm_container
+
