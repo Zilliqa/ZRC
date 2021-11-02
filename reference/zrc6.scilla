@@ -137,7 +137,7 @@ procedure ThrowError(err : Error)
   throw e
 end
 
-procedure IsValidRoyaltyFeeBPS(fee_bps: Uint256)
+procedure RequireValidRoyaltyFee(fee_bps: Uint256)
   is_gte_min = uint256_ge fee_bps royalty_fee_bps_min;
   is_lte_max = uint256_le fee_bps royalty_fee_bps_max;
   
@@ -150,7 +150,7 @@ procedure IsValidRoyaltyFeeBPS(fee_bps: Uint256)
   end
 end
 
-procedure IsContractOwner()
+procedure RequireContractOwner()
   is_contract_owner = builtin eq contract_owner _sender;
   match is_contract_owner with
   | True => 
@@ -160,7 +160,7 @@ procedure IsContractOwner()
   end
 end
 
-procedure IsNotSelf(address_a: ByStr20, address_b: ByStr20)
+procedure RequireNotSelf(address_a: ByStr20, address_b: ByStr20)
   is_self = builtin eq address_a address_b;
   match is_self with
   | False =>
@@ -170,7 +170,7 @@ procedure IsNotSelf(address_a: ByStr20, address_b: ByStr20)
   end
 end
 
-procedure IsTokenFound(token_id: Uint256)
+procedure RequireExistingToken(token_id: Uint256)
   has_token <- exists token_owners[token_id];
   match has_token with
   | True =>
@@ -190,7 +190,7 @@ procedure IsMinter(address: ByStr20)
   end
 end
 
-procedure IsTokenOwner(token_id: Uint256, address: ByStr20)
+procedure RequireTokenOwner(token_id: Uint256, address: ByStr20)
   opt_token_owner <- token_owners[token_id];
   match opt_token_owner with
   | Some addr => 
@@ -207,7 +207,7 @@ procedure IsTokenOwner(token_id: Uint256, address: ByStr20)
   end
 end
 
-procedure IsOwnerOrOperator(address: ByStr20)
+procedure RequireOwnerOrOperator(address: ByStr20)
   is_owner = builtin eq _sender address;
   has_operator <- exists operators[address][_sender];
   is_allowed = orb is_owner has_operator;
@@ -219,7 +219,7 @@ procedure IsOwnerOrOperator(address: ByStr20)
   end
 end
 
-procedure IsSenderAllowedToTransfer(token_owner: ByStr20, token_id: Uint256)  
+procedure RequireAccessToTransfer(token_owner: ByStr20, token_id: Uint256)  
   (* check if _sender is token owner *)
   is_token_owner = builtin eq token_owner _sender;
   
@@ -299,7 +299,7 @@ end
 (* @Requirements: *)
 (* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
 transition RoyaltyInfo(token_id: Uint256, sale_price: Uint256)
-  IsTokenFound token_id;
+  RequireExistingToken token_id;
 
   current_royalty_fee_bps <- royalty_fee_bps;
   current_royalty_recipient <- royalty_recipient;
@@ -322,7 +322,7 @@ end
 (* @Requirements *)
 (* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
 transition TokenURI(token_id: Uint256)
-  IsTokenFound token_id;
+  RequireExistingToken token_id;
 
   uri <- base_uri;
 
@@ -422,7 +422,7 @@ end
 (* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
 (* - There should be a spender for the token. Otherwise, it should throw `SpenderNotFoundError` *)
 transition GetSpender(token_id: Uint256)
-  IsTokenFound token_id;
+  RequireExistingToken token_id;
 
   opt_spender <- spenders[token_id];
   match opt_spender with
@@ -460,7 +460,7 @@ end
 (* @Requirements: *)
 (* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
 transition SetRoyaltyRecipient(to: ByStr20)
-  IsContractOwner;
+  RequireContractOwner;
   royalty_recipient := to;
   
   e = { 
@@ -486,8 +486,8 @@ end
 (* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
 (* - `fee_bps` should be in the range of 1 and 1000. Otherwise, it should throw `InvalidFeeBpsError` *)
 transition SetRoyaltyFeeBPS(fee_bps: Uint256)
-  IsContractOwner;
-  IsValidRoyaltyFeeBPS fee_bps;
+  RequireContractOwner;
+  RequireValidRoyaltyFee fee_bps;
   royalty_fee_bps := fee_bps;
   
   e = { 
@@ -511,7 +511,7 @@ end
 (* @Requirements: *)
 (* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
 transition SetBaseURI(uri: String)
-  IsContractOwner;
+  RequireContractOwner;
   base_uri := uri;
 
   e = { 
@@ -582,7 +582,7 @@ transition Burn(token_id: Uint256)
     err = TokenNotFoundError;
     ThrowError err
   | Some token_owner =>
-    IsOwnerOrOperator token_owner;
+    RequireOwnerOrOperator token_owner;
     (* Destroy existing token *)
     delete token_owners[token_id];
     delete spenders[token_id];
@@ -617,7 +617,7 @@ end
 (* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
 (* - `to` should not be already a minter. Otherwise, it should throw `MinterFoundError` *)
 transition AddMinter(to: ByStr20)
-  IsContractOwner;
+  RequireContractOwner;
   has_minter <- exists minters[to];
   match has_minter with
   | True => 
@@ -648,7 +648,7 @@ end
 (* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
 (* - `to` should be already a minter. Otherwise, it should throw `MinterNotFoundError` *)
 transition RemoveMinter(to: ByStr20)
-  IsContractOwner;
+  RequireContractOwner;
   has_minter <- exists minters[to];
   match has_minter with
   | True => 
@@ -686,7 +686,7 @@ transition AddSpender(to: ByStr20, token_id: Uint256)
     err = TokenNotFoundError;
     ThrowError err
   | Some token_owner =>
-    IsOwnerOrOperator token_owner;
+    RequireOwnerOrOperator token_owner;
     
     has_spender <- exists spenders[token_id];
     match has_spender with
@@ -730,7 +730,7 @@ transition RemoveSpender(to: ByStr20, token_id: Uint256)
     err = TokenNotFoundError;
     ThrowError err
   | Some token_owner =>
-    IsOwnerOrOperator token_owner;
+    RequireOwnerOrOperator token_owner;
     
     has_spender <- exists spenders[token_id];
     match has_spender with
@@ -768,7 +768,7 @@ end
 (* - `_sender` should not be `to`. Otherwise, it should throw `SelfError` *)
 (* - `to` should not be already an operator. Otherwise, it should throw `OperatorFoundError` *)
 transition AddOperator(to: ByStr20)
-  IsNotSelf to _sender;
+  RequireNotSelf to _sender;
   
   opt_bal <- balances[_sender];
   balance = get_bal opt_bal;
@@ -812,7 +812,7 @@ end
 (* - `_sender` should not be `to`. Otherwise, it should throw `SelfError` *)
 (* - `to` should be already an operator. Otherwise, it should throw `OperatorNotFoundError` *)
 transition RemoveOperator(to: ByStr20)
-  IsNotSelf to _sender;
+  RequireNotSelf to _sender;
   has_operator <- exists operators[_sender][to];
   match has_operator with
   | False =>
@@ -850,8 +850,8 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
     err = TokenNotFoundError;
     ThrowError err
   | Some token_owner =>
-    IsSenderAllowedToTransfer token_owner token_id;
-    IsNotSelf token_owner to;
+    RequireAccessToTransfer token_owner token_id;
+    RequireNotSelf token_owner to;
     
     (* change token_owner for that token_id *)
     token_owners[token_id] := to;
