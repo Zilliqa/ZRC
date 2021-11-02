@@ -94,8 +94,8 @@ The NFT contract must define the following constants for use as error codes for 
 | `NotTokenOwnerError`        | `Int32` |  `-3` | Emit when the address is not a token owner.                          |    ✓     |
 | `NotMinterError`            | `Int32` |  `-4` | Emit when the address is not a minter.                               |    ✓     |
 | `NotOwnerOrOperatorError`   | `Int32` |  `-5` | Emit when the address is neither a token owner nor a token operator. |    ✓     |
-| `MinterNotFoundError`       | `Int32` |  `-6` | Emit when the minter is found.                                       |    ✓     |
-| `MinterFoundError`          | `Int32` |  `-7` | Emit when the minter is not found.                                   |    ✓     |
+| `MinterNotFoundError`       | `Int32` |  `-6` | Emit when the minter is not found.                                   |    ✓     |
+| `MinterFoundError`          | `Int32` |  `-7` | Emit when the minter is found.                                       |    ✓     |
 | `SpenderNotFoundError`      | `Int32` |  `-8` | Emit when the spender is not found.                                  |    ✓     |
 | `SpenderFoundError`         | `Int32` |  `-9` | Emit when the spender is found.                                      |    ✓     |
 | `OperatorNotFoundError`     | `Int32` | `-10` | Emit when the operator is not found.                                 |    ✓     |
