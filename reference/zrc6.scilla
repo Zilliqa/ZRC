@@ -16,6 +16,7 @@ type Operation =
 
 (* Global variables *)
 let empty_str = ""
+let zero_address = 0x0000000000000000000000000000000000000000
 let zero = Uint256 0
 let one = Uint256 1
 let verdad = Dummy
@@ -47,6 +48,7 @@ let get_bal =
 type Error =
   | SelfError
   | NotContractOwnerError
+  | NotContractOwnerCandidateError
   | NotTokenOwnerError
   | NotMinterError
   | NotOwnerOrOperatorError
@@ -66,18 +68,19 @@ let make_error =
       match result with
       | SelfError                      => Int32 -1
       | NotContractOwnerError          => Int32 -2
-      | NotTokenOwnerError             => Int32 -3
-      | NotMinterError                 => Int32 -4
-      | NotOwnerOrOperatorError        => Int32 -5
-      | MinterNotFoundError            => Int32 -6
-      | MinterFoundError               => Int32 -7
-      | SpenderNotFoundError           => Int32 -8
-      | SpenderFoundError              => Int32 -9
-      | OperatorNotFoundError          => Int32 -10
-      | OperatorFoundError             => Int32 -11
-      | NotAllowedToTransferError      => Int32 -12
-      | TokenNotFoundError             => Int32 -13
-      | InvalidFeeBpsError             => Int32 -14
+      | NotContractOwnerCandidateError => Int32 -3
+      | NotTokenOwnerError             => Int32 -4
+      | NotMinterError                 => Int32 -5
+      | NotOwnerOrOperatorError        => Int32 -6
+      | MinterNotFoundError            => Int32 -7
+      | MinterFoundError               => Int32 -8
+      | SpenderNotFoundError           => Int32 -9
+      | SpenderFoundError              => Int32 -10
+      | OperatorNotFoundError          => Int32 -11
+      | OperatorFoundError             => Int32 -12
+      | NotAllowedToTransferError      => Int32 -13
+      | TokenNotFoundError             => Int32 -14
+      | InvalidFeeBpsError             => Int32 -15
       end
     in
     { _exception : "Error"; code : result_code }
@@ -88,16 +91,24 @@ let make_error =
 
 contract NonfungibleToken
 (
-  contract_owner: ByStr20,
+  initial_contract_owner: ByStr20,
   name : String,
   symbol: String
 )
 
 (* Mutable fields *)
 
+(* Contract Owner *)
+(* Defaults to `initial_contract_owner` *)
+field contract_owner: ByStr20 = initial_contract_owner
+
+(* Contract owner candidate *)
+(* Defaults to `zero_address` *)
+field contract_owner_candidate: ByStr20 = zero_address
+
 (* Address to send royalties to *)
-(* Defaults to `contract_owner` *)
-field royalty_recipient: ByStr20 = contract_owner
+(* Defaults to `initial_contract_owner` *)
+field royalty_recipient: ByStr20 = initial_contract_owner
 
 (* Royalty fee BPS (1/100ths of a percent, e.g. 1000 = 10%) *)
 (* Defaults to 1000 *)
@@ -120,10 +131,10 @@ field total_supply: Uint256 = Uint256 0
 field balances: Map ByStr20 Uint256 = Emp ByStr20 Uint256
 
 (* Set for minters *)
-(* `contract_owner` is a minter by default *)
+(* `initial_contract_owner` is a minter by default *)
 field minters: Map ByStr20 Dummy =
     let emp_map = Emp ByStr20 Dummy in
-    builtin put emp_map contract_owner verdad
+    builtin put emp_map initial_contract_owner verdad
 
 (* Mapping from token ID to a spender *)
 field spenders: Map Uint256 ByStr20 = Emp Uint256 ByStr20
@@ -151,7 +162,8 @@ procedure RequireValidRoyaltyFee(fee_bps: Uint256)
 end
 
 procedure RequireContractOwner()
-  is_contract_owner = builtin eq contract_owner _sender;
+  cur_owner <- contract_owner;
+  is_contract_owner = builtin eq cur_owner _sender;
   match is_contract_owner with
   | True => 
   | False =>
@@ -453,6 +465,67 @@ transition IsOperator(token_owner: ByStr20, operator: ByStr20)
   };
   msgs = one_msg msg_to_sender;
   send msgs
+end
+
+(* @dev: Sets `to` as the contract owner candidate. *)
+(* To reset `contract_owner_candidate`, use `zero_address`. *)
+(* i.e., 0x0000000000000000000000000000000000000000 *)
+(* @param: to - contract owner candidate address  *)
+(* @Requirements: *)
+(* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
+(* - `_sender` should not be `to`. Otherwise, it should throw `SelfError` *)
+transition SetContractOwnerCandidate(to: ByStr20)
+  RequireContractOwner;
+  RequireNotSelf to _sender;
+  contract_owner_candidate := to;
+  e = {
+    _eventname : "SetContractOwnerCandidateSuccess";
+    initiator : _sender;
+    to : to
+  };
+  event e;
+  msg_to_sender = {
+    _tag : "ZRC6_SetContractOwnerCandidateCallback";
+    _recipient : _sender;
+    _amount : Uint128 0;
+    to : to
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* @dev: Sets `contract_owner_candidate` as the contract owner. *)
+(* @Requirements: *)
+(* - `_sender` should be the contract owner candidate. Otherwise, it should throw `NotContractOwnerCandidateError` *)
+transition AcceptContractOwnership()
+  candidate <- contract_owner_candidate;
+
+  is_candidate = builtin eq _sender candidate;
+  match is_candidate with
+  | False =>
+    err = NotContractOwnerCandidateError;
+    ThrowError err
+  | True =>
+    contract_owner := _sender;
+    contract_owner_candidate := zero_address;
+
+    e = {
+      _eventname : "AcceptContractOwnershipSuccess";
+      initiator : _sender;
+      contract_owner : _sender;
+      contract_owner_candidate: zero_address
+    };
+    event e;
+    msg_to_sender = {
+      _tag : "ZRC6_AcceptContractOwnershipCallback";
+      _recipient : _sender;
+      _amount : Uint128 0;
+      contract_owner : _sender;
+      contract_owner_candidate: zero_address
+    };
+    msgs = one_msg msg_to_sender;
+    send msgs
+  end
 end
 
 (* @dev: Sets `to` as the royalty recipient. *)

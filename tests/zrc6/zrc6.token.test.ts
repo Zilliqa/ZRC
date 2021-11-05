@@ -39,7 +39,8 @@ let globalTestAccounts: Array<{
   address: string;
 }> = [];
 const CONTRACT_OWNER = 0;
-const TOKEN_OWNER = 0;
+const CONTRACT_OWNER_CANDIDATE = 1;
+const TOKEN_OWNER = 2;
 const STRANGER = 9;
 const toTestAddr = (index) => globalTestAccounts[index]?.address as string;
 
@@ -66,6 +67,7 @@ beforeAll(async () => {
     JEST_WORKER_ID,
     GENESIS_PRIVATE_KEY,
     CONTRACT_OWNER: toTestAddr(CONTRACT_OWNER),
+    CONTRACT_OWNER_CANDIDATE: toTestAddr(CONTRACT_OWNER_CANDIDATE),
     TOKEN_OWNER: toTestAddr(TOKEN_OWNER),
     STRANGER: toTestAddr(STRANGER),
   });
@@ -309,7 +311,7 @@ describe("Token", () => {
       transition: "BalanceOf",
       getSender: () => toTestAddr(STRANGER),
       getParams: () => ({
-        address: toTestAddr(CONTRACT_OWNER),
+        address: toTestAddr(TOKEN_OWNER),
       }),
       error: undefined,
       want: {
@@ -338,6 +340,57 @@ describe("Token", () => {
           {
             tag: "ZRC6_BalanceOfCallback",
             getParams: () => [toMsgParam("Uint256", 0, "balance")],
+          },
+        ],
+      },
+    },
+
+    {
+      name: "throws NotContractOwnerError",
+      transition: "SetContractOwnerCandidate",
+      getSender: () => toTestAddr(STRANGER),
+      getParams: () => ({
+        to: toTestAddr(STRANGER),
+      }),
+      error: ZRC6_ERROR.NotContractOwnerError,
+      want: undefined,
+    },
+    {
+      name: "throws SelfError",
+      transition: "SetContractOwnerCandidate",
+      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getParams: () => ({
+        to: toTestAddr(CONTRACT_OWNER),
+      }),
+      error: ZRC6_ERROR.SelfError,
+      want: undefined,
+    },
+    {
+      name: "sets stranger as contract owner candidate by contract owner",
+      transition: "SetContractOwnerCandidate",
+      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getParams: () => ({
+        to: toTestAddr(STRANGER),
+      }),
+      error: undefined,
+      want: {
+        verifyState: (state) =>
+          state.contract_owner_candidate === toTestAddr(STRANGER).toLowerCase(),
+        events: [
+          {
+            name: "SetContractOwnerCandidateSuccess",
+            getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
+              toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
+            ],
+          },
+        ],
+        transitions: [
+          {
+            tag: "ZRC6_SetContractOwnerCandidateCallback",
+            getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
+            ],
           },
         ],
       },
@@ -629,6 +682,117 @@ describe("Token with Base URI", () => {
     it(`${testCase.transition}: ${testCase.name}`, async () => {
       let state = await zilliqa.contracts.at(globalContractAddress).getState();
       expect(state.base_uri).toBe(BASE_URI);
+
+      zilliqa.wallet.setDefault(testCase.getSender());
+      const tx = await globalContractInfo.callGetter(
+        zilliqa.contracts.at(globalContractAddress),
+        TX_PARAMS
+      )(testCase.transition, ...Object.values(testCase.getParams()));
+      if (testCase.want === undefined) {
+        // Nagative Cases
+        expect(tx.receipt.success).toBe(false);
+        expect(tx.receipt.exceptions[0].message).toBe(
+          toErrorMsg(testCase.error)
+        );
+      } else {
+        // Positive Cases
+        expect(tx.receipt.success).toBe(true);
+        expect(verifyEvents(tx.receipt.event_logs, testCase.want.events)).toBe(
+          true
+        );
+        expect(
+          verifyTransitions(tx.receipt.transitions, testCase.want.transitions)
+        ).toBe(true);
+
+        const state = await zilliqa.contracts
+          .at(globalContractAddress)
+          .getState();
+
+        expect(testCase.want.verifyState(state)).toBe(true);
+      }
+    });
+  }
+});
+
+describe("Contract with Contract Owner Candidate", () => {
+  beforeEach(async () => {
+    let tx = await globalContractInfo.callGetter(
+      zilliqa.contracts.at(globalContractAddress),
+      TX_PARAMS
+    )("SetContractOwnerCandidate", toTestAddr(CONTRACT_OWNER_CANDIDATE));
+    if (!tx.receipt.success) {
+      throw new Error();
+    }
+  });
+
+  const testCases = [
+    {
+      name: "throws NotContractOwnerCandidateError",
+      transition: "AcceptContractOwnership",
+      getSender: () => toTestAddr(STRANGER),
+      getParams: () => ({}),
+      error: ZRC6_ERROR.NotContractOwnerCandidateError,
+      want: undefined,
+    },
+    {
+      name: "sets contract owner candidate as contract owner",
+      transition: "AcceptContractOwnership",
+      getSender: () => toTestAddr(CONTRACT_OWNER_CANDIDATE),
+      getParams: () => ({}),
+      error: undefined,
+      want: {
+        verifyState: (state) =>
+          state.contract_owner ===
+          toTestAddr(CONTRACT_OWNER_CANDIDATE).toLowerCase(),
+        events: [
+          {
+            name: "AcceptContractOwnershipSuccess",
+            getParams: () => [
+              toMsgParam(
+                "ByStr20",
+                toTestAddr(CONTRACT_OWNER_CANDIDATE),
+                "initiator"
+              ),
+              toMsgParam(
+                "ByStr20",
+                toTestAddr(CONTRACT_OWNER_CANDIDATE),
+                "contract_owner"
+              ),
+              toMsgParam(
+                "ByStr20",
+                "0x0000000000000000000000000000000000000000",
+                "contract_owner_candidate"
+              ),
+            ],
+          },
+        ],
+        transitions: [
+          {
+            tag: "ZRC6_AcceptContractOwnershipCallback",
+            getParams: () => [
+              toMsgParam(
+                "ByStr20",
+                toTestAddr(CONTRACT_OWNER_CANDIDATE),
+                "contract_owner"
+              ),
+              toMsgParam(
+                "ByStr20",
+                "0x0000000000000000000000000000000000000000",
+                "contract_owner_candidate"
+              ),
+            ],
+          },
+        ],
+      },
+    },
+  ];
+
+  for (const testCase of testCases) {
+    it(`${testCase.transition}: ${testCase.name}`, async () => {
+      let state = await zilliqa.contracts.at(globalContractAddress).getState();
+      expect(state.contract_owner_candidate).toBe(
+        toTestAddr(CONTRACT_OWNER_CANDIDATE).toLowerCase()
+      );
 
       zilliqa.wallet.setDefault(testCase.getSender());
       const tx = await globalContractInfo.callGetter(
