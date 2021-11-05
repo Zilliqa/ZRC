@@ -61,6 +61,8 @@ type Error =
   | NotAllowedToTransferError
   | TokenNotFoundError
   | InvalidFeeBpsError
+  | ZeroAddressDestinationError
+  | ThisAddressDestinationError
 
 let make_error =
   fun (result : Error) =>
@@ -81,6 +83,8 @@ let make_error =
       | NotAllowedToTransferError      => Int32 -13
       | TokenNotFoundError             => Int32 -14
       | InvalidFeeBpsError             => Int32 -15
+      | ZeroAddressDestinationError    => Int32 -16
+      | ThisAddressDestinationError    => Int32 -17
       end
     in
     { _exception : "Error"; code : result_code }
@@ -188,6 +192,25 @@ procedure RequireExistingToken(token_id: Uint256)
   | True =>
   | False =>
     err = TokenNotFoundError;
+    ThrowError err
+  end
+end
+
+procedure RequireValidDestination(to: ByStr20)
+  (* Reference: https://github.com/ConsenSys/smart-contract-best-practices/blob/master/docs/tokens.md *)
+  is_zero_address = builtin eq to zero_address;
+  match is_zero_address with
+  | False =>
+  | True =>
+    err = ZeroAddressDestinationError;
+    ThrowError err
+  end;
+
+  is_this_address = builtin eq to _this_address;
+  match is_this_address with
+  | False =>
+  | True =>
+    err = ThisAddressDestinationError;
     ThrowError err
   end
 end
@@ -913,10 +936,14 @@ end
 
 (* @dev: Transfers `token_id` from the token owner to `to`.  *)
 (* @Requirements: *)
+(* - `to` should not be the zero address. Otherwise, it should throw `ZeroAddressDestinationError` *)
+(* - `to` should not be `_this_address`. Otherwise, it should throw `ThisAddressDestinationError` *)
 (* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
 (* - `_sender` should be a token owner, spender, or operator. Otherwise, it should throw `NotAllowedToTransferError` *)
 (* - `_sender` should not be `to`. Otherwise, it should throw `SelfError` *)
 transition TransferFrom(to: ByStr20, token_id: Uint256)
+  RequireValidDestination to;
+
   opt_token_owner <- token_owners[token_id];
   match opt_token_owner with
   | None =>

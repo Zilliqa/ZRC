@@ -28,6 +28,8 @@ export const ZRC6_ERROR = {
   NotAllowedToTransferError: -13,
   TokenNotFoundError: -14,
   InvalidFeeBpsError: -15,
+  ZeroAddressDestinationError: -16,
+  ThisAddressDestinationError: -17,
 };
 
 export const TOKEN_NAME = "TEST";

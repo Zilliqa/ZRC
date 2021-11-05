@@ -133,6 +133,8 @@ The NFT contract must define the following constants for use as error codes for 
 | `NotAllowedToTransferError`      | `Int32` | `-13` | Emit when `_sender` is not allowed to transfer the token.            |    ✓     |
 | `TokenNotFoundError`             | `Int32` | `-14` | Emit when the token is not found.                                    |    ✓     |
 | `InvalidFeeBpsError`             | `Int32` | `-15` | Emit when the fee bps is out of range. The valid range is 1 ~ 1000   |          |
+| `ZeroAddressDestinationError`    | `Int32` | `-16` | Emit when the destination is the zero address.                       |    ✓     |
+| `ThisAddressDestinationError`    | `Int32` | `-17` | Emit when the destination is `_this_address`.                        |    ✓     |
 
 ### E. Transitions
 
@@ -607,6 +609,8 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Requirements:**
 
+- `to` should not be the zero address. Otherwise, it should throw `ZeroAddressDestinationError`
+- `to` should not be `_this_address`. Otherwise, it should throw `ThisAddressDestinationError`
 - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError`
 - `_sender` should be a token owner, spender, or operator. Otherwise, it should throw `NotAllowedToTransferError`
 - `_sender` should not be `to`. Otherwise, it should throw `SelfError`
@@ -654,6 +658,7 @@ npm test
 - [OpenZeppelin IERC2981.sol Implementation](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/interfaces/IERC2981.sol)
 - [OpenSea - Metadata Standards](https://docs.opensea.io/docs/metadata-standards)
 - [ZRC issue #88 - ZRC contracts must have unique names for callback transitions](https://github.com/Zilliqa/ZRC/issues/88)
+- [Ethereum Smart Contract Best Practices - Token Implementation Best Practice](https://github.com/ConsenSys/smart-contract-best-practices/blob/master/docs/tokens.md)
 
 ## VII. Copyright
 

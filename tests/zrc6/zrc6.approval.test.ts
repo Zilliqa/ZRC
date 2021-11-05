@@ -481,6 +481,28 @@ describe("Approval", () => {
       want: undefined,
     },
     {
+      name: "throws ZeroAddressDestinationError",
+      transition: "TransferFrom",
+      getSender: () => toTestAddr(TOKEN_OWNER_A),
+      getParams: () => ({
+        to: "0x0000000000000000000000000000000000000000",
+        token_id: "1",
+      }),
+      error: ZRC6_ERROR.ZeroAddressDestinationError,
+      want: undefined,
+    },
+    {
+      name: "throws ThisAddressDestinationError",
+      transition: "TransferFrom",
+      getSender: () => toTestAddr(TOKEN_OWNER_A),
+      getParams: () => ({
+        to: globalContractAddress,
+        token_id: "1",
+      }),
+      error: ZRC6_ERROR.ThisAddressDestinationError,
+      want: undefined,
+    },
+    {
       name: "token owner -> stranger by token owner",
       transition: "TransferFrom",
       getSender: () => toTestAddr(TOKEN_OWNER_A),
