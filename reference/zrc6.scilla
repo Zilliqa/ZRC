@@ -298,7 +298,7 @@ procedure MintToken(to: ByStr20)
   total_supply := new_supply;
   
   e = {
-    _eventname : "MintSuccess";
+    _eventname : "Mint";
     initiator : _sender;
     to : to;
     token_id : token_id
@@ -479,7 +479,7 @@ transition SetContractOwnerCandidate(to: ByStr20)
   RequireNotSelf to _sender;
   contract_owner_candidate := to;
   e = {
-    _eventname : "SetContractOwnerCandidateSuccess";
+    _eventname : "SetContractOwnerCandidate";
     initiator : _sender;
     to : to
   };
@@ -510,7 +510,7 @@ transition AcceptContractOwnership()
     contract_owner_candidate := zero_address;
 
     e = {
-      _eventname : "AcceptContractOwnershipSuccess";
+      _eventname : "AcceptContractOwnership";
       initiator : _sender;
       contract_owner : _sender;
       contract_owner_candidate: zero_address
@@ -537,7 +537,7 @@ transition SetRoyaltyRecipient(to: ByStr20)
   royalty_recipient := to;
   
   e = { 
-    _eventname : "SetRoyaltyRecipientSuccess";
+    _eventname : "SetRoyaltyRecipient";
     initiator : _sender;
     to : to
   };
@@ -564,7 +564,7 @@ transition SetRoyaltyFeeBPS(fee_bps: Uint256)
   royalty_fee_bps := fee_bps;
   
   e = { 
-    _eventname : "SetRoyaltyFeeBPSSuccess";
+    _eventname : "SetRoyaltyFeeBPS";
     initiator : _sender; 
     royalty_fee_bps : fee_bps
   };
@@ -588,7 +588,7 @@ transition SetBaseURI(uri: String)
   base_uri := uri;
 
   e = { 
-    _eventname : "SetBaseURISuccess";
+    _eventname : "SetBaseURI";
     initiator : _sender;
     base_uri : uri
   };
@@ -667,7 +667,7 @@ transition Burn(token_id: Uint256)
     new_supply = builtin sub current_supply one;
     total_supply := new_supply;
     e = {
-      _eventname : "BurnSuccess";
+      _eventname : "Burn";
       initiator : _sender;
       burn_address : token_owner;
       token_id : token_id
@@ -701,7 +701,7 @@ transition AddMinter(to: ByStr20)
     minters[to] := verdad
   end;
   e = { 
-    _eventname : "AddMinterSuccess";
+    _eventname : "AddMinter";
     initiator : _sender;
     to : to
   };
@@ -731,7 +731,7 @@ transition RemoveMinter(to: ByStr20)
     ThrowError err
   end;
   e = { 
-    _eventname : "RemoveMinterSuccess";
+    _eventname : "RemoveMinter";
     initiator : _sender;
     to : to
   };
@@ -772,7 +772,7 @@ transition AddSpender(to: ByStr20, token_id: Uint256)
     end;
     
     e = {
-      _eventname : "AddSpenderSuccess";
+      _eventname : "AddSpender";
       initiator : _sender;
       to : to;
       token_id : token_id
@@ -816,7 +816,7 @@ transition RemoveSpender(to: ByStr20, token_id: Uint256)
     end;
     
     e = {
-      _eventname : "RemoveSpenderSuccess";
+      _eventname : "RemoveSpender";
       initiator : _sender;
       to : to;
       token_id : token_id
@@ -863,7 +863,7 @@ transition AddOperator(to: ByStr20)
       ThrowError err
     end;
     e = {
-      _eventname : "AddOperatorSuccess";
+      _eventname : "AddOperator";
       initiator : _sender;
       to : to
     };
@@ -896,7 +896,7 @@ transition RemoveOperator(to: ByStr20)
     delete operators[_sender][to]
   end;
   e = {
-    _eventname : "RemoveOperatorSuccess";
+    _eventname : "RemoveOperator";
     initiator : _sender;
     to : to
   };
@@ -937,7 +937,7 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
     UpdateBalance add_operation to;
 
     e = {
-      _eventname : "TransferFromSuccess";
+      _eventname : "TransferFrom";
       initiator : _sender;
       from : token_owner;
       to : to;

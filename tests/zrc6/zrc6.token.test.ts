@@ -378,7 +378,7 @@ describe("Token", () => {
           state.contract_owner_candidate === toTestAddr(STRANGER).toLowerCase(),
         events: [
           {
-            name: "SetContractOwnerCandidateSuccess",
+            name: "SetContractOwnerCandidate",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
@@ -419,7 +419,7 @@ describe("Token", () => {
           state.royalty_recipient === toTestAddr(STRANGER).toLowerCase(),
         events: [
           {
-            name: "SetRoyaltyRecipientSuccess",
+            name: "SetRoyaltyRecipient",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
@@ -478,7 +478,7 @@ describe("Token", () => {
         verifyState: (state) => state.royalty_fee_bps === "10000",
         events: [
           {
-            name: "SetRoyaltyFeeBPSSuccess",
+            name: "SetRoyaltyFeeBPS",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam("Uint256", 10000, "royalty_fee_bps"),
@@ -505,7 +505,7 @@ describe("Token", () => {
         verifyState: (state) => state.royalty_fee_bps === "1",
         events: [
           {
-            name: "SetRoyaltyFeeBPSSuccess",
+            name: "SetRoyaltyFeeBPS",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam("Uint256", 1, "royalty_fee_bps"),
@@ -543,7 +543,7 @@ describe("Token", () => {
           state.base_uri === "http://localhost:1111/testcase/1",
         events: [
           {
-            name: "SetBaseURISuccess",
+            name: "SetBaseURI",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam(
@@ -651,7 +651,7 @@ describe("Token with Base URI", () => {
           state.base_uri === "http://localhost:1111/testcase/1",
         events: [
           {
-            name: "SetBaseURISuccess",
+            name: "SetBaseURI",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam(
@@ -746,7 +746,7 @@ describe("Contract with Contract Owner Candidate", () => {
           toTestAddr(CONTRACT_OWNER_CANDIDATE).toLowerCase(),
         events: [
           {
-            name: "AcceptContractOwnershipSuccess",
+            name: "AcceptContractOwnership",
             getParams: () => [
               toMsgParam(
                 "ByStr20",

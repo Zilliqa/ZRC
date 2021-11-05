@@ -147,7 +147,7 @@ describe("Mint", () => {
           state.minters.hasOwnProperty(toTestAddr(STRANGER).toLowerCase()),
         events: [
           {
-            name: "AddMinterSuccess",
+            name: "AddMinter",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
@@ -197,7 +197,7 @@ describe("Mint", () => {
           !state.minters.hasOwnProperty(toTestAddr(STRANGER).toLowerCase()),
         events: [
           {
-            name: "RemoveMinterSuccess",
+            name: "RemoveMinter",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(MINTER), "to"),
@@ -278,7 +278,7 @@ describe("Mint", () => {
         },
         events: [
           {
-            name: "MintSuccess",
+            name: "Mint",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
@@ -327,7 +327,7 @@ describe("Mint", () => {
         },
         events: [
           {
-            name: "MintSuccess",
+            name: "Mint",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(MINTER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(MINTER), "to"),
@@ -391,7 +391,7 @@ describe("Mint", () => {
         verifyState: (state) => !state.token_owners.hasOwnProperty("1"),
         events: [
           {
-            name: "BurnSuccess",
+            name: "Burn",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "burn_address"),
@@ -451,7 +451,7 @@ describe("Mint", () => {
           (_, index) => INITIAL_TOTAL_SUPPLY + 1 + index
         )
           .map((id) => ({
-            name: "MintSuccess",
+            name: "Mint",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),

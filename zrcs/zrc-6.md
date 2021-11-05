@@ -284,9 +284,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name                               | Description                                    | Event Parameters                                                                                                                            |
-| ------------ | ---------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `SetContractOwnerCandidateSuccess` | The contract owner candidate has been updated. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address of the contract owner candidate</li></ul> |
+|              | Name                        | Description                                    | Event Parameters                                                                                                                            |
+| ------------ | --------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `SetContractOwnerCandidate` | The contract owner candidate has been updated. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address of the contract owner candidate</li></ul> |
 
 #### 11. `AcceptContractOwnership()` (Optional)
 
@@ -302,9 +302,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name                             | Description                              | Event Parameters                                                                                                                                                                                                                         |
-| ------------ | -------------------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `AcceptContractOwnershipSuccess` | Contract ownership has been transferred. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`contract_owner` : `ByStr20`<br/>Address of the contract owner</li><li>`contract_owner_candidate` : `ByStr20`<br/>Address of the contract owner candidate</li></ul> |
+|              | Name                      | Description                              | Event Parameters                                                                                                                                                                                                                         |
+| ------------ | ------------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `AcceptContractOwnership` | Contract ownership has been transferred. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`contract_owner` : `ByStr20`<br/>Address of the contract owner</li><li>`contract_owner_candidate` : `ByStr20`<br/>Address of the contract owner candidate</li></ul> |
 
 #### 12. `SetRoyaltyRecipient()` (Optional)
 
@@ -326,9 +326,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name                         | Description                         | Event Parameters                                                                                                                     |
-| ------------ | ---------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `_eventname` | `SetRoyaltyRecipientSuccess` | Royalty recipient has been updated. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address of the royalty recipient</li></ul> |
+|              | Name                  | Description                         | Event Parameters                                                                                                                     |
+| ------------ | --------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `_eventname` | `SetRoyaltyRecipient` | Royalty recipient has been updated. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address of the royalty recipient</li></ul> |
 
 #### 13. `SetRoyaltyFeeBPS()` (Optional)
 
@@ -351,9 +351,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name                      | Description                       | Event Parameters                                                                                                                 |
-| ------------ | ------------------------- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `SetRoyaltyFeeBPSSuccess` | Royalty fee BPS has been updated. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`royalty_fee_bps` : `Uint256`<br/>Royalty Fee BPS</li></ul> |
+|              | Name               | Description                       | Event Parameters                                                                                                                 |
+| ------------ | ------------------ | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `SetRoyaltyFeeBPS` | Royalty fee BPS has been updated. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`royalty_fee_bps` : `Uint256`<br/>Royalty Fee BPS</li></ul> |
 
 #### 14. `SetBaseURI()`
 
@@ -375,9 +375,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name                | Description                | Event Parameters                                                                                                  |
-| ------------ | ------------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `SetBaseURISuccess` | Base URI has been updated. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`base_uri` : `String`<br/>Base URI</li></ul> |
+|              | Name         | Description                | Event Parameters                                                                                                  |
+| ------------ | ------------ | -------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `SetBaseURI` | Base URI has been updated. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`base_uri` : `String`<br/>Base URI</li></ul> |
 
 #### 15. `BatchMint()` (Optional)
 
@@ -418,9 +418,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name          | Description            | Event Parameters                                                                                                                                                                    |
-| ------------ | ------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `MintSuccess` | Token has been minted. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li> `to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+|              | Name   | Description            | Event Parameters                                                                                                                                                                    |
+| ------------ | ------ | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `Mint` | Token has been minted. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li> `to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
 #### 17. `Burn()` (Optional)
 
@@ -443,9 +443,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name          | Description            | Event Parameters                                                                                                                                                                                 |
-| ------------ | ------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `_eventname` | `BurnSuccess` | Token has been burned. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`burn_address` : `ByStr20`</br>Address of the token owner</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+|              | Name   | Description            | Event Parameters                                                                                                                                                                                 |
+| ------------ | ------ | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `_eventname` | `Burn` | Token has been burned. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`burn_address` : `ByStr20`</br>Address of the token owner</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
 #### 18. `AddMinter()`
 
@@ -468,9 +468,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name               | Description            | Event Parameters                                                                                                                |
-| ------------ | ------------------ | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `AddMinterSuccess` | Minter has been added. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been added</li></ul> |
+|              | Name        | Description            | Event Parameters                                                                                                                |
+| ------------ | ----------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `AddMinter` | Minter has been added. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been added</li></ul> |
 
 #### 19. `RemoveMinter()`
 
@@ -493,9 +493,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name                  | Description              | Event Parameters                                                                                                                  |
-| ------------ | --------------------- | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `RemoveMinterSuccess` | Minter has been removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been removed</li></ul> |
+|              | Name           | Description              | Event Parameters                                                                                                                  |
+| ------------ | -------------- | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `RemoveMinter` | Minter has been removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been removed</li></ul> |
 
 #### 20. `AddSpender()`
 
@@ -520,9 +520,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name                | Description             | Event Parameters                                                                                                                                                                        |
-| ------------ | ------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `AddSpenderSuccess` | Spender has been added. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been added</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
+|              | Name         | Description             | Event Parameters                                                                                                                                                                        |
+| ------------ | ------------ | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `AddSpender` | Spender has been added. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been added</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
 
 #### 21. `RemoveSpender()`
 
@@ -547,9 +547,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name                   | Description               | Event Parameters                                                                                                                                                                          |
-| ------------ | ---------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `RemoveSpenderSuccess` | Spender has been removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been removed</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
+|              | Name            | Description               | Event Parameters                                                                                                                                                                          |
+| ------------ | --------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `RemoveSpender` | Spender has been removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been removed</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
 
 #### 22. `AddOperator()`
 
@@ -573,9 +573,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name                 | Description              | Event Parameters                                                                                                                |
-| ------------ | -------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `AddOperatorSuccess` | Operator has been added. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been added</li></ul> |
+|              | Name          | Description              | Event Parameters                                                                                                                |
+| ------------ | ------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `AddOperator` | Operator has been added. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been added</li></ul> |
 
 #### 23. `RemoveOperator()`
 
@@ -599,9 +599,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name                    | Description                | Event Parameters                                                                                                                  |
-| ------------ | ----------------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `RemoveOperatorSuccess` | Operator has been removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been removed</li></ul> |
+|              | Name             | Description                | Event Parameters                                                                                                                  |
+| ------------ | ---------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `RemoveOperator` | Operator has been removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been removed</li></ul> |
 
 #### 24. `TransferFrom()`
 
@@ -627,9 +627,9 @@ The NFT contract must define the following constants for use as error codes for 
 
 **Events:**
 
-|              | Name                  | Description                 | Event Parameters                                                                                                                                                                                                                             |
-| ------------ | --------------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `TransferFromSuccess` | Token has been transferred. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`from` : `ByStr20`<br/>Address of the token owner</li><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+|              | Name           | Description                 | Event Parameters                                                                                                                                                                                                                             |
+| ------------ | -------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `TransferFrom` | Token has been transferred. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`from` : `ByStr20`<br/>Address of the token owner</li><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
 ## V. Testing
 

@@ -170,7 +170,7 @@ describe("Approval", () => {
         },
         events: [
           {
-            name: "AddSpenderSuccess",
+            name: "AddSpender",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_B), "initiator"),
               toMsgParam("ByStr20", toTestAddr(STRANGER_A), "to"),
@@ -237,7 +237,7 @@ describe("Approval", () => {
         },
         events: [
           {
-            name: "RemoveSpenderSuccess",
+            name: "RemoveSpender",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "initiator"),
               toMsgParam("ByStr20", toTestAddr(SPENDER), "to"),
@@ -302,7 +302,7 @@ describe("Approval", () => {
         },
         events: [
           {
-            name: "AddOperatorSuccess",
+            name: "AddOperator",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "initiator"),
               toMsgParam("ByStr20", toTestAddr(STRANGER_A), "to"),
@@ -357,7 +357,7 @@ describe("Approval", () => {
         },
         events: [
           {
-            name: "RemoveOperatorSuccess",
+            name: "RemoveOperator",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "initiator"),
               toMsgParam("ByStr20", toTestAddr(OPERATOR), "to"),
@@ -498,7 +498,7 @@ describe("Approval", () => {
         },
         events: [
           {
-            name: "TransferFromSuccess",
+            name: "TransferFrom",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "initiator"),
               toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
@@ -545,7 +545,7 @@ describe("Approval", () => {
         },
         events: [
           {
-            name: "TransferFromSuccess",
+            name: "TransferFrom",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(SPENDER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
@@ -592,7 +592,7 @@ describe("Approval", () => {
         },
         events: [
           {
-            name: "TransferFromSuccess",
+            name: "TransferFrom",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(OPERATOR), "initiator"),
               toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
@@ -639,7 +639,7 @@ describe("Approval", () => {
         },
         events: [
           {
-            name: "TransferFromSuccess",
+            name: "TransferFrom",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(SPENDER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
@@ -686,7 +686,7 @@ describe("Approval", () => {
         },
         events: [
           {
-            name: "TransferFromSuccess",
+            name: "TransferFrom",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(OPERATOR), "initiator"),
               toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
