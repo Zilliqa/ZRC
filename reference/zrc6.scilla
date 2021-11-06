@@ -17,6 +17,8 @@ type Operation =
 (* Global variables *)
 let empty_str = ""
 let zero_address = 0x0000000000000000000000000000000000000000
+let false = False
+let true = True
 let zero = Uint256 0
 let one = Uint256 1
 let verdad = Dummy
@@ -24,6 +26,7 @@ let add_operation = Add
 let sub_operation = Sub
 let royalty_fee_bps_min = Uint256 1
 let royalty_fee_bps_max = Uint256 10000
+
 
 (* Library functions *)
 let one_msg = 
@@ -46,6 +49,8 @@ let get_bal =
 
 (* Error exception *)
 type Error =
+  | NotPausedError
+  | PausedError
   | SelfError
   | NotContractOwnerError
   | NotContractOwnerCandidateError
@@ -68,23 +73,25 @@ let make_error =
   fun (result : Error) =>
     let result_code = 
       match result with
-      | SelfError                      => Int32 -1
-      | NotContractOwnerError          => Int32 -2
-      | NotContractOwnerCandidateError => Int32 -3
-      | NotTokenOwnerError             => Int32 -4
-      | NotMinterError                 => Int32 -5
-      | NotOwnerOrOperatorError        => Int32 -6
-      | MinterNotFoundError            => Int32 -7
-      | MinterFoundError               => Int32 -8
-      | SpenderNotFoundError           => Int32 -9
-      | SpenderFoundError              => Int32 -10
-      | OperatorNotFoundError          => Int32 -11
-      | OperatorFoundError             => Int32 -12
-      | NotAllowedToTransferError      => Int32 -13
-      | TokenNotFoundError             => Int32 -14
-      | InvalidFeeBpsError             => Int32 -15
-      | ZeroAddressDestinationError    => Int32 -16
-      | ThisAddressDestinationError    => Int32 -17
+      | NotPausedError                 => Int32 -1
+      | PausedError                    => Int32 -2
+      | SelfError                      => Int32 -3
+      | NotContractOwnerError          => Int32 -4
+      | NotContractOwnerCandidateError => Int32 -5
+      | NotTokenOwnerError             => Int32 -6
+      | NotMinterError                 => Int32 -7
+      | NotOwnerOrOperatorError        => Int32 -8
+      | MinterNotFoundError            => Int32 -9
+      | MinterFoundError               => Int32 -10
+      | SpenderNotFoundError           => Int32 -11
+      | SpenderFoundError              => Int32 -12
+      | OperatorNotFoundError          => Int32 -13
+      | OperatorFoundError             => Int32 -14
+      | NotAllowedToTransferError      => Int32 -15
+      | TokenNotFoundError             => Int32 -16
+      | InvalidFeeBpsError             => Int32 -17
+      | ZeroAddressDestinationError    => Int32 -18
+      | ThisAddressDestinationError    => Int32 -19
       end
     in
     { _exception : "Error"; code : result_code }
@@ -101,6 +108,10 @@ contract NonfungibleToken
 )
 
 (* Mutable fields *)
+
+(* Emergency stop mechanism *)
+(* Defaults to False *)
+field is_paused: Bool = false
 
 (* Contract Owner *)
 (* Defaults to `initial_contract_owner` *)
@@ -150,6 +161,19 @@ field operators: Map ByStr20 (Map ByStr20 Dummy) = Emp ByStr20 (Map ByStr20 Dumm
 procedure ThrowError(err : Error)
   e = make_error err;
   throw e
+end
+
+procedure RequireNotPaused()
+  (* Reference: *)
+  (* https://consensys.github.io/smart-contract-best-practices/general_philosophy/#prepare-for-failure *)
+  paused <- is_paused;
+  match paused with
+  | False =>
+  | True =>
+    (* Contract is paused *)
+    err = PausedError;
+    ThrowError err
+  end
 end
 
 procedure RequireValidRoyaltyFee(fee_bps: Uint256)
@@ -301,6 +325,7 @@ procedure UpdateBalance(operation: Operation, address: ByStr20)
 end
 
 procedure MintToken(to: ByStr20)
+  RequireNotPaused;
   IsMinter _sender;
 
   (* generate ID *)
@@ -329,6 +354,19 @@ procedure MintToken(to: ByStr20)
   event e
 end
 
+(* Checks if the contract is paused or not. *)
+transition Paused()
+  paused <- is_paused;
+  msg_to_sender = {
+    _tag : "ZRC6_PausedCallback";
+    _recipient : _sender;
+    _amount : Uint128 0;
+    is_paused : paused
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
 (* @dev Gets royalty payment information for `token_id` and `sale_price`. *)
 (* It specifies how much royalty is owed and to whom for a given sale price. *)
 (* @Requirements: *)
@@ -353,7 +391,7 @@ transition RoyaltyInfo(token_id: Uint256, sale_price: Uint256)
   send msgs
 end
 
-(* @dev: Gets Uniform Resource Identifier(URI) for `token_id` *)
+(* Gets Uniform Resource Identifier(URI) for `token_id`. *)
 (* @Requirements *)
 (* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
 transition TokenURI(token_id: Uint256)
@@ -380,7 +418,7 @@ transition TokenURI(token_id: Uint256)
   send msgs
 end
 
-(* @dev: Gets token owner for `token_id` *)
+(* Gets the token owner for `token_id`. *)
 (* @Requirements: *)
 (* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
 transition OwnerOf(token_id: Uint256)
@@ -401,7 +439,7 @@ transition OwnerOf(token_id: Uint256)
   end
 end
 
-(* @dev: Gets the NFT name *)
+(* Gets the NFT name. *)
 transition Name()
   msg_to_sender = {
     _tag : "ZRC6_NameCallback";
@@ -413,7 +451,7 @@ transition Name()
   send msgs
 end
 
-(* @dev: Gets the NFT symbol *)
+(* Gets the NFT symbol. *)
 transition Symbol()
   msg_to_sender = {
     _tag : "ZRC6_SymbolCallback";
@@ -425,9 +463,9 @@ transition Symbol()
   send msgs
 end
 
-(* @dev: Gets the number of tokens in `owner`s account *)
-transition BalanceOf(address: ByStr20)
-  opt_bal <- balances[address];
+(* Gets the number of tokens in `owner`s account. *)
+transition BalanceOf(owner: ByStr20)
+  opt_bal <- balances[owner];
   balance = get_bal opt_bal;
   msg_to_sender = { 
     _tag : "ZRC6_BalanceOfCallback";
@@ -439,7 +477,7 @@ transition BalanceOf(address: ByStr20)
   send msgs
 end
 
-(* @dev: Gets total amount of tokens stored by the contract *)
+(* Gets total amount of tokens stored by the contract. *)
 transition TotalSupply()
   current_supply <- total_supply;
   msg_to_sender = { 
@@ -452,7 +490,7 @@ transition TotalSupply()
   send msgs
 end
 
-(* @dev: Gets spender for `token_id` *)
+(* Gets the spender for `token_id`. *)
 (* @Requirements: *)
 (* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
 (* - There should be a spender for the token. Otherwise, it should throw `SpenderNotFoundError` *)
@@ -477,7 +515,7 @@ transition GetSpender(token_id: Uint256)
   end
 end
 
-(* @dev: Checks if `operator` is allowed to manage all of the assets of `token_owner` *)
+(* Checks if `operator` is allowed to manage all of the assets of `token_owner`. *)
 transition IsOperator(token_owner: ByStr20, operator: ByStr20)
   has_operator <- exists operators[token_owner][operator];
   msg_to_sender = { 
@@ -490,9 +528,65 @@ transition IsOperator(token_owner: ByStr20, operator: ByStr20)
   send msgs
 end
 
-(* @dev: Sets `to` as the contract owner candidate. *)
+(* Pauses the contract. Use this when things are going wrong ('circuit breaker'). *)
+(* @Requirements: *)
+(* - The contract should not be paused. Otherwise, it should throw `PausedError` *)
+(* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
+transition Pause()
+  RequireNotPaused;
+  RequireContractOwner;
+
+  is_paused := true;
+  e = {
+    _eventname : "Pause";
+    initiator : _sender;
+    is_paused : true
+  };
+  event e;
+  msg_to_sender = {
+    _tag : "ZRC6_PauseCallback";
+    _recipient : _sender;
+    _amount : Uint128 0;
+    is_paused : true
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* Unpauses the contract. *)
+(* @Requirements: *)
+(* - The contract should be paused. Otherwise, it should throw `NotPausedError` *)
+(* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
+transition Unpause()
+  paused <- is_paused;
+  match paused with
+  | True =>
+  | False =>
+    err = NotPausedError;
+    ThrowError err
+  end;
+  RequireContractOwner;
+
+  is_paused := false;
+  e = {
+    _eventname : "Unpause";
+    initiator : _sender;
+    is_paused : false
+  };
+  event e;
+  msg_to_sender = {
+    _tag : "ZRC6_UnpauseCallback";
+    _recipient : _sender;
+    _amount : Uint128 0;
+    is_paused : false
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* Sets `to` as the contract owner candidate. *)
 (* To reset `contract_owner_candidate`, use `zero_address`. *)
-(* i.e., 0x0000000000000000000000000000000000000000 *)
+(* i.e., `0x0000000000000000000000000000000000000000` *)
 (* @param: to - contract owner candidate address  *)
 (* @Requirements: *)
 (* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
@@ -517,7 +611,7 @@ transition SetContractOwnerCandidate(to: ByStr20)
   send msgs
 end
 
-(* @dev: Sets `contract_owner_candidate` as the contract owner. *)
+(* Sets `contract_owner_candidate` as the contract owner. *)
 (* @Requirements: *)
 (* - `_sender` should be the contract owner candidate. Otherwise, it should throw `NotContractOwnerCandidateError` *)
 transition AcceptContractOwnership()
@@ -551,7 +645,7 @@ transition AcceptContractOwnership()
   end
 end
 
-(* @dev: Sets `to` as the royalty recipient. *)
+(* Sets `to` as the royalty recipient. *)
 (* @param: to - Royalty recipient address  *)
 (* @Requirements: *)
 (* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
@@ -576,7 +670,7 @@ transition SetRoyaltyRecipient(to: ByStr20)
   send msgs  
 end
 
-(* @dev: Sets `fee_bps` as royalty fee bps. *)
+(* Sets `fee_bps` as royalty fee bps. *)
 (* @param: fee_bps - Royalty fee BPS *)
 (* @Requirements: *)
 (* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
@@ -603,7 +697,7 @@ transition SetRoyaltyFeeBPS(fee_bps: Uint256)
   send msgs
 end
 
-(* @dev: Sets `uri` as the base URI. *)
+(* Sets `uri` as the base URI. *)
 (* @Requirements: *)
 (* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
 transition SetBaseURI(uri: String)
@@ -627,9 +721,10 @@ transition SetBaseURI(uri: String)
   send msgs  
 end
 
-(* @dev: Mints a token and transfers it to `to`. *)
+(* Mints a token and transfers it to `to`. *)
 (* @param: to - Address of the token recipient   *)
 (* @Requirements: *)
+(* - The contract should not be paused. Otherwise, it should throw `PausedError` *)
 (* - `_sender` should be a minter. Otherwise, it should throw `NotMinterError` *)
 transition Mint(to: ByStr20)
   MintToken to;
@@ -650,9 +745,10 @@ transition Mint(to: ByStr20)
   send msgs
 end
 
-(* @dev: Mints tokens and transfers them to `to_list`. *)
+(* Mints tokens and transfers them to `to_list`. *)
 (* @param: to_list - List of addresses of the token recipient *)
 (* @Requirements: *)
+(* - The contract should not be paused. Otherwise, it should throw `PausedError` *)
 (* - `_sender` should be a minter. Otherwise, it should throw `NotMinterError` *)
 transition BatchMint(to_list: List ByStr20)
   forall to_list MintToken;
@@ -665,12 +761,14 @@ transition BatchMint(to_list: List ByStr20)
   send msgs
 end
 
-(* @dev: Destroys `token_id` *)
+(* Destroys `token_id`. *)
 (* @param: token_id - Unique ID of the NFT to be destroyed *)
 (* @Requirements: *)
+(* - The contract should not be paused. Otherwise, it should throw `PausedError` *)
 (* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
 (* - `_sender` should be a token owner or an operator. Otherwise, it should throw `NotOwnerOrOperatorError` *)
 transition Burn(token_id: Uint256)
+  RequireNotPaused;
   (* Check if token exists *)
   opt_token_owner <- token_owners[token_id];
   match opt_token_owner with
@@ -708,7 +806,7 @@ transition Burn(token_id: Uint256)
   end
 end
 
-(* @dev: Adds `to` as minter *)
+(* Adds `to` as minter. *)
 (* @Requirements: *)
 (* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
 (* - `to` should not be already a minter. Otherwise, it should throw `MinterFoundError` *)
@@ -739,7 +837,7 @@ transition AddMinter(to: ByStr20)
   send msgs
 end
 
-(* @dev: Removes `to` from minter *)
+(* Removes `to` from minter. *)
 (* @Requirements: *)
 (* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
 (* - `to` should be already a minter. Otherwise, it should throw `MinterNotFoundError` *)
@@ -769,7 +867,7 @@ transition RemoveMinter(to: ByStr20)
   send msgs
 end
 
-(* @dev: Adds `to` as spender of `token_id` *)
+(* Adds `to` as spender of `token_id`. *)
 (* There can only be one spender per token at any given time. *)
 (* @Requirements: *)
 (* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
@@ -814,7 +912,7 @@ transition AddSpender(to: ByStr20, token_id: Uint256)
   end
 end
 
-(* @dev: Removes `to` from spender of `token_id` *)
+(* Removes `to` from spender of `token_id`. *)
 (* @Requirements: *)
 (* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
 (* - `_sender` should be a token owner or an operator. Otherwise, it should throw `NotOwnerOrOperatorError` *)
@@ -858,7 +956,7 @@ transition RemoveSpender(to: ByStr20, token_id: Uint256)
   end
 end
 
-(* @dev: Adds `to` as operator for the _sender *)
+(* Adds `to` as operator for the `_sender`. *)
 (* @Requirements: *)
 (* - `_sender` should be the token owner. Otherwise, it should throw `NotTokenOwnerError` *)
 (* - `_sender` should not be `to`. Otherwise, it should throw `SelfError` *)
@@ -902,7 +1000,7 @@ transition AddOperator(to: ByStr20)
   end
 end
 
-(* @dev: Removes `to` from operator for the _sender *)
+(* Removes `to` from operator for the `_sender`. *)
 (* @Requirements:  *)
 (* - `_sender` should be the token owner. Otherwise, it should throw `NotTokenOwnerError` *)
 (* - `_sender` should not be `to`. Otherwise, it should throw `SelfError` *)
@@ -934,14 +1032,16 @@ transition RemoveOperator(to: ByStr20)
   send msgs
 end
 
-(* @dev: Transfers `token_id` from the token owner to `to`.  *)
+(* Transfers `token_id` from the token owner to `to`.  *)
 (* @Requirements: *)
+(* - The contract should not be paused. Otherwise, it should throw `PausedError` *)
 (* - `to` should not be the zero address. Otherwise, it should throw `ZeroAddressDestinationError` *)
 (* - `to` should not be `_this_address`. Otherwise, it should throw `ThisAddressDestinationError` *)
 (* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
 (* - `_sender` should be a token owner, spender, or operator. Otherwise, it should throw `NotAllowedToTransferError` *)
 (* - `_sender` should not be `to`. Otherwise, it should throw `SelfError` *)
 transition TransferFrom(to: ByStr20, token_id: Uint256)
+  RequireNotPaused;
   RequireValidDestination to;
 
   opt_token_owner <- token_owners[token_id];

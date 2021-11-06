@@ -311,7 +311,7 @@ describe("Token", () => {
       transition: "BalanceOf",
       getSender: () => toTestAddr(STRANGER),
       getParams: () => ({
-        address: toTestAddr(TOKEN_OWNER),
+        owner: toTestAddr(TOKEN_OWNER),
       }),
       error: undefined,
       want: {
@@ -330,7 +330,7 @@ describe("Token", () => {
       transition: "BalanceOf",
       getSender: () => toTestAddr(STRANGER),
       getParams: () => ({
-        address: toTestAddr(STRANGER),
+        owner: toTestAddr(STRANGER),
       }),
       error: undefined,
       want: {
