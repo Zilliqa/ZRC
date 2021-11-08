@@ -43,6 +43,8 @@ The main advantages of this standard are:
 
 7. ZRC-6 features contract ownership transfer by making the contract owner mutable.
 
+8. ZRC-6 only includes read-only transitions that contain important logic or provide immutable parameters. This standard encourages developers to use the remote fetch to retrieve simple data.
+
 ## III. Motivation
 
 1. Many of the largest NFT marketplaces have implemented incompatible royalty payment solutions. ZRC-6 provides a standardized way to retrieve royalty information for NFTs. The marketplace should transfer the actual funds.
@@ -58,6 +60,8 @@ The main advantages of this standard are:
 6. In ZRC-1 minting can be very inefficient since multiple transactions are required to mint multiple NFTs.
 
 7. In ZRC-1 contract owner is immutable. As some contract owners want to transfer their contract ownership, developers had to implement the feature for ZRC-1.
+
+8. It can overcomplicate the logic to use callbacks to retrieve simple data.
 
 ## IV. Specification
 
@@ -99,25 +103,25 @@ The main advantages of this standard are:
 | `spender`                  | On behalf of the token owner, a spender can transfer a token. There can only be one spender per token at any given time.                                                                                                                        |    ✓     |
 | `operator`                 | On behalf of the token owner, an operator can: <ul><li>transfer a token </li><li>burn a token</li><li>add/remove a spender of a token</li></ul>                                                                                                 |    ✓     |
 
-| Transition                                                            | `contract_owner` | `contract_owner_candidate` | `minter` | `token_owner` | `spender` | `operator` |
-| --------------------------------------------------------------------- | :--------------: | :------------------------: | :------: | :-----------: | :-------: | :--------: |
-| [`Pause`](#11-pause-optional)                                         |        ✓         |                            |          |               |           |            |
-| [`Unpause`](#12-unpause-optional)                                     |        ✓         |                            |          |               |           |            |
-| [`SetContractOwnerCandidate`](#13-setcontractownercandidate-optional) |        ✓         |                            |          |               |           |            |
-| [`AcceptContractOwnership`](#14-acceptcontractownership-optional)     |                  |             ✓              |          |               |           |            |
-| [`SetRoyaltyRecipient`](#15-setroyaltyrecipient-optional)             |        ✓         |                            |          |               |           |            |
-| [`SetRoyaltyFeeBPS`](#16-setroyaltyfeebps-optional)                   |        ✓         |                            |          |               |           |            |
-| [`SetBaseURI`](#17-setbaseuri)                                        |        ✓         |                            |          |               |           |            |
-| [`Mint`](#18-mint)                                                    |                  |                            |    ✓     |               |           |            |
-| [`BatchMint`](#19-batchmint-optional)                                 |                  |                            |    ✓     |               |           |            |
-| [`Burn`](#20-burn-optional)                                           |                  |                            |          |       ✓       |           |     ✓      |
-| [`AddMinter`](#21-addminter)                                          |        ✓         |                            |          |               |           |            |
-| [`RemoveMinter`](#22-removeminter)                                    |        ✓         |                            |          |               |           |            |
-| [`AddSpender`](#23-addspender)                                        |                  |                            |          |       ✓       |           |     ✓      |
-| [`RemoveSpender`](#24-removespender)                                  |                  |                            |          |       ✓       |           |     ✓      |
-| [`AddOperator`](#25-addoperator)                                      |                  |                            |          |       ✓       |           |            |
-| [`RemoveOperator`](#26-removeoperator)                                |                  |                            |          |       ✓       |           |            |
-| [`TransferFrom`](#27-transferfrom)                                    |                  |                            |          |       ✓       |     ✓     |     ✓      |
+| Transition                                                           | `contract_owner` | `contract_owner_candidate` | `minter` | `token_owner` | `spender` | `operator` |
+| -------------------------------------------------------------------- | :--------------: | :------------------------: | :------: | :-----------: | :-------: | :--------: |
+| [`Pause`](#5-pause-optional)                                         |        ✓         |                            |          |               |           |            |
+| [`Unpause`](#6-unpause-optional)                                     |        ✓         |                            |          |               |           |            |
+| [`SetContractOwnerCandidate`](#7-setcontractownercandidate-optional) |        ✓         |                            |          |               |           |            |
+| [`AcceptContractOwnership`](#8-acceptcontractownership-optional)     |                  |             ✓              |          |               |           |            |
+| [`SetRoyaltyRecipient`](#9-setroyaltyrecipient-optional)             |        ✓         |                            |          |               |           |            |
+| [`SetRoyaltyFeeBPS`](#10-setroyaltyfeebps-optional)                  |        ✓         |                            |          |               |           |            |
+| [`SetBaseURI`](#11-setbaseuri)                                       |        ✓         |                            |          |               |           |            |
+| [`Mint`](#12-mint)                                                   |                  |                            |    ✓     |               |           |            |
+| [`BatchMint`](#13-batchmint-optional)                                |                  |                            |    ✓     |               |           |            |
+| [`Burn`](#14-burn-optional)                                          |                  |                            |          |       ✓       |           |     ✓      |
+| [`AddMinter`](#15-addminter)                                         |        ✓         |                            |          |               |           |            |
+| [`RemoveMinter`](#16-removeminter)                                   |        ✓         |                            |          |               |           |            |
+| [`AddSpender`](#17-addspender)                                       |                  |                            |          |       ✓       |           |     ✓      |
+| [`RemoveSpender`](#18-removespender)                                 |                  |                            |          |       ✓       |           |     ✓      |
+| [`AddOperator`](#19-addoperator)                                     |                  |                            |          |       ✓       |           |            |
+| [`RemoveOperator`](#20-removeoperator)                               |                  |                            |          |       ✓       |           |            |
+| [`TransferFrom`](#21-transferfrom)                                   |                  |                            |          |       ✓       |     ✓     |     ✓      |
 
 ### D. Error Codes
 
@@ -147,47 +151,31 @@ The NFT contract must define the following constants for use as error codes for 
 
 ### E. Transitions
 
-|     | Transition                                                                         | Required |
-| :-: | ---------------------------------------------------------------------------------- | :------: |
-|  1  | [`Paused()`](#1-paused-optional)                                                   |          |
-|  2  | [`RoyaltyInfo(token_id: Uint256, sale_price: Uint256)`](#2-royaltyinfo-optional)   |          |
-|  3  | [`TokenURI(token_id: Uint256)`](#3-tokenuri)                                       |    ✓     |
-|  4  | [`OwnerOf(token_id: Uint256)`](#4-ownerof)                                         |    ✓     |
-|  5  | [`Name()`](#5-name)                                                                |    ✓     |
-|  6  | [`Symbol()`](#6-symbol)                                                            |    ✓     |
-|  7  | [`BalanceOf(owner: ByStr20)`](#7-balanceof)                                        |    ✓     |
-|  8  | [`TotalSupply()`](#8-totalsupply)                                                  |    ✓     |
-|  9  | [`GetSpender(token_id: Uint256)`](#9-getspender)                                   |    ✓     |
-| 10  | [`IsOperator(token_owner: ByStr20, operator: ByStr20)`](#10-isoperator)            |    ✓     |
-| 11  | [`Pause()`](#11-pause-optional)                                                    |          |
-| 12  | [`Unpause()`](#12-unpause-optional)                                                |          |
-| 13  | [`SetContractOwnerCandidate(to: ByStr20)`](#13-setcontractownercandidate-optional) |          |
-| 14  | [`AcceptContractOwnership()`](#14-acceptcontractownership-optional)                |          |
-| 15  | [`SetRoyaltyRecipient(to: ByStr20)`](#15-setroyaltyrecipient-optional)             |          |
-| 16  | [`SetRoyaltyFeeBPS(fee_bps: Uint256)`](#16-setroyaltyfeebps-optional)              |          |
-| 17  | [`SetBaseURI(uri: String)`](#17-setbaseuri)                                        |    ✓     |
-| 18  | [`Mint(to: ByStr20)`](#18-mint)                                                    |    ✓     |
-| 19  | [`BatchMint(to_list: List ByStr20)`](#19-batchmint-optional)                       |          |
-| 20  | [`Burn(token_id: Uint256)`](#20-burn-optional)                                     |          |
-| 21  | [`AddMinter(to: ByStr20)`](#21-addminter)                                          |    ✓     |
-| 22  | [`RemoveMinter(to: ByStr20)`](#22-removeminter)                                    |    ✓     |
-| 23  | [`AddSpender(to: ByStr20, token_id: Uint256)`](#23-addspender)                     |    ✓     |
-| 24  | [`RemoveSpender(to: ByStr20, token_id: Uint256)`](#24-removespender)               |    ✓     |
-| 25  | [`AddOperator(to: ByStr20)`](#25-addoperator)                                      |    ✓     |
-| 26  | [`RemoveOperator(to: ByStr20)`](#26-removeoperator)                                |    ✓     |
-| 27  | [`TransferFrom(to: ByStr20, token_id: Uint256)`](#27-transferfrom)                 |    ✓     |
+|     | Transition                                                                        | Required |
+| :-: | --------------------------------------------------------------------------------- | :------: |
+|  1  | [`RoyaltyInfo(token_id: Uint256, sale_price: Uint256)`](#1-royaltyinfo-optional)  |          |
+|  2  | [`TokenURI(token_id: Uint256)`](#2-tokenuri)                                      |    ✓     |
+|  3  | [`Name()`](#3-name)                                                               |    ✓     |
+|  4  | [`Symbol()`](#4-symbol)                                                           |    ✓     |
+|  5  | [`Pause()`](#5-pause-optional)                                                    |          |
+|  6  | [`Unpause()`](#6-unpause-optional)                                                |          |
+|  7  | [`SetContractOwnerCandidate(to: ByStr20)`](#7-setcontractownercandidate-optional) |          |
+|  8  | [`AcceptContractOwnership()`](#8-acceptcontractownership-optional)                |          |
+|  9  | [`SetRoyaltyRecipient(to: ByStr20)`](#9-setroyaltyrecipient-optional)             |          |
+| 10  | [`SetRoyaltyFeeBPS(fee_bps: Uint256)`](#10-setroyaltyfeebps-optional)             |          |
+| 11  | [`SetBaseURI(uri: String)`](#11-setbaseuri)                                       |    ✓     |
+| 12  | [`Mint(to: ByStr20)`](#12-mint)                                                   |    ✓     |
+| 13  | [`BatchMint(to_list: List ByStr20)`](#13-batchmint-optional)                      |          |
+| 14  | [`Burn(token_id: Uint256)`](#14-burn-optional)                                    |          |
+| 15  | [`AddMinter(to: ByStr20)`](#15-addminter)                                         |    ✓     |
+| 16  | [`RemoveMinter(to: ByStr20)`](#16-removeminter)                                   |    ✓     |
+| 17  | [`AddSpender(to: ByStr20, token_id: Uint256)`](#17-addspender)                    |    ✓     |
+| 18  | [`RemoveSpender(to: ByStr20, token_id: Uint256)`](#18-removespender)              |    ✓     |
+| 19  | [`AddOperator(to: ByStr20)`](#19-addoperator)                                     |    ✓     |
+| 20  | [`RemoveOperator(to: ByStr20)`](#20-removeoperator)                               |    ✓     |
+| 21  | [`TransferFrom(to: ByStr20, token_id: Uint256)`](#21-transferfrom)                |    ✓     |
 
-#### 1. `Paused` (Optional)
-
-Checks if the contract is paused or not.
-
-**Messages:**
-
-|        | Name                  | Description                                                             | Callback Parameters                                           |
-| ------ | --------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------- |
-| `_tag` | `ZRC6_PausedCallback` | Provide the sender a boolean for whether the contract is paused or not. | `is_paused` : `Bool`<br/> `True` if paused, otherwise `False` |
-
-#### 2. `RoyaltyInfo` (Optional)
+#### 1. `RoyaltyInfo` (Optional)
 
 Gets royalty payment information for `token_id` and `sale_price`. It specifies how much royalty is owed and to whom for a given sale price.
 
@@ -208,7 +196,7 @@ Gets royalty payment information for `token_id` and `sale_price`. It specifies h
 | ------ | -------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `_tag` | `ZRC6_RoyaltyInfoCallback` | Provide the sender the address of the royalty recipient and the royalty amount. | <ul><li>`royalty_amount` : `Uint256`<br/>Amount of funds to be paid to the royalty recipient</li><li>`royalty_recipient` : `ByStr20`</li>Address of the royalty recipient</ul> |
 
-#### 3. `TokenURI`
+#### 2. `TokenURI`
 
 Gets Uniform Resource Identifier(URI) for `token_id`.
 
@@ -228,27 +216,7 @@ Gets Uniform Resource Identifier(URI) for `token_id`.
 | ------ | ----------------------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
 | `_tag` | `ZRC6_TokenURICallback` | Provide the sender with the token URI of the token ID. | `token_uri` : `String`<br/>Token URI of a token<br/> e.g. `https://creatures-api.zil.xyz/api/creature/1` |
 
-#### 4. `OwnerOf`
-
-Gets the token owner for `token_id`.
-
-**Arguments:**
-
-| Name       | Type      | Description           |
-| ---------- | --------- | --------------------- |
-| `token_id` | `Uint256` | Unique ID of a token. |
-
-**Requirements:**
-
-- `token_id` should exist. Otherwise, it should throw `TokenNotFoundError`.
-
-**Messages:**
-
-|        | Name                   | Description                                        | Callback Parameters                       |
-| ------ | ---------------------- | -------------------------------------------------- | ----------------------------------------- |
-| `_tag` | `ZRC6_OwnerOfCallback` | Provide the sender the address of the token owner. | `token_owner` : `ByStr20`<br/>Token owner |
-
-#### 5. `Name`
+#### 3. `Name`
 
 Gets the NFT name.
 
@@ -258,7 +226,7 @@ Gets the NFT name.
 | ------ | ------------------- | -------------------------------- | ------------------------------ |
 | `_tag` | `ZRC6_NameCallback` | Provide the sender the NFT name. | `name` : `String`<br/>NFT name |
 
-#### 6. `Symbol`
+#### 4. `Symbol`
 
 Gets the NFT symbol.
 
@@ -268,71 +236,7 @@ Gets the NFT symbol.
 | ------ | --------------------- | ---------------------------------- | ---------------------------------- |
 | `_tag` | `ZRC6_SymbolCallback` | Provide the sender the NFT symbol. | `symbol` : `String`<br/>NFT symbol |
 
-#### 7. `BalanceOf`
-
-Gets the number of tokens in `owner`s account.
-
-**Arguments:**
-
-| Name    | Type      | Description                 |
-| ------- | --------- | --------------------------- |
-| `owner` | `ByStr20` | Address of the token owner. |
-
-**Messages:**
-
-|        | Name                     | Description                                             | Callback Parameters                                                      |
-| ------ | ------------------------ | ------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `_tag` | `ZRC6_BalanceOfCallback` | Provide the sender with the balance of the token owner. | `balance` : `Uint256`<br/>The balance of tokens owned by the token owner |
-
-#### 8. `TotalSupply`
-
-Gets total amount of tokens stored by the contract.
-
-**Messages:**
-
-|        | Name                       | Description                                                   | Callback Parameters                                              |
-| ------ | -------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `_tag` | `ZRC6_TotalSupplyCallback` | Provide the sender the current total supply of tokens minted. | `total_supply` : `Uint256`<br/>The total supply of tokens minted |
-
-#### 9. `GetSpender`
-
-Gets the spender for `token_id`.
-
-**Arguments:**
-
-| Name       | Type      | Description           |
-| ---------- | --------- | --------------------- |
-| `token_id` | `Uint256` | Unique ID of a token. |
-
-**Requirements:**
-
-- `token_id` should exist. Otherwise, it should throw `TokenNotFoundError`.
-- There should be a spender for the token. Otherwise, it should throw `SpenderNotFoundError`.
-
-**Messages:**
-
-|        | Name                      | Description                                                     | Callback Parameters                                                                                                    |
-| ------ | ------------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_GetSpenderCallback` | Provide the sender the address of the spender and the token ID. | <ul><li>`spender` : `ByStr20`<br/>Address of spender</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
-
-#### 10. `IsOperator`
-
-Checks if `operator` is allowed to manage all of the assets of `token_owner`.
-
-**Arguments:**
-
-| Name          | Type      | Description             |
-| ------------- | --------- | ----------------------- |
-| `token_owner` | `ByStr20` | Address of token owner. |
-| `operator`    | `ByStr20` | Address of operator.    |
-
-**Messages:**
-
-|        | Name                      | Description                                                                             | Callback Parameters                                               |
-| ------ | ------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| `_tag` | `ZRC6_IsOperatorCallback` | Provide the sender a boolean for whether the address is an operator of the token owner. | `is_operator` : `Bool`<br/> `True` if operator, otherwise `False` |
-
-#### 11. `Pause` (Optional)
+#### 5. `Pause` (Optional)
 
 Pauses the contract. Use this when things are going wrong ('circuit breaker').
 
@@ -353,7 +257,7 @@ Pauses the contract. Use this when things are going wrong ('circuit breaker').
 | ------------ | ------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `Pause` | The contract has been paused. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`is_paused` : `Bool`<br/>`True` if paused, otherwise `False`</li></ul> |
 
-#### 12. `Unpause` (Optional)
+#### 6. `Unpause` (Optional)
 
 Unpauses the contract.
 
@@ -374,7 +278,7 @@ Unpauses the contract.
 | ------------ | --------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `Unpause` | The contract has been unpaused. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`is_paused` : `Bool`<br/>`True` if paused, otherwise `False`</li></ul> |
 
-#### 13. `SetContractOwnerCandidate` (Optional)
+#### 7. `SetContractOwnerCandidate` (Optional)
 
 Sets `to` as the contract owner candidate. To reset `contract_owner_candidate`, use `zero_address`. i.e., `0x0000000000000000000000000000000000000000`.
 
@@ -401,7 +305,7 @@ Sets `to` as the contract owner candidate. To reset `contract_owner_candidate`, 
 | ------------ | --------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `SetContractOwnerCandidate` | The contract owner candidate has been updated. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address of the contract owner candidate</li></ul> |
 
-#### 14. `AcceptContractOwnership` (Optional)
+#### 8. `AcceptContractOwnership` (Optional)
 
 Sets `contract_owner_candidate` as the contract owner.
 
@@ -421,7 +325,7 @@ Sets `contract_owner_candidate` as the contract owner.
 | ------------ | ------------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `AcceptContractOwnership` | Contract ownership has been transferred. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`contract_owner` : `ByStr20`<br/>Address of the contract owner</li><li>`contract_owner_candidate` : `ByStr20`<br/>Address of the contract owner candidate</li></ul> |
 
-#### 15. `SetRoyaltyRecipient` (Optional)
+#### 9. `SetRoyaltyRecipient` (Optional)
 
 Sets `to` as the royalty recipient.
 
@@ -447,7 +351,7 @@ Sets `to` as the royalty recipient.
 | ------------ | --------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | `_eventname` | `SetRoyaltyRecipient` | Royalty recipient has been updated. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address of the royalty recipient</li></ul> |
 
-#### 16. `SetRoyaltyFeeBPS` (Optional)
+#### 10. `SetRoyaltyFeeBPS` (Optional)
 
 Sets `fee_bps` as royalty fee bps.
 
@@ -474,7 +378,7 @@ Sets `fee_bps` as royalty fee bps.
 | ------------ | ------------------ | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `SetRoyaltyFeeBPS` | Royalty fee BPS has been updated. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`royalty_fee_bps` : `Uint256`<br/>Royalty Fee BPS</li></ul> |
 
-#### 17. `SetBaseURI`
+#### 11. `SetBaseURI`
 
 Sets `uri` as the base URI.
 
@@ -500,7 +404,7 @@ Sets `uri` as the base URI.
 | ------------ | ------------ | -------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `SetBaseURI` | Base URI has been updated. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`base_uri` : `String`<br/>Base URI</li></ul> |
 
-#### 18. `Mint`
+#### 12. `Mint`
 
 Mints a token and transfers it to `to`.
 
@@ -528,7 +432,7 @@ Mints a token and transfers it to `to`.
 | ------------ | ------ | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `Mint` | Token has been minted. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li> `to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
-#### 19. `BatchMint` (Optional)
+#### 13. `BatchMint` (Optional)
 
 Mints tokens and transfers them to `to_list`.
 
@@ -549,7 +453,7 @@ Mints tokens and transfers them to `to_list`.
 | ------ | ------------------------ | ----------------------------------- | ------------------- |
 | `_tag` | `ZRC6_BatchMintCallback` | Provide the sender with the result. |                     |
 
-#### 20. `Burn` (Optional)
+#### 14. `Burn` (Optional)
 
 Destroys `token_id`.
 
@@ -577,7 +481,7 @@ Destroys `token_id`.
 | ------------ | ------ | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `_eventname` | `Burn` | Token has been burned. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`burn_address` : `ByStr20`</br>Address of the token owner</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
-#### 21. `AddMinter`
+#### 15. `AddMinter`
 
 Adds `to` as minter.
 
@@ -604,7 +508,7 @@ Adds `to` as minter.
 | ------------ | ----------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `AddMinter` | Minter has been added. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been added</li></ul> |
 
-#### 22. `RemoveMinter`
+#### 16. `RemoveMinter`
 
 Removes `to` from minter.
 
@@ -631,7 +535,7 @@ Removes `to` from minter.
 | ------------ | -------------- | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `RemoveMinter` | Minter has been removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been removed</li></ul> |
 
-#### 23. `AddSpender`
+#### 17. `AddSpender`
 
 Adds `to` as spender of `token_id`.
 
@@ -660,7 +564,7 @@ Adds `to` as spender of `token_id`.
 | ------------ | ------------ | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `AddSpender` | Spender has been added. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been added</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
 
-#### 24. `RemoveSpender`
+#### 18. `RemoveSpender`
 
 Removes `to` from spender of `token_id`.
 
@@ -689,7 +593,7 @@ Removes `to` from spender of `token_id`.
 | ------------ | --------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `RemoveSpender` | Spender has been removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been removed</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
 
-#### 25. `AddOperator`
+#### 19. `AddOperator`
 
 Adds `to` as operator for the `_sender`.
 
@@ -717,7 +621,7 @@ Adds `to` as operator for the `_sender`.
 | ------------ | ------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `AddOperator` | Operator has been added. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been added</li></ul> |
 
-#### 26. `RemoveOperator`
+#### 20. `RemoveOperator`
 
 Removes `to` from operator for the `_sender`.
 
@@ -745,7 +649,7 @@ Removes `to` from operator for the `_sender`.
 | ------------ | ---------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `RemoveOperator` | Operator has been removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been removed</li></ul> |
 
-#### 27. `TransferFrom`
+#### 21. `TransferFrom`
 
 Transfers `token_id` from the token owner to `to`.
 

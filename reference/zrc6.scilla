@@ -354,19 +354,6 @@ procedure MintToken(to: ByStr20)
   event e
 end
 
-(* Checks if the contract is paused or not. *)
-transition Paused()
-  paused <- is_paused;
-  msg_to_sender = {
-    _tag : "ZRC6_PausedCallback";
-    _recipient : _sender;
-    _amount : Uint128 0;
-    is_paused : paused
-  };
-  msgs = one_msg msg_to_sender;
-  send msgs
-end
-
 (* @dev Gets royalty payment information for `token_id` and `sale_price`. *)
 (* It specifies how much royalty is owed and to whom for a given sale price. *)
 (* @Requirements: *)
@@ -418,27 +405,6 @@ transition TokenURI(token_id: Uint256)
   send msgs
 end
 
-(* Gets the token owner for `token_id`. *)
-(* @Requirements: *)
-(* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
-transition OwnerOf(token_id: Uint256)
-  opt_token_owner <- token_owners[token_id];
-  match opt_token_owner with
-  | Some token_owner =>
-    msg_to_sender = { 
-      _tag : "ZRC6_OwnerOfCallback";
-      _recipient : _sender;
-      _amount : Uint128 0;
-      token_owner : token_owner
-    };
-    msgs = one_msg msg_to_sender;
-    send msgs
-  | None =>
-    err = TokenNotFoundError;
-    ThrowError err
-  end
-end
-
 (* Gets the NFT name. *)
 transition Name()
   msg_to_sender = {
@@ -458,71 +424,6 @@ transition Symbol()
     _recipient : _sender;
     _amount : Uint128 0;
     symbol : symbol
-  };
-  msgs = one_msg msg_to_sender;
-  send msgs
-end
-
-(* Gets the number of tokens in `owner`s account. *)
-transition BalanceOf(owner: ByStr20)
-  opt_bal <- balances[owner];
-  balance = get_bal opt_bal;
-  msg_to_sender = { 
-    _tag : "ZRC6_BalanceOfCallback";
-    _recipient : _sender;
-    _amount : Uint128 0;
-    balance : balance
-  };
-  msgs = one_msg msg_to_sender;
-  send msgs
-end
-
-(* Gets total amount of tokens stored by the contract. *)
-transition TotalSupply()
-  current_supply <- total_supply;
-  msg_to_sender = { 
-    _tag : "ZRC6_TotalSupplyCallback";
-    _recipient : _sender;
-    _amount : Uint128 0;
-    total_supply : current_supply
-  };
-  msgs = one_msg msg_to_sender;
-  send msgs
-end
-
-(* Gets the spender for `token_id`. *)
-(* @Requirements: *)
-(* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
-(* - There should be a spender for the token. Otherwise, it should throw `SpenderNotFoundError` *)
-transition GetSpender(token_id: Uint256)
-  RequireExistingToken token_id;
-
-  opt_spender <- spenders[token_id];
-  match opt_spender with
-  | Some spender => 
-    msg_to_sender = { 
-      _tag : "ZRC6_GetSpenderCallback";
-      _recipient : _sender;
-      _amount : Uint128 0;
-      spender : spender;
-      token_id : token_id
-    };
-    msgs = one_msg msg_to_sender;
-    send msgs
-  | None => 
-    err = SpenderNotFoundError;
-    ThrowError err
-  end
-end
-
-(* Checks if `operator` is allowed to manage all of the assets of `token_owner`. *)
-transition IsOperator(token_owner: ByStr20, operator: ByStr20)
-  has_operator <- exists operators[token_owner][operator];
-  msg_to_sender = { 
-    _tag : "ZRC6_IsOperatorCallback";
-    _recipient : _sender;
-    _amount : Uint128 0;
-    is_operator: has_operator
   };
   msgs = one_msg msg_to_sender;
   send msgs

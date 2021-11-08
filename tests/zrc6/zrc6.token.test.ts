@@ -226,37 +226,6 @@ describe("Token", () => {
       error: ZRC6_ERROR.TokenNotFoundError,
     },
     {
-      name: "throws TokenNotFoundError",
-      transition: "OwnerOf",
-      getSender: () => toTestAddr(STRANGER),
-      getParams: () => ({
-        token_id: "999",
-      }),
-      want: undefined,
-      error: ZRC6_ERROR.TokenNotFoundError,
-    },
-    {
-      name: "gets token owner",
-      transition: "OwnerOf",
-      getSender: () => toTestAddr(STRANGER),
-      getParams: () => ({
-        token_id: "1",
-      }),
-      want: {
-        verifyState: () => true,
-        events: undefined,
-        transitions: [
-          {
-            getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER), "token_owner"),
-            ],
-            tag: "ZRC6_OwnerOfCallback",
-          },
-        ],
-      },
-      error: ZRC6_ERROR.TokenNotFoundError,
-    },
-    {
       name: "gets token name",
       transition: "Name",
       getSender: () => toTestAddr(STRANGER),
@@ -288,63 +257,6 @@ describe("Token", () => {
         ],
       },
     },
-    {
-      name: "gets total supply",
-      transition: "TotalSupply",
-      getSender: () => toTestAddr(STRANGER),
-      getParams: () => ({}),
-      want: {
-        verifyState: () => true,
-        events: undefined,
-        transitions: [
-          {
-            getParams: () => [
-              toMsgParam("Uint256", INITIAL_TOTAL_SUPPLY, "total_supply"),
-            ],
-            tag: "ZRC6_TotalSupplyCallback",
-          },
-        ],
-      },
-    },
-    {
-      name: "gets balance of token owner",
-      transition: "BalanceOf",
-      getSender: () => toTestAddr(STRANGER),
-      getParams: () => ({
-        owner: toTestAddr(TOKEN_OWNER),
-      }),
-      error: undefined,
-      want: {
-        verifyState: () => true,
-        events: undefined,
-        transitions: [
-          {
-            tag: "ZRC6_BalanceOfCallback",
-            getParams: () => [toMsgParam("Uint256", 3, "balance")],
-          },
-        ],
-      },
-    },
-    {
-      name: "gets balance of stranger",
-      transition: "BalanceOf",
-      getSender: () => toTestAddr(STRANGER),
-      getParams: () => ({
-        owner: toTestAddr(STRANGER),
-      }),
-      error: undefined,
-      want: {
-        verifyState: () => true,
-        events: undefined,
-        transitions: [
-          {
-            tag: "ZRC6_BalanceOfCallback",
-            getParams: () => [toMsgParam("Uint256", 0, "balance")],
-          },
-        ],
-      },
-    },
-
     {
       name: "throws NotContractOwnerError",
       transition: "SetContractOwnerCandidate",

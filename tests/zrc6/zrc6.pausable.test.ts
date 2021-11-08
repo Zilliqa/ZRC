@@ -115,23 +115,6 @@ beforeEach(async () => {
 describe("Unpaused", () => {
   const testCases = [
     {
-      name: "Check if contract is not paused",
-      transition: "Paused",
-      getSender: () => toTestAddr(STRANGER),
-      getParams: () => ({}),
-      error: undefined,
-      want: {
-        verifyState: (_) => true,
-        events: undefined,
-        transitions: [
-          {
-            tag: "ZRC6_PausedCallback",
-            getParams: () => [toMsgParam("Bool", "False", "is_paused")],
-          },
-        ],
-      },
-    },
-    {
       name: "Throws NotPausedError for the not paused contract",
       transition: "Unpause",
       getSender: () => toTestAddr(CONTRACT_OWNER),
@@ -224,23 +207,6 @@ describe("Paused", () => {
   });
 
   const testCases = [
-    {
-      name: "Check if contract is paused",
-      transition: "Paused",
-      getSender: () => toTestAddr(STRANGER),
-      getParams: () => ({}),
-      error: undefined,
-      want: {
-        verifyState: (_) => true,
-        events: undefined,
-        transitions: [
-          {
-            tag: "ZRC6_PausedCallback",
-            getParams: () => [toMsgParam("Bool", "True", "is_paused")],
-          },
-        ],
-      },
-    },
     {
       name: "Throws PausedError for the paused contract",
       transition: "Pause",
