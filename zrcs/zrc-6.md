@@ -152,7 +152,7 @@ The NFT contract must define the following constants for use as error codes for 
 |  1  | [`Paused()`](#1-paused-optional)                                                   |          |
 |  2  | [`RoyaltyInfo(token_id: Uint256, sale_price: Uint256)`](#2-royaltyinfo-optional)   |          |
 |  3  | [`TokenURI(token_id: Uint256)`](#3-tokenuri)                                       |    ✓     |
-|  4  | [`OwnerOf()`](#4-ownerof)                                                          |    ✓     |
+|  4  | [`OwnerOf(token_id: Uint256)`](#4-ownerof)                                         |    ✓     |
 |  5  | [`Name()`](#5-name)                                                                |    ✓     |
 |  6  | [`Symbol()`](#6-symbol)                                                            |    ✓     |
 |  7  | [`BalanceOf(owner: ByStr20)`](#7-balanceof)                                        |    ✓     |
