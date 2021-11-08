@@ -113,6 +113,16 @@ contract NonfungibleToken
 (* Defaults to False *)
 field is_paused: Bool = false
 
+(* Token Name *)
+(* Defaults to `name` *)
+(* No need to mutate this field since this is for remote fetch to retrieve the immutable parameter. *)
+field token_name: String = name
+
+(* Token Symbol *)
+(* Defaults to `symbol` *)
+(* No need to mutate this field since this is for remote fetch to retrieve the immutable parameter. *)
+field token_symbol: String = symbol
+
 (* Contract Owner *)
 (* Defaults to `initial_contract_owner` *)
 field contract_owner: ByStr20 = initial_contract_owner
@@ -400,30 +410,6 @@ transition TokenURI(token_id: Uint256)
     _recipient : _sender;
     _amount : Uint128 0;
     token_uri : token_uri
-  };
-  msgs = one_msg msg_to_sender;
-  send msgs
-end
-
-(* Gets the NFT name. *)
-transition Name()
-  msg_to_sender = {
-    _tag : "ZRC6_NameCallback";
-    _recipient : _sender;
-    _amount : Uint128 0;
-    name : name
-  };
-  msgs = one_msg msg_to_sender;
-  send msgs
-end
-
-(* Gets the NFT symbol. *)
-transition Symbol()
-  msg_to_sender = {
-    _tag : "ZRC6_SymbolCallback";
-    _recipient : _sender;
-    _amount : Uint128 0;
-    symbol : symbol
   };
   msgs = one_msg msg_to_sender;
   send msgs

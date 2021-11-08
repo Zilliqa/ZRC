@@ -226,38 +226,6 @@ describe("Token", () => {
       error: ZRC6_ERROR.TokenNotFoundError,
     },
     {
-      name: "gets token name",
-      transition: "Name",
-      getSender: () => toTestAddr(STRANGER),
-      getParams: () => ({}),
-      want: {
-        verifyState: () => true,
-        events: undefined,
-        transitions: [
-          {
-            getParams: () => [toMsgParam("String", TOKEN_NAME, "name")],
-            tag: "ZRC6_NameCallback",
-          },
-        ],
-      },
-    },
-    {
-      name: "gets token symbol",
-      transition: "Symbol",
-      getSender: () => toTestAddr(STRANGER),
-      getParams: () => ({}),
-      want: {
-        verifyState: () => true,
-        events: undefined,
-        transitions: [
-          {
-            getParams: () => [toMsgParam("String", TOKEN_SYMBOL, "symbol")],
-            tag: "ZRC6_SymbolCallback",
-          },
-        ],
-      },
-    },
-    {
       name: "throws NotContractOwnerError",
       transition: "SetContractOwnerCandidate",
       getSender: () => toTestAddr(STRANGER),
