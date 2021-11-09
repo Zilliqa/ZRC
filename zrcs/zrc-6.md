@@ -67,11 +67,12 @@ The main advantages of this standard are:
 
 ### A. Immutable Parameters
 
-| Name                     | Type      | Description         |
-| ------------------------ | --------- | ------------------- |
-| `initial_contract_owner` | `ByStr20` | The contract onwer. |
-| `name`                   | `String`  | The NFT name.       |
-| `symbol`                 | `String`  | The NFT symbol.     |
+| Name                     | Type      | Description                                                             |
+| ------------------------ | --------- | ----------------------------------------------------------------------- |
+| `initial_contract_owner` | `ByStr20` | The contract owner.                                                     |
+| `initial_base_uri`       | `String`  | Base token URI. e.g. `https://creatures-api.zilliqa.com/api/creature/`. |
+| `name`                   | `String`  | The NFT name.                                                           |
+| `symbol`                 | `String`  | The NFT symbol.                                                         |
 
 ### B. Mutable Fields
 
@@ -84,7 +85,7 @@ The main advantages of this standard are:
 | `contract_owner_candidate` | `ByStr20`                        | Address of the contract owner candidate. Defaults to zero address.                                                                   |          |
 | `royalty_recipient`        | `ByStr20`                        | Address to send royalties to. Defaults to `initial_contract_owner`.                                                                  |          |
 | `royalty_fee_bps`          | `Uint256`                        | Royalty fee BPS (1/100ths of a percent, e.g. 1000 = 10%). Defaults to `1000`.                                                        |          |
-| `base_uri`                 | `String`                         | Base URI. e.g. `https://creatures-api.zil.xyz/api/creature/`. Defaults to empty string.                                              |    ✓     |
+| `base_uri`                 | `String`                         | Base token URI. Defaults to `initial_base_uri`. This field shouldn't be mutated unless there is a strong reason.                     |    ✓     |
 | `token_id_count`           | `Uint256`                        | The total number of tokens minted. Defaults to `0`.                                                                                  |    ✓     |
 | `total_supply`             | `Uint256`                        | The total number of existing tokens. Defaults to `0`.                                                                                |    ✓     |
 | `token_owners`             | `Map Uint256 ByStr20`            | Mapping from token ID to its owner.                                                                                                  |    ✓     |
@@ -113,7 +114,7 @@ The main advantages of this standard are:
 | [`AcceptContractOwnership`](#6-acceptcontractownership-optional)     |                  |             ✓              |          |               |           |            |
 | [`SetRoyaltyRecipient`](#7-setroyaltyrecipient-optional)             |        ✓         |                            |          |               |           |            |
 | [`SetRoyaltyFeeBPS`](#8-setroyaltyfeebps-optional)                   |        ✓         |                            |          |               |           |            |
-| [`SetBaseURI`](#9-setbaseuri)                                        |        ✓         |                            |          |               |           |            |
+| [`SetBaseURI`](#9-setbaseuri-optional)                               |        ✓         |                            |          |               |           |            |
 | [`Mint`](#10-mint)                                                   |                  |                            |    ✓     |               |           |            |
 | [`BatchMint`](#11-batchmint-optional)                                |                  |                            |    ✓     |               |           |            |
 | [`Burn`](#12-burn-optional)                                          |                  |                            |          |       ✓       |           |     ✓      |
@@ -163,7 +164,7 @@ The NFT contract must define the following constants for use as error codes for 
 |  6  | [`AcceptContractOwnership()`](#6-acceptcontractownership-optional)                |          |
 |  7  | [`SetRoyaltyRecipient(to: ByStr20)`](#7-setroyaltyrecipient-optional)             |          |
 |  8  | [`SetRoyaltyFeeBPS(fee_bps: Uint256)`](#8-setroyaltyfeebps-optional)              |          |
-|  9  | [`SetBaseURI(uri: String)`](#9-setbaseuri)                                        |    ✓     |
+|  9  | [`SetBaseURI(uri: String)`](#9-setbaseuri-optional)                               |          |
 | 10  | [`Mint(to: ByStr20)`](#10-mint)                                                   |    ✓     |
 | 11  | [`BatchMint(to_list: List ByStr20)`](#11-batchmint-optional)                      |          |
 | 12  | [`Burn(token_id: Uint256)`](#12-burn-optional)                                    |          |
@@ -199,6 +200,9 @@ Gets royalty payment information for `token_id` and `sale_price`. It specifies h
 #### 2. `TokenURI`
 
 Gets Uniform Resource Identifier(URI) for `token_id`.
+Token URI is `<base_uri><token_id>`. e.g.,
+
+If the `base_uri` is `https://creatures-api.zilliqa.com/api/creature/` and the `token_id` is `1`, then the token URI will be `https://creatures-api.zilliqa.com/api/creature/1`.
 
 **Arguments:**
 
@@ -212,13 +216,13 @@ Gets Uniform Resource Identifier(URI) for `token_id`.
 
 **Messages:**
 
-|        | Name                    | Description                                            | Callback Parameters                                                                                      |
-| ------ | ----------------------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_TokenURICallback` | Provide the sender with the token URI of the token ID. | `token_uri` : `String`<br/>Token URI of a token<br/> e.g. `https://creatures-api.zil.xyz/api/creature/1` |
+|        | Name                    | Description                                            | Callback Parameters                                  |
+| ------ | ----------------------- | ------------------------------------------------------ | ---------------------------------------------------- |
+| `_tag` | `ZRC6_TokenURICallback` | Provide the sender with the token URI of the token ID. | `token_uri` : `String`<br/>Token URI of a token<br/> |
 
 #### 3. `Pause` (Optional)
 
-Pauses the contract. Use this when things are going wrong ('circuit breaker').
+Pauses the contract. Use this only if things are going wrong ('circuit breaker').
 
 **Requirements:**
 
@@ -358,9 +362,9 @@ Sets `fee_bps` as royalty fee bps.
 | ------------ | ------------------ | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `SetRoyaltyFeeBPS` | Royalty fee BPS has been updated. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`royalty_fee_bps` : `Uint256`<br/>Royalty Fee BPS</li></ul> |
 
-#### 9. `SetBaseURI`
+#### 9. `SetBaseURI` (Optional)
 
-Sets `uri` as the base URI.
+Sets `uri` as the base URI. Use this only if there is a strong reason to change the `base_uri`.
 
 **Arguments:**
 

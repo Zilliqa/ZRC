@@ -79,6 +79,7 @@ beforeEach(async () => {
   zilliqa.wallet.setDefault(toTestAddr(CONTRACT_OWNER));
   const init = globalContractInfo.getInitParams(
     toTestAddr(CONTRACT_OWNER),
+    BASE_URI,
     TOKEN_NAME,
     TOKEN_SYMBOL
   );
@@ -198,7 +199,7 @@ describe("Token", () => {
       },
     },
     {
-      name: "gets empty string for token URI as base URI is empty string",
+      name: "gets token URI",
       transition: "TokenURI",
       getSender: () => toTestAddr(STRANGER),
       getParams: () => ({
@@ -209,7 +210,9 @@ describe("Token", () => {
         events: undefined,
         transitions: [
           {
-            getParams: () => [toMsgParam("String", "", "token_uri")],
+            getParams: () => [
+              toMsgParam("String", `${BASE_URI}1`, "token_uri"),
+            ],
             tag: "ZRC6_TokenURICallback",
           },
         ],
@@ -460,147 +463,6 @@ describe("Token", () => {
             [toTestAddr(TOKEN_OWNER).toLowerCase()]:
               INITIAL_TOTAL_SUPPLY.toString(),
           },
-          base_uri: "",
-          contract_owner: toTestAddr(CONTRACT_OWNER).toLowerCase(),
-          contract_owner_candidate:
-            "0x0000000000000000000000000000000000000000",
-          is_paused: { argtypes: [], arguments: [], constructor: "False" },
-          minters: {
-            [toTestAddr(CONTRACT_OWNER).toLowerCase()]: {
-              argtypes: [],
-              arguments: [],
-              constructor: `${globalContractAddress.toLowerCase()}.Dummy`,
-            },
-          },
-          operators: {},
-          royalty_fee_bps: "1000",
-          royalty_recipient: toTestAddr(CONTRACT_OWNER).toLowerCase(),
-          spenders: {},
-          token_id_count: INITIAL_TOTAL_SUPPLY.toString(),
-          token_name: TOKEN_NAME,
-          token_owners: {
-            "1": toTestAddr(TOKEN_OWNER).toLowerCase(),
-            "2": toTestAddr(TOKEN_OWNER).toLowerCase(),
-            "3": toTestAddr(TOKEN_OWNER).toLowerCase(),
-          },
-          token_symbol: TOKEN_SYMBOL,
-          total_supply: INITIAL_TOTAL_SUPPLY.toString(),
-        })
-      );
-
-      zilliqa.wallet.setDefault(testCase.getSender());
-      const tx = await globalContractInfo.callGetter(
-        zilliqa.contracts.at(globalContractAddress),
-        TX_PARAMS
-      )(testCase.transition, ...Object.values(testCase.getParams()));
-      if (testCase.want === undefined) {
-        // Nagative Cases
-        expect(tx.receipt.success).toBe(false);
-        expect(tx.receipt.exceptions[0].message).toBe(
-          toErrorMsg(testCase.error)
-        );
-      } else {
-        // Positive Cases
-        expect(tx.receipt.success).toBe(true);
-        expect(verifyEvents(tx.receipt.event_logs, testCase.want.events)).toBe(
-          true
-        );
-        expect(
-          verifyTransitions(tx.receipt.transitions, testCase.want.transitions)
-        ).toBe(true);
-
-        const state = await zilliqa.contracts
-          .at(globalContractAddress)
-          .getState();
-
-        expect(testCase.want.verifyState(state)).toBe(true);
-      }
-    });
-  }
-});
-
-describe("Token with Base URI", () => {
-  beforeEach(async () => {
-    let tx = await globalContractInfo.callGetter(
-      zilliqa.contracts.at(globalContractAddress),
-      TX_PARAMS
-    )("SetBaseURI", BASE_URI);
-    if (!tx.receipt.success) {
-      throw new Error();
-    }
-  });
-
-  const testCases = [
-    {
-      name: "gets token URI",
-      transition: "TokenURI",
-      getSender: () => toTestAddr(STRANGER),
-      getParams: () => ({
-        token_id: "1",
-      }),
-      want: {
-        verifyState: () => true,
-        events: undefined,
-        transitions: [
-          {
-            getParams: () => [
-              toMsgParam("String", `${BASE_URI}1`, "token_uri"),
-            ],
-            tag: "ZRC6_TokenURICallback",
-          },
-        ],
-      },
-    },
-    {
-      name: "sets new base URI",
-      transition: "SetBaseURI",
-      getSender: () => toTestAddr(CONTRACT_OWNER),
-      getParams: () => ({
-        uri: "http://localhost:1111/testcase/1",
-      }),
-      error: undefined,
-      want: {
-        verifyState: (state) =>
-          state.base_uri === "http://localhost:1111/testcase/1",
-        events: [
-          {
-            name: "SetBaseURI",
-            getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
-              toMsgParam(
-                "String",
-                "http://localhost:1111/testcase/1",
-                "base_uri"
-              ),
-            ],
-          },
-        ],
-        transitions: [
-          {
-            tag: "ZRC6_SetBaseURICallback",
-            getParams: () => [
-              toMsgParam(
-                "String",
-                "http://localhost:1111/testcase/1",
-                "base_uri"
-              ),
-            ],
-          },
-        ],
-      },
-    },
-  ];
-
-  for (const testCase of testCases) {
-    it(`${testCase.transition}: ${testCase.name}`, async () => {
-      let state = await zilliqa.contracts.at(globalContractAddress).getState();
-      expect(JSON.stringify(state)).toBe(
-        JSON.stringify({
-          _balance: "0",
-          balances: {
-            [toTestAddr(TOKEN_OWNER).toLowerCase()]:
-              INITIAL_TOTAL_SUPPLY.toString(),
-          },
           base_uri: BASE_URI,
           contract_owner: toTestAddr(CONTRACT_OWNER).toLowerCase(),
           contract_owner_candidate:
@@ -660,7 +522,7 @@ describe("Token with Base URI", () => {
   }
 });
 
-describe("Contract with Contract Owner Candidate", () => {
+describe("Accept Contract Ownership", () => {
   beforeEach(async () => {
     let tx = await globalContractInfo.callGetter(
       zilliqa.contracts.at(globalContractAddress),
@@ -744,11 +606,132 @@ describe("Contract with Contract Owner Candidate", () => {
             [toTestAddr(TOKEN_OWNER).toLowerCase()]:
               INITIAL_TOTAL_SUPPLY.toString(),
           },
-          base_uri: "",
+          base_uri: BASE_URI,
           contract_owner: toTestAddr(CONTRACT_OWNER).toLowerCase(),
           contract_owner_candidate: toTestAddr(
             CONTRACT_OWNER_CANDIDATE
           ).toLowerCase(),
+          is_paused: { argtypes: [], arguments: [], constructor: "False" },
+          minters: {
+            [toTestAddr(CONTRACT_OWNER).toLowerCase()]: {
+              argtypes: [],
+              arguments: [],
+              constructor: `${globalContractAddress.toLowerCase()}.Dummy`,
+            },
+          },
+          operators: {},
+          royalty_fee_bps: "1000",
+          royalty_recipient: toTestAddr(CONTRACT_OWNER).toLowerCase(),
+          spenders: {},
+          token_id_count: INITIAL_TOTAL_SUPPLY.toString(),
+          token_name: TOKEN_NAME,
+          token_owners: {
+            "1": toTestAddr(TOKEN_OWNER).toLowerCase(),
+            "2": toTestAddr(TOKEN_OWNER).toLowerCase(),
+            "3": toTestAddr(TOKEN_OWNER).toLowerCase(),
+          },
+          token_symbol: TOKEN_SYMBOL,
+          total_supply: INITIAL_TOTAL_SUPPLY.toString(),
+        })
+      );
+
+      zilliqa.wallet.setDefault(testCase.getSender());
+      const tx = await globalContractInfo.callGetter(
+        zilliqa.contracts.at(globalContractAddress),
+        TX_PARAMS
+      )(testCase.transition, ...Object.values(testCase.getParams()));
+      if (testCase.want === undefined) {
+        // Nagative Cases
+        expect(tx.receipt.success).toBe(false);
+        expect(tx.receipt.exceptions[0].message).toBe(
+          toErrorMsg(testCase.error)
+        );
+      } else {
+        // Positive Cases
+        expect(tx.receipt.success).toBe(true);
+        expect(verifyEvents(tx.receipt.event_logs, testCase.want.events)).toBe(
+          true
+        );
+        expect(
+          verifyTransitions(tx.receipt.transitions, testCase.want.transitions)
+        ).toBe(true);
+
+        const state = await zilliqa.contracts
+          .at(globalContractAddress)
+          .getState();
+
+        expect(testCase.want.verifyState(state)).toBe(true);
+      }
+    });
+  }
+});
+
+describe("Set Base URI", () => {
+  beforeEach(async () => {
+    let tx = await globalContractInfo.callGetter(
+      zilliqa.contracts.at(globalContractAddress),
+      TX_PARAMS
+    )("SetBaseURI", BASE_URI);
+    if (!tx.receipt.success) {
+      throw new Error();
+    }
+  });
+
+  const testCases = [
+    {
+      name: "sets new base URI",
+      transition: "SetBaseURI",
+      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getParams: () => ({
+        uri: "http://localhost:1111/testcase/1",
+      }),
+      error: undefined,
+      want: {
+        verifyState: (state) =>
+          state.base_uri === "http://localhost:1111/testcase/1",
+        events: [
+          {
+            name: "SetBaseURI",
+            getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
+              toMsgParam(
+                "String",
+                "http://localhost:1111/testcase/1",
+                "base_uri"
+              ),
+            ],
+          },
+        ],
+        transitions: [
+          {
+            tag: "ZRC6_SetBaseURICallback",
+            getParams: () => [
+              toMsgParam(
+                "String",
+                "http://localhost:1111/testcase/1",
+                "base_uri"
+              ),
+            ],
+          },
+        ],
+      },
+    },
+  ];
+
+  for (const testCase of testCases) {
+    it(`${testCase.transition}: ${testCase.name}`, async () => {
+      let state = await zilliqa.contracts.at(globalContractAddress).getState();
+      expect(JSON.stringify(state)).toBe(
+        JSON.stringify({
+          _balance: "0",
+          balances: {
+            [toTestAddr(TOKEN_OWNER).toLowerCase()]:
+              INITIAL_TOTAL_SUPPLY.toString(),
+          },
+          base_uri: BASE_URI,
+          contract_owner: toTestAddr(CONTRACT_OWNER).toLowerCase(),
+          contract_owner_candidate:
+            "0x0000000000000000000000000000000000000000",
           is_paused: { argtypes: [], arguments: [], constructor: "False" },
           minters: {
             [toTestAddr(CONTRACT_OWNER).toLowerCase()]: {

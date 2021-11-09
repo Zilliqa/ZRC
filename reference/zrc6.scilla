@@ -15,7 +15,6 @@ type Operation =
 | Sub
 
 (* Global variables *)
-let empty_str = ""
 let zero_address = 0x0000000000000000000000000000000000000000
 let false = False
 let true = True
@@ -26,7 +25,6 @@ let add_operation = Add
 let sub_operation = Sub
 let royalty_fee_bps_min = Uint256 1
 let royalty_fee_bps_max = Uint256 10000
-
 
 (* Library functions *)
 let one_msg = 
@@ -103,6 +101,8 @@ let make_error =
 contract NonfungibleToken
 (
   initial_contract_owner: ByStr20,
+  (* Initial Base URI. e.g. `https://creatures-api.zilliqa.com/api/creature/` *)
+  initial_base_uri: String,
   name : String,
   symbol: String
 )
@@ -139,9 +139,9 @@ field royalty_recipient: ByStr20 = initial_contract_owner
 (* Defaults to 1000 *)
 field royalty_fee_bps: Uint256 = Uint256 1000
 
-(* Base URI. e.g. `https://creatures-api.zil.xyz/api/creature/` *)
-(* Defaults to empty string *)
-field base_uri: String = empty_str
+(* Base URI *)
+(* Defaults to `initial_base_uri` *)
+field base_uri: String = initial_base_uri
 
 (* Mapping from token ID to its owner *)
 field token_owners: Map Uint256 ByStr20 = Emp Uint256 ByStr20
@@ -396,15 +396,9 @@ transition TokenURI(token_id: Uint256)
 
   uri <- base_uri;
 
-  is_empty = builtin eq uri empty_str;
+  id = builtin to_string token_id;
+  token_uri = builtin concat uri id;
   
-  token_uri = match is_empty with
-    | True => empty_str
-    | False => 
-      let id = builtin to_string token_id in
-      builtin concat uri id
-    end;
-
   msg_to_sender = { 
     _tag : "ZRC6_TokenURICallback";
     _recipient : _sender;

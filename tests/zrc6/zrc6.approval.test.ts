@@ -21,6 +21,7 @@ import {
   TOKEN_NAME,
   TOKEN_SYMBOL,
   FAUCET_PARAMS,
+  BASE_URI,
 } from "./config";
 
 const JEST_WORKER_ID = Number(process.env["JEST_WORKER_ID"]);
@@ -83,6 +84,7 @@ beforeEach(async () => {
   zilliqa.wallet.setDefault(toTestAddr(CONTRACT_OWNER));
   const init = globalContractInfo.getInitParams(
     toTestAddr(CONTRACT_OWNER),
+    BASE_URI,
     TOKEN_NAME,
     TOKEN_SYMBOL
   );
