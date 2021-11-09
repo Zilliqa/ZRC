@@ -453,7 +453,40 @@ describe("Token", () => {
   for (const testCase of testCases) {
     it(`${testCase.transition}: ${testCase.name}`, async () => {
       let state = await zilliqa.contracts.at(globalContractAddress).getState();
-      expect(state.base_uri).toBe("");
+      expect(JSON.stringify(state)).toBe(
+        JSON.stringify({
+          _balance: "0",
+          balances: {
+            [toTestAddr(TOKEN_OWNER).toLowerCase()]:
+              INITIAL_TOTAL_SUPPLY.toString(),
+          },
+          base_uri: "",
+          contract_owner: toTestAddr(CONTRACT_OWNER).toLowerCase(),
+          contract_owner_candidate:
+            "0x0000000000000000000000000000000000000000",
+          is_paused: { argtypes: [], arguments: [], constructor: "False" },
+          minters: {
+            [toTestAddr(CONTRACT_OWNER).toLowerCase()]: {
+              argtypes: [],
+              arguments: [],
+              constructor: `${globalContractAddress.toLowerCase()}.Dummy`,
+            },
+          },
+          operators: {},
+          royalty_fee_bps: "1000",
+          royalty_recipient: toTestAddr(CONTRACT_OWNER).toLowerCase(),
+          spenders: {},
+          token_id_count: INITIAL_TOTAL_SUPPLY.toString(),
+          token_name: TOKEN_NAME,
+          token_owners: {
+            "1": toTestAddr(TOKEN_OWNER).toLowerCase(),
+            "2": toTestAddr(TOKEN_OWNER).toLowerCase(),
+            "3": toTestAddr(TOKEN_OWNER).toLowerCase(),
+          },
+          token_symbol: TOKEN_SYMBOL,
+          total_supply: INITIAL_TOTAL_SUPPLY.toString(),
+        })
+      );
 
       zilliqa.wallet.setDefault(testCase.getSender());
       const tx = await globalContractInfo.callGetter(
@@ -561,7 +594,40 @@ describe("Token with Base URI", () => {
   for (const testCase of testCases) {
     it(`${testCase.transition}: ${testCase.name}`, async () => {
       let state = await zilliqa.contracts.at(globalContractAddress).getState();
-      expect(state.base_uri).toBe(BASE_URI);
+      expect(JSON.stringify(state)).toBe(
+        JSON.stringify({
+          _balance: "0",
+          balances: {
+            [toTestAddr(TOKEN_OWNER).toLowerCase()]:
+              INITIAL_TOTAL_SUPPLY.toString(),
+          },
+          base_uri: BASE_URI,
+          contract_owner: toTestAddr(CONTRACT_OWNER).toLowerCase(),
+          contract_owner_candidate:
+            "0x0000000000000000000000000000000000000000",
+          is_paused: { argtypes: [], arguments: [], constructor: "False" },
+          minters: {
+            [toTestAddr(CONTRACT_OWNER).toLowerCase()]: {
+              argtypes: [],
+              arguments: [],
+              constructor: `${globalContractAddress.toLowerCase()}.Dummy`,
+            },
+          },
+          operators: {},
+          royalty_fee_bps: "1000",
+          royalty_recipient: toTestAddr(CONTRACT_OWNER).toLowerCase(),
+          spenders: {},
+          token_id_count: INITIAL_TOTAL_SUPPLY.toString(),
+          token_name: TOKEN_NAME,
+          token_owners: {
+            "1": toTestAddr(TOKEN_OWNER).toLowerCase(),
+            "2": toTestAddr(TOKEN_OWNER).toLowerCase(),
+            "3": toTestAddr(TOKEN_OWNER).toLowerCase(),
+          },
+          token_symbol: TOKEN_SYMBOL,
+          total_supply: INITIAL_TOTAL_SUPPLY.toString(),
+        })
+      );
 
       zilliqa.wallet.setDefault(testCase.getSender());
       const tx = await globalContractInfo.callGetter(
@@ -670,8 +736,41 @@ describe("Contract with Contract Owner Candidate", () => {
   for (const testCase of testCases) {
     it(`${testCase.transition}: ${testCase.name}`, async () => {
       let state = await zilliqa.contracts.at(globalContractAddress).getState();
-      expect(state.contract_owner_candidate).toBe(
-        toTestAddr(CONTRACT_OWNER_CANDIDATE).toLowerCase()
+
+      expect(JSON.stringify(state)).toBe(
+        JSON.stringify({
+          _balance: "0",
+          balances: {
+            [toTestAddr(TOKEN_OWNER).toLowerCase()]:
+              INITIAL_TOTAL_SUPPLY.toString(),
+          },
+          base_uri: "",
+          contract_owner: toTestAddr(CONTRACT_OWNER).toLowerCase(),
+          contract_owner_candidate: toTestAddr(
+            CONTRACT_OWNER_CANDIDATE
+          ).toLowerCase(),
+          is_paused: { argtypes: [], arguments: [], constructor: "False" },
+          minters: {
+            [toTestAddr(CONTRACT_OWNER).toLowerCase()]: {
+              argtypes: [],
+              arguments: [],
+              constructor: `${globalContractAddress.toLowerCase()}.Dummy`,
+            },
+          },
+          operators: {},
+          royalty_fee_bps: "1000",
+          royalty_recipient: toTestAddr(CONTRACT_OWNER).toLowerCase(),
+          spenders: {},
+          token_id_count: INITIAL_TOTAL_SUPPLY.toString(),
+          token_name: TOKEN_NAME,
+          token_owners: {
+            "1": toTestAddr(TOKEN_OWNER).toLowerCase(),
+            "2": toTestAddr(TOKEN_OWNER).toLowerCase(),
+            "3": toTestAddr(TOKEN_OWNER).toLowerCase(),
+          },
+          token_symbol: TOKEN_SYMBOL,
+          total_supply: INITIAL_TOTAL_SUPPLY.toString(),
+        })
       );
 
       zilliqa.wallet.setDefault(testCase.getSender());

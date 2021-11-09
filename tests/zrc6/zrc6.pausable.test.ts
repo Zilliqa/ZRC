@@ -163,6 +163,18 @@ describe("Unpaused", () => {
 
   for (const testCase of testCases) {
     it(`${testCase.transition}: ${testCase.name}`, async () => {
+      const state = await zilliqa.contracts
+        .at(globalContractAddress)
+        .getState();
+
+      expect(JSON.stringify(state.is_paused)).toBe(
+        JSON.stringify({
+          argtypes: [],
+          arguments: [],
+          constructor: "False",
+        })
+      );
+
       zilliqa.wallet.setDefault(testCase.getSender());
       const tx = await globalContractInfo.callGetter(
         zilliqa.contracts.at(globalContractAddress),
@@ -305,6 +317,18 @@ describe("Paused", () => {
 
   for (const testCase of testCases) {
     it(`${testCase.transition}: ${testCase.name}`, async () => {
+      const state = await zilliqa.contracts
+        .at(globalContractAddress)
+        .getState();
+
+      expect(JSON.stringify(state.is_paused)).toBe(
+        JSON.stringify({
+          argtypes: [],
+          arguments: [],
+          constructor: "True",
+        })
+      );
+
       zilliqa.wallet.setDefault(testCase.getSender());
       const tx = await globalContractInfo.callGetter(
         zilliqa.contracts.at(globalContractAddress),
