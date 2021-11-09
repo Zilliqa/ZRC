@@ -168,8 +168,8 @@ field spenders: Map Uint256 ByStr20 = Emp Uint256 ByStr20
 field operators: Map ByStr20 (Map ByStr20 Dummy) = Emp ByStr20 (Map ByStr20 Dummy)
 
 (* Emit Errors *)
-procedure ThrowError(err : Error)
-  e = make_error err;
+procedure Throw(error : Error)
+  e = make_error error;
   throw e
 end
 
@@ -181,8 +181,8 @@ procedure RequireNotPaused()
   | False =>
   | True =>
     (* Contract is paused *)
-    err = PausedError;
-    ThrowError err
+    error = PausedError;
+    Throw error
   end
 end
 
@@ -194,8 +194,8 @@ procedure RequireValidRoyaltyFee(fee_bps: Uint256)
   match is_valid with 
     | True => 
     | False =>
-      err = InvalidFeeBpsError;
-      ThrowError err
+      error = InvalidFeeBpsError;
+      Throw error
   end
 end
 
@@ -205,8 +205,8 @@ procedure RequireContractOwner()
   match is_contract_owner with
   | True => 
   | False =>
-    err = NotContractOwnerError;
-    ThrowError err
+    error = NotContractOwnerError;
+    Throw error
   end
 end
 
@@ -215,8 +215,8 @@ procedure RequireNotSelf(address_a: ByStr20, address_b: ByStr20)
   match is_self with
   | False =>
   | True =>
-    err = SelfError;
-    ThrowError err
+    error = SelfError;
+    Throw error
   end
 end
 
@@ -225,8 +225,8 @@ procedure RequireExistingToken(token_id: Uint256)
   match has_token with
   | True =>
   | False =>
-    err = TokenNotFoundError;
-    ThrowError err
+    error = TokenNotFoundError;
+    Throw error
   end
 end
 
@@ -236,16 +236,16 @@ procedure RequireValidDestination(to: ByStr20)
   match is_zero_address with
   | False =>
   | True =>
-    err = ZeroAddressDestinationError;
-    ThrowError err
+    error = ZeroAddressDestinationError;
+    Throw error
   end;
 
   is_this_address = builtin eq to _this_address;
   match is_this_address with
   | False =>
   | True =>
-    err = ThisAddressDestinationError;
-    ThrowError err
+    error = ThisAddressDestinationError;
+    Throw error
   end
 end
 
@@ -254,8 +254,8 @@ procedure IsMinter(address: ByStr20)
   match has_minter with
   | True =>
   | False =>
-    err = NotMinterError;
-    ThrowError err
+    error = NotMinterError;
+    Throw error
   end
 end
 
@@ -267,12 +267,12 @@ procedure RequireTokenOwner(token_id: Uint256, address: ByStr20)
     match is_token_owner with
     | True =>
     | False =>
-      err = NotTokenOwnerError;
-      ThrowError err
+      error = NotTokenOwnerError;
+      Throw error
     end
   | None =>
-    err = TokenNotFoundError;
-    ThrowError err
+    error = TokenNotFoundError;
+    Throw error
   end
 end
 
@@ -283,8 +283,8 @@ procedure RequireOwnerOrOperator(address: ByStr20)
   match is_allowed with
   | True =>
   | False =>
-    err = NotOwnerOrOperatorError;
-    ThrowError err
+    error = NotOwnerOrOperatorError;
+    Throw error
   end
 end
 
@@ -308,8 +308,8 @@ procedure RequireAccessToTransfer(token_owner: ByStr20, token_id: Uint256)
   match is_allowed with
   | True =>
   | False =>
-    err = NotAllowedToTransferError;
-    ThrowError err
+    error = NotAllowedToTransferError;
+    Throw error
   end
 end
 
@@ -443,8 +443,8 @@ transition Unpause()
   match paused with
   | True =>
   | False =>
-    err = NotPausedError;
-    ThrowError err
+    error = NotPausedError;
+    Throw error
   end;
   RequireContractOwner;
 
@@ -501,8 +501,8 @@ transition AcceptContractOwnership()
   is_candidate = builtin eq _sender candidate;
   match is_candidate with
   | False =>
-    err = NotContractOwnerCandidateError;
-    ThrowError err
+    error = NotContractOwnerCandidateError;
+    Throw error
   | True =>
     contract_owner := _sender;
     contract_owner_candidate := zero_address;
@@ -654,8 +654,8 @@ transition Burn(token_id: Uint256)
   opt_token_owner <- token_owners[token_id];
   match opt_token_owner with
   | None =>
-    err = TokenNotFoundError;
-    ThrowError err
+    error = TokenNotFoundError;
+    Throw error
   | Some token_owner =>
     RequireOwnerOrOperator token_owner;
     (* Destroy existing token *)
@@ -696,8 +696,8 @@ transition AddMinter(to: ByStr20)
   has_minter <- exists minters[to];
   match has_minter with
   | True => 
-    err = MinterFoundError;
-    ThrowError err
+    error = MinterFoundError;
+    Throw error
   | False =>
     (* Add minter *)
     minters[to] := verdad
@@ -729,8 +729,8 @@ transition RemoveMinter(to: ByStr20)
   | True => 
     delete minters[to]
   | False =>
-    err = MinterNotFoundError;
-    ThrowError err
+    error = MinterNotFoundError;
+    Throw error
   end;
   e = { 
     _eventname : "RemoveMinter";
@@ -758,16 +758,16 @@ transition AddSpender(to: ByStr20, token_id: Uint256)
   opt_token_owner <- token_owners[token_id];
   match opt_token_owner with
   | None =>
-    err = TokenNotFoundError;
-    ThrowError err
+    error = TokenNotFoundError;
+    Throw error
   | Some token_owner =>
     RequireOwnerOrOperator token_owner;
     
     has_spender <- exists spenders[token_id];
     match has_spender with
       | True =>
-      err = SpenderFoundError;
-      ThrowError err
+      error = SpenderFoundError;
+      Throw error
       | False =>
       (* Add spender *)
       spenders[token_id] := to
@@ -802,8 +802,8 @@ transition RemoveSpender(to: ByStr20, token_id: Uint256)
   opt_token_owner <- token_owners[token_id];
   match opt_token_owner with
   | None =>
-    err = TokenNotFoundError;
-    ThrowError err
+    error = TokenNotFoundError;
+    Throw error
   | Some token_owner =>
     RequireOwnerOrOperator token_owner;
     
@@ -813,8 +813,8 @@ transition RemoveSpender(to: ByStr20, token_id: Uint256)
       (* Remove spender *)
       delete spenders[token_id]
     | False =>
-      err = SpenderNotFoundError;
-      ThrowError err
+      error = SpenderNotFoundError;
+      Throw error
     end;
     
     e = {
@@ -852,8 +852,8 @@ transition AddOperator(to: ByStr20)
   (* _sender should have at least 1 token *)
   match is_balance_zero with 
   | True =>    
-    err = NotTokenOwnerError;
-    ThrowError err
+    error = NotTokenOwnerError;
+    Throw error
   | False =>
     has_operator <- exists operators[_sender][to];
     match has_operator with
@@ -861,8 +861,8 @@ transition AddOperator(to: ByStr20)
       (* Add operator *)
       operators[_sender][to] := verdad
     | True =>
-      err = OperatorFoundError;
-      ThrowError err
+      error = OperatorFoundError;
+      Throw error
     end;
     e = {
       _eventname : "AddOperator";
@@ -891,8 +891,8 @@ transition RemoveOperator(to: ByStr20)
   has_operator <- exists operators[_sender][to];
   match has_operator with
   | False =>
-    err = OperatorNotFoundError;
-    ThrowError err
+    error = OperatorNotFoundError;
+    Throw error
   | True =>
     (* Remove operator *)
     delete operators[_sender][to]
@@ -928,8 +928,8 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
   opt_token_owner <- token_owners[token_id];
   match opt_token_owner with
   | None =>
-    err = TokenNotFoundError;
-    ThrowError err
+    error = TokenNotFoundError;
+    Throw error
   | Some token_owner =>
     RequireAccessToTransfer token_owner token_id;
     RequireNotSelf token_owner to;
