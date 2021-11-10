@@ -60,9 +60,20 @@ const transitionParamsGetter =
       if (params[index] === undefined) {
         throw new Error("invalid params");
       }
+
+      let type = cur.type;
+
+      if (type[0] === "B" && type.includes("ByStr")) {
+        type = type.split(" ").shift();
+      }
+
+      if (type.includes("(")) {
+        type = type.replace("(", "").replace(")", "");
+      }
+
       return {
         ...cur,
-        type: cur.type.replace("(", "").replace(")", ""),
+        type,
         value: params[index],
       };
     });
