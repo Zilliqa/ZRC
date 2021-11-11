@@ -23,8 +23,8 @@ let one = Uint256 1
 let verdad = Dummy
 let add_operation = Add
 let sub_operation = Sub
-let royalty_fee_bps_min = Uint256 1
-let royalty_fee_bps_max = Uint256 10000
+let min_fee_bps = Uint256 1
+let max_fee_bps = Uint256 10000
 
 (* Library functions *)
 let one_msg = 
@@ -187,8 +187,8 @@ procedure RequireNotPaused()
 end
 
 procedure RequireValidRoyaltyFee(fee_bps: Uint256)
-  is_gte_min = uint256_ge fee_bps royalty_fee_bps_min;
-  is_lte_max = uint256_le fee_bps royalty_fee_bps_max;
+  is_gte_min = uint256_ge fee_bps min_fee_bps;
+  is_lte_max = uint256_le fee_bps max_fee_bps;
   
   is_valid = andb is_gte_min is_lte_max;
   match is_valid with 
@@ -371,17 +371,24 @@ end
 transition RoyaltyInfo(token_id: Uint256, sale_price: Uint256)
   RequireExistingToken token_id;
 
-  current_royalty_fee_bps <- royalty_fee_bps;
-  current_royalty_recipient <- royalty_recipient;
+  fee_bps <- royalty_fee_bps;  
 
-  x = builtin div royalty_fee_bps_max current_royalty_fee_bps;
+  (* To avoid integer overflow, use division only. *)
+  (* sale_price / ( max_fee_bps / fee_bps ) *)
+  
+  (* fee_bps ranges from 1 to 10000. *)
+  x = builtin div max_fee_bps fee_bps;
+  
+  (* x ranges from 1 to 10000. *)
   royalty_amount = builtin div sale_price x;
+  
+  recipient <- royalty_recipient;
 
   msg_to_sender = { 
     _tag : "ZRC6_RoyaltyInfoCallback"; 
     _recipient : _sender;
     _amount : Uint128 0;
-    royalty_recipient : current_royalty_recipient;
+    royalty_recipient : recipient;
     royalty_amount : royalty_amount
   };
   msgs = one_msg msg_to_sender;

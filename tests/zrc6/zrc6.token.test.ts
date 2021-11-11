@@ -118,12 +118,12 @@ describe("Token", () => {
       want: undefined,
     },
     {
-      name: "gets royalty info: (1, 1000) => 100",
+      name: "gets royalty info: (999, 10%) -> 99",
       transition: "RoyaltyInfo",
       getSender: () => toTestAddr(STRANGER),
       getParams: () => ({
         token_id: "1",
-        sale_price: "1000",
+        sale_price: "999",
       }),
       error: undefined,
       want: {
@@ -138,14 +138,14 @@ describe("Token", () => {
                 toTestAddr(CONTRACT_OWNER),
                 "royalty_recipient"
               ),
-              toMsgParam("Uint256", 100, "royalty_amount"),
+              toMsgParam("Uint256", 99, "royalty_amount"),
             ],
           },
         ],
       },
     },
     {
-      name: "gets royalty info: (1, 10) => 1",
+      name: "gets royalty info: (10, 10%) -> 1",
       transition: "RoyaltyInfo",
       getSender: () => toTestAddr(STRANGER),
       getParams: () => ({
@@ -172,7 +172,7 @@ describe("Token", () => {
       },
     },
     {
-      name: "gets royalty info: (1, 1) => 0",
+      name: "gets royalty info: (1, 10%) -> 0",
       transition: "RoyaltyInfo",
       getSender: () => toTestAddr(STRANGER),
       getParams: () => ({
