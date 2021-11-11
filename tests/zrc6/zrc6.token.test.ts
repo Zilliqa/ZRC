@@ -573,11 +573,6 @@ describe("Accept Contract Ownership", () => {
                 toTestAddr(CONTRACT_OWNER_CANDIDATE),
                 "contract_owner"
               ),
-              toMsgParam(
-                "ByStr20",
-                "0x0000000000000000000000000000000000000000",
-                "contract_owner_candidate"
-              ),
             ],
           },
         ],
@@ -589,11 +584,6 @@ describe("Accept Contract Ownership", () => {
                 "ByStr20",
                 toTestAddr(CONTRACT_OWNER_CANDIDATE),
                 "contract_owner"
-              ),
-              toMsgParam(
-                "ByStr20",
-                "0x0000000000000000000000000000000000000000",
-                "contract_owner_candidate"
               ),
             ],
           },

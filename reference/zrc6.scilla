@@ -520,16 +520,14 @@ transition AcceptContractOwnership()
     e = {
       _eventname: "AcceptContractOwnership";
       initiator: _sender;
-      contract_owner: _sender;
-      contract_owner_candidate: zero_address
+      contract_owner: _sender
     };
     event e;
     msg_to_sender = {
       _tag: "ZRC6_AcceptContractOwnershipCallback";
       _recipient: _sender;
       _amount: Uint128 0;
-      contract_owner: _sender;
-      contract_owner_candidate: zero_address
+      contract_owner: _sender
     };
     msgs = one_msg msg_to_sender;
     send msgs

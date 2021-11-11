@@ -298,15 +298,15 @@ Sets `contract_owner_candidate` as the contract owner.
 
 **Messages:**
 
-|        | Name                                   | Description                                                       | Callback Parameters                                                                                                                                                         |
-| ------ | -------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_AcceptContractOwnershipCallback` | Provide the sender the result of the contract ownership transfer. | <ul><li>`contract_owner` : `ByStr20`<br/>Address of the contract owner</li><li>`contract_owner_candidate` : `ByStr20`<br/>Address of the contract owner candidate</li></ul> |
+|        | Name                                   | Description                                                       | Callback Parameters                                                              |
+| ------ | -------------------------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_AcceptContractOwnershipCallback` | Provide the sender the result of the contract ownership transfer. | <ul><li>`contract_owner` : `ByStr20`<br/>Address of the contract owner</li></ul> |
 
 **Events:**
 
-|              | Name                      | Description                              | Event Parameters                                                                                                                                                                                                                         |
-| ------------ | ------------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `AcceptContractOwnership` | Contract ownership has been transferred. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`contract_owner` : `ByStr20`<br/>Address of the contract owner</li><li>`contract_owner_candidate` : `ByStr20`<br/>Address of the contract owner candidate</li></ul> |
+|              | Name                      | Description                              | Event Parameters                                                                                                                              |
+| ------------ | ------------------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `AcceptContractOwnership` | Contract ownership has been transferred. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`contract_owner` : `ByStr20`<br/>Address of the contract owner</li></ul> |
 
 #### 7. `SetRoyaltyRecipient` (Optional)
 
