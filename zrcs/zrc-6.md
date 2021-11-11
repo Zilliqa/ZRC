@@ -13,7 +13,7 @@
   - [C. Roles](#c-roles)
   - [D. Error Codes](#d-error-codes)
   - [E. Transitions](#e-transitions)
-- [V. Testing](#v-testing)
+- [V. Implementations](#v-implementations)
 - [VI. References](#vi-references)
 - [VII. Copyright](#vii-copyright)
 
@@ -666,19 +666,12 @@ Transfers `token_id` from the token owner to `to`.
 | ------------ | -------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `TransferFrom` | Token has been transferred. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`from` : `ByStr20`<br/>Address of the token owner</li><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
-## V. Testing
+## V. Implementations
 
-Prerequisites:
+[zrc6.scilla](../reference/zrc6.scilla) - a reference implementation
 
-- [Docker](https://www.docker.com/products/container-runtime)
-- [Node.js](https://nodejs.org/en/)
-
-To test the [ZRC-6](../reference/zrc6.scilla), run:
-
-```shell
-npm i
-npm test
-```
+- includes [test cases](../tests/zrc6) written using [Zilliqa Isolated Server](https://hub.docker.com/r/zilliqa/zilliqa-isolated-server) and [Jest](https://jestjs.io/)
+- MIT licensed
 
 ## VI. References
 
