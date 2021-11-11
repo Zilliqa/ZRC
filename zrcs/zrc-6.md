@@ -90,9 +90,9 @@ The main advantages of this standard are:
 | `total_supply`             | `Uint256`                        | The total number of existing tokens. Defaults to `0`.                                                                                |    ✓     |
 | `token_owners`             | `Map Uint256 ByStr20`            | Mapping from token ID to its owner.                                                                                                  |    ✓     |
 | `balances`                 | `Map ByStr20 Uint256`            | Mapping from token owner to the number of existing tokens.                                                                           |    ✓     |
-| `minters`                  | `Map ByStr20 Dummy`              | Set of minters.                                                                                                                      |    ✓     |
+| `minters`                  | `Map ByStr20 Bool`               | Set of minters.                                                                                                                      |    ✓     |
 | `spenders`                 | `Map Uint256 ByStr20`            | Mapping from token ID to a spender.                                                                                                  |    ✓     |
-| `operators`                | `Map ByStr20 (Map ByStr20 Bool)` | Mapping from token owner to operators authorized by the token owner.                                                                 |    ✓     |
+| `operators`                | `Map ByStr20 (Map ByStr20 Bool)` | Mapping from token owner to set of operators.                                                                                        |    ✓     |
 
 ### C. Roles
 

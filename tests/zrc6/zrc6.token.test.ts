@@ -479,7 +479,7 @@ describe("Token", () => {
             [toTestAddr(CONTRACT_OWNER).toLowerCase()]: {
               argtypes: [],
               arguments: [],
-              constructor: `${globalContractAddress.toLowerCase()}.Dummy`,
+              constructor: "True",
             },
           },
           operators: {},
@@ -613,7 +613,7 @@ describe("Accept Contract Ownership", () => {
             [toTestAddr(CONTRACT_OWNER).toLowerCase()]: {
               argtypes: [],
               arguments: [],
-              constructor: `${globalContractAddress.toLowerCase()}.Dummy`,
+              constructor: "True",
             },
           },
           operators: {},
@@ -734,7 +734,7 @@ describe("Set Base URI", () => {
             [toTestAddr(CONTRACT_OWNER).toLowerCase()]: {
               argtypes: [],
               arguments: [],
-              constructor: `${globalContractAddress.toLowerCase()}.Dummy`,
+              constructor: "True",
             },
           },
           operators: {},

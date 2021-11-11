@@ -6,10 +6,6 @@ scilla_version 0
 import BoolUtils ListUtils IntUtils
 library NonfungibleToken
 
-(* User-defined ADTs *)
-type Dummy =
-| Dummy
-
 type Operation =
 | Add
 | Sub
@@ -20,7 +16,7 @@ let false = False
 let true = True
 let zero = Uint256 0
 let one = Uint256 1
-let verdad = Dummy
+
 let add_operation = Add
 let sub_operation = Sub
 let min_fee_bps = Uint128 1
@@ -157,15 +153,15 @@ field balances: Map ByStr20 Uint256 = Emp ByStr20 Uint256
 
 (* Set for minters *)
 (* `initial_contract_owner` is a minter by default *)
-field minters: Map ByStr20 Dummy =
-    let emp_map = Emp ByStr20 Dummy in
-    builtin put emp_map initial_contract_owner verdad
+field minters: Map ByStr20 Bool =
+    let emp_map = Emp ByStr20 Bool in
+    builtin put emp_map initial_contract_owner true
 
 (* Mapping from token ID to a spender *)
 field spenders: Map Uint256 ByStr20 = Emp Uint256 ByStr20
 
 (* Mapping from token owner to operators authorized by the token owner *)
-field operators: Map ByStr20 (Map ByStr20 Dummy) = Emp ByStr20 (Map ByStr20 Dummy)
+field operators: Map ByStr20 (Map ByStr20 Bool) = Emp ByStr20 (Map ByStr20 Bool)
 
 (* Emit Errors *)
 procedure Throw(error: Error)
@@ -708,7 +704,7 @@ transition AddMinter(to: ByStr20)
     Throw error
   | False =>
     (* Add minter *)
-    minters[to] := verdad
+    minters[to] := true
   end;
   e = { 
     _eventname: "AddMinter";
@@ -867,7 +863,7 @@ transition AddOperator(to: ByStr20)
     match has_operator with
     | False =>
       (* Add operator *)
-      operators[_sender][to] := verdad
+      operators[_sender][to] := true
     | True =>
       error = OperatorFoundError;
       Throw error
