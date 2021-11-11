@@ -84,7 +84,7 @@ The main advantages of this standard are:
 | `contract_owner`           | `ByStr20`                        | Address of the contract owner. Defaults to `initial_contract_owner`.                                                                 |    ✓     |
 | `contract_owner_candidate` | `ByStr20`                        | Address of the contract owner candidate. Defaults to zero address.                                                                   |          |
 | `royalty_recipient`        | `ByStr20`                        | Address to send royalties to. Defaults to `initial_contract_owner`.                                                                  |          |
-| `royalty_fee_bps`          | `Uint256`                        | Royalty fee BPS (1/100ths of a percent, e.g. 1000 = 10%). Defaults to `1000`.                                                        |          |
+| `royalty_fee_bps`          | `Uint128`                        | Royalty fee BPS (1/100ths of a percent, e.g. 1000 = 10%). Defaults to `1000`.                                                        |          |
 | `base_uri`                 | `String`                         | Base token URI. Defaults to `initial_base_uri`. This field shouldn't be mutated unless there is a strong reason.                     |    ✓     |
 | `token_id_count`           | `Uint256`                        | The total number of tokens minted. Defaults to `0`.                                                                                  |    ✓     |
 | `total_supply`             | `Uint256`                        | The total number of existing tokens. Defaults to `0`.                                                                                |    ✓     |
@@ -156,14 +156,14 @@ The NFT contract must define the following constants for use as error codes for 
 
 |     | Transition                                                                        | Required |
 | :-: | --------------------------------------------------------------------------------- | :------: |
-|  1  | [`RoyaltyInfo(token_id: Uint256, sale_price: Uint256)`](#1-royaltyinfo-optional)  |          |
+|  1  | [`RoyaltyInfo(token_id: Uint256, sale_price: Uint128)`](#1-royaltyinfo-optional)  |          |
 |  2  | [`TokenURI(token_id: Uint256)`](#2-tokenuri)                                      |    ✓     |
 |  3  | [`Pause()`](#3-pause-optional)                                                    |          |
 |  4  | [`Unpause()`](#4-unpause-optional)                                                |          |
 |  5  | [`SetContractOwnerCandidate(to: ByStr20)`](#5-setcontractownercandidate-optional) |          |
 |  6  | [`AcceptContractOwnership()`](#6-acceptcontractownership-optional)                |          |
 |  7  | [`SetRoyaltyRecipient(to: ByStr20)`](#7-setroyaltyrecipient-optional)             |          |
-|  8  | [`SetRoyaltyFeeBPS(fee_bps: Uint256)`](#8-setroyaltyfeebps-optional)              |          |
+|  8  | [`SetRoyaltyFeeBPS(fee_bps: Uint128)`](#8-setroyaltyfeebps-optional)              |          |
 |  9  | [`SetBaseURI(uri: String)`](#9-setbaseuri-optional)                               |          |
 | 10  | [`Mint(to: ByStr20)`](#10-mint)                                                   |    ✓     |
 | 11  | [`BatchMint(to_list: List ByStr20)`](#11-batchmint-optional)                      |          |
@@ -185,7 +185,7 @@ Gets royalty payment information for `token_id` and `sale_price`. It specifies h
 | Name         | Type      | Description                        |
 | ------------ | --------- | ---------------------------------- |
 | `token_id`   | `Uint256` | Unique ID of an existing token.    |
-| `sale_price` | `Uint256` | Sale price when the token is sold. |
+| `sale_price` | `Uint128` | Sale price when the token is sold. |
 
 **Requirements:**
 
@@ -195,7 +195,7 @@ Gets royalty payment information for `token_id` and `sale_price`. It specifies h
 
 |        | Name                       | Description                                                                     | Callback Parameters                                                                                                                                                            |
 | ------ | -------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `_tag` | `ZRC6_RoyaltyInfoCallback` | Provide the sender the address of the royalty recipient and the royalty amount. | <ul><li>`royalty_amount` : `Uint256`<br/>Amount of funds to be paid to the royalty recipient</li><li>`royalty_recipient` : `ByStr20`</li>Address of the royalty recipient</ul> |
+| `_tag` | `ZRC6_RoyaltyInfoCallback` | Provide the sender the address of the royalty recipient and the royalty amount. | <ul><li>`royalty_amount` : `Uint128`<br/>Amount of funds to be paid to the royalty recipient</li><li>`royalty_recipient` : `ByStr20`</li>Address of the royalty recipient</ul> |
 
 #### 2. `TokenURI`
 
@@ -342,7 +342,7 @@ Sets `fee_bps` as royalty fee bps.
 
 | Name      | Type      | Description                                                |
 | --------- | --------- | ---------------------------------------------------------- |
-| `fee_bps` | `Uint256` | Royality fee BPS (1/100ths of a percent, e.g. 1000 = 10%). |
+| `fee_bps` | `Uint128` | Royality fee BPS (1/100ths of a percent, e.g. 1000 = 10%). |
 
 **Requirements:**
 
@@ -353,13 +353,13 @@ Sets `fee_bps` as royalty fee bps.
 
 |        | Name                            | Description                             | Callback Parameters                               |
 | ------ | ------------------------------- | --------------------------------------- | ------------------------------------------------- |
-| `_tag` | `ZRC6_SetRoyaltyFeeBPSCallback` | Provide the sender the royalty fee BPS. | `royalty_fee_bps` : `Uint256`<br/>Royalty Fee BPS |
+| `_tag` | `ZRC6_SetRoyaltyFeeBPSCallback` | Provide the sender the royalty fee BPS. | `royalty_fee_bps` : `Uint128`<br/>Royalty Fee BPS |
 
 **Events:**
 
 |              | Name               | Description                       | Event Parameters                                                                                                                 |
 | ------------ | ------------------ | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `SetRoyaltyFeeBPS` | Royalty fee BPS has been updated. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`royalty_fee_bps` : `Uint256`<br/>Royalty Fee BPS</li></ul> |
+| `_eventname` | `SetRoyaltyFeeBPS` | Royalty fee BPS has been updated. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`royalty_fee_bps` : `Uint128`<br/>Royalty Fee BPS</li></ul> |
 
 #### 9. `SetBaseURI` (Optional)
 

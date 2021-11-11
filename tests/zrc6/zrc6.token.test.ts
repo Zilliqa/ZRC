@@ -138,7 +138,7 @@ describe("Token", () => {
                 toTestAddr(CONTRACT_OWNER),
                 "royalty_recipient"
               ),
-              toMsgParam("Uint256", 99, "royalty_amount"),
+              toMsgParam("Uint128", 99, "royalty_amount"),
             ],
           },
         ],
@@ -165,7 +165,7 @@ describe("Token", () => {
                 toTestAddr(CONTRACT_OWNER),
                 "royalty_recipient"
               ),
-              toMsgParam("Uint256", 1, "royalty_amount"),
+              toMsgParam("Uint128", 1, "royalty_amount"),
             ],
           },
         ],
@@ -192,7 +192,7 @@ describe("Token", () => {
                 toTestAddr(CONTRACT_OWNER),
                 "royalty_recipient"
               ),
-              toMsgParam("Uint256", 0, "royalty_amount"),
+              toMsgParam("Uint128", 0, "royalty_amount"),
             ],
           },
         ],
@@ -364,14 +364,14 @@ describe("Token", () => {
             name: "SetRoyaltyFeeBPS",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
-              toMsgParam("Uint256", 10000, "royalty_fee_bps"),
+              toMsgParam("Uint128", 10000, "royalty_fee_bps"),
             ],
           },
         ],
         transitions: [
           {
             tag: "ZRC6_SetRoyaltyFeeBPSCallback",
-            getParams: () => [toMsgParam("Uint256", 10000, "royalty_fee_bps")],
+            getParams: () => [toMsgParam("Uint128", 10000, "royalty_fee_bps")],
           },
         ],
       },
@@ -391,14 +391,14 @@ describe("Token", () => {
             name: "SetRoyaltyFeeBPS",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
-              toMsgParam("Uint256", 1, "royalty_fee_bps"),
+              toMsgParam("Uint128", 1, "royalty_fee_bps"),
             ],
           },
         ],
         transitions: [
           {
             tag: "ZRC6_SetRoyaltyFeeBPSCallback",
-            getParams: () => [toMsgParam("Uint256", 1, "royalty_fee_bps")],
+            getParams: () => [toMsgParam("Uint128", 1, "royalty_fee_bps")],
           },
         ],
       },
