@@ -28,13 +28,13 @@ let max_fee_bps = Uint128 10000
 
 (* Library functions *)
 let one_msg = 
-  fun (msg : Message) => 
+  fun (msg: Message) => 
     let nil_msg = Nil {Message} in
     Cons {Message} msg nil_msg
 
 let two_msgs =
-  fun (msg1 : Message) =>
-  fun (msg2 : Message) =>
+  fun (msg1: Message) =>
+  fun (msg2: Message) =>
     let msgs_tmp = one_msg msg2 in
     Cons {Message} msg1 msgs_tmp
 
@@ -68,7 +68,7 @@ type Error =
   | ThisAddressDestinationError
 
 let make_error =
-  fun (result : Error) =>
+  fun (result: Error) =>
     let result_code = 
       match result with
       | NotPausedError                 => Int32 -1
@@ -92,7 +92,7 @@ let make_error =
       | ThisAddressDestinationError    => Int32 -19
       end
     in
-    { _exception : "Error"; code : result_code }
+    { _exception: "Error"; code: result_code }
 
 (***************************************************)
 (*             The contract definition             *)
@@ -103,7 +103,7 @@ contract NonfungibleToken
   initial_contract_owner: ByStr20,
   (* Initial Base URI. e.g. `https://creatures-api.zilliqa.com/api/creature/` *)
   initial_base_uri: String,
-  name : String,
+  name: String,
   symbol: String
 )
 
@@ -168,7 +168,7 @@ field spenders: Map Uint256 ByStr20 = Emp Uint256 ByStr20
 field operators: Map ByStr20 (Map ByStr20 Dummy) = Emp ByStr20 (Map ByStr20 Dummy)
 
 (* Emit Errors *)
-procedure Throw(error : Error)
+procedure Throw(error: Error)
   e = make_error error;
   throw e
 end
@@ -356,10 +356,10 @@ procedure MintToken(to: ByStr20)
   total_supply := new_supply;
   
   e = {
-    _eventname : "Mint";
-    initiator : _sender;
-    to : to;
-    token_id : token_id
+    _eventname: "Mint";
+    initiator: _sender;
+    to: to;
+    token_id: token_id
   };
   event e
 end
@@ -385,13 +385,13 @@ transition RoyaltyInfo(token_id: Uint256, sale_price: Uint128)
   recipient <- royalty_recipient;
 
   msg_to_sender = { 
-    _tag : "ZRC6_RoyaltyInfoCallback"; 
-    _recipient : _sender;
-    _amount : Uint128 0;
-    token_id : token_id;
-    sale_price : sale_price;
-    royalty_recipient : recipient;
-    royalty_amount : royalty_amount
+    _tag: "ZRC6_RoyaltyInfoCallback"; 
+    _recipient: _sender;
+    _amount: Uint128 0;
+    token_id: token_id;
+    sale_price: sale_price;
+    royalty_recipient: recipient;
+    royalty_amount: royalty_amount
   };
   msgs = one_msg msg_to_sender;
   send msgs
@@ -409,11 +409,11 @@ transition TokenURI(token_id: Uint256)
   token_uri = builtin concat uri id;
   
   msg_to_sender = { 
-    _tag : "ZRC6_TokenURICallback";
-    _recipient : _sender;
-    _amount : Uint128 0;
-    token_id : token_id;
-    token_uri : token_uri
+    _tag: "ZRC6_TokenURICallback";
+    _recipient: _sender;
+    _amount: Uint128 0;
+    token_id: token_id;
+    token_uri: token_uri
   };
   msgs = one_msg msg_to_sender;
   send msgs
@@ -429,16 +429,16 @@ transition Pause()
 
   is_paused := true;
   e = {
-    _eventname : "Pause";
-    initiator : _sender;
-    is_paused : true
+    _eventname: "Pause";
+    initiator: _sender;
+    is_paused: true
   };
   event e;
   msg_to_sender = {
-    _tag : "ZRC6_PauseCallback";
-    _recipient : _sender;
-    _amount : Uint128 0;
-    is_paused : true
+    _tag: "ZRC6_PauseCallback";
+    _recipient: _sender;
+    _amount: Uint128 0;
+    is_paused: true
   };
   msgs = one_msg msg_to_sender;
   send msgs
@@ -460,16 +460,16 @@ transition Unpause()
 
   is_paused := false;
   e = {
-    _eventname : "Unpause";
-    initiator : _sender;
-    is_paused : false
+    _eventname: "Unpause";
+    initiator: _sender;
+    is_paused: false
   };
   event e;
   msg_to_sender = {
-    _tag : "ZRC6_UnpauseCallback";
-    _recipient : _sender;
-    _amount : Uint128 0;
-    is_paused : false
+    _tag: "ZRC6_UnpauseCallback";
+    _recipient: _sender;
+    _amount: Uint128 0;
+    is_paused: false
   };
   msgs = one_msg msg_to_sender;
   send msgs
@@ -487,16 +487,16 @@ transition SetContractOwnerCandidate(to: ByStr20)
   RequireNotSelf to _sender;
   contract_owner_candidate := to;
   e = {
-    _eventname : "SetContractOwnerCandidate";
-    initiator : _sender;
-    to : to
+    _eventname: "SetContractOwnerCandidate";
+    initiator: _sender;
+    to: to
   };
   event e;
   msg_to_sender = {
-    _tag : "ZRC6_SetContractOwnerCandidateCallback";
-    _recipient : _sender;
-    _amount : Uint128 0;
-    to : to
+    _tag: "ZRC6_SetContractOwnerCandidateCallback";
+    _recipient: _sender;
+    _amount: Uint128 0;
+    to: to
   };
   msgs = one_msg msg_to_sender;
   send msgs
@@ -518,17 +518,17 @@ transition AcceptContractOwnership()
     contract_owner_candidate := zero_address;
 
     e = {
-      _eventname : "AcceptContractOwnership";
-      initiator : _sender;
-      contract_owner : _sender;
+      _eventname: "AcceptContractOwnership";
+      initiator: _sender;
+      contract_owner: _sender;
       contract_owner_candidate: zero_address
     };
     event e;
     msg_to_sender = {
-      _tag : "ZRC6_AcceptContractOwnershipCallback";
-      _recipient : _sender;
-      _amount : Uint128 0;
-      contract_owner : _sender;
+      _tag: "ZRC6_AcceptContractOwnershipCallback";
+      _recipient: _sender;
+      _amount: Uint128 0;
+      contract_owner: _sender;
       contract_owner_candidate: zero_address
     };
     msgs = one_msg msg_to_sender;
@@ -545,17 +545,17 @@ transition SetRoyaltyRecipient(to: ByStr20)
   royalty_recipient := to;
   
   e = { 
-    _eventname : "SetRoyaltyRecipient";
-    initiator : _sender;
-    to : to
+    _eventname: "SetRoyaltyRecipient";
+    initiator: _sender;
+    to: to
   };
   event e;
   
   msg_to_sender = { 
-    _tag : "ZRC6_SetRoyaltyRecipientCallback"; 
-    _recipient : _sender;
-    _amount : Uint128 0;
-    to : to
+    _tag: "ZRC6_SetRoyaltyRecipientCallback"; 
+    _recipient: _sender;
+    _amount: Uint128 0;
+    to: to
   };
   msgs = one_msg msg_to_sender;
   send msgs  
@@ -572,17 +572,17 @@ transition SetRoyaltyFeeBPS(fee_bps: Uint128)
   royalty_fee_bps := fee_bps;
   
   e = { 
-    _eventname : "SetRoyaltyFeeBPS";
-    initiator : _sender; 
-    royalty_fee_bps : fee_bps
+    _eventname: "SetRoyaltyFeeBPS";
+    initiator: _sender; 
+    royalty_fee_bps: fee_bps
   };
   event e;
 
   msg_to_sender = { 
-    _tag : "ZRC6_SetRoyaltyFeeBPSCallback"; 
-    _recipient : _sender;
-    _amount : Uint128 0;
-    royalty_fee_bps : fee_bps
+    _tag: "ZRC6_SetRoyaltyFeeBPSCallback"; 
+    _recipient: _sender;
+    _amount: Uint128 0;
+    royalty_fee_bps: fee_bps
   };
   msgs = one_msg msg_to_sender;
   send msgs
@@ -596,17 +596,17 @@ transition SetBaseURI(uri: String)
   base_uri := uri;
 
   e = { 
-    _eventname : "SetBaseURI";
-    initiator : _sender;
-    base_uri : uri
+    _eventname: "SetBaseURI";
+    initiator: _sender;
+    base_uri: uri
   };
   event e;
   
   msg_to_sender = { 
-    _tag : "ZRC6_SetBaseURICallback"; 
-    _recipient : _sender;
-    _amount : Uint128 0;
-    base_uri : uri
+    _tag: "ZRC6_SetBaseURICallback"; 
+    _recipient: _sender;
+    _amount: Uint128 0;
+    base_uri: uri
   };
   msgs = one_msg msg_to_sender;
   send msgs  
@@ -621,16 +621,16 @@ transition Mint(to: ByStr20)
   MintToken to;
   token_id <- token_id_count;
   msg_to_recipient = { 
-    _tag : "ZRC6_RecipientAcceptMint";
-    _recipient : to;
-    _amount : Uint128 0
+    _tag: "ZRC6_RecipientAcceptMint";
+    _recipient: to;
+    _amount: Uint128 0
   };
   msg_to_sender = { 
-    _tag : "ZRC6_MintCallback";
-    _recipient : _sender;
-    _amount : Uint128 0;
-    to : to;
-    token_id : token_id
+    _tag: "ZRC6_MintCallback";
+    _recipient: _sender;
+    _amount: Uint128 0;
+    to: to;
+    token_id: token_id
   };
   msgs = two_msgs msg_to_recipient msg_to_sender;
   send msgs
@@ -644,9 +644,9 @@ end
 transition BatchMint(to_list: List ByStr20)
   forall to_list MintToken;
   msg_to_sender = { 
-    _tag : "ZRC6_BatchMintCallback";
-    _recipient : _sender;
-    _amount : Uint128 0
+    _tag: "ZRC6_BatchMintCallback";
+    _recipient: _sender;
+    _amount: Uint128 0
   };
   msgs = one_msg msg_to_sender;
   send msgs
@@ -679,18 +679,18 @@ transition Burn(token_id: Uint256)
     new_supply = builtin sub current_supply one;
     total_supply := new_supply;
     e = {
-      _eventname : "Burn";
-      initiator : _sender;
-      burn_address : token_owner;
-      token_id : token_id
+      _eventname: "Burn";
+      initiator: _sender;
+      burn_address: token_owner;
+      token_id: token_id
     };
     event e;
     msg_to_sender = { 
-      _tag : "ZRC6_BurnCallback";
-      _recipient : _sender;
-      _amount : Uint128 0;
-      burn_address : token_owner;
-      token_id : token_id
+      _tag: "ZRC6_BurnCallback";
+      _recipient: _sender;
+      _amount: Uint128 0;
+      burn_address: token_owner;
+      token_id: token_id
     };
     msgs = one_msg msg_to_sender;
     send msgs
@@ -713,15 +713,15 @@ transition AddMinter(to: ByStr20)
     minters[to] := verdad
   end;
   e = { 
-    _eventname : "AddMinter";
-    initiator : _sender;
-    to : to
+    _eventname: "AddMinter";
+    initiator: _sender;
+    to: to
   };
   event e;
   msg_to_sender = { 
-    _tag : "ZRC6_AddMinterCallback";
-    _recipient : _sender;
-    _amount : Uint128 0;
+    _tag: "ZRC6_AddMinterCallback";
+    _recipient: _sender;
+    _amount: Uint128 0;
     to: to
   };
   msgs = one_msg msg_to_sender;
@@ -743,15 +743,15 @@ transition RemoveMinter(to: ByStr20)
     Throw error
   end;
   e = { 
-    _eventname : "RemoveMinter";
-    initiator : _sender;
-    to : to
+    _eventname: "RemoveMinter";
+    initiator: _sender;
+    to: to
   };
   event e;
   msg_to_sender = { 
-    _tag : "ZRC6_RemoveMinterCallback";
-    _recipient : _sender;
-    _amount : Uint128 0;
+    _tag: "ZRC6_RemoveMinterCallback";
+    _recipient: _sender;
+    _amount: Uint128 0;
     to: to
   };
   msgs = one_msg msg_to_sender;
@@ -784,19 +784,19 @@ transition AddSpender(to: ByStr20, token_id: Uint256)
     end;
     
     e = {
-      _eventname : "AddSpender";
-      initiator : _sender;
-      to : to;
-      token_id : token_id
+      _eventname: "AddSpender";
+      initiator: _sender;
+      to: to;
+      token_id: token_id
     };
     event e;
     
     msg_to_sender = { 
-      _tag : "ZRC6_AddSpenderCallback";
-      _recipient : _sender;
-      _amount : Uint128 0;
-      to : to;
-      token_id : token_id
+      _tag: "ZRC6_AddSpenderCallback";
+      _recipient: _sender;
+      _amount: Uint128 0;
+      to: to;
+      token_id: token_id
     };
     msgs = one_msg msg_to_sender;
     send msgs
@@ -828,19 +828,19 @@ transition RemoveSpender(to: ByStr20, token_id: Uint256)
     end;
     
     e = {
-      _eventname : "RemoveSpender";
-      initiator : _sender;
-      to : to;
-      token_id : token_id
+      _eventname: "RemoveSpender";
+      initiator: _sender;
+      to: to;
+      token_id: token_id
     };
     event e;
 
     msg_to_sender = { 
-      _tag : "ZRC6_RemoveSpenderCallback";
-      _recipient : _sender;
-      _amount : Uint128 0;
-      to : to;
-      token_id : token_id
+      _tag: "ZRC6_RemoveSpenderCallback";
+      _recipient: _sender;
+      _amount: Uint128 0;
+      to: to;
+      token_id: token_id
     };
     msgs = one_msg msg_to_sender;
     send msgs
@@ -875,16 +875,16 @@ transition AddOperator(to: ByStr20)
       Throw error
     end;
     e = {
-      _eventname : "AddOperator";
-      initiator : _sender;
-      to : to
+      _eventname: "AddOperator";
+      initiator: _sender;
+      to: to
     };
     event e;
     msg_to_sender = {
-      _tag : "ZRC6_AddOperatorCallback";
-      _recipient : _sender;
-      _amount : Uint128 0;
-      to : to
+      _tag: "ZRC6_AddOperatorCallback";
+      _recipient: _sender;
+      _amount: Uint128 0;
+      to: to
     };
     msgs = one_msg msg_to_sender;
     send msgs
@@ -908,16 +908,16 @@ transition RemoveOperator(to: ByStr20)
     delete operators[_sender][to]
   end;
   e = {
-    _eventname : "RemoveOperator";
-    initiator : _sender;
-    to : to
+    _eventname: "RemoveOperator";
+    initiator: _sender;
+    to: to
   };
   event e;
   msg_to_sender = { 
-    _tag : "ZRC6_RemoveOperatorCallback";
-    _recipient : _sender;
-    _amount : Uint128 0;
-    to : to
+    _tag: "ZRC6_RemoveOperatorCallback";
+    _recipient: _sender;
+    _amount: Uint128 0;
+    to: to
   };
   msgs = one_msg msg_to_sender;
   send msgs
@@ -955,28 +955,28 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
     UpdateBalance add_operation to;
 
     e = {
-      _eventname : "TransferFrom";
-      initiator : _sender;
-      from : token_owner;
-      to : to;
-      token_id : token_id
+      _eventname: "TransferFrom";
+      initiator: _sender;
+      from: token_owner;
+      to: to;
+      token_id: token_id
     };
     event e;
     msg_to_recipient = { 
-      _tag : "ZRC6_RecipientAcceptTransferFrom";
-      _recipient : to;
-      _amount : Uint128 0;
-      from : token_owner;
-      to : to;
-      token_id : token_id
+      _tag: "ZRC6_RecipientAcceptTransferFrom";
+      _recipient: to;
+      _amount: Uint128 0;
+      from: token_owner;
+      to: to;
+      token_id: token_id
     };
     msg_to_sender = { 
-      _tag : "ZRC6_TransferFromCallback";
-      _recipient : _sender;
-      _amount : Uint128 0;
-      from : token_owner;
-      to : to;
-      token_id : token_id
+      _tag: "ZRC6_TransferFromCallback";
+      _recipient: _sender;
+      _amount: Uint128 0;
+      from: token_owner;
+      to: to;
+      token_id: token_id
     };
     msgs = two_msgs msg_to_recipient msg_to_sender;
     send msgs
