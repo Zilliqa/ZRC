@@ -231,9 +231,9 @@ Pauses the contract. Use this only if things are going wrong ('circuit breaker')
 
 **Messages:**
 
-|        | Name                  | Description                                                             | Callback Parameters                                           |
-| ------ | --------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------- |
-| `_tag` | `ZRC6_PausedCallback` | Provide the sender a boolean for whether the contract is paused or not. | `is_paused` : `Bool`<br/> `True` if paused, otherwise `False` |
+|        | Name                 | Description                                                             | Callback Parameters                                           |
+| ------ | -------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------- |
+| `_tag` | `ZRC6_PauseCallback` | Provide the sender a boolean for whether the contract is paused or not. | `is_paused` : `Bool`<br/> `True` if paused, otherwise `False` |
 
 **Events:**
 
