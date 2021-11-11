@@ -133,6 +133,8 @@ describe("Token", () => {
           {
             tag: "ZRC6_RoyaltyInfoCallback",
             getParams: () => [
+              toMsgParam("Uint256", "1", "token_id"),
+              toMsgParam("Uint128", "999", "sale_price"),
               toMsgParam(
                 "ByStr20",
                 toTestAddr(CONTRACT_OWNER),
@@ -160,6 +162,8 @@ describe("Token", () => {
           {
             tag: "ZRC6_RoyaltyInfoCallback",
             getParams: () => [
+              toMsgParam("Uint256", "1", "token_id"),
+              toMsgParam("Uint128", "10", "sale_price"),
               toMsgParam(
                 "ByStr20",
                 toTestAddr(CONTRACT_OWNER),
@@ -187,6 +191,8 @@ describe("Token", () => {
           {
             tag: "ZRC6_RoyaltyInfoCallback",
             getParams: () => [
+              toMsgParam("Uint256", "1", "token_id"),
+              toMsgParam("Uint128", "1", "sale_price"),
               toMsgParam(
                 "ByStr20",
                 toTestAddr(CONTRACT_OWNER),
@@ -211,6 +217,7 @@ describe("Token", () => {
         transitions: [
           {
             getParams: () => [
+              toMsgParam("Uint256", `1`, "token_id"),
               toMsgParam("String", `${BASE_URI}1`, "token_uri"),
             ],
             tag: "ZRC6_TokenURICallback",

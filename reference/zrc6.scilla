@@ -388,6 +388,8 @@ transition RoyaltyInfo(token_id: Uint256, sale_price: Uint128)
     _tag : "ZRC6_RoyaltyInfoCallback"; 
     _recipient : _sender;
     _amount : Uint128 0;
+    token_id : token_id;
+    sale_price : sale_price;
     royalty_recipient : recipient;
     royalty_amount : royalty_amount
   };
@@ -410,6 +412,7 @@ transition TokenURI(token_id: Uint256)
     _tag : "ZRC6_TokenURICallback";
     _recipient : _sender;
     _amount : Uint128 0;
+    token_id : token_id;
     token_uri : token_uri
   };
   msgs = one_msg msg_to_sender;
