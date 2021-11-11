@@ -178,7 +178,7 @@ The NFT contract must define the following constants for use as error codes for 
 
 #### 1. `RoyaltyInfo` (Optional)
 
-Gets royalty payment information for `token_id` and `sale_price`. It specifies how much royalty is owed and to whom for a given sale price.
+Gets royalty payment information for `token_id` and `sale_price`. It specifies how much royalty is owed and to whom for a given sale price. e.g. if the `royalty_fee_bps` is 1000 (10%) and `sale_price` is 999, `royalty_amount` is 99.
 
 **Arguments:**
 
@@ -200,9 +200,8 @@ Gets royalty payment information for `token_id` and `sale_price`. It specifies h
 #### 2. `TokenURI`
 
 Gets Uniform Resource Identifier(URI) for `token_id`.
-Token URI is `<base_uri><token_id>`. e.g.,
 
-If the `base_uri` is `https://creatures-api.zilliqa.com/api/creature/` and the `token_id` is `1`, then the token URI will be `https://creatures-api.zilliqa.com/api/creature/1`.
+Token URI is `<base_uri><token_id>`. e.g. if the `base_uri` is `https://creatures-api.zilliqa.com/api/creature/` and the `token_id` is `1`, the token URI is `https://creatures-api.zilliqa.com/api/creature/1`.
 
 **Arguments:**
 
