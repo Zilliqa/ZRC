@@ -236,9 +236,9 @@ Pauses the contract. Use this only if things are going wrong ('circuit breaker')
 
 **Events:**
 
-|              | Name    | Description                   | Event Parameters                                                                                                                            |
-| ------------ | ------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `Pause` | The contract has been paused. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`is_paused` : `Bool`<br/>`True` if paused, otherwise `False`</li></ul> |
+|              | Name    | Description                   | Event Parameters                                                               |
+| ------------ | ------- | ----------------------------- | ------------------------------------------------------------------------------ |
+| `_eventname` | `Pause` | The contract has been paused. | <ul><li>`is_paused` : `Bool`<br/>`True` if paused, otherwise `False`</li></ul> |
 
 #### 4. `Unpause` (Optional)
 
@@ -257,9 +257,9 @@ Unpauses the contract.
 
 **Events:**
 
-|              | Name      | Description                     | Event Parameters                                                                                                                            |
-| ------------ | --------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `Unpause` | The contract has been unpaused. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`is_paused` : `Bool`<br/>`True` if paused, otherwise `False`</li></ul> |
+|              | Name      | Description                     | Event Parameters                                                               |
+| ------------ | --------- | ------------------------------- | ------------------------------------------------------------------------------ |
+| `_eventname` | `Unpause` | The contract has been unpaused. | <ul><li>`is_paused` : `Bool`<br/>`True` if paused, otherwise `False`</li></ul> |
 
 #### 5. `SetContractOwnerCandidate` (Optional)
 
@@ -284,9 +284,9 @@ Sets `to` as the contract owner candidate. To reset `contract_owner_candidate`, 
 
 **Events:**
 
-|              | Name                        | Description                                    | Event Parameters                                                                                                                            |
-| ------------ | --------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `SetContractOwnerCandidate` | The contract owner candidate has been updated. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address of the contract owner candidate</li></ul> |
+|              | Name                        | Description                                    | Event Parameters                                                               |
+| ------------ | --------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------ |
+| `_eventname` | `SetContractOwnerCandidate` | The contract owner candidate has been updated. | <ul><li>`to` : `ByStr20`<br/>Address of the contract owner candidate</li></ul> |
 
 #### 6. `AcceptContractOwnership` (Optional)
 
@@ -304,9 +304,9 @@ Sets `contract_owner_candidate` as the contract owner.
 
 **Events:**
 
-|              | Name                      | Description                              | Event Parameters                                                                                                                              |
-| ------------ | ------------------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `AcceptContractOwnership` | Contract ownership has been transferred. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`contract_owner` : `ByStr20`<br/>Address of the contract owner</li></ul> |
+|              | Name                      | Description                              | Event Parameters                                                                 |
+| ------------ | ------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------- |
+| `_eventname` | `AcceptContractOwnership` | Contract ownership has been transferred. | <ul><li>`contract_owner` : `ByStr20`<br/>Address of the contract owner</li></ul> |
 
 #### 7. `SetRoyaltyRecipient` (Optional)
 
@@ -330,9 +330,9 @@ Sets `to` as the royalty recipient.
 
 **Events:**
 
-|              | Name                  | Description                         | Event Parameters                                                                                                                     |
-| ------------ | --------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `_eventname` | `SetRoyaltyRecipient` | Royalty recipient has been updated. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address of the royalty recipient</li></ul> |
+|              | Name                  | Description                         | Event Parameters                                                        |
+| ------------ | --------------------- | ----------------------------------- | ----------------------------------------------------------------------- |
+| `_eventname` | `SetRoyaltyRecipient` | Royalty recipient has been updated. | <ul><li>`to` : `ByStr20`<br/>Address of the royalty recipient</li></ul> |
 
 #### 8. `SetRoyaltyFeeBPS` (Optional)
 
@@ -357,9 +357,9 @@ Sets `fee_bps` as royalty fee bps.
 
 **Events:**
 
-|              | Name               | Description                       | Event Parameters                                                                                                                 |
-| ------------ | ------------------ | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `SetRoyaltyFeeBPS` | Royalty fee BPS has been updated. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`royalty_fee_bps` : `Uint128`<br/>Royalty Fee BPS</li></ul> |
+|              | Name               | Description                       | Event Parameters                                                    |
+| ------------ | ------------------ | --------------------------------- | ------------------------------------------------------------------- |
+| `_eventname` | `SetRoyaltyFeeBPS` | Royalty fee BPS has been updated. | <ul><li>`royalty_fee_bps` : `Uint128`<br/>Royalty Fee BPS</li></ul> |
 
 #### 9. `SetBaseURI` (Optional)
 
@@ -383,9 +383,9 @@ Sets `uri` as the base URI. Use this only if there is a strong reason to change 
 
 **Events:**
 
-|              | Name         | Description                | Event Parameters                                                                                                  |
-| ------------ | ------------ | -------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `SetBaseURI` | Base URI has been updated. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`base_uri` : `String`<br/>Base URI</li></ul> |
+|              | Name         | Description                | Event Parameters                                     |
+| ------------ | ------------ | -------------------------- | ---------------------------------------------------- |
+| `_eventname` | `SetBaseURI` | Base URI has been updated. | <ul><li>`base_uri` : `String`<br/>Base URI</li></ul> |
 
 #### 10. `Mint`
 
@@ -411,9 +411,9 @@ Mints a token and transfers it to `to`.
 
 **Events:**
 
-|              | Name   | Description            | Event Parameters                                                                                                                                                                    |
-| ------------ | ------ | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `Mint` | Token has been minted. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li> `to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+|              | Name   | Description            | Event Parameters                                                                                                       |
+| ------------ | ------ | ---------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `Mint` | Token has been minted. | <ul><li> `to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
 #### 11. `BatchMint` (Optional)
 
@@ -454,15 +454,15 @@ Destroys `token_id`.
 
 **Messages:**
 
-|        | Name                | Description                                       | Callback Parameters                                                                                                                                                                              |
-| ------ | ------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `_tag` | `ZRC6_BurnCallback` | Provide the sender the burn address and token ID. | <ul><li>`initiator` : `ByStr20`</br>Address of the `_sender`</li><li>`burn_address` : `ByStr20`<br/>Address of the token owner</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+|        | Name                | Description                                       | Callback Parameters                                                                                                                 |
+| ------ | ------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_BurnCallback` | Provide the sender the burn address and token ID. | <ul><li>`burn_address` : `ByStr20`<br/>Address of the token owner</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
 **Events:**
 
-|              | Name   | Description            | Event Parameters                                                                                                                                                                                 |
-| ------------ | ------ | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `_eventname` | `Burn` | Token has been burned. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`burn_address` : `ByStr20`</br>Address of the token owner</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+|              | Name   | Description            | Event Parameters                                                                                                                    |
+| ------------ | ------ | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `Burn` | Token has been burned. | <ul><li>`burn_address` : `ByStr20`</br>Address of the token owner</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
 #### 13. `AddMinter`
 
@@ -487,9 +487,9 @@ Adds `to` as minter.
 
 **Events:**
 
-|              | Name        | Description            | Event Parameters                                                                                                                |
-| ------------ | ----------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `AddMinter` | Minter has been added. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been added</li></ul> |
+|              | Name        | Description            | Event Parameters                                                   |
+| ------------ | ----------- | ---------------------- | ------------------------------------------------------------------ |
+| `_eventname` | `AddMinter` | Minter has been added. | <ul><li>`to` : `ByStr20`<br/>Address that has been added</li></ul> |
 
 #### 14. `RemoveMinter`
 
@@ -514,9 +514,9 @@ Removes `to` from minter.
 
 **Events:**
 
-|              | Name           | Description              | Event Parameters                                                                                                                  |
-| ------------ | -------------- | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `RemoveMinter` | Minter has been removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been removed</li></ul> |
+|              | Name           | Description              | Event Parameters                                                     |
+| ------------ | -------------- | ------------------------ | -------------------------------------------------------------------- |
+| `_eventname` | `RemoveMinter` | Minter has been removed. | <ul><li>`to` : `ByStr20`<br/>Address that has been removed</li></ul> |
 
 #### 15. `AddSpender`
 
@@ -543,9 +543,9 @@ Adds `to` as spender of `token_id`.
 
 **Events:**
 
-|              | Name         | Description             | Event Parameters                                                                                                                                                                        |
-| ------------ | ------------ | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `AddSpender` | Spender has been added. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been added</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
+|              | Name         | Description             | Event Parameters                                                                                                           |
+| ------------ | ------------ | ----------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `AddSpender` | Spender has been added. | <ul><li>`to` : `ByStr20`<br/>Address that has been added</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
 
 #### 16. `RemoveSpender`
 
@@ -572,9 +572,9 @@ Removes `to` from spender of `token_id`.
 
 **Events:**
 
-|              | Name            | Description               | Event Parameters                                                                                                                                                                          |
-| ------------ | --------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `RemoveSpender` | Spender has been removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been removed</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
+|              | Name            | Description               | Event Parameters                                                                                                             |
+| ------------ | --------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `RemoveSpender` | Spender has been removed. | <ul><li>`to` : `ByStr20`<br/>Address that has been removed</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
 
 #### 17. `AddOperator`
 
@@ -600,9 +600,9 @@ Adds `to` as operator for the `_sender`.
 
 **Events:**
 
-|              | Name          | Description              | Event Parameters                                                                                                                |
-| ------------ | ------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `AddOperator` | Operator has been added. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been added</li></ul> |
+|              | Name          | Description              | Event Parameters                                                   |
+| ------------ | ------------- | ------------------------ | ------------------------------------------------------------------ |
+| `_eventname` | `AddOperator` | Operator has been added. | <ul><li>`to` : `ByStr20`<br/>Address that has been added</li></ul> |
 
 #### 18. `RemoveOperator`
 
@@ -628,9 +628,9 @@ Removes `to` from operator for the `_sender`.
 
 **Events:**
 
-|              | Name             | Description                | Event Parameters                                                                                                                  |
-| ------------ | ---------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `RemoveOperator` | Operator has been removed. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`to` : `ByStr20`<br/>Address that has been removed</li></ul> |
+|              | Name             | Description                | Event Parameters                                                     |
+| ------------ | ---------------- | -------------------------- | -------------------------------------------------------------------- |
+| `_eventname` | `RemoveOperator` | Operator has been removed. | <ul><li>`to` : `ByStr20`<br/>Address that has been removed</li></ul> |
 
 #### 19. `TransferFrom`
 
@@ -661,9 +661,9 @@ Transfers `token_id` from the token owner to `to`.
 
 **Events:**
 
-|              | Name           | Description                 | Event Parameters                                                                                                                                                                                                                             |
-| ------------ | -------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `TransferFrom` | Token has been transferred. | <ul><li>`initiator` : `ByStr20`<br/>Address of the `_sender`</li><li>`from` : `ByStr20`<br/>Address of the token owner</li><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+|              | Name           | Description                 | Event Parameters                                                                                                                                                                |
+| ------------ | -------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `TransferFrom` | Token has been transferred. | <ul><li>`from` : `ByStr20`<br/>Address of the token owner</li><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
 ## V. Implementations
 

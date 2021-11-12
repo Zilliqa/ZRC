@@ -147,10 +147,7 @@ describe("Unpaused", () => {
         events: [
           {
             name: "Pause",
-            getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
-              toMsgParam("Bool", "True", "is_paused"),
-            ],
+            getParams: () => [toMsgParam("Bool", "True", "is_paused")],
           },
         ],
         transitions: [
@@ -256,10 +253,7 @@ describe("Paused", () => {
         events: [
           {
             name: "Unpause",
-            getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
-              toMsgParam("Bool", "False", "is_paused"),
-            ],
+            getParams: () => [toMsgParam("Bool", "False", "is_paused")],
           },
         ],
         transitions: [

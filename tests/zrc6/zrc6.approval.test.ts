@@ -174,7 +174,6 @@ describe("Approval", () => {
           {
             name: "AddSpender",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_B), "initiator"),
               toMsgParam("ByStr20", toTestAddr(STRANGER_A), "to"),
               toMsgParam("Uint256", 2, "token_id"),
             ],
@@ -241,7 +240,6 @@ describe("Approval", () => {
           {
             name: "RemoveSpender",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "initiator"),
               toMsgParam("ByStr20", toTestAddr(SPENDER), "to"),
               toMsgParam("Uint256", 1, "token_id"),
             ],
@@ -306,7 +304,6 @@ describe("Approval", () => {
           {
             name: "AddOperator",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "initiator"),
               toMsgParam("ByStr20", toTestAddr(STRANGER_A), "to"),
             ],
           },
@@ -361,7 +358,6 @@ describe("Approval", () => {
           {
             name: "RemoveOperator",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "initiator"),
               toMsgParam("ByStr20", toTestAddr(OPERATOR), "to"),
             ],
           },
@@ -440,7 +436,6 @@ describe("Approval", () => {
           {
             name: "TransferFrom",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "initiator"),
               toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
               toMsgParam("ByStr20", toTestAddr(STRANGER_A), "to"),
               toMsgParam("Uint256", 1, "token_id"),
@@ -487,7 +482,6 @@ describe("Approval", () => {
           {
             name: "TransferFrom",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(SPENDER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
               toMsgParam("ByStr20", toTestAddr(STRANGER_A), "to"),
               toMsgParam("Uint256", 1, "token_id"),
@@ -534,7 +528,6 @@ describe("Approval", () => {
           {
             name: "TransferFrom",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(OPERATOR), "initiator"),
               toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
               toMsgParam("ByStr20", toTestAddr(STRANGER_A), "to"),
               toMsgParam("Uint256", 1, "token_id"),
@@ -581,7 +574,6 @@ describe("Approval", () => {
           {
             name: "TransferFrom",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(SPENDER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
               toMsgParam("ByStr20", toTestAddr(SPENDER), "to"),
               toMsgParam("Uint256", 1, "token_id"),
@@ -628,7 +620,6 @@ describe("Approval", () => {
           {
             name: "TransferFrom",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(OPERATOR), "initiator"),
               toMsgParam("ByStr20", toTestAddr(TOKEN_OWNER_A), "from"),
               toMsgParam("ByStr20", toTestAddr(OPERATOR), "to"),
               toMsgParam("Uint256", 1, "token_id"),

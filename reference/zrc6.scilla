@@ -353,7 +353,6 @@ procedure MintToken(to: ByStr20)
   
   e = {
     _eventname: "Mint";
-    initiator: _sender;
     to: to;
     token_id: token_id
   };
@@ -426,7 +425,6 @@ transition Pause()
   is_paused := true;
   e = {
     _eventname: "Pause";
-    initiator: _sender;
     is_paused: true
   };
   event e;
@@ -457,7 +455,6 @@ transition Unpause()
   is_paused := false;
   e = {
     _eventname: "Unpause";
-    initiator: _sender;
     is_paused: false
   };
   event e;
@@ -484,7 +481,6 @@ transition SetContractOwnerCandidate(to: ByStr20)
   contract_owner_candidate := to;
   e = {
     _eventname: "SetContractOwnerCandidate";
-    initiator: _sender;
     to: to
   };
   event e;
@@ -515,7 +511,6 @@ transition AcceptContractOwnership()
 
     e = {
       _eventname: "AcceptContractOwnership";
-      initiator: _sender;
       contract_owner: _sender
     };
     event e;
@@ -540,7 +535,6 @@ transition SetRoyaltyRecipient(to: ByStr20)
   
   e = { 
     _eventname: "SetRoyaltyRecipient";
-    initiator: _sender;
     to: to
   };
   event e;
@@ -567,7 +561,6 @@ transition SetRoyaltyFeeBPS(fee_bps: Uint128)
   
   e = { 
     _eventname: "SetRoyaltyFeeBPS";
-    initiator: _sender; 
     royalty_fee_bps: fee_bps
   };
   event e;
@@ -591,7 +584,6 @@ transition SetBaseURI(uri: String)
 
   e = { 
     _eventname: "SetBaseURI";
-    initiator: _sender;
     base_uri: uri
   };
   event e;
@@ -674,7 +666,6 @@ transition Burn(token_id: Uint256)
     total_supply := new_supply;
     e = {
       _eventname: "Burn";
-      initiator: _sender;
       burn_address: token_owner;
       token_id: token_id
     };
@@ -708,7 +699,6 @@ transition AddMinter(to: ByStr20)
   end;
   e = { 
     _eventname: "AddMinter";
-    initiator: _sender;
     to: to
   };
   event e;
@@ -738,7 +728,6 @@ transition RemoveMinter(to: ByStr20)
   end;
   e = { 
     _eventname: "RemoveMinter";
-    initiator: _sender;
     to: to
   };
   event e;
@@ -779,7 +768,6 @@ transition AddSpender(to: ByStr20, token_id: Uint256)
     
     e = {
       _eventname: "AddSpender";
-      initiator: _sender;
       to: to;
       token_id: token_id
     };
@@ -823,7 +811,6 @@ transition RemoveSpender(to: ByStr20, token_id: Uint256)
     
     e = {
       _eventname: "RemoveSpender";
-      initiator: _sender;
       to: to;
       token_id: token_id
     };
@@ -870,7 +857,6 @@ transition AddOperator(to: ByStr20)
     end;
     e = {
       _eventname: "AddOperator";
-      initiator: _sender;
       to: to
     };
     event e;
@@ -903,7 +889,6 @@ transition RemoveOperator(to: ByStr20)
   end;
   e = {
     _eventname: "RemoveOperator";
-    initiator: _sender;
     to: to
   };
   event e;
@@ -949,8 +934,7 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
     UpdateBalance add_operation to;
 
     e = {
-      _eventname: "TransferFrom";
-      initiator: _sender;
+      _eventname: "TransferFrom"; 
       from: token_owner;
       to: to;
       token_id: token_id

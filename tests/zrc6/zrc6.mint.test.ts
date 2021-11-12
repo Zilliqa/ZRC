@@ -151,7 +151,6 @@ describe("Minter", () => {
           {
             name: "AddMinter",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
             ],
           },
@@ -200,10 +199,7 @@ describe("Minter", () => {
         events: [
           {
             name: "RemoveMinter",
-            getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
-              toMsgParam("ByStr20", toTestAddr(MINTER), "to"),
-            ],
+            getParams: () => [toMsgParam("ByStr20", toTestAddr(MINTER), "to")],
           },
         ],
         transitions: [
@@ -282,7 +278,6 @@ describe("Mint & Burn", () => {
           {
             name: "Mint",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
               toMsgParam(
                 "Uint256",
@@ -331,7 +326,6 @@ describe("Mint & Burn", () => {
           {
             name: "Mint",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(MINTER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(MINTER), "to"),
               toMsgParam(
                 "Uint256",
@@ -395,7 +389,6 @@ describe("Mint & Burn", () => {
           {
             name: "Burn",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "burn_address"),
               toMsgParam("Uint256", 1, "token_id"),
             ],
@@ -455,7 +448,6 @@ describe("Mint & Burn", () => {
           .map((id) => ({
             name: "Mint",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
               toMsgParam("Uint256", id, "token_id"),
             ],

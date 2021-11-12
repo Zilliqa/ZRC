@@ -270,7 +270,6 @@ describe("Token", () => {
           {
             name: "SetContractOwnerCandidate",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
             ],
           },
@@ -311,7 +310,6 @@ describe("Token", () => {
           {
             name: "SetRoyaltyRecipient",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
             ],
           },
@@ -369,10 +367,7 @@ describe("Token", () => {
         events: [
           {
             name: "SetRoyaltyFeeBPS",
-            getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
-              toMsgParam("Uint128", 10000, "royalty_fee_bps"),
-            ],
+            getParams: () => [toMsgParam("Uint128", 10000, "royalty_fee_bps")],
           },
         ],
         transitions: [
@@ -396,10 +391,7 @@ describe("Token", () => {
         events: [
           {
             name: "SetRoyaltyFeeBPS",
-            getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
-              toMsgParam("Uint128", 1, "royalty_fee_bps"),
-            ],
+            getParams: () => [toMsgParam("Uint128", 1, "royalty_fee_bps")],
           },
         ],
         transitions: [
@@ -435,7 +427,6 @@ describe("Token", () => {
           {
             name: "SetBaseURI",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam(
                 "String",
                 "http://localhost:1111/testcase/1",
@@ -566,11 +557,6 @@ describe("Accept Contract Ownership", () => {
               toMsgParam(
                 "ByStr20",
                 toTestAddr(CONTRACT_OWNER_CANDIDATE),
-                "initiator"
-              ),
-              toMsgParam(
-                "ByStr20",
-                toTestAddr(CONTRACT_OWNER_CANDIDATE),
                 "contract_owner"
               ),
             ],
@@ -690,7 +676,6 @@ describe("Set Base URI", () => {
           {
             name: "SetBaseURI",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "initiator"),
               toMsgParam(
                 "String",
                 "http://localhost:1111/testcase/1",
