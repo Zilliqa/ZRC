@@ -40,74 +40,40 @@ Valid JSON Metadata files for ERC-721 are valid JSON Metadata files for ZRC-7.
 
 ```js
 {
-    "title": "ZRC7",
-    "type": "object",
-    "properties": {
-        "name": {
-            "type": "string",
-            "description": "The name of the asset."
-        },
-        "description": {
-            "type": "string",
-            "description": "A textual description of the asset."
-        },
-        "resource": {
-            "type": "string",
-            "description": "A URI pointing to a resource representing the asset to which this token represents."
-        },
-        "resource_mimetype": {
-            "type": "string",
-            "description": "A RFC2045 compliant mime type of the asset."
-        },
-        "external_url": {
-            "type": "string",
-            "description": "An external URI that points to an external website."
-        },
-        "external_description": {
-            "type": "string",
-            "description": "A textual description of the external link."
-        },
-        "attributes": [ 
+    "name": "Cloud Quackers",
+    "description": "Non-Fungible Ducks",
+    "resource": "ipfs://QmTwmV66VMgq5YzEUZj48oqvznkiUGVMCT4UnWRjr1L9gU",
+    "resource_mimetype": "image/png",
+    "external_url": "https://duck.community",
+    "external_description": "Non-Fungible Ducks are the first randomised, hard-cap project on the Zilliqa blockchain.",
+    "attributes": 
+    [ 
           {
             "display_type" : "string",
-            "trait_type": "the string trait", 
-            "value": "Foo"
+            "trait_type": "Base name", 
+            "value": "Mandarin Shiny"
           }, 
           {
-            "display_type" : "integer",
-            "trait_type": "the integer trait", 
-            "value": 96
+            "display_type" : "string",
+            "trait_type": "Base rarity percent", 
+            "value": "10%"
           }, 
           {
-            "display_type" : "decimal",
-            "trait_type": "the decimal trait", 
-            "value": 4.2
-          }, 
-          {
-            "display_type": "date", 
-            "trait_type": "the date trait", 
-            "value": 1546360800
+            "display_type" : "string",
+            "trait_type": "Base occurance chance", 
+            "value": "0.91%"
           }
-        ],
-        "localization": {
-            "type": "object",
-            "properties": {
-                "uri": {
-                    "type": "string",
-                    "description": "The URI pattern to fetch localized data from. This URI should contain the substring `{locale}` which will be replaced with the appropriate locale value before sending the request."
-                },
-                "default": {
-                    "type": "string",
-                    "description": "The locale of the default data within the base JSON"
-                },
-                "locales": {
-                    "type": "array",
-                    "description": "The list of locales for which data is available. These locales should conform to those defined in the Unicode Common Locale Data Repository (http://cldr.unicode.org/)."
-                }
-            }
+    ],
+    "localization": {
+        "type": "object",
+        "properties": {
+            "uri": "",
+            "default": "",
+            "locales": ""
         }
     }
 }
+
 ```
 
 ### JSON Object
@@ -270,34 +236,14 @@ When the localization URI contains the string ```{locale}``` this should be subs
 
 ```js
 {
-    "title": "ZRC7",
-    "type": "object",
-    "properties": {
-        "name": {
-            "type": "string",
-            "description": "Cloud Quackers"
-        },
-        "description": {
-            "type": "string",
-            "description": "Non-Fungible Ducks"
-        },
-        "resource": {
-            "type": "string",
-            "description": "ipfs://QmTwmV66VMgq5YzEUZj48oqvznkiUGVMCT4UnWRjr1L9gU"
-        },
-        "resource_mimetype": {
-            "type": "string",
-            "description": "image/png"
-        },
-        "external_url": {
-            "type": "string",
-            "description": "https://duck.community"
-        },
-        "external_description": {
-            "type": "string",
-            "description": "Non-Fungible Ducks are the first randomised, hard-cap project on the Zilliqa blockchain. Each NFD is unique, with a total supply of 8192."
-        },
-        "attributes": [ 
+    "name": "Cloud Quackers",
+    "description": "Non-Fungible Ducks",
+    "resource": "ipfs://QmTwmV66VMgq5YzEUZj48oqvznkiUGVMCT4UnWRjr1L9gU",
+    "resource_mimetype": "image/png",
+    "external_url": "https://duck.community",
+    "external_description": "Non-Fungible Ducks are the first randomised, hard-cap project on the Zilliqa blockchain.",
+    "attributes": 
+    [ 
           {
             "display_type" : "string",
             "trait_type": "Base name", 
@@ -312,29 +258,14 @@ When the localization URI contains the string ```{locale}``` this should be subs
             "display_type" : "string",
             "trait_type": "Base occurance chance", 
             "value": "0.91%"
-          }, 
-        ],
-        "localization": {
-                "type": "object",
-                "properties": {
-                    "uri": {
-                        "type": "string",
-                        "description": "ipfs://QmeG9NNvM9iAjZzJA8aFr7aUqLzwz4VevJqNWscZoAXveP/{locale}.json"
-                    },
-                    "default": {
-                        "type": "string",
-                        "description": "en"
-                    },
-                    "locales": {
-                        "type": "array",
-                        "description": 
-                        [
-                          "en",
-                          "es",
-                          "fr"
-                        ]
-                    }
-                }
+          }
+    ],
+    "localization": {
+        "type": "object",
+        "properties": {
+            "uri": "",
+            "default": "",
+            "locales": ""
         }
     }
 }
