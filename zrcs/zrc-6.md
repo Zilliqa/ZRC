@@ -583,9 +583,9 @@ Transfers multiple `token_id` to multiple `to`.
 
 **Arguments:**
 
-| Name                    | Type                          | Description                                                                                                                                  |
-| ----------------------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `to_token_id_pair_list` | `List (Pair ByStr20 Uint256)` | List of Pair (`to`, `token_id`) <li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li> |
+| Name                    | Type                          | Description                                                                                                                                                    |
+| ----------------------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `to_token_id_pair_list` | `List (Pair ByStr20 Uint256)` | List of Pair (`to`, `token_id`)<br/><br/><ul><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
 **Requirements:**
 
