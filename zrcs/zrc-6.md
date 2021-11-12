@@ -39,11 +39,11 @@ The main advantages of this standard are:
 
 5. ZRC-6 features pausable token transfers, minting, and burning because it is designed for failure.
 
-6. ZRC-6 features batch minting such that multiple NFTs can be minted in one transaction.
+6. ZRC-6 features batch operations for minting and transfer such that only a single transaction is required.
 
 7. ZRC-6 features contract ownership transfer by making the contract owner mutable.
 
-8. ZRC-6 only includes read-only transitions that contains important logic. This standard encourages developers to use the remote fetch instead of using callbacks to retrieve simple data.
+8. ZRC-6 only includes read-only transitions that contain important logic. This standard encourages developers to use the remote fetch instead of using callbacks to retrieve simple data.
 
 ## III. Motivation
 
@@ -57,7 +57,7 @@ The main advantages of this standard are:
 
 5. In ZRC-1 it's hard to respond to bugs and vulnerabilities gracefully since lacks emergency stop mechanism.
 
-6. In ZRC-1 minting can be very inefficient since multiple transactions are required to mint multiple NFTs.
+6. Without batch operations, multiple transactions are required and this can be very inefficient.
 
 7. In ZRC-1 contract owner is immutable. As some contract owners want to transfer their contract ownership, developers had to implement the feature for ZRC-1.
 
