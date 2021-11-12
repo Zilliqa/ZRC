@@ -490,24 +490,36 @@ end
 (* @param: to - Address to be set or unset as an operator *)
 transition SetApprovalForAll(to: ByStr20)
   IsNotSelf to _sender;
-  is_operator <- exists operator_approvals[_sender][to];
-  match is_operator with
-  | False =>
-    (* Add operator *)
-    operator_approvals[_sender][to] := verdad;
-    e = {_eventname: "AddApprovalForAllSuccess"; initiator: _sender; operator: to};
-    event e
+
+  opt_bal <- owned_token_count[_sender];
+  balance = get_bal opt_bal;
+
+  is_balance_zero = builtin eq zero balance;
+  (* _sender should have at least 1 token *)
+  match is_balance_zero with 
   | True =>
-    (* Remove operator *)
-    delete operator_approvals[_sender][to];
-    e = {_eventname: "RemoveApprovalForAllSuccess"; initiator: _sender; operator: to};
-    event e
-  end;
-  new_status = negb is_operator;
-  msg_to_sender = { _tag : "SetApprovalForAllSuccessCallBack"; _recipient : _sender; _amount : Uint128 0; 
-                    operator : to; status : new_status};
-  msgs = one_msg msg_to_sender;
-  send msgs
+    err = CodeNotTokenOwner;
+    ThrowError err
+  | False =>
+    is_operator <- exists operator_approvals[_sender][to];
+    match is_operator with
+    | False =>
+      (* Add operator *)
+      operator_approvals[_sender][to] := verdad;
+      e = {_eventname: "AddApprovalForAllSuccess"; initiator: _sender; operator: to};
+      event e
+    | True =>
+      (* Remove operator *)
+      delete operator_approvals[_sender][to];
+      e = {_eventname: "RemoveApprovalForAllSuccess"; initiator: _sender; operator: to};
+      event e
+    end;
+    new_status = negb is_operator;
+    msg_to_sender = { _tag : "SetApprovalForAllSuccessCallBack"; _recipient : _sender; _amount : Uint128 0; 
+                      operator : to; status : new_status};
+    msgs = one_msg msg_to_sender;
+    send msgs
+  end
 end
 
 (* @dev: Transfer the ownership of a given token_id to another address. token_owner only transition. *)
