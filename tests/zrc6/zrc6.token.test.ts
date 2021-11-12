@@ -107,185 +107,6 @@ beforeEach(async () => {
 describe("Token", () => {
   const testCases = [
     {
-      name: "throws TokenNotFoundError",
-      transition: "RoyaltyInfo",
-      getSender: () => toTestAddr(STRANGER),
-      getParams: () => ({
-        token_id: "999",
-        sale_price: "1000",
-      }),
-      error: ZRC6_ERROR.TokenNotFoundError,
-      want: undefined,
-    },
-    {
-      name: "gets royalty info: (999, 10%) -> 99",
-      transition: "RoyaltyInfo",
-      getSender: () => toTestAddr(STRANGER),
-      getParams: () => ({
-        token_id: "1",
-        sale_price: "999",
-      }),
-      error: undefined,
-      want: {
-        verifyState: () => true,
-        events: undefined,
-        transitions: [
-          {
-            tag: "ZRC6_RoyaltyInfoCallback",
-            getParams: () => [
-              toMsgParam("Uint256", "1", "token_id"),
-              toMsgParam("Uint128", "999", "sale_price"),
-              toMsgParam(
-                "ByStr20",
-                toTestAddr(CONTRACT_OWNER),
-                "royalty_recipient"
-              ),
-              toMsgParam("Uint128", 99, "royalty_amount"),
-            ],
-          },
-        ],
-      },
-    },
-    {
-      name: "gets royalty info: (10, 10%) -> 1",
-      transition: "RoyaltyInfo",
-      getSender: () => toTestAddr(STRANGER),
-      getParams: () => ({
-        token_id: "1",
-        sale_price: "10",
-      }),
-      error: undefined,
-      want: {
-        verifyState: () => true,
-        events: undefined,
-        transitions: [
-          {
-            tag: "ZRC6_RoyaltyInfoCallback",
-            getParams: () => [
-              toMsgParam("Uint256", "1", "token_id"),
-              toMsgParam("Uint128", "10", "sale_price"),
-              toMsgParam(
-                "ByStr20",
-                toTestAddr(CONTRACT_OWNER),
-                "royalty_recipient"
-              ),
-              toMsgParam("Uint128", 1, "royalty_amount"),
-            ],
-          },
-        ],
-      },
-    },
-    {
-      name: "gets royalty info: (1, 10%) -> 0",
-      transition: "RoyaltyInfo",
-      getSender: () => toTestAddr(STRANGER),
-      getParams: () => ({
-        token_id: "1",
-        sale_price: "1",
-      }),
-      error: undefined,
-      want: {
-        verifyState: () => true,
-        events: undefined,
-        transitions: [
-          {
-            tag: "ZRC6_RoyaltyInfoCallback",
-            getParams: () => [
-              toMsgParam("Uint256", "1", "token_id"),
-              toMsgParam("Uint128", "1", "sale_price"),
-              toMsgParam(
-                "ByStr20",
-                toTestAddr(CONTRACT_OWNER),
-                "royalty_recipient"
-              ),
-              toMsgParam("Uint128", 0, "royalty_amount"),
-            ],
-          },
-        ],
-      },
-    },
-    {
-      name: "gets token URI",
-      transition: "TokenURI",
-      getSender: () => toTestAddr(STRANGER),
-      getParams: () => ({
-        token_id: "1",
-      }),
-      want: {
-        verifyState: () => true,
-        events: undefined,
-        transitions: [
-          {
-            getParams: () => [
-              toMsgParam("Uint256", `1`, "token_id"),
-              toMsgParam("String", `${BASE_URI}1`, "token_uri"),
-            ],
-            tag: "ZRC6_TokenURICallback",
-          },
-        ],
-      },
-    },
-    {
-      name: "throws TokenNotFoundError",
-      transition: "TokenURI",
-      getSender: () => toTestAddr(STRANGER),
-      getParams: () => ({
-        token_id: "999",
-      }),
-      want: undefined,
-      error: ZRC6_ERROR.TokenNotFoundError,
-    },
-    {
-      name: "throws NotContractOwnerError",
-      transition: "SetContractOwnerCandidate",
-      getSender: () => toTestAddr(STRANGER),
-      getParams: () => ({
-        to: toTestAddr(STRANGER),
-      }),
-      error: ZRC6_ERROR.NotContractOwnerError,
-      want: undefined,
-    },
-    {
-      name: "throws SelfError",
-      transition: "SetContractOwnerCandidate",
-      getSender: () => toTestAddr(CONTRACT_OWNER),
-      getParams: () => ({
-        to: toTestAddr(CONTRACT_OWNER),
-      }),
-      error: ZRC6_ERROR.SelfError,
-      want: undefined,
-    },
-    {
-      name: "sets stranger as contract owner candidate by contract owner",
-      transition: "SetContractOwnerCandidate",
-      getSender: () => toTestAddr(CONTRACT_OWNER),
-      getParams: () => ({
-        to: toTestAddr(STRANGER),
-      }),
-      error: undefined,
-      want: {
-        verifyState: (state) =>
-          state.contract_owner_candidate === toTestAddr(STRANGER).toLowerCase(),
-        events: [
-          {
-            name: "SetContractOwnerCandidate",
-            getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
-            ],
-          },
-        ],
-        transitions: [
-          {
-            tag: "ZRC6_SetContractOwnerCandidateCallback",
-            getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
-            ],
-          },
-        ],
-      },
-    },
-
-    {
       name: "throws NotContractOwnerError",
       transition: "SetRoyaltyRecipient",
       getSender: () => toTestAddr(STRANGER),
@@ -464,6 +285,45 @@ describe("Token", () => {
                 "http://localhost:1111/testcase/1",
                 "base_uri"
               ),
+            ],
+          },
+        ],
+      },
+    },
+    {
+      name: "throws SelfError",
+      transition: "SetContractOwnerCandidate",
+      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getParams: () => ({
+        to: toTestAddr(CONTRACT_OWNER),
+      }),
+      error: ZRC6_ERROR.SelfError,
+      want: undefined,
+    },
+    {
+      name: "sets stranger as contract owner candidate by contract owner",
+      transition: "SetContractOwnerCandidate",
+      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getParams: () => ({
+        to: toTestAddr(STRANGER),
+      }),
+      error: undefined,
+      want: {
+        verifyState: (state) =>
+          state.contract_owner_candidate === toTestAddr(STRANGER).toLowerCase(),
+        events: [
+          {
+            name: "SetContractOwnerCandidate",
+            getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
+            ],
+          },
+        ],
+        transitions: [
+          {
+            tag: "ZRC6_SetContractOwnerCandidateCallback",
+            getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
             ],
           },
         ],

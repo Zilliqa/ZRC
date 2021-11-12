@@ -359,61 +359,6 @@ procedure MintToken(to: ByStr20)
   event e
 end
 
-(* @dev Gets royalty payment information for `token_id` and `sale_price`. *)
-(* It specifies how much royalty is owed and to whom for a given sale price. *)
-(* @Requirements: *)
-(* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
-transition RoyaltyInfo(token_id: Uint256, sale_price: Uint128)
-  RequireExistingToken token_id;
-
-  fee_bps <- royalty_fee_bps;  
-
-  (* To avoid integer overflow, use division only. *)
-  (* sale_price / ( max_fee_bps / fee_bps ) *)
-  
-  (* fee_bps ranges from 1 to 10000. *)
-  x = builtin div max_fee_bps fee_bps;
-  
-  (* x ranges from 1 to 10000. *)
-  royalty_amount = builtin div sale_price x;
-  
-  recipient <- royalty_recipient;
-
-  msg_to_sender = { 
-    _tag: "ZRC6_RoyaltyInfoCallback"; 
-    _recipient: _sender;
-    _amount: Uint128 0;
-    token_id: token_id;
-    sale_price: sale_price;
-    royalty_recipient: recipient;
-    royalty_amount: royalty_amount
-  };
-  msgs = one_msg msg_to_sender;
-  send msgs
-end
-
-(* Gets Uniform Resource Identifier(URI) for `token_id`. *)
-(* @Requirements *)
-(* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
-transition TokenURI(token_id: Uint256)
-  RequireExistingToken token_id;
-
-  uri <- base_uri;
-
-  id = builtin to_string token_id;
-  token_uri = builtin concat uri id;
-  
-  msg_to_sender = { 
-    _tag: "ZRC6_TokenURICallback";
-    _recipient: _sender;
-    _amount: Uint128 0;
-    token_id: token_id;
-    token_uri: token_uri
-  };
-  msgs = one_msg msg_to_sender;
-  send msgs
-end
-
 (* Pauses the contract. Use this when things are going wrong ('circuit breaker'). *)
 (* @Requirements: *)
 (* - The contract should not be paused. Otherwise, it should throw `PausedError` *)
@@ -466,65 +411,6 @@ transition Unpause()
   };
   msgs = one_msg msg_to_sender;
   send msgs
-end
-
-(* Sets `to` as the contract owner candidate. *)
-(* To reset `contract_owner_candidate`, use `zero_address`. *)
-(* i.e., `0x0000000000000000000000000000000000000000` *)
-(* @param: to - contract owner candidate address  *)
-(* @Requirements: *)
-(* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
-(* - `_sender` should not be `to`. Otherwise, it should throw `SelfError` *)
-transition SetContractOwnerCandidate(to: ByStr20)
-  RequireContractOwner;
-  RequireNotSelf to _sender;
-  
-  contract_owner_candidate := to;
-
-  e = {
-    _eventname: "SetContractOwnerCandidate";
-    to: to
-  };
-  event e;
-  msg_to_sender = {
-    _tag: "ZRC6_SetContractOwnerCandidateCallback";
-    _recipient: _sender;
-    _amount: Uint128 0;
-    to: to
-  };
-  msgs = one_msg msg_to_sender;
-  send msgs
-end
-
-(* Sets `contract_owner_candidate` as the contract owner. *)
-(* @Requirements: *)
-(* - `_sender` should be the contract owner candidate. Otherwise, it should throw `NotContractOwnerCandidateError` *)
-transition AcceptContractOwnership()
-  candidate <- contract_owner_candidate;
-
-  is_candidate = builtin eq _sender candidate;
-  match is_candidate with
-  | False =>
-    error = NotContractOwnerCandidateError;
-    Throw error
-  | True =>
-    contract_owner := _sender;
-    contract_owner_candidate := zero_address;
-
-    e = {
-      _eventname: "AcceptContractOwnership";
-      contract_owner: _sender
-    };
-    event e;
-    msg_to_sender = {
-      _tag: "ZRC6_AcceptContractOwnershipCallback";
-      _recipient: _sender;
-      _amount: Uint128 0;
-      contract_owner: _sender
-    };
-    msgs = one_msg msg_to_sender;
-    send msgs
-  end
 end
 
 (* Sets `to` as the royalty recipient. *)
@@ -958,6 +844,65 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
       token_id: token_id
     };
     msgs = two_msgs msg_to_recipient msg_to_sender;
+    send msgs
+  end
+end
+
+(* Sets `to` as the contract owner candidate. *)
+(* To reset `contract_owner_candidate`, use `zero_address`. *)
+(* i.e., `0x0000000000000000000000000000000000000000` *)
+(* @param: to - contract owner candidate address  *)
+(* @Requirements: *)
+(* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
+(* - `_sender` should not be `to`. Otherwise, it should throw `SelfError` *)
+transition SetContractOwnerCandidate(to: ByStr20)
+  RequireContractOwner;
+  RequireNotSelf to _sender;
+  
+  contract_owner_candidate := to;
+
+  e = {
+    _eventname: "SetContractOwnerCandidate";
+    to: to
+  };
+  event e;
+  msg_to_sender = {
+    _tag: "ZRC6_SetContractOwnerCandidateCallback";
+    _recipient: _sender;
+    _amount: Uint128 0;
+    to: to
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* Sets `contract_owner_candidate` as the contract owner. *)
+(* @Requirements: *)
+(* - `_sender` should be the contract owner candidate. Otherwise, it should throw `NotContractOwnerCandidateError` *)
+transition AcceptContractOwnership()
+  candidate <- contract_owner_candidate;
+
+  is_candidate = builtin eq _sender candidate;
+  match is_candidate with
+  | False =>
+    error = NotContractOwnerCandidateError;
+    Throw error
+  | True =>
+    contract_owner := _sender;
+    contract_owner_candidate := zero_address;
+
+    e = {
+      _eventname: "AcceptContractOwnership";
+      contract_owner: _sender
+    };
+    event e;
+    msg_to_sender = {
+      _tag: "ZRC6_AcceptContractOwnershipCallback";
+      _recipient: _sender;
+      _amount: Uint128 0;
+      contract_owner: _sender
+    };
+    msgs = one_msg msg_to_sender;
     send msgs
   end
 end
