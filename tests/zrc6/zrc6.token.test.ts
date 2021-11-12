@@ -296,6 +296,26 @@ describe("Token", () => {
       want: undefined,
     },
     {
+      name: "throws ZeroAddressDestinationError",
+      transition: "SetRoyaltyRecipient",
+      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getParams: () => ({
+        to: "0x0000000000000000000000000000000000000000",
+      }),
+      error: ZRC6_ERROR.ZeroAddressDestinationError,
+      want: undefined,
+    },
+    {
+      name: "throws ThisAddressDestinationError",
+      transition: "SetRoyaltyRecipient",
+      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getParams: () => ({
+        to: globalContractAddress,
+      }),
+      error: ZRC6_ERROR.ThisAddressDestinationError,
+      want: undefined,
+    },
+    {
       name: "sets stranger as recipient",
       transition: "SetRoyaltyRecipient",
       getSender: () => toTestAddr(CONTRACT_OWNER),

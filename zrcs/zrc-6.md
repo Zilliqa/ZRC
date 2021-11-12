@@ -321,6 +321,8 @@ Sets `to` as the royalty recipient.
 **Requirements:**
 
 - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError`.
+- `to` should not be the zero address. Otherwise, it should throw `ZeroAddressDestinationError`.
+- `to` should not be `_this_address`. Otherwise, it should throw `ThisAddressDestinationError`.
 
 **Messages:**
 
