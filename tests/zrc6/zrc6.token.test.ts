@@ -341,7 +341,7 @@ describe("Token", () => {
       getParams: () => ({
         feeBps: "10001",
       }),
-      error: ZRC6_ERROR.InvalidFeeBpsError,
+      error: ZRC6_ERROR.InvalidFeeBPSError,
       want: undefined,
     },
     {
@@ -351,7 +351,7 @@ describe("Token", () => {
       getParams: () => ({
         feeBps: "0",
       }),
-      error: ZRC6_ERROR.InvalidFeeBpsError,
+      error: ZRC6_ERROR.InvalidFeeBPSError,
       want: undefined,
     },
     {

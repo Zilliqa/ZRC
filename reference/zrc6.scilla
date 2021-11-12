@@ -59,7 +59,7 @@ type Error =
   | OperatorFoundError
   | NotAllowedToTransferError
   | TokenNotFoundError
-  | InvalidFeeBpsError
+  | InvalidFeeBPSError
   | ZeroAddressDestinationError
   | ThisAddressDestinationError
 
@@ -83,7 +83,7 @@ let make_error =
       | OperatorFoundError             => Int32 -14
       | NotAllowedToTransferError      => Int32 -15
       | TokenNotFoundError             => Int32 -16
-      | InvalidFeeBpsError             => Int32 -17
+      | InvalidFeeBPSError             => Int32 -17
       | ZeroAddressDestinationError    => Int32 -18
       | ThisAddressDestinationError    => Int32 -19
       end
@@ -190,7 +190,7 @@ procedure RequireValidRoyaltyFee(fee_bps: Uint128)
   match is_valid with 
     | True => 
     | False =>
-      error = InvalidFeeBpsError;
+      error = InvalidFeeBPSError;
       Throw error
   end
 end
@@ -553,7 +553,7 @@ end
 (* @param: fee_bps - Royalty fee BPS *)
 (* @Requirements: *)
 (* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
-(* - `fee_bps` should be in the range of 1 and 1000. Otherwise, it should throw `InvalidFeeBpsError` *)
+(* - `fee_bps` should be in the range of 1 and 1000. Otherwise, it should throw `InvalidFeeBPSError` *)
 transition SetRoyaltyFeeBPS(fee_bps: Uint128)
   RequireContractOwner;
   RequireValidRoyaltyFee fee_bps;

@@ -29,7 +29,7 @@ export const ZRC6_ERROR = {
   OperatorFoundError: -14,
   NotAllowedToTransferError: -15,
   TokenNotFoundError: -16,
-  InvalidFeeBpsError: -17,
+  InvalidFeeBPSError: -17,
   ZeroAddressDestinationError: -18,
   ThisAddressDestinationError: -19,
 };

@@ -148,7 +148,7 @@ The NFT contract must define the following constants for use as error codes for 
 | `OperatorFoundError`             | `Int32` | `-14` | Emit when the operator is found.                                     |    ✓     |
 | `NotAllowedToTransferError`      | `Int32` | `-15` | Emit when `_sender` is not allowed to transfer the token.            |    ✓     |
 | `TokenNotFoundError`             | `Int32` | `-16` | Emit when the token is not found.                                    |    ✓     |
-| `InvalidFeeBpsError`             | `Int32` | `-17` | Emit when the fee bps is out of range. The valid range is 1 ~ 1000   |          |
+| `InvalidFeeBPSError`             | `Int32` | `-17` | Emit when the fee bps is out of range. The valid range is 1 ~ 1000   |          |
 | `ZeroAddressDestinationError`    | `Int32` | `-18` | Emit when the destination is the zero address.                       |    ✓     |
 | `ThisAddressDestinationError`    | `Int32` | `-19` | Emit when the destination is `_this_address`.                        |    ✓     |
 
@@ -347,7 +347,7 @@ Sets `fee_bps` as royalty fee bps.
 **Requirements:**
 
 - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError`.
-- `fee_bps` should be in the range of 1 and 1000. Otherwise, it should throw `InvalidFeeBpsError`.
+- `fee_bps` should be in the range of 1 and 1000. Otherwise, it should throw `InvalidFeeBPSError`.
 
 **Messages:**
 
