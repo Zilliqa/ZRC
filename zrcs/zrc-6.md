@@ -376,171 +376,171 @@ Destroys `token_id`.
 
 #### 9. `AddMinter`
 
-Adds `to` as minter.
+Adds `minter`.
 
 **Arguments:**
 
-| Name | Type      | Description                    |
-| ---- | --------- | ------------------------------ |
-| `to` | `ByStr20` | Address to be added as minter. |
+| Name     | Type      | Description                    |
+| -------- | --------- | ------------------------------ |
+| `minter` | `ByStr20` | Address to be added as minter. |
 
 **Requirements:**
 
 - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError`.
-- `to` should not be already a minter. Otherwise, it should throw `MinterFoundError`.
+- `minter` should not be already a minter. Otherwise, it should throw `MinterFoundError`.
 
 **Messages:**
 
-|        | Name                     | Description                                   | Callback Parameters                                                |
-| ------ | ------------------------ | --------------------------------------------- | ------------------------------------------------------------------ |
-| `_tag` | `ZRC6_AddMinterCallback` | Provide the sender the address of the minter. | <ul><li>`to` : `ByStr20`<br/>Address that has been added</li></ul> |
+|        | Name                     | Description                                   | Callback Parameters                                                    |
+| ------ | ------------------------ | --------------------------------------------- | ---------------------------------------------------------------------- |
+| `_tag` | `ZRC6_AddMinterCallback` | Provide the sender the address of the minter. | <ul><li>`minter` : `ByStr20`<br/>Address that has been added</li></ul> |
 
 **Events:**
 
-|              | Name        | Description            | Event Parameters                                                   |
-| ------------ | ----------- | ---------------------- | ------------------------------------------------------------------ |
-| `_eventname` | `AddMinter` | Minter has been added. | <ul><li>`to` : `ByStr20`<br/>Address that has been added</li></ul> |
+|              | Name        | Description            | Event Parameters                                                       |
+| ------------ | ----------- | ---------------------- | ---------------------------------------------------------------------- |
+| `_eventname` | `AddMinter` | Minter has been added. | <ul><li>`minter` : `ByStr20`<br/>Address that has been added</li></ul> |
 
 #### 10. `RemoveMinter`
 
-Removes `to` from minter.
+Removes `minter`.
 
 **Arguments:**
 
-| Name | Type      | Description                        |
-| ---- | --------- | ---------------------------------- |
-| `to` | `ByStr20` | Address to be removed from minter. |
+| Name     | Type      | Description                        |
+| -------- | --------- | ---------------------------------- |
+| `minter` | `ByStr20` | Address to be removed from minter. |
 
 **Requirements:**
 
 - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError`.
-- `to` should be already a minter. Otherwise, it should throw `MinterNotFoundError`.
+- `minter` should be already a minter. Otherwise, it should throw `MinterNotFoundError`.
 
 **Messages:**
 
-|        | Name                        | Description                                           | Callback Parameters                                                  |
-| ------ | --------------------------- | ----------------------------------------------------- | -------------------------------------------------------------------- |
-| `_tag` | `ZRC6_RemoveMinterCallback` | Provide the sender the address that has been removed. | <ul><li>`to` : `ByStr20`<br/>Address that has been removed</li></ul> |
+|        | Name                        | Description                                           | Callback Parameters                                                      |
+| ------ | --------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------ |
+| `_tag` | `ZRC6_RemoveMinterCallback` | Provide the sender the address that has been removed. | <ul><li>`minter` : `ByStr20`<br/>Address that has been removed</li></ul> |
 
 **Events:**
 
-|              | Name           | Description              | Event Parameters                                                     |
-| ------------ | -------------- | ------------------------ | -------------------------------------------------------------------- |
-| `_eventname` | `RemoveMinter` | Minter has been removed. | <ul><li>`to` : `ByStr20`<br/>Address that has been removed</li></ul> |
+|              | Name           | Description              | Event Parameters                                                         |
+| ------------ | -------------- | ------------------------ | ------------------------------------------------------------------------ |
+| `_eventname` | `RemoveMinter` | Minter has been removed. | <ul><li>`minter` : `ByStr20`<br/>Address that has been removed</li></ul> |
 
 #### 11. `AddSpender`
 
-Adds `to` as spender of `token_id`.
+Adds `spender` for `token_id`.
 
 **Arguments:**
 
 | Name       | Type      | Description                                           |
 | ---------- | --------- | ----------------------------------------------------- |
-| `to`       | `ByStr20` | Address to be added as a spender of a given token ID. |
+| `spender`  | `ByStr20` | Address to be added as a spender of a given token ID. |
 | `token_id` | `Uint256` | Unique ID of an existing token.                       |
 
 **Requirements:**
 
 - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError`.
 - `_sender` should be a token owner or an operator. Otherwise, it should throw `NotOwnerOrOperatorError`.
-- `to` should not be already a spender. Otherwise, it should throw `SpenderFoundError`.
+- `spender` should not be already a spender. Otherwise, it should throw `SpenderFoundError`.
 
 **Messages:**
 
-|        | Name                      | Description                                                 | Callback Parameters                                                                                                        |
-| ------ | ------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_AddSpenderCallback` | Provide the sender the address of the spender and token ID. | <ul><li>`to` : `ByStr20`<br/>Address that has been added</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
+|        | Name                      | Description                                                 | Callback Parameters                                                                                                             |
+| ------ | ------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_AddSpenderCallback` | Provide the sender the address of the spender and token ID. | <ul><li>`spender` : `ByStr20`<br/>Address that has been added</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
 
 **Events:**
 
-|              | Name         | Description             | Event Parameters                                                                                                           |
-| ------------ | ------------ | ----------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `AddSpender` | Spender has been added. | <ul><li>`to` : `ByStr20`<br/>Address that has been added</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
+|              | Name         | Description             | Event Parameters                                                                                                                |
+| ------------ | ------------ | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `AddSpender` | Spender has been added. | <ul><li>`spender` : `ByStr20`<br/>Address that has been added</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
 
 #### 12. `RemoveSpender`
 
-Removes `to` from spender of `token_id`.
+Removes `spender` for `token_id`.
 
 **Arguments:**
 
 | Name       | Type      | Description                                             |
 | ---------- | --------- | ------------------------------------------------------- |
-| `to`       | `ByStr20` | Address to be removed from spender of a given token ID. |
+| `spender`  | `ByStr20` | Address to be removed from spender of a given token ID. |
 | `token_id` | `Uint256` | Unique ID of an existing token.                         |
 
 **Requirements:**
 
 - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError`.
 - `_sender` should be a token owner or an operator. Otherwise, it should throw `NotOwnerOrOperatorError`.
-- `to` should be already a spender. Otherwise, it should throw `SpenderNotFoundError`.
+- `spender` should be already a spender. Otherwise, it should throw `SpenderNotFoundError`.
 
 **Messages:**
 
-|        | Name                         | Description                                           | Callback Parameters                                                                                                          |
-| ------ | ---------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_RemoveSpenderCallback` | Provide the sender the address that has been removed. | <ul><li>`to` : `ByStr20`<br/>Address that has been removed</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
+|        | Name                         | Description                                           | Callback Parameters                                                                                                               |
+| ------ | ---------------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_RemoveSpenderCallback` | Provide the sender the address that has been removed. | <ul><li>`spender` : `ByStr20`<br/>Address that has been removed</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
 
 **Events:**
 
-|              | Name            | Description               | Event Parameters                                                                                                             |
-| ------------ | --------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `RemoveSpender` | Spender has been removed. | <ul><li>`to` : `ByStr20`<br/>Address that has been removed</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
+|              | Name            | Description               | Event Parameters                                                                                                                  |
+| ------------ | --------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `RemoveSpender` | Spender has been removed. | <ul><li>`spender` : `ByStr20`<br/>Address that has been removed</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
 
 #### 13. `AddOperator`
 
-Adds `to` as operator for the `_sender`.
+Adds `operator` for `_sender`.
 
 **Arguments:**
 
-| Name | Type      | Description                      |
-| ---- | --------- | -------------------------------- |
-| `to` | `ByStr20` | Address to be added as operator. |
+| Name       | Type      | Description                      |
+| ---------- | --------- | -------------------------------- |
+| `operator` | `ByStr20` | Address to be added as operator. |
 
 **Requirements:**
 
 - `_sender` should be the token owner. Otherwise, it should throw `NotTokenOwnerError`.
-- `_sender` should not be `to`. Otherwise, it should throw `SelfError`.
-- `to` should not be already an operator. Otherwise, it should throw `OperatorFoundError`.
+- `_sender` should not be `operator`. Otherwise, it should throw `SelfError`.
+- `operator` should not be already an operator. Otherwise, it should throw `OperatorFoundError`.
 
 **Messages:**
 
-|        | Name                       | Description                                     | Callback Parameters                              |
-| ------ | -------------------------- | ----------------------------------------------- | ------------------------------------------------ |
-| `_tag` | `ZRC6_AddOperatorCallback` | Provide the sender the address of the operator. | `to` : `ByStr20`<br/>Address that has been added |
+|        | Name                       | Description                                     | Callback Parameters                                    |
+| ------ | -------------------------- | ----------------------------------------------- | ------------------------------------------------------ |
+| `_tag` | `ZRC6_AddOperatorCallback` | Provide the sender the address of the operator. | `operator` : `ByStr20`<br/>Address that has been added |
 
 **Events:**
 
-|              | Name          | Description              | Event Parameters                                                   |
-| ------------ | ------------- | ------------------------ | ------------------------------------------------------------------ |
-| `_eventname` | `AddOperator` | Operator has been added. | <ul><li>`to` : `ByStr20`<br/>Address that has been added</li></ul> |
+|              | Name          | Description              | Event Parameters                                                         |
+| ------------ | ------------- | ------------------------ | ------------------------------------------------------------------------ |
+| `_eventname` | `AddOperator` | Operator has been added. | <ul><li>`operator` : `ByStr20`<br/>Address that has been added</li></ul> |
 
 #### 14. `RemoveOperator`
 
-Removes `to` from operator for the `_sender`.
+Removes `operator` for `_sender`.
 
 **Arguments:**
 
-| Name | Type      | Description                          |
-| ---- | --------- | ------------------------------------ |
-| `to` | `ByStr20` | Address to be removed from operator. |
+| Name       | Type      | Description                          |
+| ---------- | --------- | ------------------------------------ |
+| `operator` | `ByStr20` | Address to be removed from operator. |
 
 **Requirements:**
 
 - `_sender` should be the token owner. Otherwise, it should throw `NotTokenOwnerError`.
-- `_sender` should not be `to`. Otherwise, it should throw `SelfError`.
-- `to` should be already an operator. Otherwise, it should throw `OperatorNotFoundError`.
+- `_sender` should not be `operator`. Otherwise, it should throw `SelfError`.
+- `operator` should be already an operator. Otherwise, it should throw `OperatorNotFoundError`.
 
 **Messages:**
 
-|        | Name                          | Description                                           | Callback Parameters                                |
-| ------ | ----------------------------- | ----------------------------------------------------- | -------------------------------------------------- |
-| `_tag` | `ZRC6_RemoveOperatorCallback` | Provide the sender the address that has been removed. | `to` : `ByStr20`<br/>Address that has been removed |
+|        | Name                          | Description                                           | Callback Parameters                                      |
+| ------ | ----------------------------- | ----------------------------------------------------- | -------------------------------------------------------- |
+| `_tag` | `ZRC6_RemoveOperatorCallback` | Provide the sender the address that has been removed. | `operator` : `ByStr20`<br/>Address that has been removed |
 
 **Events:**
 
-|              | Name             | Description                | Event Parameters                                                     |
-| ------------ | ---------------- | -------------------------- | -------------------------------------------------------------------- |
-| `_eventname` | `RemoveOperator` | Operator has been removed. | <ul><li>`to` : `ByStr20`<br/>Address that has been removed</li></ul> |
+|              | Name             | Description                | Event Parameters                                                           |
+| ------------ | ---------------- | -------------------------- | -------------------------------------------------------------------------- |
+| `_eventname` | `RemoveOperator` | Operator has been removed. | <ul><li>`operator` : `ByStr20`<br/>Address that has been removed</li></ul> |
 
 #### 15. `TransferFrom`
 

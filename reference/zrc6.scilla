@@ -571,72 +571,72 @@ transition Burn(token_id: Uint256)
   end
 end
 
-(* Adds `to` as minter. *)
+(* Adds `minter`. *)
 (* @Requirements: *)
 (* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
-(* - `to` should not be already a minter. Otherwise, it should throw `MinterFoundError` *)
-transition AddMinter(to: ByStr20)
+(* - `minter` should not be already a minter. Otherwise, it should throw `MinterFoundError` *)
+transition AddMinter(minter: ByStr20)
   RequireContractOwner;
-  has_minter <- exists minters[to];
+  has_minter <- exists minters[minter];
   match has_minter with
   | True => 
     error = MinterFoundError;
     Throw error
   | False =>
     (* Add minter *)
-    minters[to] := true
+    minters[minter] := true
   end;
   e = { 
     _eventname: "AddMinter";
-    to: to
+    minter: minter
   };
   event e;
   msg_to_sender = { 
     _tag: "ZRC6_AddMinterCallback";
     _recipient: _sender;
     _amount: Uint128 0;
-    to: to
+    minter: minter
   };
   msgs = one_msg msg_to_sender;
   send msgs
 end
 
-(* Removes `to` from minter. *)
+(* Removes `minter`. *)
 (* @Requirements: *)
 (* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
-(* - `to` should be already a minter. Otherwise, it should throw `MinterNotFoundError` *)
-transition RemoveMinter(to: ByStr20)
+(* - `minter` should be already a minter. Otherwise, it should throw `MinterNotFoundError` *)
+transition RemoveMinter(minter: ByStr20)
   RequireContractOwner;
-  has_minter <- exists minters[to];
+  has_minter <- exists minters[minter];
   match has_minter with
   | True => 
-    delete minters[to]
+    delete minters[minter]
   | False =>
     error = MinterNotFoundError;
     Throw error
   end;
   e = { 
     _eventname: "RemoveMinter";
-    to: to
+    minter: minter
   };
   event e;
   msg_to_sender = { 
     _tag: "ZRC6_RemoveMinterCallback";
     _recipient: _sender;
     _amount: Uint128 0;
-    to: to
+    minter: minter
   };
   msgs = one_msg msg_to_sender;
   send msgs
 end
 
-(* Adds `to` as spender of `token_id`. *)
+(* Adds `spender` for `token_id`. *)
 (* There can only be one spender per token at any given time. *)
 (* @Requirements: *)
 (* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
 (* - `_sender` should be a token owner or an operator. Otherwise, it should throw `NotOwnerOrOperatorError` *)
-(* - `to` should not be already a spender. Otherwise, it should throw `SpenderFoundError` *)
-transition AddSpender(to: ByStr20, token_id: Uint256)
+(* - `spender` should not be already a spender. Otherwise, it should throw `SpenderFoundError` *)
+transition AddSpender(spender: ByStr20, token_id: Uint256)
   opt_token_owner <- token_owners[token_id];
   match opt_token_owner with
   | None =>
@@ -652,12 +652,12 @@ transition AddSpender(to: ByStr20, token_id: Uint256)
       Throw error
       | False =>
       (* Add spender *)
-      spenders[token_id] := to
+      spenders[token_id] := spender
     end;
     
     e = {
       _eventname: "AddSpender";
-      to: to;
+      spender: spender;
       token_id: token_id
     };
     event e;
@@ -665,7 +665,7 @@ transition AddSpender(to: ByStr20, token_id: Uint256)
       _tag: "ZRC6_AddSpenderCallback";
       _recipient: _sender;
       _amount: Uint128 0;
-      to: to;
+      spender: spender;
       token_id: token_id
     };
     msgs = one_msg msg_to_sender;
@@ -673,12 +673,12 @@ transition AddSpender(to: ByStr20, token_id: Uint256)
   end
 end
 
-(* Removes `to` from spender of `token_id`. *)
+(* Removes `spender` for `token_id`. *)
 (* @Requirements: *)
 (* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
 (* - `_sender` should be a token owner or an operator. Otherwise, it should throw `NotOwnerOrOperatorError` *)
-(* - `to` should be already a spender. Otherwise, it should throw `SpenderNotFoundError` *)
-transition RemoveSpender(to: ByStr20, token_id: Uint256)
+(* - `spender` should be already a spender. Otherwise, it should throw `SpenderNotFoundError` *)
+transition RemoveSpender(spender: ByStr20, token_id: Uint256)
   opt_token_owner <- token_owners[token_id];
   match opt_token_owner with
   | None =>
@@ -699,7 +699,7 @@ transition RemoveSpender(to: ByStr20, token_id: Uint256)
     
     e = {
       _eventname: "RemoveSpender";
-      to: to;
+      spender: spender;
       token_id: token_id
     };
     event e;
@@ -707,7 +707,7 @@ transition RemoveSpender(to: ByStr20, token_id: Uint256)
       _tag: "ZRC6_RemoveSpenderCallback";
       _recipient: _sender;
       _amount: Uint128 0;
-      to: to;
+      spender: spender;
       token_id: token_id
     };
     msgs = one_msg msg_to_sender;
@@ -715,13 +715,13 @@ transition RemoveSpender(to: ByStr20, token_id: Uint256)
   end
 end
 
-(* Adds `to` as operator for the `_sender`. *)
+(* Adds `operator` for `_sender`. *)
 (* @Requirements: *)
 (* - `_sender` should be the token owner. Otherwise, it should throw `NotTokenOwnerError` *)
-(* - `_sender` should not be `to`. Otherwise, it should throw `SelfError` *)
-(* - `to` should not be already an operator. Otherwise, it should throw `OperatorFoundError` *)
-transition AddOperator(to: ByStr20)
-  RequireNotSelf to _sender;
+(* - `_sender` should not be `operator`. Otherwise, it should throw `SelfError` *)
+(* - `operator` should not be already an operator. Otherwise, it should throw `OperatorFoundError` *)
+transition AddOperator(operator: ByStr20)
+  RequireNotSelf operator _sender;
   
   opt_bal <- balances[_sender];
   balance = get_bal opt_bal;
@@ -733,57 +733,57 @@ transition AddOperator(to: ByStr20)
     error = NotTokenOwnerError;
     Throw error
   | False =>
-    has_operator <- exists operators[_sender][to];
+    has_operator <- exists operators[_sender][operator];
     match has_operator with
     | False =>
       (* Add operator *)
-      operators[_sender][to] := true
+      operators[_sender][operator] := true
     | True =>
       error = OperatorFoundError;
       Throw error
     end;
     e = {
       _eventname: "AddOperator";
-      to: to
+      operator: operator
     };
     event e;
     msg_to_sender = {
       _tag: "ZRC6_AddOperatorCallback";
       _recipient: _sender;
       _amount: Uint128 0;
-      to: to
+      operator: operator
     };
     msgs = one_msg msg_to_sender;
     send msgs
   end
 end
 
-(* Removes `to` from operator for the `_sender`. *)
+(* Removes `operator` for `_sender`. *)
 (* @Requirements:  *)
 (* - `_sender` should be the token owner. Otherwise, it should throw `NotTokenOwnerError` *)
-(* - `_sender` should not be `to`. Otherwise, it should throw `SelfError` *)
-(* - `to` should be already an operator. Otherwise, it should throw `OperatorNotFoundError` *)
-transition RemoveOperator(to: ByStr20)
-  RequireNotSelf to _sender;
-  has_operator <- exists operators[_sender][to];
+(* - `_sender` should not be `operator`. Otherwise, it should throw `SelfError` *)
+(* - `operator` should be already an operator. Otherwise, it should throw `OperatorNotFoundError` *)
+transition RemoveOperator(operator: ByStr20)
+  RequireNotSelf operator _sender;
+  has_operator <- exists operators[_sender][operator];
   match has_operator with
   | False =>
     error = OperatorNotFoundError;
     Throw error
   | True =>
     (* Remove operator *)
-    delete operators[_sender][to]
+    delete operators[_sender][operator]
   end;
   e = {
     _eventname: "RemoveOperator";
-    to: to
+    operator: operator
   };
   event e;
   msg_to_sender = { 
     _tag: "ZRC6_RemoveOperatorCallback";
     _recipient: _sender;
     _amount: Uint128 0;
-    to: to
+    operator: operator
   };
   msgs = one_msg msg_to_sender;
   send msgs

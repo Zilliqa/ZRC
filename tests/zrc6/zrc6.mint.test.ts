@@ -121,7 +121,7 @@ describe("Minter", () => {
       transition: "AddMinter",
       getSender: () => toTestAddr(STRANGER),
       getParams: () => ({
-        to: toTestAddr(STRANGER),
+        minter: toTestAddr(STRANGER),
       }),
       error: ZRC6_ERROR.NotContractOwnerError,
       want: undefined,
@@ -141,7 +141,7 @@ describe("Minter", () => {
       transition: "AddMinter",
       getSender: () => toTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        to: toTestAddr(STRANGER),
+        minter: toTestAddr(STRANGER),
       }),
       error: undefined,
       want: {
@@ -151,7 +151,7 @@ describe("Minter", () => {
           {
             name: "AddMinter",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
+              toMsgParam("ByStr20", toTestAddr(STRANGER), "minter"),
             ],
           },
         ],
@@ -159,7 +159,7 @@ describe("Minter", () => {
           {
             tag: "ZRC6_AddMinterCallback",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
+              toMsgParam("ByStr20", toTestAddr(STRANGER), "minter"),
             ],
           },
         ],
@@ -170,7 +170,7 @@ describe("Minter", () => {
       transition: "RemoveMinter",
       getSender: () => toTestAddr(STRANGER),
       getParams: () => ({
-        to: toTestAddr(MINTER),
+        minter: toTestAddr(MINTER),
       }),
       error: ZRC6_ERROR.NotContractOwnerError,
       want: undefined,
@@ -199,13 +199,17 @@ describe("Minter", () => {
         events: [
           {
             name: "RemoveMinter",
-            getParams: () => [toMsgParam("ByStr20", toTestAddr(MINTER), "to")],
+            getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(MINTER), "minter"),
+            ],
           },
         ],
         transitions: [
           {
             tag: "ZRC6_RemoveMinterCallback",
-            getParams: () => [toMsgParam("ByStr20", toTestAddr(MINTER), "to")],
+            getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(MINTER), "minter"),
+            ],
           },
         ],
       },

@@ -129,7 +129,7 @@ describe("Approval", () => {
       transition: "AddSpender",
       getSender: () => toTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        to: toTestAddr(STRANGER_A),
+        spender: toTestAddr(STRANGER_A),
         token_id: "999", // Non-existing token
       }),
       error: ZRC6_ERROR.TokenNotFoundError,
@@ -140,7 +140,7 @@ describe("Approval", () => {
       transition: "AddSpender",
       getSender: () => toTestAddr(STRANGER_A), // Not a token owner
       getParams: () => ({
-        to: toTestAddr(STRANGER_A),
+        spender: toTestAddr(STRANGER_A),
         token_id: "1",
       }),
       error: ZRC6_ERROR.NotOwnerOrOperatorError,
@@ -151,7 +151,7 @@ describe("Approval", () => {
       transition: "AddSpender",
       getSender: () => toTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        to: toTestAddr(STRANGER_A),
+        spender: toTestAddr(STRANGER_A),
         token_id: "1",
       }),
       error: ZRC6_ERROR.SpenderFoundError,
@@ -162,7 +162,7 @@ describe("Approval", () => {
       transition: "AddSpender",
       getSender: () => toTestAddr(TOKEN_OWNER_B),
       getParams: () => ({
-        to: toTestAddr(STRANGER_A),
+        spender: toTestAddr(STRANGER_A),
         token_id: "2",
       }),
       error: undefined,
@@ -174,7 +174,7 @@ describe("Approval", () => {
           {
             name: "AddSpender",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER_A), "to"),
+              toMsgParam("ByStr20", toTestAddr(STRANGER_A), "spender"),
               toMsgParam("Uint256", 2, "token_id"),
             ],
           },
@@ -183,7 +183,7 @@ describe("Approval", () => {
           {
             tag: "ZRC6_AddSpenderCallback",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER_A), "to"),
+              toMsgParam("ByStr20", toTestAddr(STRANGER_A), "spender"),
               toMsgParam("Uint256", 2, "token_id"),
             ],
           },
@@ -195,7 +195,7 @@ describe("Approval", () => {
       transition: "RemoveSpender",
       getSender: () => toTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        to: toTestAddr(STRANGER_A),
+        spender: toTestAddr(STRANGER_A),
         token_id: "999", // Non-existing token
       }),
       error: ZRC6_ERROR.TokenNotFoundError,
@@ -206,7 +206,7 @@ describe("Approval", () => {
       transition: "RemoveSpender",
       getSender: () => toTestAddr(STRANGER_A), // Not a token owner
       getParams: () => ({
-        to: toTestAddr(STRANGER_A),
+        spender: toTestAddr(STRANGER_A),
         token_id: "1",
       }),
       error: ZRC6_ERROR.NotOwnerOrOperatorError,
@@ -217,7 +217,7 @@ describe("Approval", () => {
       transition: "RemoveSpender",
       getSender: () => toTestAddr(TOKEN_OWNER_B),
       getParams: () => ({
-        to: toTestAddr(STRANGER_A),
+        spender: toTestAddr(STRANGER_A),
         token_id: "2",
       }),
       error: ZRC6_ERROR.SpenderNotFoundError,
@@ -228,7 +228,7 @@ describe("Approval", () => {
       transition: "RemoveSpender",
       getSender: () => toTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        to: toTestAddr(SPENDER),
+        spender: toTestAddr(SPENDER),
         token_id: "1",
       }),
       error: undefined,
@@ -240,7 +240,7 @@ describe("Approval", () => {
           {
             name: "RemoveSpender",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(SPENDER), "to"),
+              toMsgParam("ByStr20", toTestAddr(SPENDER), "spender"),
               toMsgParam("Uint256", 1, "token_id"),
             ],
           },
@@ -249,7 +249,7 @@ describe("Approval", () => {
           {
             tag: "ZRC6_RemoveSpenderCallback",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(SPENDER), "to"),
+              toMsgParam("ByStr20", toTestAddr(SPENDER), "spender"),
               toMsgParam("Uint256", 1, "token_id"),
             ],
           },
@@ -261,7 +261,7 @@ describe("Approval", () => {
       transition: "AddOperator",
       getSender: () => toTestAddr(STRANGER_B),
       getParams: () => ({
-        to: toTestAddr(STRANGER_A),
+        operator: toTestAddr(STRANGER_A),
       }),
       error: ZRC6_ERROR.NotTokenOwnerError,
       want: undefined,
@@ -271,7 +271,7 @@ describe("Approval", () => {
       transition: "AddOperator",
       getSender: () => toTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        to: toTestAddr(TOKEN_OWNER_A), // Self
+        operator: toTestAddr(TOKEN_OWNER_A), // Self
       }),
       error: ZRC6_ERROR.SelfError,
       want: undefined,
@@ -281,7 +281,7 @@ describe("Approval", () => {
       transition: "AddOperator",
       getSender: () => toTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        to: toTestAddr(OPERATOR),
+        operator: toTestAddr(OPERATOR),
       }),
       error: ZRC6_ERROR.OperatorFoundError,
       want: undefined,
@@ -291,7 +291,7 @@ describe("Approval", () => {
       transition: "AddOperator",
       getSender: () => toTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        to: toTestAddr(STRANGER_A),
+        operator: toTestAddr(STRANGER_A),
       }),
       error: undefined,
       want: {
@@ -304,7 +304,7 @@ describe("Approval", () => {
           {
             name: "AddOperator",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER_A), "to"),
+              toMsgParam("ByStr20", toTestAddr(STRANGER_A), "operator"),
             ],
           },
         ],
@@ -312,7 +312,7 @@ describe("Approval", () => {
           {
             tag: "ZRC6_AddOperatorCallback",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER_A), "to"),
+              toMsgParam("ByStr20", toTestAddr(STRANGER_A), "operator"),
             ],
           },
         ],
@@ -323,7 +323,7 @@ describe("Approval", () => {
       transition: "RemoveOperator",
       getSender: () => toTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        to: toTestAddr(TOKEN_OWNER_A), // Self
+        operator: toTestAddr(TOKEN_OWNER_A), // Self
       }),
       error: ZRC6_ERROR.SelfError,
       want: undefined,
@@ -333,7 +333,7 @@ describe("Approval", () => {
       transition: "RemoveOperator",
       getSender: () => toTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        to: toTestAddr(STRANGER_A),
+        operator: toTestAddr(STRANGER_A),
       }),
       error: ZRC6_ERROR.OperatorNotFoundError,
       want: undefined,
@@ -343,7 +343,7 @@ describe("Approval", () => {
       transition: "RemoveOperator",
       getSender: () => toTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        to: toTestAddr(OPERATOR),
+        operator: toTestAddr(OPERATOR),
       }),
       error: undefined,
       want: {
@@ -358,7 +358,7 @@ describe("Approval", () => {
           {
             name: "RemoveOperator",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(OPERATOR), "to"),
+              toMsgParam("ByStr20", toTestAddr(OPERATOR), "operator"),
             ],
           },
         ],
@@ -366,7 +366,7 @@ describe("Approval", () => {
           {
             tag: "ZRC6_RemoveOperatorCallback",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(OPERATOR), "to"),
+              toMsgParam("ByStr20", toTestAddr(OPERATOR), "operator"),
             ],
           },
         ],
