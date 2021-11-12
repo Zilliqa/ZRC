@@ -1,7 +1,7 @@
 
 |  ZRC | Title | Status| Type | Author | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd)
 |--|--|--|--| -- | -- | -- |
-| 0  | ZRC Purpose and Guidelines | Implemented | Meta  | Amrit Kumar <amrit@zilliqa.com> | 2019-09-20 | 2019-02-12 
+| 0  | ZRC Purpose and Guidelines | Implemented | Meta  | Amrit Kumar <amrit@zilliqa.com> | 2019-09-20 | 2021-11-12 
 
 ## What is a ZRC?
 
@@ -168,19 +168,21 @@ If you are interested in assuming ownership of a ZRC, send a message asking to t
 
 The current ZRC editors are
 
-- Jacob Johannsen ([**@jjcnn**](https://github.com/jjcnn)).
-
-- Vaivaswatha Nagaraj ([**@vaivaswatha**](https://github.com/vaivaswatha))
-
-- Edison Lim ([**@edisonljh**](https://github.com/edisonljh))
-
-- Han Wen Chua ([**@evesnow91**](https://github.com/evesnow91))
-
-- Anton Trunov ([**@anton-trunov**](https://github.com/anton-trunov))
-
 - Amrit Kumar ([**@AmritKumar**](https://github.com/AmritKumar))
 
-- Arnav Vohra ([**@arnavvohra**](https://github.com/arnavvohra))
+- Anton Trunov ([**@anton-trunov**](https://github.com/orgs/Zilliqa/people/bb111189))
+
+- Jacob Johannsen ([**@bb111189**](https://github.com/jjcnn))
+
+- Jun Hao Tan ([**@jjcnn**](https://github.com/jjcnn))
+
+- Lulu Ren ([**@renlulu**](https://github.com/orgs/Zilliqa/people/renlulu))
+
+- Noel Yoo ([**@noel-yoo**](https://github.com/orgs/Zilliqa/people/noel-yoo))
+
+- Te Ye Yeo ([**@teye**](https://github.com/orgs/Zilliqa/people/teye))
+
+- Vaivaswatha Nagaraj ([**@vaivaswatha**](https://github.com/vaivaswatha))
 
 
 ## ZRC Editor Responsibilities
