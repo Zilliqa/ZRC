@@ -330,28 +330,6 @@ procedure UpdateBalance(operation: Operation, address: ByStr20)
   end
 end
 
-procedure MintToken(to: ByStr20)
-  RequireNotPaused;
-  IsMinter _sender;
-
-  (* generate ID *)
-  current_token_id_count <- token_id_count;
-  new_token_id_count = builtin add current_token_id_count one;
-  token_id_count := new_token_id_count;
-  token_id = new_token_id_count;
-
-  (* mint a new token *)
-  token_owners[token_id] := to;
-
-  (* add one to the token owner balance *)
-  UpdateBalance add_operation to;
-  
-  (* add one to the total supply *)
-  current_supply <- total_supply;
-  new_supply = builtin add current_supply one;
-  total_supply := new_supply
-end
-
 (* Pauses the contract. Use this when things are going wrong ('circuit breaker'). *)
 (* @Requirements: *)
 (* - The contract should not be paused. Otherwise, it should throw `PausedError` *)
@@ -480,11 +458,33 @@ transition SetBaseURI(uri: String)
   send msgs  
 end
 
-(* Mints a token and transfers it to `to`. *)
-(* @param: to - Address of the token recipient   *)
 (* @Requirements: *)
 (* - The contract should not be paused. Otherwise, it should throw `PausedError` *)
 (* - `_sender` should be a minter. Otherwise, it should throw `NotMinterError` *)
+procedure MintToken(to: ByStr20)
+  RequireNotPaused;
+  IsMinter _sender;
+
+  (* generate ID *)
+  current_token_id_count <- token_id_count;
+  new_token_id_count = builtin add current_token_id_count one;
+  token_id_count := new_token_id_count;
+  token_id = new_token_id_count;
+
+  (* mint a new token *)
+  token_owners[token_id] := to;
+
+  (* add one to the token owner balance *)
+  UpdateBalance add_operation to;
+  
+  (* add one to the total supply *)
+  current_supply <- total_supply;
+  new_supply = builtin add current_supply one;
+  total_supply := new_supply
+end
+
+(* Mints a token and transfers it to `to`. *)
+(* @param: to - Address of the token recipient   *)
 transition Mint(to: ByStr20)
   MintToken to;
   token_id <- token_id_count;
@@ -513,9 +513,6 @@ end
 
 (* Mints tokens and transfers them to `to_list`. *)
 (* @param: to_list - List of addresses of the token recipient *)
-(* @Requirements: *)
-(* - The contract should not be paused. Otherwise, it should throw `PausedError` *)
-(* - `_sender` should be a minter. Otherwise, it should throw `NotMinterError` *)
 transition BatchMint(to_list: List ByStr20)
   forall to_list MintToken;
   msg_to_sender = { 
