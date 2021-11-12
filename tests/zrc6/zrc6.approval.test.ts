@@ -100,7 +100,12 @@ beforeEach(async () => {
   let tx = await globalContractInfo.callGetter(
     zilliqa.contracts.at(globalContractAddress),
     TX_PARAMS
-  )("BatchMint", [toTestAddr(TOKEN_OWNER_A), toTestAddr(TOKEN_OWNER_B)]);
+  )("BatchMint", [
+    toTestAddr(TOKEN_OWNER_A),
+    toTestAddr(TOKEN_OWNER_B),
+    toTestAddr(TOKEN_OWNER_B),
+    toTestAddr(TOKEN_OWNER_B),
+  ]);
   if (!tx.receipt.success) {
     throw new Error();
   }
@@ -642,6 +647,89 @@ describe("Approval", () => {
               toMsgParam("ByStr20", toTestAddr(OPERATOR), "to"),
               toMsgParam("Uint256", 1, "token_id"),
             ],
+          },
+        ],
+      },
+    },
+    {
+      name: "throws SelfError",
+      transition: "BatchTransferFrom",
+      getSender: () => toTestAddr(TOKEN_OWNER_B),
+      getParams: () => ({
+        to_token_id_pair_list: [
+          {
+            constructor: "Pair",
+            argtypes: ["ByStr20", "Uint256"],
+            arguments: [toTestAddr(TOKEN_OWNER_A), "2"],
+          },
+          {
+            constructor: "Pair",
+            argtypes: ["ByStr20", "Uint256"],
+            arguments: [toTestAddr(TOKEN_OWNER_B), "3"],
+          },
+          {
+            constructor: "Pair",
+            argtypes: ["ByStr20", "Uint256"],
+            arguments: [toTestAddr(STRANGER_A), "4"],
+          },
+        ],
+      }),
+      error: ZRC6_ERROR.SelfError,
+      want: undefined,
+    },
+    {
+      name: "token owner B transfers (token owner A, #2), (stranger A, #3), (stranger A, #4)",
+      transition: "BatchTransferFrom",
+      getSender: () => toTestAddr(TOKEN_OWNER_B),
+      getParams: () => ({
+        to_token_id_pair_list: [
+          {
+            constructor: "Pair",
+            argtypes: ["ByStr20", "Uint256"],
+            arguments: [toTestAddr(TOKEN_OWNER_A), "2"],
+          },
+          {
+            constructor: "Pair",
+            argtypes: ["ByStr20", "Uint256"],
+            arguments: [toTestAddr(STRANGER_A), "3"],
+          },
+          {
+            constructor: "Pair",
+            argtypes: ["ByStr20", "Uint256"],
+            arguments: [toTestAddr(STRANGER_A), "4"],
+          },
+        ],
+      }),
+      error: undefined,
+      want: {
+        verifyState: (state) => {
+          const isTokenOwnerValid =
+            JSON.stringify(state.token_owners) ===
+            JSON.stringify({
+              "1": toTestAddr(TOKEN_OWNER_A).toLowerCase(),
+              "2": toTestAddr(TOKEN_OWNER_A).toLowerCase(),
+              "3": toTestAddr(STRANGER_A).toLowerCase(),
+              "4": toTestAddr(STRANGER_A).toLowerCase(),
+            });
+
+          const isBalanceValid = [
+            [TOKEN_OWNER_A, 2],
+            [TOKEN_OWNER_B, 0],
+            [STRANGER_A, 2],
+          ].every((x) => {
+            const [tokenOwner, balance] = x;
+            return (
+              state.balances[toTestAddr(tokenOwner).toLowerCase()] ===
+              balance?.toString()
+            );
+          });
+          return isTokenOwnerValid && isBalanceValid;
+        },
+        events: undefined,
+        transitions: [
+          {
+            tag: "ZRC6_BatchTransferFromCallback",
+            getParams: () => [],
           },
         ],
       },

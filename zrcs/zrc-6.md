@@ -123,8 +123,9 @@ The main advantages of this standard are:
 | [`AddOperator`](#13-addoperator)                                      |                  |                            |          |       ✓       |           |            |
 | [`RemoveOperator`](#14-removeoperator)                                |                  |                            |          |       ✓       |           |            |
 | [`TransferFrom`](#15-transferfrom)                                    |                  |                            |          |       ✓       |     ✓     |     ✓      |
-| [`SetContractOwnerCandidate`](#16-setcontractownercandidate-optional) |        ✓         |                            |          |               |           |            |
-| [`AcceptContractOwnership`](#17-acceptcontractownership-optional)     |                  |             ✓              |          |               |           |            |
+| [`BatchTransferFrom`](#16-batchtransferfrom-optional)                 |                  |                            |          |       ✓       |     ✓     |     ✓      |
+| [`SetContractOwnerCandidate`](#17-setcontractownercandidate-optional) |        ✓         |                            |          |               |           |            |
+| [`AcceptContractOwnership`](#18-acceptcontractownership-optional)     |                  |             ✓              |          |               |           |            |
 
 ### D. Error Codes
 
@@ -154,25 +155,26 @@ The NFT contract must define the following constants for use as error codes for 
 
 ### E. Transitions
 
-|     | Transition                                                                         | Required |
-| :-: | ---------------------------------------------------------------------------------- | :------: |
-|  1  | [`Pause()`](#1-pause-optional)                                                     |          |
-|  2  | [`Unpause()`](#2-unpause-optional)                                                 |          |
-|  3  | [`SetRoyaltyRecipient(to: ByStr20)`](#3-setroyaltyrecipient-optional)              |          |
-|  4  | [`SetRoyaltyFeeBPS(fee_bps: Uint128)`](#4-setroyaltyfeebps-optional)               |          |
-|  5  | [`SetBaseURI(uri: String)`](#5-setbaseuri-optional)                                |          |
-|  6  | [`Mint(to: ByStr20)`](#6-mint)                                                     |    ✓     |
-|  7  | [`BatchMint(to_list: List ByStr20)`](#7-batchmint-optional)                        |          |
-|  8  | [`Burn(token_id: Uint256)`](#8-burn-optional)                                      |          |
-|  9  | [`AddMinter(to: ByStr20)`](#9-addminter)                                           |    ✓     |
-| 10  | [`RemoveMinter(to: ByStr20)`](#10-removeminter)                                    |    ✓     |
-| 11  | [`AddSpender(to: ByStr20, token_id: Uint256)`](#11-addspender)                     |    ✓     |
-| 12  | [`RemoveSpender(to: ByStr20, token_id: Uint256)`](#12-removespender)               |    ✓     |
-| 13  | [`AddOperator(to: ByStr20)`](#13-addoperator)                                      |    ✓     |
-| 14  | [`RemoveOperator(to: ByStr20)`](#14-removeoperator)                                |    ✓     |
-| 15  | [`TransferFrom(to: ByStr20, token_id: Uint256)`](#15-transferfrom)                 |    ✓     |
-| 16  | [`SetContractOwnerCandidate(to: ByStr20)`](#16-setcontractownercandidate-optional) |          |
-| 17  | [`AcceptContractOwnership()`](#17-acceptcontractownership-optional)                |          |
+|     | Transition                                                                                               | Required |
+| :-: | -------------------------------------------------------------------------------------------------------- | :------: |
+|  1  | [`Pause()`](#1-pause-optional)                                                                           |          |
+|  2  | [`Unpause()`](#2-unpause-optional)                                                                       |          |
+|  3  | [`SetRoyaltyRecipient(to: ByStr20)`](#3-setroyaltyrecipient-optional)                                    |          |
+|  4  | [`SetRoyaltyFeeBPS(fee_bps: Uint128)`](#4-setroyaltyfeebps-optional)                                     |          |
+|  5  | [`SetBaseURI(uri: String)`](#5-setbaseuri-optional)                                                      |          |
+|  6  | [`Mint(to: ByStr20)`](#6-mint)                                                                           |    ✓     |
+|  7  | [`BatchMint(to_list: List ByStr20)`](#7-batchmint-optional)                                              |          |
+|  8  | [`Burn(token_id: Uint256)`](#8-burn-optional)                                                            |          |
+|  9  | [`AddMinter(to: ByStr20)`](#9-addminter)                                                                 |    ✓     |
+| 10  | [`RemoveMinter(to: ByStr20)`](#10-removeminter)                                                          |    ✓     |
+| 11  | [`AddSpender(to: ByStr20, token_id: Uint256)`](#11-addspender)                                           |    ✓     |
+| 12  | [`RemoveSpender(to: ByStr20, token_id: Uint256)`](#12-removespender)                                     |    ✓     |
+| 13  | [`AddOperator(to: ByStr20)`](#13-addoperator)                                                            |    ✓     |
+| 14  | [`RemoveOperator(to: ByStr20)`](#14-removeoperator)                                                      |    ✓     |
+| 15  | [`TransferFrom(to: ByStr20, token_id: Uint256)`](#15-transferfrom)                                       |    ✓     |
+| 15  | [`BatchTransferFrom(to_token_id_pair_list: List (Pair ByStr20 Uint256)`](#16-batchtransferfrom-optional) |          |
+| 16  | [`SetContractOwnerCandidate(to: ByStr20)`](#17-setcontractownercandidate-optional)                       |          |
+| 17  | [`AcceptContractOwnership()`](#18-acceptcontractownership-optional)                                      |          |
 
 #### 1. `Pause` (Optional)
 
@@ -575,7 +577,32 @@ Transfers `token_id` from the token owner to `to`.
 | ------------ | -------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `TransferFrom` | Token has been transferred. | <ul><li>`from` : `ByStr20`<br/>Address of the token owner</li><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
-#### 16. `SetContractOwnerCandidate` (Optional)
+#### 16. `BatchTransferFrom` (Optional)
+
+Transfers multiple `token_id` to multiple `to`.
+
+**Arguments:**
+
+| Name                    | Type                          | Description                                                                                                                                  |
+| ----------------------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `to_token_id_pair_list` | `List (Pair ByStr20 Uint256)` | List of Pair (`to`, `token_id`) <li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li> |
+
+**Requirements:**
+
+- The contract should not be paused. Otherwise, it should throw `PausedError`.
+- `to` should not be the zero address. Otherwise, it should throw `ZeroAddressDestinationError`.
+- `to` should not be `_this_address`. Otherwise, it should throw `ThisAddressDestinationError`.
+- `token_id` should exist. Otherwise, it should throw `TokenNotFoundError`.
+- `_sender` should be a token owner, spender, or operator. Otherwise, it should throw `NotAllowedToTransferError`.
+- `_sender` should not be `to`. Otherwise, it should throw `SelfError`.
+
+**Messages:**
+
+|        | Name                             | Description                         | Callback Parameters |
+| ------ | -------------------------------- | ----------------------------------- | ------------------- |
+| `_tag` | `ZRC6_BatchTransferFromCallback` | Provide the sender with the result. |                     |
+
+#### 17. `SetContractOwnerCandidate` (Optional)
 
 Sets `to` as the contract owner candidate. To reset `contract_owner_candidate`, use `zero_address`. i.e., `0x0000000000000000000000000000000000000000`.
 
@@ -602,7 +629,7 @@ Sets `to` as the contract owner candidate. To reset `contract_owner_candidate`, 
 | ------------ | --------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------ |
 | `_eventname` | `SetContractOwnerCandidate` | The contract owner candidate has been updated. | <ul><li>`to` : `ByStr20`<br/>Address of the contract owner candidate</li></ul> |
 
-#### 17. `AcceptContractOwnership` (Optional)
+#### 18. `AcceptContractOwnership` (Optional)
 
 Sets `contract_owner_candidate` as the contract owner.
 

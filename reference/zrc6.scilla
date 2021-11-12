@@ -789,7 +789,6 @@ transition RemoveOperator(operator: ByStr20)
   send msgs
 end
 
-(* Transfers `token_id` from the token owner to `to`.  *)
 (* @Requirements: *)
 (* - The contract should not be paused. Otherwise, it should throw `PausedError` *)
 (* - `to` should not be the zero address. Otherwise, it should throw `ZeroAddressDestinationError` *)
@@ -797,7 +796,7 @@ end
 (* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
 (* - `_sender` should be a token owner, spender, or operator. Otherwise, it should throw `NotAllowedToTransferError` *)
 (* - `_sender` should not be `to`. Otherwise, it should throw `SelfError` *)
-transition TransferFrom(to: ByStr20, token_id: Uint256)
+procedure TransferToken(to: ByStr20, token_id: Uint256)
   RequireNotPaused;
   RequireValidDestination to;
 
@@ -818,8 +817,19 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
     (* subtract one from previous token owner balance *)
     UpdateBalance sub_operation token_owner;
     (* add one to the new token owner balance *)
-    UpdateBalance add_operation to;
+    UpdateBalance add_operation to
+  end
+end
 
+(* Transfers `token_id` from the token owner to `to`.  *)
+transition TransferFrom(to: ByStr20, token_id: Uint256)
+  opt_token_owner <- token_owners[token_id];
+  match opt_token_owner with
+  | None =>
+    error = TokenNotFoundError;
+    Throw error
+  | Some token_owner =>
+    TransferToken to token_id;
     e = {
       _eventname: "TransferFrom"; 
       from: token_owner;
@@ -846,6 +856,25 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
     msgs = two_msgs msg_to_recipient msg_to_sender;
     send msgs
   end
+end
+
+procedure HandleTransfer (info: Pair ByStr20 Uint256)
+  match info with
+  | Pair to token_id =>
+    TransferToken to token_id
+  end
+end
+
+(* Transfers multiple `token_id` to multiple `to`. *)
+transition BatchTransferFrom(to_token_id_pair_list: List (Pair ByStr20 Uint256))
+  forall to_token_id_pair_list HandleTransfer;
+  msg_to_sender = { 
+    _tag: "ZRC6_BatchTransferFromCallback";
+    _recipient: _sender;
+    _amount: Uint128 0
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
 end
 
 (* Sets `to` as the contract owner candidate. *)

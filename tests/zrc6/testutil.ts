@@ -67,10 +67,6 @@ const transitionParamsGetter =
         type = type.split(" ").shift();
       }
 
-      if (type.includes("(")) {
-        type = type.replace("(", "").replace(")", "");
-      }
-
       return {
         ...cur,
         type,
