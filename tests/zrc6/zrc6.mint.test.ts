@@ -393,7 +393,7 @@ describe("Mint & Burn", () => {
           {
             name: "Burn",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "burn_address"),
+              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "token_owner"),
               toMsgParam("Uint256", 1, "token_id"),
             ],
           },
@@ -402,7 +402,7 @@ describe("Mint & Burn", () => {
           {
             tag: "ZRC6_BurnCallback",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "burn_address"),
+              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "token_owner"),
               toMsgParam("Uint256", 1, "token_id"),
             ],
           },

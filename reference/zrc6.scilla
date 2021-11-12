@@ -555,7 +555,7 @@ transition Burn(token_id: Uint256)
     total_supply := new_supply;
     e = {
       _eventname: "Burn";
-      burn_address: token_owner;
+      token_owner: token_owner;
       token_id: token_id
     };
     event e;
@@ -563,7 +563,7 @@ transition Burn(token_id: Uint256)
       _tag: "ZRC6_BurnCallback";
       _recipient: _sender;
       _amount: Uint128 0;
-      burn_address: token_owner;
+      token_owner: token_owner;
       token_id: token_id
     };
     msgs = one_msg msg_to_sender;

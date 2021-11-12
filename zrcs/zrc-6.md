@@ -364,15 +364,15 @@ Destroys `token_id`.
 
 **Messages:**
 
-|        | Name                | Description                                       | Callback Parameters                                                                                                                 |
-| ------ | ------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_BurnCallback` | Provide the sender the burn address and token ID. | <ul><li>`burn_address` : `ByStr20`<br/>Address of the token owner</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+|        | Name                | Description                                       | Callback Parameters                                                                                                                |
+| ------ | ------------------- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_BurnCallback` | Provide the sender the burn address and token ID. | <ul><li>`token_owner` : `ByStr20`<br/>Address of the token owner</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
 **Events:**
 
-|              | Name   | Description            | Event Parameters                                                                                                                    |
-| ------------ | ------ | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `Burn` | Token has been burned. | <ul><li>`burn_address` : `ByStr20`</br>Address of the token owner</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+|              | Name   | Description            | Event Parameters                                                                                                                   |
+| ------------ | ------ | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `Burn` | Token has been burned. | <ul><li>`token_owner` : `ByStr20`</br>Address of the token owner</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
 #### 9. `AddMinter`
 
