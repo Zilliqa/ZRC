@@ -445,18 +445,7 @@ describe("Mint & Burn", () => {
           return true;
         },
 
-        events: Array.from(
-          { length: INITIAL_TOTAL_SUPPLY },
-          (_, index) => INITIAL_TOTAL_SUPPLY + 1 + index
-        )
-          .map((id) => ({
-            name: "Mint",
-            getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
-              toMsgParam("Uint256", id, "token_id"),
-            ],
-          }))
-          .reverse(),
+        events: undefined,
         transitions: [
           {
             tag: "ZRC6_BatchMintCallback",

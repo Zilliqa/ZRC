@@ -349,14 +349,7 @@ procedure MintToken(to: ByStr20)
   (* add one to the total supply *)
   current_supply <- total_supply;
   new_supply = builtin add current_supply one;
-  total_supply := new_supply;
-  
-  e = {
-    _eventname: "Mint";
-    to: to;
-    token_id: token_id
-  };
-  event e
+  total_supply := new_supply
 end
 
 (* Pauses the contract. Use this when things are going wrong ('circuit breaker'). *)
@@ -495,6 +488,13 @@ end
 transition Mint(to: ByStr20)
   MintToken to;
   token_id <- token_id_count;
+
+  e = {
+    _eventname: "Mint";
+    to: to;
+    token_id: token_id
+  };
+  event e;
   msg_to_recipient = { 
     _tag: "ZRC6_RecipientAcceptMint";
     _recipient: to;
