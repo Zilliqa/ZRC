@@ -76,23 +76,23 @@ The main advantages of this standard are:
 
 ### B. Mutable Fields
 
-| Name                       | Type                             | Description                                                                                                                                                                                                                                                                                                                                                                                                                  | Required |
-| -------------------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------: |
-| `is_paused`                | `Bool`                           | `True` if the contract is paused. Otherwise, `False`. `is_paused` defaults to `False`.                                                                                                                                                                                                                                                                                                                                       |          |
-| `contract_owner`           | `ByStr20`                        | Address of the contract owner. `contract_owner` defaults to `initial_contract_owner`.                                                                                                                                                                                                                                                                                                                                        |    ✓     |
-| `royalty_recipient`        | `ByStr20`                        | Address to send royalties to. `royalty_recipient` defaults to `initial_contract_owner`.                                                                                                                                                                                                                                                                                                                                      |          |
-| `royalty_fee_bps`          | `Uint128`                        | Royalty fee BPS (1/100ths of a percent, e.g. `1000` = 10%). `royalty_fee_bps` ranges from `1` to `10000` and defaults to `1000`. <br/><br/> When calculating the royalty amount, you should only use division to avoid integer overflow. <br/><br/> <b>`royalty amount = sale price ÷ ( 10000 ÷ royalty fee bps )`</b> <br/><br/> e.g. if `royalty_fee_bps` is `1000` (10%) and sale price is `999`, royalty amount is `99`. |          |
-| `base_uri`                 | `String`                         | Token URI is <b>`<base_uri><token_id>`</b>. <br/><br/> e.g. if `base_uri` is `https://creatures-api.zilliqa.com/api/creature/` and `token_id` is `1`, token URI is `https://creatures-api.zilliqa.com/api/creature/1`.<br/><br/> `base_uri` defaults to `initial_base_uri`. This field shouldn't be mutated unless there is a strong reason.                                                                                 |    ✓     |
-| `minters`                  | `Map ByStr20 Bool`               | Set of minters.                                                                                                                                                                                                                                                                                                                                                                                                              |    ✓     |
-| `token_owners`             | `Map Uint256 ByStr20`            | Mapping from token ID to its owner.                                                                                                                                                                                                                                                                                                                                                                                          |    ✓     |
-| `spenders`                 | `Map Uint256 ByStr20`            | Mapping from token ID to a spender.                                                                                                                                                                                                                                                                                                                                                                                          |    ✓     |
-| `operators`                | `Map ByStr20 (Map ByStr20 Bool)` | Mapping from token owner to set of operators.                                                                                                                                                                                                                                                                                                                                                                                |    ✓     |
-| `token_id_count`           | `Uint256`                        | The total number of tokens minted. Defaults to `0`.                                                                                                                                                                                                                                                                                                                                                                          |    ✓     |
-| `balances`                 | `Map ByStr20 Uint256`            | Mapping from token owner to the number of existing tokens.                                                                                                                                                                                                                                                                                                                                                                   |    ✓     |
-| `total_supply`             | `Uint256`                        | The total number of existing tokens. Defaults to `0`.                                                                                                                                                                                                                                                                                                                                                                        |    ✓     |
-| `token_name`               | `String`                         | Token name. Defaults to `name`. This field is for remote state read. This field must not be mutated.                                                                                                                                                                                                                                                                                                                         |    ✓     |
-| `token_symbol`             | `String`                         | Token symbol. Defaults to `symbol`.This field is for remote state read. This field must not be mutated.                                                                                                                                                                                                                                                                                                                      |    ✓     |
-| `contract_owner_candidate` | `ByStr20`                        | Address of the contract owner candidate. Defaults to zero address.                                                                                                                                                                                                                                                                                                                                                           |          |
+| Name                       | Type                             | Description                                                                                                                                                                                                                                                                                                                                                                                                                | Required |
+| -------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------: |
+| `is_paused`                | `Bool`                           | `True` if the contract is paused. Otherwise, `False`. `is_paused` defaults to `False`.                                                                                                                                                                                                                                                                                                                                     |          |
+| `contract_owner`           | `ByStr20`                        | Address of the contract owner. `contract_owner` defaults to `initial_contract_owner`.                                                                                                                                                                                                                                                                                                                                      |    ✓     |
+| `royalty_recipient`        | `ByStr20`                        | Address to send royalties to. `royalty_recipient` defaults to `initial_contract_owner`.                                                                                                                                                                                                                                                                                                                                    |          |
+| `royalty_fee_bps`          | `Uint128`                        | Royalty fee BPS (1/100ths of a percent, e.g. `1000` = 10%). `royalty_fee_bps` ranges from `1` to `10000` and defaults to `1000`. <br/><br/> When calculating the royalty amount, you must only use division to avoid integer overflow. <br/><br/> <b>`royalty amount = sale price ÷ ( 10000 ÷ royalty fee bps )`</b> <br/><br/> e.g. if `royalty_fee_bps` is `1000` (10%) and sale price is `999`, royalty amount is `99`. |          |
+| `base_uri`                 | `String`                         | Token URI is <b>`<base_uri><token_id>`</b>. <br/><br/> e.g. if `base_uri` is `https://creatures-api.zilliqa.com/api/creature/` and `token_id` is `1`, token URI is `https://creatures-api.zilliqa.com/api/creature/1`.<br/><br/> `base_uri` defaults to `initial_base_uri`. This field must not be mutated unless there is a strong reason.                                                                                |    ✓     |
+| `minters`                  | `Map ByStr20 Bool`               | Set of minters.                                                                                                                                                                                                                                                                                                                                                                                                            |    ✓     |
+| `token_owners`             | `Map Uint256 ByStr20`            | Mapping from token ID to its owner.                                                                                                                                                                                                                                                                                                                                                                                        |    ✓     |
+| `spenders`                 | `Map Uint256 ByStr20`            | Mapping from token ID to a spender.                                                                                                                                                                                                                                                                                                                                                                                        |    ✓     |
+| `operators`                | `Map ByStr20 (Map ByStr20 Bool)` | Mapping from token owner to set of operators.                                                                                                                                                                                                                                                                                                                                                                              |    ✓     |
+| `token_id_count`           | `Uint256`                        | The total number of tokens minted. Defaults to `0`.                                                                                                                                                                                                                                                                                                                                                                        |    ✓     |
+| `balances`                 | `Map ByStr20 Uint256`            | Mapping from token owner to the number of existing tokens.                                                                                                                                                                                                                                                                                                                                                                 |    ✓     |
+| `total_supply`             | `Uint256`                        | The total number of existing tokens. Defaults to `0`.                                                                                                                                                                                                                                                                                                                                                                      |    ✓     |
+| `token_name`               | `String`                         | Token name. Defaults to `name`. This field is for remote state read. This field must not be mutated.                                                                                                                                                                                                                                                                                                                       |    ✓     |
+| `token_symbol`             | `String`                         | Token symbol. Defaults to `symbol`.This field is for remote state read. This field must not be mutated.                                                                                                                                                                                                                                                                                                                    |    ✓     |
+| `contract_owner_candidate` | `ByStr20`                        | Address of the contract owner candidate. Defaults to zero address.                                                                                                                                                                                                                                                                                                                                                         |          |
 
 ### C. Roles
 
@@ -182,8 +182,8 @@ Pauses the contract. Use this only if things are going wrong ('circuit breaker')
 
 **Requirements:**
 
-- The contract should not be paused. Otherwise, it should throw `PausedError`.
-- `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError`.
+- The contract must not be paused. Otherwise, it must throw `PausedError`.
+- `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError`.
 
 **Messages:**
 
@@ -203,8 +203,8 @@ Unpauses the contract.
 
 **Requirements:**
 
-- The contract should be paused. Otherwise, it should throw `NotPausedError`.
-- `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError`.
+- The contract must be paused. Otherwise, it must throw `NotPausedError`.
+- `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError`.
 
 **Messages:**
 
@@ -230,9 +230,9 @@ Sets `to` as the royalty recipient.
 
 **Requirements:**
 
-- `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError`.
-- `to` should not be the zero address. Otherwise, it should throw `ZeroAddressDestinationError`.
-- `to` should not be `_this_address`. Otherwise, it should throw `ThisAddressDestinationError`.
+- `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError`.
+- `to` must not be the zero address. Otherwise, it must throw `ZeroAddressDestinationError`.
+- `to` must not be `_this_address`. Otherwise, it must throw `ThisAddressDestinationError`.
 
 **Messages:**
 
@@ -258,8 +258,8 @@ Sets `fee_bps` as royalty fee bps.
 
 **Requirements:**
 
-- `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError`.
-- `fee_bps` should be in the range of 1 and 1000. Otherwise, it should throw `InvalidFeeBPSError`.
+- `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError`.
+- `fee_bps` must be in the range of 1 and 1000. Otherwise, it must throw `InvalidFeeBPSError`.
 
 **Messages:**
 
@@ -285,7 +285,7 @@ Sets `uri` as the base URI. Use this only if there is a strong reason to change 
 
 **Requirements:**
 
-- `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError`.
+- `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError`.
 
 **Messages:**
 
@@ -311,8 +311,8 @@ Mints a token and transfers it to `to`.
 
 **Requirements:**
 
-- The contract should not be paused. Otherwise, it should throw `PausedError`.
-- `_sender` should be a minter. Otherwise, it should throw `NotMinterError`.
+- The contract must not be paused. Otherwise, it must throw `PausedError`.
+- `_sender` must be a minter. Otherwise, it must throw `NotMinterError`.
 
 **Messages:**
 
@@ -339,8 +339,8 @@ Mints tokens and transfers them to `to_list`.
 
 **Requirements:**
 
-- The contract should not be paused. Otherwise, it should throw `PausedError`.
-- `_sender` should be a minter. Otherwise, it should throw `NotMinterError`.
+- The contract must not be paused. Otherwise, it must throw `PausedError`.
+- `_sender` must be a minter. Otherwise, it must throw `NotMinterError`.
 
 **Messages:**
 
@@ -360,9 +360,9 @@ Destroys `token_id`.
 
 **Requirements:**
 
-- The contract should not be paused. Otherwise, it should throw `PausedError`.
-- `token_id` should exist. Otherwise, it should throw `TokenNotFoundError`.
-- `_sender` should be a token owner or an operator. Otherwise, it should throw `NotOwnerOrOperatorError`.
+- The contract must not be paused. Otherwise, it must throw `PausedError`.
+- `token_id` must exist. Otherwise, it must throw `TokenNotFoundError`.
+- `_sender` must be a token owner or an operator. Otherwise, it must throw `NotOwnerOrOperatorError`.
 
 **Messages:**
 
@@ -388,8 +388,8 @@ Adds `minter`.
 
 **Requirements:**
 
-- `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError`.
-- `minter` should not be already a minter. Otherwise, it should throw `MinterFoundError`.
+- `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError`.
+- `minter` must not be already a minter. Otherwise, it must throw `MinterFoundError`.
 
 **Messages:**
 
@@ -415,8 +415,8 @@ Removes `minter`.
 
 **Requirements:**
 
-- `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError`.
-- `minter` should be already a minter. Otherwise, it should throw `MinterNotFoundError`.
+- `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError`.
+- `minter` must be already a minter. Otherwise, it must throw `MinterNotFoundError`.
 
 **Messages:**
 
@@ -443,9 +443,9 @@ Adds `spender` for `token_id`.
 
 **Requirements:**
 
-- `token_id` should exist. Otherwise, it should throw `TokenNotFoundError`.
-- `_sender` should be a token owner or an operator. Otherwise, it should throw `NotOwnerOrOperatorError`.
-- `spender` should not be already a spender. Otherwise, it should throw `SpenderFoundError`.
+- `token_id` must exist. Otherwise, it must throw `TokenNotFoundError`.
+- `_sender` must be a token owner or an operator. Otherwise, it must throw `NotOwnerOrOperatorError`.
+- `spender` must not be already a spender. Otherwise, it must throw `SpenderFoundError`.
 
 **Messages:**
 
@@ -472,9 +472,9 @@ Removes `spender` for `token_id`.
 
 **Requirements:**
 
-- `token_id` should exist. Otherwise, it should throw `TokenNotFoundError`.
-- `_sender` should be a token owner or an operator. Otherwise, it should throw `NotOwnerOrOperatorError`.
-- `spender` should be already a spender. Otherwise, it should throw `SpenderNotFoundError`.
+- `token_id` must exist. Otherwise, it must throw `TokenNotFoundError`.
+- `_sender` must be a token owner or an operator. Otherwise, it must throw `NotOwnerOrOperatorError`.
+- `spender` must be already a spender. Otherwise, it must throw `SpenderNotFoundError`.
 
 **Messages:**
 
@@ -500,9 +500,9 @@ Adds `operator` for `_sender`.
 
 **Requirements:**
 
-- `_sender` should be the token owner. Otherwise, it should throw `NotTokenOwnerError`.
-- `_sender` should not be `operator`. Otherwise, it should throw `SelfError`.
-- `operator` should not be already an operator. Otherwise, it should throw `OperatorFoundError`.
+- `_sender` must be the token owner. Otherwise, it must throw `NotTokenOwnerError`.
+- `_sender` must not be `operator`. Otherwise, it must throw `SelfError`.
+- `operator` must not be already an operator. Otherwise, it must throw `OperatorFoundError`.
 
 **Messages:**
 
@@ -528,9 +528,9 @@ Removes `operator` for `_sender`.
 
 **Requirements:**
 
-- `_sender` should be the token owner. Otherwise, it should throw `NotTokenOwnerError`.
-- `_sender` should not be `operator`. Otherwise, it should throw `SelfError`.
-- `operator` should be already an operator. Otherwise, it should throw `OperatorNotFoundError`.
+- `_sender` must be the token owner. Otherwise, it must throw `NotTokenOwnerError`.
+- `_sender` must not be `operator`. Otherwise, it must throw `SelfError`.
+- `operator` must be already an operator. Otherwise, it must throw `OperatorNotFoundError`.
 
 **Messages:**
 
@@ -557,12 +557,12 @@ Transfers `token_id` from the token owner to `to`.
 
 **Requirements:**
 
-- The contract should not be paused. Otherwise, it should throw `PausedError`.
-- `to` should not be the zero address. Otherwise, it should throw `ZeroAddressDestinationError`.
-- `to` should not be `_this_address`. Otherwise, it should throw `ThisAddressDestinationError`.
-- `token_id` should exist. Otherwise, it should throw `TokenNotFoundError`.
-- `_sender` should be a token owner, spender, or operator. Otherwise, it should throw `NotAllowedToTransferError`.
-- `_sender` should not be `to`. Otherwise, it should throw `SelfError`.
+- The contract must not be paused. Otherwise, it must throw `PausedError`.
+- `to` must not be the zero address. Otherwise, it must throw `ZeroAddressDestinationError`.
+- `to` must not be `_this_address`. Otherwise, it must throw `ThisAddressDestinationError`.
+- `token_id` must exist. Otherwise, it must throw `TokenNotFoundError`.
+- `_sender` must be a token owner, spender, or operator. Otherwise, it must throw `NotAllowedToTransferError`.
+- `_sender` must not be `to`. Otherwise, it must throw `SelfError`.
 
 **Messages:**
 
@@ -589,12 +589,12 @@ Transfers multiple `token_id` to multiple `to`.
 
 **Requirements:**
 
-- The contract should not be paused. Otherwise, it should throw `PausedError`.
-- `to` should not be the zero address. Otherwise, it should throw `ZeroAddressDestinationError`.
-- `to` should not be `_this_address`. Otherwise, it should throw `ThisAddressDestinationError`.
-- `token_id` should exist. Otherwise, it should throw `TokenNotFoundError`.
-- `_sender` should be a token owner, spender, or operator. Otherwise, it should throw `NotAllowedToTransferError`.
-- `_sender` should not be `to`. Otherwise, it should throw `SelfError`.
+- The contract must not be paused. Otherwise, it must throw `PausedError`.
+- `to` must not be the zero address. Otherwise, it must throw `ZeroAddressDestinationError`.
+- `to` must not be `_this_address`. Otherwise, it must throw `ThisAddressDestinationError`.
+- `token_id` must exist. Otherwise, it must throw `TokenNotFoundError`.
+- `_sender` must be a token owner, spender, or operator. Otherwise, it must throw `NotAllowedToTransferError`.
+- `_sender` must not be `to`. Otherwise, it must throw `SelfError`.
 
 **Messages:**
 
@@ -614,8 +614,8 @@ Sets `to` as the contract owner candidate. To reset `contract_owner_candidate`, 
 
 **Requirements:**
 
-- `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError`.
-- `_sender` should not be `to`. Otherwise, it should throw `SelfError`.
+- `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError`.
+- `_sender` must not be `to`. Otherwise, it must throw `SelfError`.
 
 **Messages:**
 
@@ -635,7 +635,7 @@ Sets `contract_owner_candidate` as the contract owner.
 
 **Requirements:**
 
-- `_sender` should be the contract owner candidate. Otherwise, it should throw `NotContractOwnerCandidateError`.
+- `_sender` must be the contract owner candidate. Otherwise, it must throw `NotContractOwnerCandidateError`.
 
 **Messages:**
 
