@@ -29,9 +29,9 @@ ZRC-6 defines a new minimum interface of an NFT smart contract while improving u
 
 The main advantages of this standard are:
 
-1. ZRC-6 implements standardized unit-less royalty payments to a single address with a percentage-based royalty fee model. Funds will be paid for secondary sales only if a marketplace chooses to implement it.
+1. ZRC-6 implements standardized unit-less royalty payments to a single address with a percentage-based royalty fee model. Funds will be paid for secondary sales only if a marketplace chooses to implement royalty payments. Marketplaces should transfer the actual funds.
 
-2. ZRC-6 implements standardized token URI with the concatenation of base token URI and token ID. A token URI is an HTTP or IPFS URL. This URL should return a JSON blob of data with the metadata for the NFT when queried.
+2. ZRC-6 implements standardized token URI with the concatenation of base token URI and token ID. A token URI is an HTTP or IPFS URL. This URL must return a JSON blob of data with the metadata for the NFT when queried.
 
 3. ZRC-6 implements standardized token transfer with a single transition which can be called by a token owner, a spender, or an operator.
 
@@ -43,25 +43,25 @@ The main advantages of this standard are:
 
 7. ZRC-6 features contract ownership transfer by making the contract owner mutable.
 
-8. ZRC-6 only includes read-only transitions that contain important logic. This standard encourages developers to use the remote fetch instead of using callbacks to retrieve simple data.
+8. ZRC-6 provides mutable fields for remote state read and only includes transitions that mutate states. To retrieve data, developers should use remote state read instead of transition callback.
 
 ## III. Motivation
 
-1. Many of the largest NFT marketplaces have implemented incompatible royalty payment solutions. ZRC-6 provides a standardized way to retrieve royalty information for NFTs. The marketplace should transfer the actual funds.
+1. Many of the largest NFT marketplaces have implemented incompatible royalty payment solutions.
 
 2. The marketplace builders had to customize to each NFT contract since there was no standard for token URI.
 
 3. ZRC-1 includes `Transfer` and `TransferFrom` for the token transfer. The two transitions have the same type signature and the only difference is the access control. This has added unnecessary complexity.
 
-4. The ZRC-1 and ZRC-2 contracts can share the same callback names. It can cause the composed contracts to throw a compiler error.
+4. The ZRC-1 and ZRC-2 contracts can share the same callback names. Contracts must have unique names for callback transitions.
 
-5. In ZRC-1 it's hard to respond to bugs and vulnerabilities gracefully since lacks emergency stop mechanism.
+5. In ZRC-1 it's hard to respond to bugs and vulnerabilities gracefully since it lacks an emergency stop mechanism.
 
 6. Without batch operations, multiple transactions are required and this can be very inefficient.
 
 7. In ZRC-1 contract owner is immutable. As some contract owners want to transfer their contract ownership, developers had to implement the feature for ZRC-1.
 
-8. It can overcomplicate the logic to use callbacks to retrieve simple data.
+8. It can complicate the logic easily to use callbacks to retrieve data.
 
 ## IV. Specification
 
@@ -82,7 +82,7 @@ The main advantages of this standard are:
 | `contract_owner`           | `ByStr20`                        | Address of the contract owner. `contract_owner` defaults to `initial_contract_owner`.                                                                                                                                                                                                                                                                                                                                        |    ✓     |
 | `royalty_recipient`        | `ByStr20`                        | Address to send royalties to. `royalty_recipient` defaults to `initial_contract_owner`.                                                                                                                                                                                                                                                                                                                                      |          |
 | `royalty_fee_bps`          | `Uint128`                        | Royalty fee BPS (1/100ths of a percent, e.g. `1000` = 10%). `royalty_fee_bps` ranges from `1` to `10000` and defaults to `1000`. <br/><br/> When calculating the royalty amount, you should only use division to avoid integer overflow. <br/><br/> <b>`royalty amount = sale price ÷ ( 10000 ÷ royalty fee bps )`</b> <br/><br/> e.g. if `royalty_fee_bps` is `1000` (10%) and sale price is `999`, royalty amount is `99`. |          |
-| `base_uri`                 | `String`                         | Token URI is <b>`<base_uri><token_id>`</b>. <br/><br/> e.g. if `base_uri` is `https://creatures-api.zilliqa.com/api/creature/` and `token_id` is `1`, token URI should be `https://creatures-api.zilliqa.com/api/creature/1`.<br/><br/> `base_uri` defaults to `initial_base_uri`. This field shouldn't be mutated unless there is a strong reason.                                                                          |    ✓     |
+| `base_uri`                 | `String`                         | Token URI is <b>`<base_uri><token_id>`</b>. <br/><br/> e.g. if `base_uri` is `https://creatures-api.zilliqa.com/api/creature/` and `token_id` is `1`, token URI is `https://creatures-api.zilliqa.com/api/creature/1`.<br/><br/> `base_uri` defaults to `initial_base_uri`. This field shouldn't be mutated unless there is a strong reason.                                                                                 |    ✓     |
 | `minters`                  | `Map ByStr20 Bool`               | Set of minters.                                                                                                                                                                                                                                                                                                                                                                                                              |    ✓     |
 | `token_owners`             | `Map Uint256 ByStr20`            | Mapping from token ID to its owner.                                                                                                                                                                                                                                                                                                                                                                                          |    ✓     |
 | `spenders`                 | `Map Uint256 ByStr20`            | Mapping from token ID to a spender.                                                                                                                                                                                                                                                                                                                                                                                          |    ✓     |
@@ -90,8 +90,8 @@ The main advantages of this standard are:
 | `token_id_count`           | `Uint256`                        | The total number of tokens minted. Defaults to `0`.                                                                                                                                                                                                                                                                                                                                                                          |    ✓     |
 | `balances`                 | `Map ByStr20 Uint256`            | Mapping from token owner to the number of existing tokens.                                                                                                                                                                                                                                                                                                                                                                   |    ✓     |
 | `total_supply`             | `Uint256`                        | The total number of existing tokens. Defaults to `0`.                                                                                                                                                                                                                                                                                                                                                                        |    ✓     |
-| `token_name`               | `String`                         | Token name. Defaults to `name`. No need to mutate this field since this is for remote fetch to retrieve the immutable parameter.                                                                                                                                                                                                                                                                                             |    ✓     |
-| `token_symbol`             | `String`                         | Token symbol. Defaults to `symbol`. No need to mutate this field since this is for remote fetch to retrieve the immutable parameter.                                                                                                                                                                                                                                                                                         |    ✓     |
+| `token_name`               | `String`                         | Token name. Defaults to `name`. This field is for remote state read. This field must not be mutated.                                                                                                                                                                                                                                                                                                                         |    ✓     |
+| `token_symbol`             | `String`                         | Token symbol. Defaults to `symbol`.This field is for remote state read. This field must not be mutated.                                                                                                                                                                                                                                                                                                                      |    ✓     |
 | `contract_owner_candidate` | `ByStr20`                        | Address of the contract owner candidate. Defaults to zero address.                                                                                                                                                                                                                                                                                                                                                           |          |
 
 ### C. Roles
