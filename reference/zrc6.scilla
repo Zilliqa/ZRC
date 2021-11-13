@@ -862,7 +862,7 @@ procedure HandleTransfer (info: Pair ByStr20 Uint256)
   end
 end
 
-(* Transfers multiple `token_id` to multiple `to`. *)
+(* Transfers multiple `token_id` to multiple `to`. It takes List of Pair (to, token_id). *)
 transition BatchTransferFrom(to_token_id_pair_list: List (Pair ByStr20 Uint256))
   forall to_token_id_pair_list HandleTransfer;
   msg_to_sender = { 
