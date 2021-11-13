@@ -332,8 +332,8 @@ end
 
 (* Pauses the contract. Use this when things are going wrong ('circuit breaker'). *)
 (* @Requirements: *)
-(* - The contract should not be paused. Otherwise, it should throw `PausedError` *)
-(* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
+(* - The contract must not be paused. Otherwise, it must throw `PausedError` *)
+(* - `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError` *)
 transition Pause()
   RequireNotPaused;
   RequireContractOwner;
@@ -356,8 +356,8 @@ end
 
 (* Unpauses the contract. *)
 (* @Requirements: *)
-(* - The contract should be paused. Otherwise, it should throw `NotPausedError` *)
-(* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
+(* - The contract must be paused. Otherwise, it must throw `NotPausedError` *)
+(* - `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError` *)
 transition Unpause()
   paused <- is_paused;
   match paused with
@@ -387,9 +387,9 @@ end
 (* Sets `to` as the royalty recipient. *)
 (* @param: to - Royalty recipient address  *)
 (* @Requirements: *)
-(* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
-(* - `to` should not be the zero address. Otherwise, it should throw `ZeroAddressDestinationError` *)
-(* - `to` should not be `_this_address`. Otherwise, it should throw `ThisAddressDestinationError` *)
+(* - `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError` *)
+(* - `to` must not be the zero address. Otherwise, it must throw `ZeroAddressDestinationError` *)
+(* - `to` must not be `_this_address`. Otherwise, it must throw `ThisAddressDestinationError` *)
 transition SetRoyaltyRecipient(to: ByStr20)
   RequireContractOwner;
   RequireValidDestination to;
@@ -414,8 +414,8 @@ end
 (* Sets `fee_bps` as royalty fee bps. *)
 (* @param: fee_bps - Royalty fee BPS *)
 (* @Requirements: *)
-(* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
-(* - `fee_bps` should be in the range of 1 and 1000. Otherwise, it should throw `InvalidFeeBPSError` *)
+(* - `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError` *)
+(* - `fee_bps` must be in the range of 1 and 1000. Otherwise, it must throw `InvalidFeeBPSError` *)
 transition SetRoyaltyFeeBPS(fee_bps: Uint128)
   RequireContractOwner;
   RequireValidRoyaltyFee fee_bps;
@@ -438,7 +438,7 @@ end
 
 (* Sets `uri` as the base URI. *)
 (* @Requirements: *)
-(* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
+(* - `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError` *)
 transition SetBaseURI(uri: String)
   RequireContractOwner;
   base_uri := uri;
@@ -459,8 +459,8 @@ transition SetBaseURI(uri: String)
 end
 
 (* @Requirements: *)
-(* - The contract should not be paused. Otherwise, it should throw `PausedError` *)
-(* - `_sender` should be a minter. Otherwise, it should throw `NotMinterError` *)
+(* - The contract must not be paused. Otherwise, it must throw `PausedError` *)
+(* - `_sender` must be a minter. Otherwise, it must throw `NotMinterError` *)
 procedure MintToken(to: ByStr20)
   RequireNotPaused;
   IsMinter _sender;
@@ -527,9 +527,9 @@ end
 (* Destroys `token_id`. *)
 (* @param: token_id - Unique ID of the NFT to be destroyed *)
 (* @Requirements: *)
-(* - The contract should not be paused. Otherwise, it should throw `PausedError` *)
-(* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
-(* - `_sender` should be a token owner or an operator. Otherwise, it should throw `NotOwnerOrOperatorError` *)
+(* - The contract must not be paused. Otherwise, it must throw `PausedError` *)
+(* - `token_id` must exist. Otherwise, it must throw `TokenNotFoundError` *)
+(* - `_sender` must be a token owner or an operator. Otherwise, it must throw `NotOwnerOrOperatorError` *)
 transition Burn(token_id: Uint256)
   RequireNotPaused;
   (* Check if token exists *)
@@ -570,8 +570,8 @@ end
 
 (* Adds `minter`. *)
 (* @Requirements: *)
-(* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
-(* - `minter` should not be already a minter. Otherwise, it should throw `MinterFoundError` *)
+(* - `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError` *)
+(* - `minter` must not be already a minter. Otherwise, it must throw `MinterFoundError` *)
 transition AddMinter(minter: ByStr20)
   RequireContractOwner;
   has_minter <- exists minters[minter];
@@ -600,8 +600,8 @@ end
 
 (* Removes `minter`. *)
 (* @Requirements: *)
-(* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
-(* - `minter` should be already a minter. Otherwise, it should throw `MinterNotFoundError` *)
+(* - `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError` *)
+(* - `minter` must be already a minter. Otherwise, it must throw `MinterNotFoundError` *)
 transition RemoveMinter(minter: ByStr20)
   RequireContractOwner;
   has_minter <- exists minters[minter];
@@ -630,9 +630,9 @@ end
 (* Adds `spender` for `token_id`. *)
 (* There can only be one spender per token at any given time. *)
 (* @Requirements: *)
-(* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
-(* - `_sender` should be a token owner or an operator. Otherwise, it should throw `NotOwnerOrOperatorError` *)
-(* - `spender` should not be already a spender. Otherwise, it should throw `SpenderFoundError` *)
+(* - `token_id` must exist. Otherwise, it must throw `TokenNotFoundError` *)
+(* - `_sender` must be a token owner or an operator. Otherwise, it must throw `NotOwnerOrOperatorError` *)
+(* - `spender` must not be already a spender. Otherwise, it must throw `SpenderFoundError` *)
 transition AddSpender(spender: ByStr20, token_id: Uint256)
   opt_token_owner <- token_owners[token_id];
   match opt_token_owner with
@@ -672,9 +672,9 @@ end
 
 (* Removes `spender` for `token_id`. *)
 (* @Requirements: *)
-(* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
-(* - `_sender` should be a token owner or an operator. Otherwise, it should throw `NotOwnerOrOperatorError` *)
-(* - `spender` should be already a spender. Otherwise, it should throw `SpenderNotFoundError` *)
+(* - `token_id` must exist. Otherwise, it must throw `TokenNotFoundError` *)
+(* - `_sender` must be a token owner or an operator. Otherwise, it must throw `NotOwnerOrOperatorError` *)
+(* - `spender` must be already a spender. Otherwise, it must throw `SpenderNotFoundError` *)
 transition RemoveSpender(spender: ByStr20, token_id: Uint256)
   opt_token_owner <- token_owners[token_id];
   match opt_token_owner with
@@ -714,9 +714,9 @@ end
 
 (* Adds `operator` for `_sender`. *)
 (* @Requirements: *)
-(* - `_sender` should be the token owner. Otherwise, it should throw `NotTokenOwnerError` *)
-(* - `_sender` should not be `operator`. Otherwise, it should throw `SelfError` *)
-(* - `operator` should not be already an operator. Otherwise, it should throw `OperatorFoundError` *)
+(* - `_sender` must be the token owner. Otherwise, it must throw `NotTokenOwnerError` *)
+(* - `_sender` must not be `operator`. Otherwise, it must throw `SelfError` *)
+(* - `operator` must not be already an operator. Otherwise, it must throw `OperatorFoundError` *)
 transition AddOperator(operator: ByStr20)
   RequireNotSelf operator _sender;
   
@@ -724,7 +724,7 @@ transition AddOperator(operator: ByStr20)
   balance = get_bal opt_bal;
   
   is_balance_zero = builtin eq zero balance;
-  (* _sender should have at least 1 token *)
+  (* _sender must have at least 1 token *)
   match is_balance_zero with 
   | True =>    
     error = NotTokenOwnerError;
@@ -757,9 +757,9 @@ end
 
 (* Removes `operator` for `_sender`. *)
 (* @Requirements:  *)
-(* - `_sender` should be the token owner. Otherwise, it should throw `NotTokenOwnerError` *)
-(* - `_sender` should not be `operator`. Otherwise, it should throw `SelfError` *)
-(* - `operator` should be already an operator. Otherwise, it should throw `OperatorNotFoundError` *)
+(* - `_sender` must be the token owner. Otherwise, it must throw `NotTokenOwnerError` *)
+(* - `_sender` must not be `operator`. Otherwise, it must throw `SelfError` *)
+(* - `operator` must be already an operator. Otherwise, it must throw `OperatorNotFoundError` *)
 transition RemoveOperator(operator: ByStr20)
   RequireNotSelf operator _sender;
   has_operator <- exists operators[_sender][operator];
@@ -787,12 +787,12 @@ transition RemoveOperator(operator: ByStr20)
 end
 
 (* @Requirements: *)
-(* - The contract should not be paused. Otherwise, it should throw `PausedError` *)
-(* - `to` should not be the zero address. Otherwise, it should throw `ZeroAddressDestinationError` *)
-(* - `to` should not be `_this_address`. Otherwise, it should throw `ThisAddressDestinationError` *)
-(* - `token_id` should exist. Otherwise, it should throw `TokenNotFoundError` *)
-(* - `_sender` should be a token owner, spender, or operator. Otherwise, it should throw `NotAllowedToTransferError` *)
-(* - `_sender` should not be `to`. Otherwise, it should throw `SelfError` *)
+(* - The contract must not be paused. Otherwise, it must throw `PausedError` *)
+(* - `to` must not be the zero address. Otherwise, it must throw `ZeroAddressDestinationError` *)
+(* - `to` must not be `_this_address`. Otherwise, it must throw `ThisAddressDestinationError` *)
+(* - `token_id` must exist. Otherwise, it must throw `TokenNotFoundError` *)
+(* - `_sender` must be a token owner, spender, or operator. Otherwise, it must throw `NotAllowedToTransferError` *)
+(* - `_sender` must not be `to`. Otherwise, it must throw `SelfError` *)
 procedure TransferToken(to: ByStr20, token_id: Uint256)
   RequireNotPaused;
   RequireValidDestination to;
@@ -879,8 +879,8 @@ end
 (* i.e., `0x0000000000000000000000000000000000000000` *)
 (* @param: to - contract owner candidate address  *)
 (* @Requirements: *)
-(* - `_sender` should be the contract owner. Otherwise, it should throw `NotContractOwnerError` *)
-(* - `_sender` should not be `to`. Otherwise, it should throw `SelfError` *)
+(* - `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError` *)
+(* - `_sender` must not be `to`. Otherwise, it must throw `SelfError` *)
 transition SetContractOwnerCandidate(to: ByStr20)
   RequireContractOwner;
   RequireNotSelf to _sender;
@@ -904,7 +904,7 @@ end
 
 (* Sets `contract_owner_candidate` as the contract owner. *)
 (* @Requirements: *)
-(* - `_sender` should be the contract owner candidate. Otherwise, it should throw `NotContractOwnerCandidateError` *)
+(* - `_sender` must be the contract owner candidate. Otherwise, it must throw `NotContractOwnerCandidateError` *)
 transition AcceptContractOwnership()
   candidate <- contract_owner_candidate;
 
