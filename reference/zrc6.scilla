@@ -131,7 +131,8 @@ field contract_owner_candidate: ByStr20 = zero_address
 (* Defaults to `initial_contract_owner` *)
 field royalty_recipient: ByStr20 = initial_contract_owner
 
-(* Royalty fee BPS (1/100ths of a percent, e.g. 1000 = 10%) *)
+(* Royalty fee BPS *)
+(* e.g. 1 = 0.01%, 10000 = 100% *)
 (* Defaults to 1000 *)
 field royalty_fee_bps: Uint128 = Uint128 1000
 
@@ -415,7 +416,7 @@ end
 (* @param: fee_bps - Royalty fee BPS *)
 (* @Requirements: *)
 (* - `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError` *)
-(* - `fee_bps` must be in the range of 1 and 1000. Otherwise, it must throw `InvalidFeeBPSError` *)
+(* - `fee_bps` must be in the range of 1 and 10000. Otherwise, it must throw `InvalidFeeBPSError` *)
 transition SetRoyaltyFeeBPS(fee_bps: Uint128)
   RequireContractOwner;
   RequireValidRoyaltyFee fee_bps;
