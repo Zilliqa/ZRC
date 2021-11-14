@@ -35,11 +35,11 @@ The main advantages of this standard are:
 
 3. ZRC-6 implements standardized token transfer with a single transition which can be called by a token owner, a spender, or an operator.
 
-4. ZRC-6 includes mutable fields for remote state read (`x <- & c.f`) and transitions that mutate the state of the contract. For simplicity, it is designed to use remote state read instead of transition callback to get data.
+4. ZRC-6 includes mutable fields for remote state read ([`x <- & c.f`](https://scilla.readthedocs.io/en/latest/scilla-in-depth.html?#remote-fetches)) and transitions that mutate the state of the contract. For simplicity, it is designed to use remote state read instead of a callback to get data.
 
 5. ZRC-6 features pausable token transfers, minting, and burning because it is designed for failure.
 
-6. ZRC-6 features batch operations for minting and transfer such that only a single transaction is required.
+6. ZRC-6 features batch operations for minting and token transfers such that only a single transaction is required.
 
 7. ZRC-6 is compatible with ZRC-X since every callback name is prefixed with `ZRC6_`.
 
@@ -53,15 +53,15 @@ The main advantages of this standard are:
 
 3. ZRC-1 includes `Transfer` and `TransferFrom` for the token transfer. The two transitions have the same type signature and the only difference is the access control. This has added unnecessary complexity.
 
-4. Using callbacks to get data can complicate the logic easily.
+4. Unlike immutable parameters, mutable fields are available for remote state read. Using callbacks to get data can complicate the logic easily.
 
-5. It's hard to respond to bugs and vulnerabilities gracefully without an emergency stop mechanism.
+5. Without an emergency stop mechanism, it's hard to respond to bugs and vulnerabilities gracefully.
 
-6. Without batch operations, multiple transactions are required and this can be very inefficient.
+6. Without batch operations, it can be very inefficient to transfer or mint multiple tokens with multiple transactions.
 
 7. The ZRC-1 and ZRC-2 contracts can share the same callback names. Contracts must have unique names for callback transitions.
 
-8. In ZRC-1 contract owner is immutable. As some contract owners want to transfer their contract ownership, developers had to implement the feature for ZRC-1.
+8. In ZRC-1 contract owner is immutable. But some contract owners want to transfer their contract ownership.
 
 ## IV. Specification
 
@@ -93,8 +93,6 @@ The main advantages of this standard are:
 | `token_name`               | `String`                         | Token name. Defaults to `name`. This field is for remote state read. This field must not be mutated.                                                                                                                                                                                                                                                                                                                       |    ✓     |
 | `token_symbol`             | `String`                         | Token symbol. Defaults to `symbol`.This field is for remote state read. This field must not be mutated.                                                                                                                                                                                                                                                                                                                    |    ✓     |
 | `contract_owner_candidate` | `ByStr20`                        | Address of the contract owner candidate. Defaults to zero address.                                                                                                                                                                                                                                                                                                                                                         |          |
-
-Unlike immutable parameters, mutable fields are available for remote state read (`x <- & c.f`).
 
 ### C. Roles
 
