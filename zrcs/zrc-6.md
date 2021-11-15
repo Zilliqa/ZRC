@@ -35,7 +35,7 @@ The main advantages of this standard are:
 
 3. ZRC-6 implements standardized token transfer with a single transition which can be called by a token owner, a spender, or an operator.
 
-4. ZRC-6 includes mutable fields for remote state read ([`x <- & c.f`](https://scilla.readthedocs.io/en/latest/scilla-in-depth.html?#remote-fetches)) and transitions that mutate the state of the contract. For simplicity, it is designed to use remote state read instead of a callback to get data.
+4. ZRC-6 is designed for remote state read ([`x <- & c.f`](https://scilla.readthedocs.io/en/latest/scilla-in-depth.html?#remote-fetches)) such that logic to get data from a ZRC-6 contract is straightforward. ZRC-6 exposes immutable parameters via mutable fields and includes only transitions that mutate the state of the contract.
 
 5. ZRC-6 features pausable token transfers, minting, and burning because it is designed for failure.
 
@@ -53,7 +53,7 @@ The main advantages of this standard are:
 
 3. ZRC-1 includes `Transfer` and `TransferFrom` for the token transfer. The two transitions have the same type signature and the only difference is the access control. This has added unnecessary complexity.
 
-4. Unlike immutable parameters, mutable fields are available for remote state read. Using callbacks to get data can complicate the logic easily.
+4. Using callbacks to get data can complicate the logic easily. Unlike immutable parameters, mutable fields are available for remote state read.
 
 5. Without an emergency stop mechanism, it's hard to respond to bugs and vulnerabilities gracefully.
 
