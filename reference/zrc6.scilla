@@ -332,6 +332,70 @@ procedure UpdateBalance(operation: Operation, address: ByStr20)
   end
 end
 
+(* @Requirements: *)
+(* - The contract must not be paused. Otherwise, it must throw `PausedError` *)
+(* - `_sender` must be a minter. Otherwise, it must throw `NotMinterError` *)
+procedure MintToken(to: ByStr20)
+  RequireNotPaused;
+  IsMinter _sender;
+
+  (* generate ID *)
+  current_token_id_count <- token_id_count;
+  new_token_id_count = builtin add current_token_id_count one;
+  token_id_count := new_token_id_count;
+  token_id = new_token_id_count;
+
+  (* mint a new token *)
+  token_owners[token_id] := to;
+
+  (* add one to the token owner balance *)
+  UpdateBalance add_operation to;
+  
+  (* add one to the total supply *)
+  current_supply <- total_supply;
+  new_supply = builtin add current_supply one;
+  total_supply := new_supply
+end
+
+(* @Requirements: *)
+(* - The contract must not be paused. Otherwise, it must throw `PausedError` *)
+(* - `to` must not be the zero address. Otherwise, it must throw `ZeroAddressDestinationError` *)
+(* - `to` must not be `_this_address`. Otherwise, it must throw `ThisAddressDestinationError` *)
+(* - `token_id` must exist. Otherwise, it must throw `TokenNotFoundError` *)
+(* - `_sender` must be a token owner, spender, or operator. Otherwise, it must throw `NotAllowedToTransferError` *)
+(* - `_sender` must not be `to`. Otherwise, it must throw `SelfError` *)
+procedure TransferToken(to: ByStr20, token_id: Uint256)
+  RequireNotPaused;
+  RequireValidDestination to;
+
+  opt_token_owner <- token_owners[token_id];
+  match opt_token_owner with
+  | None =>
+    error = TokenNotFoundError;
+    Throw error
+  | Some token_owner =>
+    RequireAccessToTransfer token_owner token_id;
+    RequireNotSelf token_owner to;
+    
+    (* change token_owner for that token_id *)
+    token_owners[token_id] := to;
+
+    delete spenders[token_id];
+
+    (* subtract one from previous token owner balance *)
+    UpdateBalance sub_operation token_owner;
+    (* add one to the new token owner balance *)
+    UpdateBalance add_operation to
+  end
+end
+
+procedure HandleTransfer(info: Pair ByStr20 Uint256)
+  match info with
+  | Pair to token_id =>
+    TransferToken to token_id
+  end
+end
+
 (* Pauses the contract. Use this when things are going wrong ('circuit breaker'). *)
 (* @Requirements: *)
 (* - The contract must not be paused. Otherwise, it must throw `PausedError` *)
@@ -458,31 +522,6 @@ transition SetBaseURI(uri: String)
   };
   msgs = one_msg msg_to_sender;
   send msgs  
-end
-
-(* @Requirements: *)
-(* - The contract must not be paused. Otherwise, it must throw `PausedError` *)
-(* - `_sender` must be a minter. Otherwise, it must throw `NotMinterError` *)
-procedure MintToken(to: ByStr20)
-  RequireNotPaused;
-  IsMinter _sender;
-
-  (* generate ID *)
-  current_token_id_count <- token_id_count;
-  new_token_id_count = builtin add current_token_id_count one;
-  token_id_count := new_token_id_count;
-  token_id = new_token_id_count;
-
-  (* mint a new token *)
-  token_owners[token_id] := to;
-
-  (* add one to the token owner balance *)
-  UpdateBalance add_operation to;
-  
-  (* add one to the total supply *)
-  current_supply <- total_supply;
-  new_supply = builtin add current_supply one;
-  total_supply := new_supply
 end
 
 (* Mints a token and transfers it to `to`. *)
@@ -788,38 +827,6 @@ transition RemoveOperator(operator: ByStr20)
   send msgs
 end
 
-(* @Requirements: *)
-(* - The contract must not be paused. Otherwise, it must throw `PausedError` *)
-(* - `to` must not be the zero address. Otherwise, it must throw `ZeroAddressDestinationError` *)
-(* - `to` must not be `_this_address`. Otherwise, it must throw `ThisAddressDestinationError` *)
-(* - `token_id` must exist. Otherwise, it must throw `TokenNotFoundError` *)
-(* - `_sender` must be a token owner, spender, or operator. Otherwise, it must throw `NotAllowedToTransferError` *)
-(* - `_sender` must not be `to`. Otherwise, it must throw `SelfError` *)
-procedure TransferToken(to: ByStr20, token_id: Uint256)
-  RequireNotPaused;
-  RequireValidDestination to;
-
-  opt_token_owner <- token_owners[token_id];
-  match opt_token_owner with
-  | None =>
-    error = TokenNotFoundError;
-    Throw error
-  | Some token_owner =>
-    RequireAccessToTransfer token_owner token_id;
-    RequireNotSelf token_owner to;
-    
-    (* change token_owner for that token_id *)
-    token_owners[token_id] := to;
-
-    delete spenders[token_id];
-
-    (* subtract one from previous token owner balance *)
-    UpdateBalance sub_operation token_owner;
-    (* add one to the new token owner balance *)
-    UpdateBalance add_operation to
-  end
-end
-
 (* Transfers `token_id` from the token owner to `to`.  *)
 transition TransferFrom(to: ByStr20, token_id: Uint256)
   opt_token_owner <- token_owners[token_id];
@@ -854,13 +861,6 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
     };
     msgs = two_msgs msg_to_recipient msg_to_sender;
     send msgs
-  end
-end
-
-procedure HandleTransfer (info: Pair ByStr20 Uint256)
-  match info with
-  | Pair to token_id =>
-    TransferToken to token_id
   end
 end
 
