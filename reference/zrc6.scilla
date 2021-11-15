@@ -467,7 +467,7 @@ transition SetRoyaltyRecipient(to: ByStr20)
     to: to
   };
   event e;
-  msg_to_sender = { 
+  msg_to_sender = {
     _tag: "ZRC6_SetRoyaltyRecipientCallback"; 
     _recipient: _sender;
     _amount: Uint128 0;
@@ -492,7 +492,7 @@ transition SetRoyaltyFeeBPS(fee_bps: Uint128)
     royalty_fee_bps: fee_bps
   };
   event e;
-  msg_to_sender = { 
+  msg_to_sender = {
     _tag: "ZRC6_SetRoyaltyFeeBPSCallback"; 
     _recipient: _sender;
     _amount: Uint128 0;
@@ -514,7 +514,7 @@ transition SetBaseURI(uri: String)
     base_uri: uri
   };
   event e;
-  msg_to_sender = { 
+  msg_to_sender = {
     _tag: "ZRC6_SetBaseURICallback"; 
     _recipient: _sender;
     _amount: Uint128 0;
@@ -536,12 +536,12 @@ transition Mint(to: ByStr20)
     token_id: token_id
   };
   event e;
-  msg_to_recipient = { 
+  msg_to_recipient = {
     _tag: "ZRC6_RecipientAcceptMint";
     _recipient: to;
     _amount: Uint128 0
   };
-  msg_to_sender = { 
+  msg_to_sender = {
     _tag: "ZRC6_MintCallback";
     _recipient: _sender;
     _amount: Uint128 0;
@@ -556,7 +556,7 @@ end
 (* @param: to_list - List of addresses of the token recipient *)
 transition BatchMint(to_list: List ByStr20)
   forall to_list MintToken;
-  msg_to_sender = { 
+  msg_to_sender = {
     _tag: "ZRC6_BatchMintCallback";
     _recipient: _sender;
     _amount: Uint128 0
@@ -597,7 +597,7 @@ transition Burn(token_id: Uint256)
       token_id: token_id
     };
     event e;
-    msg_to_sender = { 
+    msg_to_sender = {
       _tag: "ZRC6_BurnCallback";
       _recipient: _sender;
       _amount: Uint128 0;
@@ -629,7 +629,7 @@ transition AddMinter(minter: ByStr20)
     minter: minter
   };
   event e;
-  msg_to_sender = { 
+  msg_to_sender = {
     _tag: "ZRC6_AddMinterCallback";
     _recipient: _sender;
     _amount: Uint128 0;
@@ -658,7 +658,7 @@ transition RemoveMinter(minter: ByStr20)
     minter: minter
   };
   event e;
-  msg_to_sender = { 
+  msg_to_sender = {
     _tag: "ZRC6_RemoveMinterCallback";
     _recipient: _sender;
     _amount: Uint128 0;
@@ -699,7 +699,7 @@ transition AddSpender(spender: ByStr20, token_id: Uint256)
       token_id: token_id
     };
     event e;
-    msg_to_sender = { 
+    msg_to_sender = {
       _tag: "ZRC6_AddSpenderCallback";
       _recipient: _sender;
       _amount: Uint128 0;
@@ -741,7 +741,7 @@ transition RemoveSpender(spender: ByStr20, token_id: Uint256)
       token_id: token_id
     };
     event e;
-    msg_to_sender = { 
+    msg_to_sender = {
       _tag: "ZRC6_RemoveSpenderCallback";
       _recipient: _sender;
       _amount: Uint128 0;
@@ -817,7 +817,7 @@ transition RemoveOperator(operator: ByStr20)
     operator: operator
   };
   event e;
-  msg_to_sender = { 
+  msg_to_sender = {
     _tag: "ZRC6_RemoveOperatorCallback";
     _recipient: _sender;
     _amount: Uint128 0;
@@ -843,7 +843,7 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
       token_id: token_id
     };
     event e;
-    msg_to_recipient = { 
+    msg_to_recipient = {
       _tag: "ZRC6_RecipientAcceptTransferFrom";
       _recipient: to;
       _amount: Uint128 0;
@@ -851,7 +851,7 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
       to: to;
       token_id: token_id
     };
-    msg_to_sender = { 
+    msg_to_sender = {
       _tag: "ZRC6_TransferFromCallback";
       _recipient: _sender;
       _amount: Uint128 0;
@@ -867,7 +867,7 @@ end
 (* Transfers multiple `token_id` to multiple `to`. It takes List of Pair (to, token_id). *)
 transition BatchTransferFrom(to_token_id_pair_list: List (Pair ByStr20 Uint256))
   forall to_token_id_pair_list HandleTransfer;
-  msg_to_sender = { 
+  msg_to_sender = {
     _tag: "ZRC6_BatchTransferFromCallback";
     _recipient: _sender;
     _amount: Uint128 0
