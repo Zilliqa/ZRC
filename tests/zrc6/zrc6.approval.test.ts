@@ -324,13 +324,13 @@ describe("Approval", () => {
       },
     },
     {
-      name: "throws SelfError",
+      name: "throws OperatorNotFoundError",
       transition: "RemoveOperator",
       getSender: () => toTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        operator: toTestAddr(TOKEN_OWNER_A), // Self
+        operator: toTestAddr(STRANGER_A),
       }),
-      error: ZRC6_ERROR.SelfError,
+      error: ZRC6_ERROR.OperatorNotFoundError,
       want: undefined,
     },
     {

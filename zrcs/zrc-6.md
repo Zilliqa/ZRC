@@ -528,8 +528,6 @@ Removes `operator` for `_sender`.
 
 **Requirements:**
 
-- `_sender` must be the token owner. Otherwise, it must throw `NotTokenOwnerError`.
-- `_sender` must not be `operator`. Otherwise, it must throw `SelfError`.
 - `operator` must be already an operator. Otherwise, it must throw `OperatorNotFoundError`.
 
 **Messages:**

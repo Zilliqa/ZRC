@@ -798,11 +798,8 @@ end
 
 (* Removes `operator` for `_sender`. *)
 (* @Requirements:  *)
-(* - `_sender` must be the token owner. Otherwise, it must throw `NotTokenOwnerError` *)
-(* - `_sender` must not be `operator`. Otherwise, it must throw `SelfError` *)
-(* - `operator` must be already an operator. Otherwise, it must throw `OperatorNotFoundError` *)
+(* - `operator` must be already an operator of `_sender`. Otherwise, it must throw `OperatorNotFoundError` *)
 transition RemoveOperator(operator: ByStr20)
-  RequireNotSelf operator _sender;
   has_operator <- exists operators[_sender][operator];
   match has_operator with
   | False =>
