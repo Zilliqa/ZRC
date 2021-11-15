@@ -1,6 +1,6 @@
-| ZRC | Title                        | Status   | Type     | Author                                                                               | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
-| --- | ---------------------------- | -------- | -------- | ------------------------------------------------------------------------------------ | -------------------- | -------------------- |
-| 2   | Standard for Fungible Tokens | Approved | Standard | Vaivaswatha Nagaraj <vaivaswatha@zilliqa.com> <br> Chua Han Wen <hanwen@zilliqa.com> | 2019-11-18           | 2020-04-25           |
+| ZRC | Title                        | Status      | Type     | Author                                                                               | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
+| --- | ---------------------------- | ----------- | -------- | ------------------------------------------------------------------------------------ | -------------------- | -------------------- |
+| 2   | Standard for Fungible Tokens | Implemented | Standard | Vaivaswatha Nagaraj <vaivaswatha@zilliqa.com> <br> Chua Han Wen <hanwen@zilliqa.com> | 2019-11-18           | 2020-11-12           |
 
 ## I. What are Fungible Tokens?
 
