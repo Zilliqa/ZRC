@@ -1,6 +1,6 @@
 | ZRC | Title                            | Status       | Type     | Author                                                                                                      | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
 | --- | -------------------------------- | ------------ | -------- | ----------------------------------------------------------------------------------------------------------- | -------------------- | -------------------- |
-| 1   | Standard for Non Fungible Tokens | Implemented  | Standard | Edison Lim <edison@aqilliz.com> <br> Han Wen Chua <hanwen@zilliqa.com> <br> Arnav Vohra <arnav@zilliqa.com> | 2019-09-28           | 2020-12-11           |
+| 1   | Standard for Non Fungible Tokens | Implemented  | Standard | Edison Lim <edison@aqilliz.com> <br> Han Wen Chua <hanwen@zilliqa.com> <br> Arnav Vohra <arnav@zilliqa.com> | 2019-09-28           | 2021-11-12           |
 
 ## I. What are Non Fungible Tokens?
 
