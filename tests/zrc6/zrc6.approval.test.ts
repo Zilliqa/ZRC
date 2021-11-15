@@ -145,10 +145,21 @@ describe("Approval", () => {
       transition: "AddSpender",
       getSender: () => toTestAddr(STRANGER_A), // Not a token owner
       getParams: () => ({
-        spender: toTestAddr(STRANGER_A),
+        spender: toTestAddr(STRANGER_B),
         token_id: "1",
       }),
       error: ZRC6_ERROR.NotOwnerOrOperatorError,
+      want: undefined,
+    },
+    {
+      name: "throws SelfError",
+      transition: "AddSpender",
+      getSender: () => toTestAddr(TOKEN_OWNER_A),
+      getParams: () => ({
+        spender: toTestAddr(TOKEN_OWNER_A),
+        token_id: "1",
+      }),
+      error: ZRC6_ERROR.SelfError,
       want: undefined,
     },
     {

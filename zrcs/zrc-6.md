@@ -445,6 +445,7 @@ Adds `spender` for `token_id`.
 
 - `token_id` must exist. Otherwise, it must throw `TokenNotFoundError`.
 - `_sender` must be a token owner or an operator. Otherwise, it must throw `NotOwnerOrOperatorError`.
+- `_sender` must not be `spender`. Otherwise, it must throw `SelfError`.
 - `spender` must not be already a spender. Otherwise, it must throw `SpenderFoundError`.
 
 **Messages:**
