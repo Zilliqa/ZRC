@@ -35,9 +35,9 @@ The main advantages of this standard are:
 
 3. ZRC-6 is designed for remote state read ([`x <- & c.f`](https://scilla.readthedocs.io/en/latest/scilla-in-depth.html?#remote-fetches)) such that logic to get data from a ZRC-6 contract is straightforward. ZRC-6 exposes immutable parameters via mutable fields and includes only transitions that mutate the state of the contract.
 
-4. ZRC-6 features a single transition for token transfer with destination validation. The transition can be called by a token owner, a spender, or an operator. ZRC-6 prevents transferring tokens to the zero address or the address of a ZRC-6 contract.
+4. ZRC-6 is designed for failure. Therefore token transfers, minting, and burning are pausable.
 
-5. ZRC-6 features pausable token transfers, minting, and burning because it is designed for failure.
+5. ZRC-6 features a single transition for token transfer with destination validation. The transition can be called by a token owner, a spender, or an operator. ZRC-6 prevents transferring tokens to the zero address or the address of a ZRC-6 contract.
 
 6. ZRC-6 features batch operations for minting and token transfers such that only a single transaction is required.
 
@@ -51,9 +51,9 @@ The main advantages of this standard are:
 
 3. Using callbacks to get data can complicate the logic easily. Unlike immutable parameters, mutable fields are available for remote state read.
 
-4. ZRC-1 includes `Transfer` and `TransferFrom` for the token transfer. The two transitions have the same type signature and the only difference is the access control. This has added unnecessary complexity. ZRC-1 does not validate the destination for token transfer and it is not safe.
+4. Without an emergency stop mechanism, it's hard to respond to bugs and vulnerabilities gracefully.
 
-5. Without an emergency stop mechanism, it's hard to respond to bugs and vulnerabilities gracefully.
+5. ZRC-1 includes `Transfer` and `TransferFrom` for the token transfer. The two transitions have the same type signature and the only difference is the access control. This has added unnecessary complexity. ZRC-1 does not validate the destination for token transfer and it is not safe.
 
 6. Without batch operations, it can be very inefficient to transfer or mint multiple tokens with multiple transactions.
 
