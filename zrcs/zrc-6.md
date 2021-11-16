@@ -49,7 +49,7 @@ The main advantages of this standard are:
 
 1. Many of the largest NFT marketplaces have implemented incompatible royalty payment solutions.
 
-2. The marketplace builders had to customize to each NFT contract since there was no standard for token URI.
+2. The marketplace builders had to handle inconsistent token URIs.
 
 3. ZRC-1 includes `Transfer` and `TransferFrom` for the token transfer. The two transitions have the same type signature and the only difference is the access control. This has added unnecessary complexity.
 
