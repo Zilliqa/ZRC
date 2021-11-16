@@ -33,9 +33,9 @@ The main advantages of this standard are:
 
 2. ZRC-6 implements standardized token URI with the concatenation of base token URI and token ID. A token URI is an HTTP or IPFS URL. This URL must return a JSON blob of data with the metadata for the NFT when queried.
 
-3. ZRC-6 implements standardized token transfer with a single transition which can be called by a token owner, a spender, or an operator.
+3. ZRC-6 is designed for remote state read ([`x <- & c.f`](https://scilla.readthedocs.io/en/latest/scilla-in-depth.html?#remote-fetches)) such that logic to get data from a ZRC-6 contract is straightforward. ZRC-6 exposes immutable parameters via mutable fields and includes only transitions that mutate the state of the contract.
 
-4. ZRC-6 is designed for remote state read ([`x <- & c.f`](https://scilla.readthedocs.io/en/latest/scilla-in-depth.html?#remote-fetches)) such that logic to get data from a ZRC-6 contract is straightforward. ZRC-6 exposes immutable parameters via mutable fields and includes only transitions that mutate the state of the contract.
+4. ZRC-6 features a single transition for token transfer with destination validation. The transition can be called by a token owner, a spender, or an operator. ZRC-6 prevents transferring tokens to the zero address or the address of a ZRC-6 contract.
 
 5. ZRC-6 features pausable token transfers, minting, and burning because it is designed for failure.
 
@@ -43,25 +43,21 @@ The main advantages of this standard are:
 
 7. ZRC-6 is compatible with ZRC-X since every callback name is prefixed with `ZRC6_`.
 
-8. ZRC-6 features contract ownership transfer by making the contract owner mutable.
-
 ## III. Motivation
 
 1. Many of the largest NFT marketplaces have implemented incompatible royalty payment solutions.
 
 2. The marketplace builders had to handle inconsistent token URIs.
 
-3. ZRC-1 includes `Transfer` and `TransferFrom` for the token transfer. The two transitions have the same type signature and the only difference is the access control. This has added unnecessary complexity.
+3. Using callbacks to get data can complicate the logic easily. Unlike immutable parameters, mutable fields are available for remote state read.
 
-4. Using callbacks to get data can complicate the logic easily. Unlike immutable parameters, mutable fields are available for remote state read.
+4. ZRC-1 includes `Transfer` and `TransferFrom` for the token transfer. The two transitions have the same type signature and the only difference is the access control. This has added unnecessary complexity. ZRC-1 does not validate the destination for token transfer and it is not safe.
 
 5. Without an emergency stop mechanism, it's hard to respond to bugs and vulnerabilities gracefully.
 
 6. Without batch operations, it can be very inefficient to transfer or mint multiple tokens with multiple transactions.
 
 7. The ZRC-1 and ZRC-2 contracts can share the same callback names. Contracts must have unique names for callback transitions.
-
-8. In ZRC-1 contract owner is immutable. But some contract owners want to transfer their contract ownership.
 
 ## IV. Specification
 
