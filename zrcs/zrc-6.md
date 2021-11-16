@@ -102,26 +102,26 @@ The main advantages of this standard are:
 | `operator`                 | On behalf of the token owner, an operator can: <ul><li>transfer a token </li><li>burn a token</li><li>add/remove a spender of a token</li></ul> An operator is not bound to a single token, unlike a spender.                                   |    ✓     |
 | `contract_owner_candidate` | If the contract owner wants to transfer contract ownership to someone, the contract owner can set the person as the contract owner candidate. The contract owner candidate can accept the contract ownership and become the new contract owner. |          |
 
-| Transition                                                            | `contract_owner` | `contract_owner_candidate` | `minter` | `token_owner` | `spender` | `operator` |
-| --------------------------------------------------------------------- | :--------------: | :------------------------: | :------: | :-----------: | :-------: | :--------: |
-| [`Pause`](#1-pause-optional)                                          |        ✓         |                            |          |               |           |            |
-| [`Unpause`](#2-unpause-optional)                                      |        ✓         |                            |          |               |           |            |
-| [`SetRoyaltyRecipient`](#3-setroyaltyrecipient-optional)              |        ✓         |                            |          |               |           |            |
-| [`SetRoyaltyFeeBPS`](#4-setroyaltyfeebps-optional)                    |        ✓         |                            |          |               |           |            |
-| [`SetBaseURI`](#5-setbaseuri-optional)                                |        ✓         |                            |          |               |           |            |
-| [`Mint`](#6-mint)                                                     |                  |                            |    ✓     |               |           |            |
-| [`BatchMint`](#7-batchmint-optional)                                  |                  |                            |    ✓     |               |           |            |
-| [`Burn`](#8-burn-optional)                                            |                  |                            |          |       ✓       |           |     ✓      |
-| [`AddMinter`](#9-addminter)                                           |        ✓         |                            |          |               |           |            |
-| [`RemoveMinter`](#10-removeminter)                                    |        ✓         |                            |          |               |           |            |
-| [`AddSpender`](#11-addspender)                                        |                  |                            |          |       ✓       |           |     ✓      |
-| [`RemoveSpender`](#12-removespender)                                  |                  |                            |          |       ✓       |           |     ✓      |
-| [`AddOperator`](#13-addoperator)                                      |                  |                            |          |       ✓       |           |            |
-| [`RemoveOperator`](#14-removeoperator)                                |                  |                            |          |       ✓       |           |            |
-| [`TransferFrom`](#15-transferfrom)                                    |                  |                            |          |       ✓       |     ✓     |     ✓      |
-| [`BatchTransferFrom`](#16-batchtransferfrom-optional)                 |                  |                            |          |       ✓       |     ✓     |     ✓      |
-| [`SetContractOwnerCandidate`](#17-setcontractownercandidate-optional) |        ✓         |                            |          |               |           |            |
-| [`AcceptContractOwnership`](#18-acceptcontractownership-optional)     |                  |             ✓              |          |               |           |            |
+| Transition                                                            | `contract_owner` | `minter` | `token_owner` | `spender` | `operator` | `contract_owner_candidate` |
+| --------------------------------------------------------------------- | :--------------: | :------: | :-----------: | :-------: | :--------: | :------------------------: |
+| [`Pause`](#1-pause-optional)                                          |        ✓         |          |               |           |            |                            |
+| [`Unpause`](#2-unpause-optional)                                      |        ✓         |          |               |           |            |                            |
+| [`SetRoyaltyRecipient`](#3-setroyaltyrecipient-optional)              |        ✓         |          |               |           |            |                            |
+| [`SetRoyaltyFeeBPS`](#4-setroyaltyfeebps-optional)                    |        ✓         |          |               |           |            |                            |
+| [`SetBaseURI`](#5-setbaseuri-optional)                                |        ✓         |          |               |           |            |                            |
+| [`Mint`](#6-mint)                                                     |                  |    ✓     |               |           |            |                            |
+| [`BatchMint`](#7-batchmint-optional)                                  |                  |    ✓     |               |           |            |                            |
+| [`Burn`](#8-burn-optional)                                            |                  |          |       ✓       |           |     ✓      |                            |
+| [`AddMinter`](#9-addminter)                                           |        ✓         |          |               |           |            |                            |
+| [`RemoveMinter`](#10-removeminter)                                    |        ✓         |          |               |           |            |                            |
+| [`AddSpender`](#11-addspender)                                        |                  |          |       ✓       |           |     ✓      |                            |
+| [`RemoveSpender`](#12-removespender)                                  |                  |          |       ✓       |           |     ✓      |                            |
+| [`AddOperator`](#13-addoperator)                                      |                  |          |       ✓       |           |            |                            |
+| [`RemoveOperator`](#14-removeoperator)                                |                  |          |       ✓       |           |            |                            |
+| [`TransferFrom`](#15-transferfrom)                                    |                  |          |       ✓       |     ✓     |     ✓      |                            |
+| [`BatchTransferFrom`](#16-batchtransferfrom-optional)                 |                  |          |       ✓       |     ✓     |     ✓      |                            |
+| [`SetContractOwnerCandidate`](#17-setcontractownercandidate-optional) |        ✓         |          |               |           |            |                            |
+| [`AcceptContractOwnership`](#18-acceptcontractownership-optional)     |                  |          |               |           |            |             ✓              |
 
 ### D. Error Codes
 
