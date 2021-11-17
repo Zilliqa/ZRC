@@ -29,9 +29,9 @@ ZRC-6 defines a new minimum interface of an NFT smart contract while improving u
 
 The main advantages of this standard are:
 
-1. ZRC-6 implements standardized unit-less royalty payments to a single address with a percentage-based royalty fee model. Funds will be paid for secondary sales only if a marketplace chooses to implement royalty payments. Marketplaces should transfer the actual funds.
+1. ZRC-6 standardizes royalty information retrieval with a percentage-based royalty fee model and unit-less royalty payments to a single address. Funds will be paid for secondary sales only if a marketplace chooses to implement royalty payments. Marketplace contracts should transfer the actual funds.
 
-2. ZRC-6 implements standardized token URI with the concatenation of base token URI and token ID. A token URI is an HTTP or IPFS URL. This URL must return a JSON blob of data with the metadata for the NFT when queried.
+2. ZRC-6 standardizes token URI with the concatenation of base token URI and token ID. A token URI is an HTTP or IPFS URL. This URL must return a JSON blob of data with the metadata for the NFT when queried.
 
 3. ZRC-6 is designed for remote state read ([`x <- & c.f`](https://scilla.readthedocs.io/en/latest/scilla-in-depth.html?#remote-fetches)) such that logic to get data from a ZRC-6 contract is straightforward. ZRC-6 exposes immutable parameters via mutable fields and includes only transitions that mutate the state of the contract.
 
