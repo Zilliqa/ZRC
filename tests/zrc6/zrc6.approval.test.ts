@@ -167,11 +167,44 @@ describe("Approval", () => {
       transition: "AddSpender",
       getSender: () => toTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        spender: toTestAddr(STRANGER_A),
+        spender: toTestAddr(SPENDER),
         token_id: "1",
       }),
       error: ZRC6_ERROR.SpenderFoundError,
       want: undefined,
+    },
+    {
+      name: "adds stranger as spender of token #1 by token owner A",
+      transition: "AddSpender",
+      getSender: () => toTestAddr(TOKEN_OWNER_A),
+      getParams: () => ({
+        spender: toTestAddr(STRANGER_A),
+        token_id: "1",
+      }),
+      error: undefined,
+      want: {
+        verifyState: (state) => {
+          return state.spenders["1"] === toTestAddr(STRANGER_A).toLowerCase();
+        },
+        events: [
+          {
+            name: "AddSpender",
+            getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(STRANGER_A), "spender"),
+              toMsgParam("Uint256", 1, "token_id"),
+            ],
+          },
+        ],
+        transitions: [
+          {
+            tag: "ZRC6_AddSpenderCallback",
+            getParams: () => [
+              toMsgParam("ByStr20", toTestAddr(STRANGER_A), "spender"),
+              toMsgParam("Uint256", 1, "token_id"),
+            ],
+          },
+        ],
+      },
     },
     {
       name: "adds stranger as spender of token #2 by token owner B",

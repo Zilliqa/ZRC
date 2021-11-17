@@ -686,16 +686,22 @@ transition AddSpender(spender: ByStr20, token_id: Uint256)
   | Some token_owner =>
     RequireOwnerOrOperator token_owner;
     
-    has_spender <- exists spenders[token_id];
-    match has_spender with
-      | True =>
-      error = SpenderFoundError;
-      Throw error
-      | False =>
-      (* Add spender *)
-      spenders[token_id] := spender
+    (* Check if the spender exists *)
+    opt_spender <- spenders[token_id];
+    match opt_spender with
+      | None =>
+      | Some cur_spender =>
+        has_spender = builtin eq cur_spender spender;
+        match has_spender with 
+        | False =>
+        | True => 
+          error = SpenderFoundError;
+          Throw error
+        end
     end;
-    
+      
+    (* Add spender *)
+    spenders[token_id] := spender;
     e = {
       _eventname: "AddSpender";
       spender: spender;
