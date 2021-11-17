@@ -63,7 +63,8 @@ const transitionParamsGetter =
 
       let type = cur.type;
 
-      if (type[0] === "B" && type.includes("ByStr")) {
+      // ByStr20 with <address contents> end -> ByStr20
+      if (type.startsWith("ByStr")) {
         type = type.split(" ").shift();
       }
 
