@@ -39,7 +39,7 @@ let globalTestAccounts: Array<{
   address: string;
 }> = [];
 const CONTRACT_OWNER = 0;
-const CONTRACT_OWNER_CANDIDATE = 1;
+const CONTRACT_OWNERSHIP_RECIPIENT = 1;
 const TOKEN_OWNER = 2;
 const STRANGER = 9;
 const toTestAddr = (index) => globalTestAccounts[index]?.address as string;
@@ -67,7 +67,7 @@ beforeAll(async () => {
     JEST_WORKER_ID,
     GENESIS_PRIVATE_KEY,
     CONTRACT_OWNER: toTestAddr(CONTRACT_OWNER),
-    CONTRACT_OWNER_CANDIDATE: toTestAddr(CONTRACT_OWNER_CANDIDATE),
+    CONTRACT_OWNERSHIP_RECIPIENT: toTestAddr(CONTRACT_OWNERSHIP_RECIPIENT),
     TOKEN_OWNER: toTestAddr(TOKEN_OWNER),
     STRANGER: toTestAddr(STRANGER),
   });
@@ -351,7 +351,7 @@ describe("Contract", () => {
     },
     {
       name: "throws SelfError",
-      transition: "SetContractOwnerCandidate",
+      transition: "SetContractOwnershipRecipient",
       getSender: () => toTestAddr(CONTRACT_OWNER),
       getParams: () => ({
         to: toTestAddr(CONTRACT_OWNER),
@@ -361,7 +361,7 @@ describe("Contract", () => {
     },
     {
       name: "sets stranger as contract owner candidate by contract owner",
-      transition: "SetContractOwnerCandidate",
+      transition: "SetContractOwnershipRecipient",
       getSender: () => toTestAddr(CONTRACT_OWNER),
       getParams: () => ({
         to: toTestAddr(STRANGER),
@@ -369,10 +369,11 @@ describe("Contract", () => {
       error: undefined,
       want: {
         verifyState: (state) =>
-          state.contract_owner_candidate === toTestAddr(STRANGER).toLowerCase(),
+          state.contract_ownership_recipient ===
+          toTestAddr(STRANGER).toLowerCase(),
         events: [
           {
-            name: "SetContractOwnerCandidate",
+            name: "SetContractOwnershipRecipient",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
             ],
@@ -380,7 +381,7 @@ describe("Contract", () => {
         ],
         transitions: [
           {
-            tag: "ZRC6_SetContractOwnerCandidateCallback",
+            tag: "ZRC6_SetContractOwnershipRecipientCallback",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
             ],
@@ -402,7 +403,7 @@ describe("Contract", () => {
           },
           base_uri: BASE_URI,
           contract_owner: toTestAddr(CONTRACT_OWNER).toLowerCase(),
-          contract_owner_candidate:
+          contract_ownership_recipient:
             "0x0000000000000000000000000000000000000000",
           is_paused: { argtypes: [], arguments: [], constructor: "False" },
           minters: {
@@ -464,7 +465,10 @@ describe("Accept Contract Ownership", () => {
     let tx = await globalContractInfo.callGetter(
       zilliqa.contracts.at(globalContractAddress),
       TX_PARAMS
-    )("SetContractOwnerCandidate", toTestAddr(CONTRACT_OWNER_CANDIDATE));
+    )(
+      "SetContractOwnershipRecipient",
+      toTestAddr(CONTRACT_OWNERSHIP_RECIPIENT)
+    );
     if (!tx.receipt.success) {
       throw new Error();
     }
@@ -472,30 +476,30 @@ describe("Accept Contract Ownership", () => {
 
   const testCases = [
     {
-      name: "throws NotContractOwnerCandidateError",
+      name: "throws NotContractOwnershipRecipientError",
       transition: "AcceptContractOwnership",
       getSender: () => toTestAddr(STRANGER),
       getParams: () => ({}),
-      error: ZRC6_ERROR.NotContractOwnerCandidateError,
+      error: ZRC6_ERROR.NotContractOwnershipRecipientError,
       want: undefined,
     },
     {
       name: "sets contract owner candidate as contract owner",
       transition: "AcceptContractOwnership",
-      getSender: () => toTestAddr(CONTRACT_OWNER_CANDIDATE),
+      getSender: () => toTestAddr(CONTRACT_OWNERSHIP_RECIPIENT),
       getParams: () => ({}),
       error: undefined,
       want: {
         verifyState: (state) =>
           state.contract_owner ===
-          toTestAddr(CONTRACT_OWNER_CANDIDATE).toLowerCase(),
+          toTestAddr(CONTRACT_OWNERSHIP_RECIPIENT).toLowerCase(),
         events: [
           {
             name: "AcceptContractOwnership",
             getParams: () => [
               toMsgParam(
                 "ByStr20",
-                toTestAddr(CONTRACT_OWNER_CANDIDATE),
+                toTestAddr(CONTRACT_OWNERSHIP_RECIPIENT),
                 "contract_owner"
               ),
             ],
@@ -507,7 +511,7 @@ describe("Accept Contract Ownership", () => {
             getParams: () => [
               toMsgParam(
                 "ByStr20",
-                toTestAddr(CONTRACT_OWNER_CANDIDATE),
+                toTestAddr(CONTRACT_OWNERSHIP_RECIPIENT),
                 "contract_owner"
               ),
             ],
@@ -530,8 +534,8 @@ describe("Accept Contract Ownership", () => {
           },
           base_uri: BASE_URI,
           contract_owner: toTestAddr(CONTRACT_OWNER).toLowerCase(),
-          contract_owner_candidate: toTestAddr(
-            CONTRACT_OWNER_CANDIDATE
+          contract_ownership_recipient: toTestAddr(
+            CONTRACT_OWNERSHIP_RECIPIENT
           ).toLowerCase(),
           is_paused: { argtypes: [], arguments: [], constructor: "False" },
           minters: {

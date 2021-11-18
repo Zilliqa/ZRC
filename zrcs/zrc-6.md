@@ -72,80 +72,80 @@ The main advantages of this standard are:
 
 ### B. Mutable Fields
 
-| Name                       | Type                             | Description                                                                                                                                                                                                                                                                                                                                                                                                       | Required |
-| -------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------: |
-| `is_paused`                | `Bool`                           | `True` if the contract is paused. Otherwise, `False`. `is_paused` defaults to `False`.                                                                                                                                                                                                                                                                                                                            |          |
-| `contract_owner`           | `ByStr20`                        | Address of the contract owner. `contract_owner` defaults to `initial_contract_owner`.                                                                                                                                                                                                                                                                                                                             |    ✓     |
-| `royalty_recipient`        | `ByStr20`                        | Address to send royalties to. `royalty_recipient` defaults to `initial_contract_owner`.                                                                                                                                                                                                                                                                                                                           |          |
-| `royalty_fee_bps`          | `Uint128`                        | Royalty fee BPS. e.g. `1` = 0.01%, `10000` = 100%. `royalty_fee_bps` ranges from `1` to `10000` and defaults to `1000`. <br/><br/> When calculating the royalty amount, you must only use division to avoid integer overflow. <br/><br/> <b>`royalty amount = sale price ÷ ( 10000 ÷ royalty fee bps )`</b> <br/><br/> e.g. if `royalty_fee_bps` is `1000` (10%) and sale price is `999`, royalty amount is `99`. |          |
-| `base_uri`                 | `String`                         | Token URI is <b>`<base_uri><token_id>`</b>. <br/><br/> e.g. if `base_uri` is `https://creatures-api.zilliqa.com/api/creature/` and `token_id` is `1`, token URI is `https://creatures-api.zilliqa.com/api/creature/1`.<br/><br/> `base_uri` defaults to `initial_base_uri`. This field must not be mutated unless there is a strong reason.                                                                       |    ✓     |
-| `minters`                  | `Map ByStr20 Bool`               | Set of minters.                                                                                                                                                                                                                                                                                                                                                                                                   |    ✓     |
-| `token_owners`             | `Map Uint256 ByStr20`            | Mapping from token ID to its owner.                                                                                                                                                                                                                                                                                                                                                                               |    ✓     |
-| `spenders`                 | `Map Uint256 ByStr20`            | Mapping from token ID to a spender.                                                                                                                                                                                                                                                                                                                                                                               |    ✓     |
-| `operators`                | `Map ByStr20 (Map ByStr20 Bool)` | Mapping from token owner to set of operators.                                                                                                                                                                                                                                                                                                                                                                     |    ✓     |
-| `token_id_count`           | `Uint256`                        | The total number of tokens minted. Defaults to `0`.                                                                                                                                                                                                                                                                                                                                                               |    ✓     |
-| `balances`                 | `Map ByStr20 Uint256`            | Mapping from token owner to the number of existing tokens.                                                                                                                                                                                                                                                                                                                                                        |    ✓     |
-| `total_supply`             | `Uint256`                        | The total number of existing tokens. Defaults to `0`.                                                                                                                                                                                                                                                                                                                                                             |    ✓     |
-| `token_name`               | `String`                         | Token name. Defaults to `name`. This field is for remote state read. This field must not be mutated.                                                                                                                                                                                                                                                                                                              |    ✓     |
-| `token_symbol`             | `String`                         | Token symbol. Defaults to `symbol`.This field is for remote state read. This field must not be mutated.                                                                                                                                                                                                                                                                                                           |    ✓     |
-| `contract_owner_candidate` | `ByStr20`                        | Address of the contract owner candidate. Defaults to zero address.                                                                                                                                                                                                                                                                                                                                                |          |
+| Name                           | Type                             | Description                                                                                                                                                                                                                                                                                                                                                                                                       | Required |
+| ------------------------------ | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------: |
+| `is_paused`                    | `Bool`                           | `True` if the contract is paused. Otherwise, `False`. `is_paused` defaults to `False`.                                                                                                                                                                                                                                                                                                                            |          |
+| `contract_owner`               | `ByStr20`                        | Address of the contract owner. `contract_owner` defaults to `initial_contract_owner`.                                                                                                                                                                                                                                                                                                                             |    ✓     |
+| `royalty_recipient`            | `ByStr20`                        | Address to send royalties to. `royalty_recipient` defaults to `initial_contract_owner`.                                                                                                                                                                                                                                                                                                                           |          |
+| `royalty_fee_bps`              | `Uint128`                        | Royalty fee BPS. e.g. `1` = 0.01%, `10000` = 100%. `royalty_fee_bps` ranges from `1` to `10000` and defaults to `1000`. <br/><br/> When calculating the royalty amount, you must only use division to avoid integer overflow. <br/><br/> <b>`royalty amount = sale price ÷ ( 10000 ÷ royalty fee bps )`</b> <br/><br/> e.g. if `royalty_fee_bps` is `1000` (10%) and sale price is `999`, royalty amount is `99`. |          |
+| `base_uri`                     | `String`                         | Token URI is <b>`<base_uri><token_id>`</b>. <br/><br/> e.g. if `base_uri` is `https://creatures-api.zilliqa.com/api/creature/` and `token_id` is `1`, token URI is `https://creatures-api.zilliqa.com/api/creature/1`.<br/><br/> `base_uri` defaults to `initial_base_uri`. This field must not be mutated unless there is a strong reason.                                                                       |    ✓     |
+| `minters`                      | `Map ByStr20 Bool`               | Set of minters.                                                                                                                                                                                                                                                                                                                                                                                                   |    ✓     |
+| `token_owners`                 | `Map Uint256 ByStr20`            | Mapping from token ID to its owner.                                                                                                                                                                                                                                                                                                                                                                               |    ✓     |
+| `spenders`                     | `Map Uint256 ByStr20`            | Mapping from token ID to a spender.                                                                                                                                                                                                                                                                                                                                                                               |    ✓     |
+| `operators`                    | `Map ByStr20 (Map ByStr20 Bool)` | Mapping from token owner to set of operators.                                                                                                                                                                                                                                                                                                                                                                     |    ✓     |
+| `token_id_count`               | `Uint256`                        | The total number of tokens minted. Defaults to `0`.                                                                                                                                                                                                                                                                                                                                                               |    ✓     |
+| `balances`                     | `Map ByStr20 Uint256`            | Mapping from token owner to the number of existing tokens.                                                                                                                                                                                                                                                                                                                                                        |    ✓     |
+| `total_supply`                 | `Uint256`                        | The total number of existing tokens. Defaults to `0`.                                                                                                                                                                                                                                                                                                                                                             |    ✓     |
+| `token_name`                   | `String`                         | Token name. Defaults to `name`. This field is for remote state read. This field must not be mutated.                                                                                                                                                                                                                                                                                                              |    ✓     |
+| `token_symbol`                 | `String`                         | Token symbol. Defaults to `symbol`.This field is for remote state read. This field must not be mutated.                                                                                                                                                                                                                                                                                                           |    ✓     |
+| `contract_ownership_recipient` | `ByStr20`                        | Address of the contract ownership recipient. Defaults to zero address.                                                                                                                                                                                                                                                                                                                                            |          |
 
 ### C. Roles
 
-| Name                       | Description                                                                                                                                                                                                                                     | Required |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------: |
-| `contract_owner`           | The contract owner can: <ul><li>pause/unpause the contract</li><li>set contract owner candidate</li><li>set royalty recipient</li><li>set royalty fee BPS</li><li>set base URI</li><li>add/remove a minter</li></ul>                            |    ✓     |
-| `royalty_recipient`        | The royalty recipient gets a royalty amount each time the NFT is sold or re-sold. Initially, the royalty recipient is the contract owner.                                                                                                       |          |
-| `minter`                   | A minter can mint tokens. Initially, the contract owner is a minter.                                                                                                                                                                            |    ✓     |
-| `token_owner`              | Each token has an token owner. A token owner can: <ul><li>transfer a token </li><li>burn a token</li><li>add/remove a spender of a token</li><li>add/remove an operator</li></ul>                                                               |    ✓     |
-| `spender`                  | On behalf of the token owner, a spender can transfer a token. There can only be one spender per token at any given time.                                                                                                                        |    ✓     |
-| `operator`                 | On behalf of the token owner, an operator can: <ul><li>transfer a token </li><li>burn a token</li><li>add/remove a spender of a token</li></ul> An operator is not bound to a single token, unlike a spender.                                   |    ✓     |
-| `contract_owner_candidate` | If the contract owner wants to transfer contract ownership to someone, the contract owner can set the person as the contract owner candidate. The contract owner candidate can accept the contract ownership and become the new contract owner. |          |
+| Name                           | Description                                                                                                                                                                                                                                             | Required |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------: |
+| `contract_owner`               | The contract owner can: <ul><li>pause/unpause the contract</li><li>set contract ownership recipient</li><li>set royalty recipient</li><li>set royalty fee BPS</li><li>set base URI</li><li>add/remove a minter</li></ul>                                |    ✓     |
+| `royalty_recipient`            | The royalty recipient gets a royalty amount each time the NFT is sold or re-sold. Initially, the royalty recipient is the contract owner.                                                                                                               |          |
+| `minter`                       | A minter can mint tokens. Initially, the contract owner is a minter.                                                                                                                                                                                    |    ✓     |
+| `token_owner`                  | Each token has an token owner. A token owner can: <ul><li>transfer a token </li><li>burn a token</li><li>add/remove a spender of a token</li><li>add/remove an operator</li></ul>                                                                       |    ✓     |
+| `spender`                      | On behalf of the token owner, a spender can transfer a token. There can only be one spender per token at any given time.                                                                                                                                |    ✓     |
+| `operator`                     | On behalf of the token owner, an operator can: <ul><li>transfer a token </li><li>burn a token</li><li>add/remove a spender of a token</li></ul> An operator is not bound to a single token, unlike a spender.                                           |    ✓     |
+| `contract_ownership_recipient` | If the contract owner wants to transfer contract ownership to someone, the contract owner can set the person as the contract ownership recipient. The contract ownership recipient can accept the contract ownership and become the new contract owner. |          |
 
-| Transition                                                            | `contract_owner` | `minter` | `token_owner` | `spender` | `operator` | `contract_owner_candidate` |
-| --------------------------------------------------------------------- | :--------------: | :------: | :-----------: | :-------: | :--------: | :------------------------: |
-| [`Pause`](#1-pause-optional)                                          |        ✓         |          |               |           |            |                            |
-| [`Unpause`](#2-unpause-optional)                                      |        ✓         |          |               |           |            |                            |
-| [`SetRoyaltyRecipient`](#3-setroyaltyrecipient-optional)              |        ✓         |          |               |           |            |                            |
-| [`SetRoyaltyFeeBPS`](#4-setroyaltyfeebps-optional)                    |        ✓         |          |               |           |            |                            |
-| [`SetBaseURI`](#5-setbaseuri-optional)                                |        ✓         |          |               |           |            |                            |
-| [`Mint`](#6-mint)                                                     |                  |    ✓     |               |           |            |                            |
-| [`BatchMint`](#7-batchmint-optional)                                  |                  |    ✓     |               |           |            |                            |
-| [`Burn`](#8-burn-optional)                                            |                  |          |       ✓       |           |     ✓      |                            |
-| [`AddMinter`](#9-addminter)                                           |        ✓         |          |               |           |            |                            |
-| [`RemoveMinter`](#10-removeminter)                                    |        ✓         |          |               |           |            |                            |
-| [`SetSpender`](#11-setspender)                                        |                  |          |       ✓       |           |     ✓      |                            |
-| [`AddOperator`](#12-addoperator)                                      |                  |          |       ✓       |           |            |                            |
-| [`RemoveOperator`](#13-removeoperator)                                |                  |          |       ✓       |           |            |                            |
-| [`TransferFrom`](#14-transferfrom)                                    |                  |          |       ✓       |     ✓     |     ✓      |                            |
-| [`BatchTransferFrom`](#15-batchtransferfrom-optional)                 |                  |          |       ✓       |     ✓     |     ✓      |                            |
-| [`SetContractOwnerCandidate`](#16-setcontractownercandidate-optional) |        ✓         |          |               |           |            |                            |
-| [`AcceptContractOwnership`](#17-acceptcontractownership-optional)     |                  |          |               |           |            |             ✓              |
+| Transition                                                                    | `contract_owner` | `minter` | `token_owner` | `spender` | `operator` | `contract_ownership_recipient` |
+| ----------------------------------------------------------------------------- | :--------------: | :------: | :-----------: | :-------: | :--------: | :----------------------------: |
+| [`Pause`](#1-pause-optional)                                                  |        ✓         |          |               |           |            |                                |
+| [`Unpause`](#2-unpause-optional)                                              |        ✓         |          |               |           |            |                                |
+| [`SetRoyaltyRecipient`](#3-setroyaltyrecipient-optional)                      |        ✓         |          |               |           |            |                                |
+| [`SetRoyaltyFeeBPS`](#4-setroyaltyfeebps-optional)                            |        ✓         |          |               |           |            |                                |
+| [`SetBaseURI`](#5-setbaseuri-optional)                                        |        ✓         |          |               |           |            |                                |
+| [`Mint`](#6-mint)                                                             |                  |    ✓     |               |           |            |                                |
+| [`BatchMint`](#7-batchmint-optional)                                          |                  |    ✓     |               |           |            |                                |
+| [`Burn`](#8-burn-optional)                                                    |                  |          |       ✓       |           |     ✓      |                                |
+| [`AddMinter`](#9-addminter)                                                   |        ✓         |          |               |           |            |                                |
+| [`RemoveMinter`](#10-removeminter)                                            |        ✓         |          |               |           |            |                                |
+| [`SetSpender`](#11-setspender)                                                |                  |          |       ✓       |           |     ✓      |                                |
+| [`AddOperator`](#12-addoperator)                                              |                  |          |       ✓       |           |            |                                |
+| [`RemoveOperator`](#13-removeoperator)                                        |                  |          |       ✓       |           |            |                                |
+| [`TransferFrom`](#14-transferfrom)                                            |                  |          |       ✓       |     ✓     |     ✓      |                                |
+| [`BatchTransferFrom`](#15-batchtransferfrom-optional)                         |                  |          |       ✓       |     ✓     |     ✓      |                                |
+| [`SetContractOwnershipRecipient`](#16-setcontractownershiprecipient-optional) |        ✓         |          |               |           |            |                                |
+| [`AcceptContractOwnership`](#17-acceptcontractownership-optional)             |                  |          |               |           |            |               ✓                |
 
 ### D. Error Codes
 
 The NFT contract must define the following constants for use as error codes for the `Error` event.
 
-| Name                             | Type    |  Code | Description                                                          | Required |
-| -------------------------------- | ------- | ----: | -------------------------------------------------------------------- | :------: |
-| `NotPausedError`                 | `Int32` |  `-1` | Emit when the contract is not paused.                                |          |
-| `PausedError`                    | `Int32` |  `-2` | Emit when the contract is paused.                                    |          |
-| `SelfError`                      | `Int32` |  `-3` | Emit when the address is self.                                       |    ✓     |
-| `NotContractOwnerError`          | `Int32` |  `-4` | Emit when the address is not a contract owner.                       |    ✓     |
-| `NotContractOwnerCandidateError` | `Int32` |  `-5` | Emit when the address is not a contract owner candidate.             |          |
-| `NotTokenOwnerError`             | `Int32` |  `-6` | Emit when the address is not a token owner.                          |    ✓     |
-| `NotMinterError`                 | `Int32` |  `-7` | Emit when the address is not a minter.                               |    ✓     |
-| `NotOwnerOrOperatorError`        | `Int32` |  `-8` | Emit when the address is neither a token owner nor a token operator. |    ✓     |
-| `MinterNotFoundError`            | `Int32` |  `-9` | Emit when the minter is not found.                                   |    ✓     |
-| `MinterFoundError`               | `Int32` | `-10` | Emit when the minter is found.                                       |    ✓     |
-| `SpenderFoundError`              | `Int32` | `-11` | Emit when the spender is found.                                      |    ✓     |
-| `OperatorNotFoundError`          | `Int32` | `-12` | Emit when the operator is not found.                                 |    ✓     |
-| `OperatorFoundError`             | `Int32` | `-13` | Emit when the operator is found.                                     |    ✓     |
-| `NotAllowedToTransferError`      | `Int32` | `-14` | Emit when `_sender` is not allowed to transfer the token.            |    ✓     |
-| `TokenNotFoundError`             | `Int32` | `-15` | Emit when the token is not found.                                    |    ✓     |
-| `InvalidFeeBPSError`             | `Int32` | `-16` | Emit when the fee bps does not range from `1` to `10000`.            |          |
-| `ZeroAddressDestinationError`    | `Int32` | `-17` | Emit when the destination is the zero address.                       |    ✓     |
-| `ThisAddressDestinationError`    | `Int32` | `-18` | Emit when the destination is `_this_address`.                        |    ✓     |
+| Name                                 | Type    |  Code | Description                                                          | Required |
+| ------------------------------------ | ------- | ----: | -------------------------------------------------------------------- | :------: |
+| `NotPausedError`                     | `Int32` |  `-1` | Emit when the contract is not paused.                                |          |
+| `PausedError`                        | `Int32` |  `-2` | Emit when the contract is paused.                                    |          |
+| `SelfError`                          | `Int32` |  `-3` | Emit when the address is self.                                       |    ✓     |
+| `NotContractOwnerError`              | `Int32` |  `-4` | Emit when the address is not a contract owner.                       |    ✓     |
+| `NotTokenOwnerError`                 | `Int32` |  `-5` | Emit when the address is not a token owner.                          |    ✓     |
+| `NotMinterError`                     | `Int32` |  `-6` | Emit when the address is not a minter.                               |    ✓     |
+| `NotOwnerOrOperatorError`            | `Int32` |  `-7` | Emit when the address is neither a token owner nor a token operator. |    ✓     |
+| `MinterNotFoundError`                | `Int32` |  `-8` | Emit when the minter is not found.                                   |    ✓     |
+| `MinterFoundError`                   | `Int32` |  `-9` | Emit when the minter is found.                                       |    ✓     |
+| `SpenderFoundError`                  | `Int32` | `-10` | Emit when the spender is found.                                      |    ✓     |
+| `OperatorNotFoundError`              | `Int32` | `-11` | Emit when the operator is not found.                                 |    ✓     |
+| `OperatorFoundError`                 | `Int32` | `-12` | Emit when the operator is found.                                     |    ✓     |
+| `NotAllowedToTransferError`          | `Int32` | `-13` | Emit when `_sender` is not allowed to transfer the token.            |    ✓     |
+| `TokenNotFoundError`                 | `Int32` | `-14` | Emit when the token is not found.                                    |    ✓     |
+| `InvalidFeeBPSError`                 | `Int32` | `-15` | Emit when the fee bps does not range from `1` to `10000`.            |          |
+| `ZeroAddressDestinationError`        | `Int32` | `-16` | Emit when the destination is the zero address.                       |    ✓     |
+| `ThisAddressDestinationError`        | `Int32` | `-17` | Emit when the destination is `_this_address`.                        |    ✓     |
+| `NotContractOwnershipRecipientError` | `Int32` | `-18` | Emit when the address is not a contract ownership recipient.         |          |
 
 ### E. Transitions
 
@@ -166,7 +166,7 @@ The NFT contract must define the following constants for use as error codes for 
 | 14  | [`RemoveOperator(to: ByStr20)`](#13-removeoperator)                                                      |    ✓     |
 | 15  | [`TransferFrom(to: ByStr20, token_id: Uint256)`](#14-transferfrom)                                       |    ✓     |
 | 15  | [`BatchTransferFrom(to_token_id_pair_list: List (Pair ByStr20 Uint256)`](#15-batchtransferfrom-optional) |          |
-| 16  | [`SetContractOwnerCandidate(to: ByStr20)`](#16-setcontractownercandidate-optional)                       |          |
+| 16  | [`SetContractOwnershipRecipient(to: ByStr20)`](#16-setcontractownershiprecipient-optional)               |          |
 | 17  | [`AcceptContractOwnership()`](#17-acceptcontractownership-optional)                                      |          |
 
 #### 1. `Pause` (Optional)
@@ -565,15 +565,15 @@ Transfers multiple `token_id` to multiple `to`.
 | ------ | -------------------------------- | ----------------------------------- | ------------------- |
 | `_tag` | `ZRC6_BatchTransferFromCallback` | Provide the sender with the result. |                     |
 
-#### 16. `SetContractOwnerCandidate` (Optional)
+#### 16. `SetContractOwnershipRecipient` (Optional)
 
-Sets `to` as the contract owner candidate. To reset `contract_owner_candidate`, use `zero_address`. i.e., `0x0000000000000000000000000000000000000000`.
+Sets `to` as the contract ownership recipient. To reset `contract_ownership_recipient`, use `zero_address`. i.e., `0x0000000000000000000000000000000000000000`.
 
 **Arguments:**
 
-| Name | Type      | Description                                        |
-| ---- | --------- | -------------------------------------------------- |
-| `to` | `ByStr20` | Address to be set as the contract owner candidate. |
+| Name | Type      | Description                                            |
+| ---- | --------- | ------------------------------------------------------ |
+| `to` | `ByStr20` | Address to be set as the contract ownership recipient. |
 
 **Requirements:**
 
@@ -582,23 +582,23 @@ Sets `to` as the contract owner candidate. To reset `contract_owner_candidate`, 
 
 **Messages:**
 
-|        | Name                                     | Description                                                     | Callback Parameters                                          |
-| ------ | ---------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------ |
-| `_tag` | `ZRC6_SetContractOwnerCandidateCallback` | Provide the sender the address of the contract owner candidate. | `to` : `ByStr20`<br/>Address of the contract owner candidate |
+|        | Name                                         | Description                                                         | Callback Parameters                                              |
+| ------ | -------------------------------------------- | ------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `_tag` | `ZRC6_SetContractOwnershipRecipientCallback` | Provide the sender the address of the contract ownership recipient. | `to` : `ByStr20`<br/>Address of the contract ownership recipient |
 
 **Events:**
 
-|              | Name                        | Description                                    | Event Parameters                                                               |
-| ------------ | --------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------ |
-| `_eventname` | `SetContractOwnerCandidate` | The contract owner candidate has been updated. | <ul><li>`to` : `ByStr20`<br/>Address of the contract owner candidate</li></ul> |
+|              | Name                            | Description                                        | Event Parameters                                                                   |
+| ------------ | ------------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `_eventname` | `SetContractOwnershipRecipient` | The contract ownership recipient has been updated. | <ul><li>`to` : `ByStr20`<br/>Address of the contract ownership recipient</li></ul> |
 
 #### 17. `AcceptContractOwnership` (Optional)
 
-Sets `contract_owner_candidate` as the contract owner.
+Sets `contract_ownership_recipient` as the contract owner.
 
 **Requirements:**
 
-- `_sender` must be the contract owner candidate. Otherwise, it must throw `NotContractOwnerCandidateError`.
+- `_sender` must be the contract ownership recipient. Otherwise, it must throw `NotContractOwnershipRecipientError`.
 
 **Messages:**
 

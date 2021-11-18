@@ -49,7 +49,7 @@ type Error =
   | PausedError
   | SelfError
   | NotContractOwnerError
-  | NotContractOwnerCandidateError
+  | NotContractOwnershipRecipientError
   | NotTokenOwnerError
   | NotMinterError
   | NotOwnerOrOperatorError
@@ -68,24 +68,24 @@ let make_error =
   fun (result: Error) =>
     let result_code = 
       match result with
-      | NotPausedError                 => Int32 -1
-      | PausedError                    => Int32 -2
-      | SelfError                      => Int32 -3
-      | NotContractOwnerError          => Int32 -4
-      | NotContractOwnerCandidateError => Int32 -5
-      | NotTokenOwnerError             => Int32 -6
-      | NotMinterError                 => Int32 -7
-      | NotOwnerOrOperatorError        => Int32 -8
-      | MinterNotFoundError            => Int32 -9
-      | MinterFoundError               => Int32 -10
-      | SpenderFoundError              => Int32 -11
-      | OperatorNotFoundError          => Int32 -12
-      | OperatorFoundError             => Int32 -13
-      | NotAllowedToTransferError      => Int32 -14
-      | TokenNotFoundError             => Int32 -15
-      | InvalidFeeBPSError             => Int32 -16
-      | ZeroAddressDestinationError    => Int32 -17
-      | ThisAddressDestinationError    => Int32 -18
+      | NotPausedError                     => Int32 -1
+      | PausedError                        => Int32 -2
+      | SelfError                          => Int32 -3
+      | NotContractOwnerError              => Int32 -4
+      | NotTokenOwnerError                 => Int32 -5
+      | NotMinterError                     => Int32 -6
+      | NotOwnerOrOperatorError            => Int32 -7
+      | MinterNotFoundError                => Int32 -8
+      | MinterFoundError                   => Int32 -9
+      | SpenderFoundError                  => Int32 -10
+      | OperatorNotFoundError              => Int32 -11
+      | OperatorFoundError                 => Int32 -12
+      | NotAllowedToTransferError          => Int32 -13
+      | TokenNotFoundError                 => Int32 -14
+      | InvalidFeeBPSError                 => Int32 -15
+      | ZeroAddressDestinationError        => Int32 -16
+      | ThisAddressDestinationError        => Int32 -17
+      | NotContractOwnershipRecipientError => Int32 -18
       end
     in
     { _exception: "Error"; code: result_code }
@@ -140,9 +140,9 @@ field token_symbol: String = symbol
 (* Defaults to `initial_contract_owner` *)
 field contract_owner: ByStr20 = initial_contract_owner
 
-(* Contract owner candidate *)
+(* Contract ownership recipient *)
 (* Defaults to `zero_address` *)
-field contract_owner_candidate: ByStr20 = zero_address
+field contract_ownership_recipient: ByStr20 = zero_address
 
 (* Address to send royalties to *)
 (* Defaults to `initial_contract_owner` *)
@@ -857,26 +857,26 @@ transition BatchTransferFrom(to_token_id_pair_list: List (Pair ByStr20 Uint256))
   send msgs
 end
 
-(* Sets `to` as the contract owner candidate. *)
-(* To reset `contract_owner_candidate`, use `zero_address`. *)
+(* Sets `to` as the contract ownership recipient. *)
+(* To reset `contract_ownership_recipient`, use `zero_address`. *)
 (* i.e., `0x0000000000000000000000000000000000000000` *)
-(* @param: to - contract owner candidate address  *)
+(* @param: to - Address of contract ownership recipient *)
 (* @Requirements: *)
 (* - `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError` *)
 (* - `_sender` must not be `to`. Otherwise, it must throw `SelfError` *)
-transition SetContractOwnerCandidate(to: ByStr20)
+transition SetContractOwnershipRecipient(to: ByStr20)
   RequireContractOwner;
   RequireNotSelf to _sender;
   
-  contract_owner_candidate := to;
+  contract_ownership_recipient := to;
 
   e = {
-    _eventname: "SetContractOwnerCandidate";
+    _eventname: "SetContractOwnershipRecipient";
     to: to
   };
   event e;
   msg_to_sender = {
-    _tag: "ZRC6_SetContractOwnerCandidateCallback";
+    _tag: "ZRC6_SetContractOwnershipRecipientCallback";
     _recipient: _sender;
     _amount: Uint128 0;
     to: to
@@ -885,20 +885,20 @@ transition SetContractOwnerCandidate(to: ByStr20)
   send msgs
 end
 
-(* Sets `contract_owner_candidate` as the contract owner. *)
+(* Sets `contract_ownership_recipient` as the contract owner. *)
 (* @Requirements: *)
-(* - `_sender` must be the contract owner candidate. Otherwise, it must throw `NotContractOwnerCandidateError` *)
+(* - `_sender` must be the contract ownership recipient. Otherwise, it must throw `NotContractOwnershipRecipientError` *)
 transition AcceptContractOwnership()
-  candidate <- contract_owner_candidate;
+  recipient <- contract_ownership_recipient;
 
-  is_candidate = builtin eq _sender candidate;
-  match is_candidate with
+  is_recipient = builtin eq _sender recipient;
+  match is_recipient with
   | False =>
-    error = NotContractOwnerCandidateError;
+    error = NotContractOwnershipRecipientError;
     Throw error
   | True =>
     contract_owner := _sender;
-    contract_owner_candidate := zero_address;
+    contract_ownership_recipient := zero_address;
 
     e = {
       _eventname: "AcceptContractOwnership";
