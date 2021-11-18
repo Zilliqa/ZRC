@@ -63,12 +63,12 @@ The main advantages of this standard are:
 
 ### A. Immutable Parameters
 
-| Name                     | Type      | Description                                                             |
-| ------------------------ | --------- | ----------------------------------------------------------------------- |
-| `initial_contract_owner` | `ByStr20` | The contract owner.                                                     |
-| `initial_base_uri`       | `String`  | Base token URI. e.g. `https://creatures-api.zilliqa.com/api/creature/`. |
-| `name`                   | `String`  | The NFT name.                                                           |
-| `symbol`                 | `String`  | The NFT symbol.                                                         |
+| Name                     | Type      | Description                                                                                                     |
+| ------------------------ | --------- | --------------------------------------------------------------------------------------------------------------- |
+| `initial_contract_owner` | `ByStr20` | Address of contract owner. It must not be the zero address. i.e., `0x0000000000000000000000000000000000000000`. |
+| `initial_base_uri`       | `String`  | Base token URI. e.g. `https://creatures-api.zilliqa.com/api/creature/`. It must not be an empty string.         |
+| `name`                   | `String`  | NFT name. It must not be an empty string.                                                                       |
+| `symbol`                 | `String`  | NFT symbol. It must not be an empty string.                                                                     |
 
 ### B. Mutable Fields
 

@@ -17,6 +17,7 @@ let false = False
 let true = True
 let zero = Uint256 0
 let one = Uint256 1
+let empty_string = ""
 
 let add_operation = Add
 let sub_operation = Sub
@@ -101,6 +102,23 @@ contract NonfungibleToken
   name: String,
   symbol: String
 )
+
+(* Contract constraints *)
+with
+  (* `initial_contract_owner` must not be the zero address *)
+  let is_contract_owner_invalid = builtin eq initial_contract_owner zero_address in
+  (* `initial_base_uri` must not be an empty string *)
+  let is_base_uri_invalid = builtin eq initial_base_uri empty_string in
+  (* `name` must not be an empty string *)
+  let is_name_invalid = builtin eq name empty_string in
+  (* `symbol` must not be an empty string *)
+  let is_symbol_invalid = builtin eq symbol empty_string in
+  let is_name_or_symbol_invalid = orb is_name_invalid is_symbol_invalid in
+  let is_base_uri_or_name_or_symbol_invalid = orb is_base_uri_invalid is_name_or_symbol_invalid in
+  let is_invalid = orb is_contract_owner_invalid is_base_uri_or_name_or_symbol_invalid in
+  let is_valid = negb is_invalid in
+  is_valid
+=>
 
 (* Mutable fields *)
 
