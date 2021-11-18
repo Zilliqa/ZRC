@@ -23,15 +23,14 @@ export const ZRC6_ERROR = {
   NotOwnerOrOperatorError: -8,
   MinterNotFoundError: -9,
   MinterFoundError: -10,
-  SpenderNotFoundError: -11,
-  SpenderFoundError: -12,
-  OperatorNotFoundError: -13,
-  OperatorFoundError: -14,
-  NotAllowedToTransferError: -15,
-  TokenNotFoundError: -16,
-  InvalidFeeBPSError: -17,
-  ZeroAddressDestinationError: -18,
-  ThisAddressDestinationError: -19,
+  SpenderFoundError: -11,
+  OperatorNotFoundError: -12,
+  OperatorFoundError: -13,
+  NotAllowedToTransferError: -14,
+  TokenNotFoundError: -15,
+  InvalidFeeBPSError: -16,
+  ZeroAddressDestinationError: -17,
+  ThisAddressDestinationError: -18,
 };
 
 export const TOKEN_NAME = "TEST";

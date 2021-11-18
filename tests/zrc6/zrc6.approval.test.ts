@@ -113,7 +113,7 @@ beforeEach(async () => {
   tx = await globalContractInfo.callGetter(
     zilliqa.contracts.at(globalContractAddress),
     TX_PARAMS
-  )("AddSpender", toTestAddr(SPENDER), "1");
+  )("SetSpender", toTestAddr(SPENDER), "1");
   if (!tx.receipt.success) {
     throw new Error();
   }
@@ -131,7 +131,7 @@ describe("Approval", () => {
   const testCases = [
     {
       name: "throws TokenNotFoundError",
-      transition: "AddSpender",
+      transition: "SetSpender",
       getSender: () => toTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
         spender: toTestAddr(STRANGER_A),
@@ -142,7 +142,7 @@ describe("Approval", () => {
     },
     {
       name: "throws NotOwnerOrOperatorError",
-      transition: "AddSpender",
+      transition: "SetSpender",
       getSender: () => toTestAddr(STRANGER_A), // Not a token owner
       getParams: () => ({
         spender: toTestAddr(STRANGER_B),
@@ -153,7 +153,7 @@ describe("Approval", () => {
     },
     {
       name: "throws SelfError",
-      transition: "AddSpender",
+      transition: "SetSpender",
       getSender: () => toTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
         spender: toTestAddr(TOKEN_OWNER_A),
@@ -164,7 +164,7 @@ describe("Approval", () => {
     },
     {
       name: "throws SpenderFoundError",
-      transition: "AddSpender",
+      transition: "SetSpender",
       getSender: () => toTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
         spender: toTestAddr(SPENDER),
@@ -174,8 +174,8 @@ describe("Approval", () => {
       want: undefined,
     },
     {
-      name: "adds stranger as spender of token #1 by token owner A",
-      transition: "AddSpender",
+      name: "sets stranger as spender for token #1",
+      transition: "SetSpender",
       getSender: () => toTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
         spender: toTestAddr(STRANGER_A),
@@ -188,7 +188,7 @@ describe("Approval", () => {
         },
         events: [
           {
-            name: "AddSpender",
+            name: "SetSpender",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(STRANGER_A), "spender"),
               toMsgParam("Uint256", 1, "token_id"),
@@ -197,7 +197,7 @@ describe("Approval", () => {
         ],
         transitions: [
           {
-            tag: "ZRC6_AddSpenderCallback",
+            tag: "ZRC6_SetSpenderCallback",
             getParams: () => [
               toMsgParam("ByStr20", toTestAddr(STRANGER_A), "spender"),
               toMsgParam("Uint256", 1, "token_id"),
@@ -207,98 +207,42 @@ describe("Approval", () => {
       },
     },
     {
-      name: "adds stranger as spender of token #2 by token owner B",
-      transition: "AddSpender",
-      getSender: () => toTestAddr(TOKEN_OWNER_B),
-      getParams: () => ({
-        spender: toTestAddr(STRANGER_A),
-        token_id: "2",
-      }),
-      error: undefined,
-      want: {
-        verifyState: (state) => {
-          return state.spenders["2"] === toTestAddr(STRANGER_A).toLowerCase();
-        },
-        events: [
-          {
-            name: "AddSpender",
-            getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER_A), "spender"),
-              toMsgParam("Uint256", 2, "token_id"),
-            ],
-          },
-        ],
-        transitions: [
-          {
-            tag: "ZRC6_AddSpenderCallback",
-            getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER_A), "spender"),
-              toMsgParam("Uint256", 2, "token_id"),
-            ],
-          },
-        ],
-      },
-    },
-    {
-      name: "throws TokenNotFoundError",
-      transition: "RemoveSpender",
+      name: "sets zero address as spender for token #1",
+      transition: "SetSpender",
       getSender: () => toTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        spender: toTestAddr(STRANGER_A),
-        token_id: "999", // Non-existing token
-      }),
-      error: ZRC6_ERROR.TokenNotFoundError,
-      want: undefined,
-    },
-    {
-      name: "throws NotOwnerOrOperatorError",
-      transition: "RemoveSpender",
-      getSender: () => toTestAddr(STRANGER_A), // Not a token owner
-      getParams: () => ({
-        spender: toTestAddr(STRANGER_A),
-        token_id: "1",
-      }),
-      error: ZRC6_ERROR.NotOwnerOrOperatorError,
-      want: undefined,
-    },
-    {
-      name: "throws SpenderNotFoundError for token #2 by token owner B",
-      transition: "RemoveSpender",
-      getSender: () => toTestAddr(TOKEN_OWNER_B),
-      getParams: () => ({
-        spender: toTestAddr(STRANGER_A),
-        token_id: "2",
-      }),
-      error: ZRC6_ERROR.SpenderNotFoundError,
-      want: undefined,
-    },
-    {
-      name: "removes spender of token #1 by token owner A",
-      transition: "RemoveSpender",
-      getSender: () => toTestAddr(TOKEN_OWNER_A),
-      getParams: () => ({
-        spender: toTestAddr(SPENDER),
+        spender: "0x0000000000000000000000000000000000000000",
         token_id: "1",
       }),
       error: undefined,
       want: {
         verifyState: (state) => {
-          return state.spenders["1"] === undefined;
+          return (
+            state.spenders["1"] === "0x0000000000000000000000000000000000000000"
+          );
         },
         events: [
           {
-            name: "RemoveSpender",
+            name: "SetSpender",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(SPENDER), "spender"),
+              toMsgParam(
+                "ByStr20",
+                "0x0000000000000000000000000000000000000000",
+                "spender"
+              ),
               toMsgParam("Uint256", 1, "token_id"),
             ],
           },
         ],
         transitions: [
           {
-            tag: "ZRC6_RemoveSpenderCallback",
+            tag: "ZRC6_SetSpenderCallback",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(SPENDER), "spender"),
+              toMsgParam(
+                "ByStr20",
+                "0x0000000000000000000000000000000000000000",
+                "spender"
+              ),
               toMsgParam("Uint256", 1, "token_id"),
             ],
           },

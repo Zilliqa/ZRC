@@ -54,7 +54,6 @@ type Error =
   | NotOwnerOrOperatorError
   | MinterNotFoundError
   | MinterFoundError
-  | SpenderNotFoundError
   | SpenderFoundError
   | OperatorNotFoundError
   | OperatorFoundError
@@ -78,15 +77,14 @@ let make_error =
       | NotOwnerOrOperatorError        => Int32 -8
       | MinterNotFoundError            => Int32 -9
       | MinterFoundError               => Int32 -10
-      | SpenderNotFoundError           => Int32 -11
-      | SpenderFoundError              => Int32 -12
-      | OperatorNotFoundError          => Int32 -13
-      | OperatorFoundError             => Int32 -14
-      | NotAllowedToTransferError      => Int32 -15
-      | TokenNotFoundError             => Int32 -16
-      | InvalidFeeBPSError             => Int32 -17
-      | ZeroAddressDestinationError    => Int32 -18
-      | ThisAddressDestinationError    => Int32 -19
+      | SpenderFoundError              => Int32 -11
+      | OperatorNotFoundError          => Int32 -12
+      | OperatorFoundError             => Int32 -13
+      | NotAllowedToTransferError      => Int32 -14
+      | TokenNotFoundError             => Int32 -15
+      | InvalidFeeBPSError             => Int32 -16
+      | ZeroAddressDestinationError    => Int32 -17
+      | ThisAddressDestinationError    => Int32 -18
       end
     in
     { _exception: "Error"; code: result_code }
@@ -668,14 +666,15 @@ transition RemoveMinter(minter: ByStr20)
   send msgs
 end
 
-(* Adds `spender` for `token_id`. *)
-(* There can only be one spender per token at any given time. *)
+(* Sets `spender` for `token_id`. *)
+(* To remove `spender` for a token, use `zero_address`. *)
+(* i.e., `0x0000000000000000000000000000000000000000` *)
 (* @Requirements: *)
 (* - `token_id` must exist. Otherwise, it must throw `TokenNotFoundError` *)
 (* - `_sender` must be a token owner or an operator. Otherwise, it must throw `NotOwnerOrOperatorError` *)
 (* - `_sender` must not be `spender`. Otherwise, it must throw `SelfError` *)
 (* - `spender` must not be already a spender. Otherwise, it must throw `SpenderFoundError` *)
-transition AddSpender(spender: ByStr20, token_id: Uint256)
+transition SetSpender(spender: ByStr20, token_id: Uint256)
   RequireNotSelf spender _sender;
   
   opt_token_owner <- token_owners[token_id];
@@ -700,58 +699,16 @@ transition AddSpender(spender: ByStr20, token_id: Uint256)
         end
     end;
       
-    (* Add spender *)
     spenders[token_id] := spender;
-    e = {
-      _eventname: "AddSpender";
-      spender: spender;
-      token_id: token_id
-    };
-    event e;
-    msg_to_sender = {
-      _tag: "ZRC6_AddSpenderCallback";
-      _recipient: _sender;
-      _amount: Uint128 0;
-      spender: spender;
-      token_id: token_id
-    };
-    msgs = one_msg msg_to_sender;
-    send msgs
-  end
-end
 
-(* Removes `spender` for `token_id`. *)
-(* @Requirements: *)
-(* - `token_id` must exist. Otherwise, it must throw `TokenNotFoundError` *)
-(* - `_sender` must be a token owner or an operator. Otherwise, it must throw `NotOwnerOrOperatorError` *)
-(* - `spender` must be already a spender. Otherwise, it must throw `SpenderNotFoundError` *)
-transition RemoveSpender(spender: ByStr20, token_id: Uint256)
-  opt_token_owner <- token_owners[token_id];
-  match opt_token_owner with
-  | None =>
-    error = TokenNotFoundError;
-    Throw error
-  | Some token_owner =>
-    RequireOwnerOrOperator token_owner;
-    
-    has_spender <- exists spenders[token_id];
-    match has_spender with
-    | True =>
-      (* Remove spender *)
-      delete spenders[token_id]
-    | False =>
-      error = SpenderNotFoundError;
-      Throw error
-    end;
-    
     e = {
-      _eventname: "RemoveSpender";
+      _eventname: "SetSpender";
       spender: spender;
       token_id: token_id
     };
     event e;
     msg_to_sender = {
-      _tag: "ZRC6_RemoveSpenderCallback";
+      _tag: "ZRC6_SetSpenderCallback";
       _recipient: _sender;
       _amount: Uint128 0;
       spender: spender;

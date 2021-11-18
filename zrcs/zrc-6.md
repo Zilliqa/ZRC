@@ -114,14 +114,13 @@ The main advantages of this standard are:
 | [`Burn`](#8-burn-optional)                                            |                  |          |       ✓       |           |     ✓      |                            |
 | [`AddMinter`](#9-addminter)                                           |        ✓         |          |               |           |            |                            |
 | [`RemoveMinter`](#10-removeminter)                                    |        ✓         |          |               |           |            |                            |
-| [`AddSpender`](#11-addspender)                                        |                  |          |       ✓       |           |     ✓      |                            |
-| [`RemoveSpender`](#12-removespender)                                  |                  |          |       ✓       |           |     ✓      |                            |
-| [`AddOperator`](#13-addoperator)                                      |                  |          |       ✓       |           |            |                            |
-| [`RemoveOperator`](#14-removeoperator)                                |                  |          |       ✓       |           |            |                            |
-| [`TransferFrom`](#15-transferfrom)                                    |                  |          |       ✓       |     ✓     |     ✓      |                            |
-| [`BatchTransferFrom`](#16-batchtransferfrom-optional)                 |                  |          |       ✓       |     ✓     |     ✓      |                            |
-| [`SetContractOwnerCandidate`](#17-setcontractownercandidate-optional) |        ✓         |          |               |           |            |                            |
-| [`AcceptContractOwnership`](#18-acceptcontractownership-optional)     |                  |          |               |           |            |             ✓              |
+| [`SetSpender`](#11-setspender)                                        |                  |          |       ✓       |           |     ✓      |                            |
+| [`AddOperator`](#12-addoperator)                                      |                  |          |       ✓       |           |            |                            |
+| [`RemoveOperator`](#13-removeoperator)                                |                  |          |       ✓       |           |            |                            |
+| [`TransferFrom`](#14-transferfrom)                                    |                  |          |       ✓       |     ✓     |     ✓      |                            |
+| [`BatchTransferFrom`](#15-batchtransferfrom-optional)                 |                  |          |       ✓       |     ✓     |     ✓      |                            |
+| [`SetContractOwnerCandidate`](#16-setcontractownercandidate-optional) |        ✓         |          |               |           |            |                            |
+| [`AcceptContractOwnership`](#17-acceptcontractownership-optional)     |                  |          |               |           |            |             ✓              |
 
 ### D. Error Codes
 
@@ -139,15 +138,14 @@ The NFT contract must define the following constants for use as error codes for 
 | `NotOwnerOrOperatorError`        | `Int32` |  `-8` | Emit when the address is neither a token owner nor a token operator. |    ✓     |
 | `MinterNotFoundError`            | `Int32` |  `-9` | Emit when the minter is not found.                                   |    ✓     |
 | `MinterFoundError`               | `Int32` | `-10` | Emit when the minter is found.                                       |    ✓     |
-| `SpenderNotFoundError`           | `Int32` | `-11` | Emit when the spender is not found.                                  |    ✓     |
-| `SpenderFoundError`              | `Int32` | `-12` | Emit when the spender is found.                                      |    ✓     |
-| `OperatorNotFoundError`          | `Int32` | `-13` | Emit when the operator is not found.                                 |    ✓     |
-| `OperatorFoundError`             | `Int32` | `-14` | Emit when the operator is found.                                     |    ✓     |
-| `NotAllowedToTransferError`      | `Int32` | `-15` | Emit when `_sender` is not allowed to transfer the token.            |    ✓     |
-| `TokenNotFoundError`             | `Int32` | `-16` | Emit when the token is not found.                                    |    ✓     |
-| `InvalidFeeBPSError`             | `Int32` | `-17` | Emit when the fee bps does not range from `1` to `10000`.            |          |
-| `ZeroAddressDestinationError`    | `Int32` | `-18` | Emit when the destination is the zero address.                       |    ✓     |
-| `ThisAddressDestinationError`    | `Int32` | `-19` | Emit when the destination is `_this_address`.                        |    ✓     |
+| `SpenderFoundError`              | `Int32` | `-11` | Emit when the spender is found.                                      |    ✓     |
+| `OperatorNotFoundError`          | `Int32` | `-12` | Emit when the operator is not found.                                 |    ✓     |
+| `OperatorFoundError`             | `Int32` | `-13` | Emit when the operator is found.                                     |    ✓     |
+| `NotAllowedToTransferError`      | `Int32` | `-14` | Emit when `_sender` is not allowed to transfer the token.            |    ✓     |
+| `TokenNotFoundError`             | `Int32` | `-15` | Emit when the token is not found.                                    |    ✓     |
+| `InvalidFeeBPSError`             | `Int32` | `-16` | Emit when the fee bps does not range from `1` to `10000`.            |          |
+| `ZeroAddressDestinationError`    | `Int32` | `-17` | Emit when the destination is the zero address.                       |    ✓     |
+| `ThisAddressDestinationError`    | `Int32` | `-18` | Emit when the destination is `_this_address`.                        |    ✓     |
 
 ### E. Transitions
 
@@ -163,14 +161,13 @@ The NFT contract must define the following constants for use as error codes for 
 |  8  | [`Burn(token_id: Uint256)`](#8-burn-optional)                                                            |          |
 |  9  | [`AddMinter(to: ByStr20)`](#9-addminter)                                                                 |    ✓     |
 | 10  | [`RemoveMinter(to: ByStr20)`](#10-removeminter)                                                          |    ✓     |
-| 11  | [`AddSpender(to: ByStr20, token_id: Uint256)`](#11-addspender)                                           |    ✓     |
-| 12  | [`RemoveSpender(to: ByStr20, token_id: Uint256)`](#12-removespender)                                     |    ✓     |
-| 13  | [`AddOperator(to: ByStr20)`](#13-addoperator)                                                            |    ✓     |
-| 14  | [`RemoveOperator(to: ByStr20)`](#14-removeoperator)                                                      |    ✓     |
-| 15  | [`TransferFrom(to: ByStr20, token_id: Uint256)`](#15-transferfrom)                                       |    ✓     |
-| 15  | [`BatchTransferFrom(to_token_id_pair_list: List (Pair ByStr20 Uint256)`](#16-batchtransferfrom-optional) |          |
-| 16  | [`SetContractOwnerCandidate(to: ByStr20)`](#17-setcontractownercandidate-optional)                       |          |
-| 17  | [`AcceptContractOwnership()`](#18-acceptcontractownership-optional)                                      |          |
+| 11  | [`SetSpender(to: ByStr20, token_id: Uint256)`](#11-setspender)                                           |    ✓     |
+| 13  | [`AddOperator(to: ByStr20)`](#12-addoperator)                                                            |    ✓     |
+| 14  | [`RemoveOperator(to: ByStr20)`](#13-removeoperator)                                                      |    ✓     |
+| 15  | [`TransferFrom(to: ByStr20, token_id: Uint256)`](#14-transferfrom)                                       |    ✓     |
+| 15  | [`BatchTransferFrom(to_token_id_pair_list: List (Pair ByStr20 Uint256)`](#15-batchtransferfrom-optional) |          |
+| 16  | [`SetContractOwnerCandidate(to: ByStr20)`](#16-setcontractownercandidate-optional)                       |          |
+| 17  | [`AcceptContractOwnership()`](#17-acceptcontractownership-optional)                                      |          |
 
 #### 1. `Pause` (Optional)
 
@@ -426,16 +423,16 @@ Removes `minter`.
 | ------------ | -------------- | ------------------------ | ------------------------------------------------------------------------ |
 | `_eventname` | `RemoveMinter` | Minter has been removed. | <ul><li>`minter` : `ByStr20`<br/>Address that has been removed</li></ul> |
 
-#### 11. `AddSpender`
+#### 11. `SetSpender`
 
-Adds `spender` for `token_id`.
+Sets `spender` for `token_id`. To remove `spender` for a token, use `zero_address`. i.e., `0x0000000000000000000000000000000000000000`
 
 **Arguments:**
 
-| Name       | Type      | Description                                           |
-| ---------- | --------- | ----------------------------------------------------- |
-| `spender`  | `ByStr20` | Address to be added as a spender of a given token ID. |
-| `token_id` | `Uint256` | Unique ID of an existing token.                       |
+| Name       | Type      | Description                                       |
+| ---------- | --------- | ------------------------------------------------- |
+| `spender`  | `ByStr20` | Address to be set as a spender for a given token. |
+| `token_id` | `Uint256` | Unique ID of an existing token.                   |
 
 **Requirements:**
 
@@ -446,46 +443,17 @@ Adds `spender` for `token_id`.
 
 **Messages:**
 
-|        | Name                      | Description                                                 | Callback Parameters                                                                                                             |
-| ------ | ------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_AddSpenderCallback` | Provide the sender the address of the spender and token ID. | <ul><li>`spender` : `ByStr20`<br/>Address that has been added</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
+|        | Name                      | Description                                                 | Callback Parameters                                                                                                               |
+| ------ | ------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_AddSpenderCallback` | Provide the sender the address of the spender and token ID. | <ul><li>`spender` : `ByStr20`<br/>Address that has been updated</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
 
 **Events:**
 
-|              | Name         | Description             | Event Parameters                                                                                                                |
-| ------------ | ------------ | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `AddSpender` | Spender has been added. | <ul><li>`spender` : `ByStr20`<br/>Address that has been added</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
+|              | Name         | Description               | Event Parameters                                                                                                                  |
+| ------------ | ------------ | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `SetSpender` | Spender has been updated. | <ul><li>`spender` : `ByStr20`<br/>Address that has been updated</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
 
-#### 12. `RemoveSpender`
-
-Removes `spender` for `token_id`.
-
-**Arguments:**
-
-| Name       | Type      | Description                                             |
-| ---------- | --------- | ------------------------------------------------------- |
-| `spender`  | `ByStr20` | Address to be removed from spender of a given token ID. |
-| `token_id` | `Uint256` | Unique ID of an existing token.                         |
-
-**Requirements:**
-
-- `token_id` must exist. Otherwise, it must throw `TokenNotFoundError`.
-- `_sender` must be a token owner or an operator. Otherwise, it must throw `NotOwnerOrOperatorError`.
-- `spender` must be already a spender. Otherwise, it must throw `SpenderNotFoundError`.
-
-**Messages:**
-
-|        | Name                         | Description                                           | Callback Parameters                                                                                                               |
-| ------ | ---------------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_RemoveSpenderCallback` | Provide the sender the address that has been removed. | <ul><li>`spender` : `ByStr20`<br/>Address that has been removed</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
-
-**Events:**
-
-|              | Name            | Description               | Event Parameters                                                                                                                  |
-| ------------ | --------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `RemoveSpender` | Spender has been removed. | <ul><li>`spender` : `ByStr20`<br/>Address that has been removed</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
-
-#### 13. `AddOperator`
+#### 12. `AddOperator`
 
 Adds `operator` for `_sender`.
 
@@ -513,7 +481,7 @@ Adds `operator` for `_sender`.
 | ------------ | ------------- | ------------------------ | ------------------------------------------------------------------------ |
 | `_eventname` | `AddOperator` | Operator has been added. | <ul><li>`operator` : `ByStr20`<br/>Address that has been added</li></ul> |
 
-#### 14. `RemoveOperator`
+#### 13. `RemoveOperator`
 
 Removes `operator` for `_sender`.
 
@@ -539,7 +507,7 @@ Removes `operator` for `_sender`.
 | ------------ | ---------------- | -------------------------- | -------------------------------------------------------------------------- |
 | `_eventname` | `RemoveOperator` | Operator has been removed. | <ul><li>`operator` : `ByStr20`<br/>Address that has been removed</li></ul> |
 
-#### 15. `TransferFrom`
+#### 14. `TransferFrom`
 
 Transfers `token_id` from the token owner to `to`.
 
@@ -572,7 +540,7 @@ Transfers `token_id` from the token owner to `to`.
 | ------------ | -------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `TransferFrom` | Token has been transferred. | <ul><li>`from` : `ByStr20`<br/>Address of the token owner</li><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
-#### 16. `BatchTransferFrom` (Optional)
+#### 15. `BatchTransferFrom` (Optional)
 
 Transfers multiple `token_id` to multiple `to`.
 
@@ -597,7 +565,7 @@ Transfers multiple `token_id` to multiple `to`.
 | ------ | -------------------------------- | ----------------------------------- | ------------------- |
 | `_tag` | `ZRC6_BatchTransferFromCallback` | Provide the sender with the result. |                     |
 
-#### 17. `SetContractOwnerCandidate` (Optional)
+#### 16. `SetContractOwnerCandidate` (Optional)
 
 Sets `to` as the contract owner candidate. To reset `contract_owner_candidate`, use `zero_address`. i.e., `0x0000000000000000000000000000000000000000`.
 
@@ -624,7 +592,7 @@ Sets `to` as the contract owner candidate. To reset `contract_owner_candidate`, 
 | ------------ | --------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------ |
 | `_eventname` | `SetContractOwnerCandidate` | The contract owner candidate has been updated. | <ul><li>`to` : `ByStr20`<br/>Address of the contract owner candidate</li></ul> |
 
-#### 18. `AcceptContractOwnership` (Optional)
+#### 17. `AcceptContractOwnership` (Optional)
 
 Sets `contract_owner_candidate` as the contract owner.
 
