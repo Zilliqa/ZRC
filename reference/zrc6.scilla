@@ -39,8 +39,8 @@ let two_msgs =
 let get_bal =
   fun (maybe_bal: Option Uint256) =>
     match maybe_bal with
-    | Some bal => bal
     | None => zero
+    | Some bal => bal
     end
 
 (* Error exception *)
@@ -276,6 +276,9 @@ end
 procedure RequireTokenOwner(token_id: Uint256, address: ByStr20)
   maybe_token_owner <- token_owners[token_id];
   match maybe_token_owner with
+  | None =>
+    error = TokenNotFoundError;
+    Throw error
   | Some addr => 
     is_token_owner = builtin eq addr address;
     match is_token_owner with
@@ -284,9 +287,6 @@ procedure RequireTokenOwner(token_id: Uint256, address: ByStr20)
       error = NotTokenOwnerError;
       Throw error
     end
-  | None =>
-    error = TokenNotFoundError;
-    Throw error
   end
 end
 
@@ -663,11 +663,11 @@ transition RemoveMinter(minter: ByStr20)
   RequireContractOwner;
   has_minter <- exists minters[minter];
   match has_minter with
-  | True => 
-    delete minters[minter]
   | False =>
     error = MinterNotFoundError;
     Throw error
+  | True => 
+    delete minters[minter]
   end;
   e = { 
     _eventname: "RemoveMinter";
