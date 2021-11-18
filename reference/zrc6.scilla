@@ -37,8 +37,8 @@ let two_msgs =
     Cons {Message} msg1 msgs_tmp
 
 let get_bal =
-  fun (opt_bal: Option Uint256) =>
-    match opt_bal with
+  fun (maybe_bal: Option Uint256) =>
+    match maybe_bal with
     | Some bal => bal
     | None => zero
     end
@@ -274,8 +274,8 @@ procedure IsMinter(address: ByStr20)
 end
 
 procedure RequireTokenOwner(token_id: Uint256, address: ByStr20)
-  opt_token_owner <- token_owners[token_id];
-  match opt_token_owner with
+  maybe_token_owner <- token_owners[token_id];
+  match maybe_token_owner with
   | Some addr => 
     is_token_owner = builtin eq addr address;
     match is_token_owner with
@@ -307,8 +307,8 @@ procedure RequireAccessToTransfer(token_owner: ByStr20, token_id: Uint256)
   is_token_owner = builtin eq token_owner _sender;
   
   (* check if _sender is spender *)
-  opt_spender <- spenders[token_id];
-  is_spender = match opt_spender with
+  maybe_spender <- spenders[token_id];
+  is_spender = match maybe_spender with
     | None => False
     | Some spender => 
       builtin eq spender _sender
@@ -330,15 +330,15 @@ end
 procedure UpdateBalance(operation: Operation, address: ByStr20)
   match operation with
   | Add =>
-    opt_to_count <- balances[address];
+    maybe_to_count <- balances[address];
     new_to_count = 
-      let current_count = get_bal opt_to_count in
+      let current_count = get_bal maybe_to_count in
       builtin add current_count one;
     balances[address] := new_to_count
   | Sub =>
-    opt_from_count <- balances[address];
+    maybe_from_count <- balances[address];
     new_from_count = 
-      let current_count = get_bal opt_from_count in
+      let current_count = get_bal maybe_from_count in
         let is_zero = builtin eq current_count zero in
           match is_zero with
           | True => zero
@@ -384,8 +384,8 @@ procedure TransferToken(to: ByStr20, token_id: Uint256)
   RequireNotPaused;
   RequireValidDestination to;
 
-  opt_token_owner <- token_owners[token_id];
-  match opt_token_owner with
+  maybe_token_owner <- token_owners[token_id];
+  match maybe_token_owner with
   | None =>
     error = TokenNotFoundError;
     Throw error
@@ -590,8 +590,8 @@ end
 transition Burn(token_id: Uint256)
   RequireNotPaused;
   (* Check if token exists *)
-  opt_token_owner <- token_owners[token_id];
-  match opt_token_owner with
+  maybe_token_owner <- token_owners[token_id];
+  match maybe_token_owner with
   | None =>
     error = TokenNotFoundError;
     Throw error
@@ -695,8 +695,8 @@ end
 transition SetSpender(spender: ByStr20, token_id: Uint256)
   RequireNotSelf spender _sender;
   
-  opt_token_owner <- token_owners[token_id];
-  match opt_token_owner with
+  maybe_token_owner <- token_owners[token_id];
+  match maybe_token_owner with
   | None =>
     error = TokenNotFoundError;
     Throw error
@@ -704,8 +704,8 @@ transition SetSpender(spender: ByStr20, token_id: Uint256)
     RequireOwnerOrOperator token_owner;
     
     (* Check if the spender exists *)
-    opt_spender <- spenders[token_id];
-    match opt_spender with
+    maybe_spender <- spenders[token_id];
+    match maybe_spender with
       | None =>
       | Some cur_spender =>
         has_spender = builtin eq cur_spender spender;
@@ -745,8 +745,8 @@ end
 transition AddOperator(operator: ByStr20)
   RequireNotSelf operator _sender;
   
-  opt_bal <- balances[_sender];
-  balance = get_bal opt_bal;
+  maybe_bal <- balances[_sender];
+  balance = get_bal maybe_bal;
   
   is_balance_zero = builtin eq zero balance;
   (* _sender must have at least 1 token *)
@@ -810,8 +810,8 @@ end
 
 (* Transfers `token_id` from the token owner to `to`.  *)
 transition TransferFrom(to: ByStr20, token_id: Uint256)
-  opt_token_owner <- token_owners[token_id];
-  match opt_token_owner with
+  maybe_token_owner <- token_owners[token_id];
+  match maybe_token_owner with
   | None =>
     error = TokenNotFoundError;
     Throw error
