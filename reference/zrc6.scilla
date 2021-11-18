@@ -113,11 +113,11 @@ with
   let is_name_invalid = builtin eq name empty_string in
   (* `symbol` must not be an empty string *)
   let is_symbol_invalid = builtin eq symbol empty_string in
+  (* Check if any parameter is invalid *)
   let is_name_or_symbol_invalid = orb is_name_invalid is_symbol_invalid in
   let is_base_uri_or_name_or_symbol_invalid = orb is_base_uri_invalid is_name_or_symbol_invalid in
   let is_invalid = orb is_contract_owner_invalid is_base_uri_or_name_or_symbol_invalid in
-  let is_valid = negb is_invalid in
-  is_valid
+  negb is_invalid
 =>
 
 (* Mutable fields *)
