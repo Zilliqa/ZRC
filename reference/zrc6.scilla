@@ -333,17 +333,15 @@ procedure UpdateBalance(operation: Operation, address: ByStr20)
     maybe_count <- balances[address];
     new_count = 
       let cur_count = get_bal maybe_count in
+      (* if overflow occurs, it throws CALL_CONTRACT_FAILED *)
       builtin add cur_count one;
     balances[address] := new_count
   | Sub =>
     maybe_count <- balances[address];
     new_count = 
       let cur_count = get_bal maybe_count in
-        let is_zero = builtin eq cur_count zero in
-          match is_zero with
-          | True => zero
-          | False => builtin sub cur_count one
-          end;
+      (* if underflow occurs, it throws CALL_CONTRACT_FAILED *)
+      builtin sub cur_count one;
     balances[address] := new_count
   end
 end
