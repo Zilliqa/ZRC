@@ -19,7 +19,7 @@
 
 ## I. What are NFTs and NFT royalties?
 
-An NFT or Non-Fungible Token is an open standard to create collectible assets. Unlike fungible tokens, each token is unique and non-interchangeable with other tokens.
+An NFT, or Non-Fungible Token is a digital asset. Unlike fungible tokens, each token is unique and non-interchangeable.
 
 NFT royalties give an NFT creator or rights holder a percentage of the sale price each time the NFT is sold or re-sold.
 
