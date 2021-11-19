@@ -330,21 +330,21 @@ end
 procedure UpdateBalance(operation: Operation, address: ByStr20)
   match operation with
   | Add =>
-    maybe_to_count <- balances[address];
-    new_to_count = 
-      let current_count = get_bal maybe_to_count in
-      builtin add current_count one;
-    balances[address] := new_to_count
+    maybe_count <- balances[address];
+    new_count = 
+      let cur_count = get_bal maybe_count in
+      builtin add cur_count one;
+    balances[address] := new_count
   | Sub =>
-    maybe_from_count <- balances[address];
-    new_from_count = 
-      let current_count = get_bal maybe_from_count in
-        let is_zero = builtin eq current_count zero in
+    maybe_count <- balances[address];
+    new_count = 
+      let cur_count = get_bal maybe_count in
+        let is_zero = builtin eq cur_count zero in
           match is_zero with
           | True => zero
-          | False => builtin sub current_count one
+          | False => builtin sub cur_count one
           end;
-    balances[address] := new_from_count
+    balances[address] := new_count
   end
 end
 
