@@ -1,6 +1,6 @@
 | ZRC | Title                       | Status |   Type   | Author                                                                      | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
 | :-: | :-------------------------- | :----: | :------: | :-------------------------------------------------------------------------- | :------------------: | :------------------: |
-|  6  | Non-Fungible Token Standard | Ready  | Standard | Neuti Yoo<br/><noel@zilliqa.com> <br/> Jun Hao Tan<br/><junhao@zilliqa.com> |      2021-10-01      |      2021-11-15      |
+|  6  | Non-Fungible Token Standard | Ready  | Standard | Neuti Yoo<br/><noel@zilliqa.com> <br/> Jun Hao Tan<br/><junhao@zilliqa.com> |      2021-10-01      |      2021-11-22      |
 
 ## Table of Contents
 
@@ -87,7 +87,7 @@ The main advantages of this standard are:
 | `balances`                     | `Map ByStr20 Uint256`            | Mapping from token owner to the number of existing tokens.                                                                                                                                                                                                                                                                                                                                                        |    ✓     |
 | `total_supply`                 | `Uint256`                        | The total number of existing tokens. Defaults to `0`.                                                                                                                                                                                                                                                                                                                                                             |    ✓     |
 | `token_name`                   | `String`                         | Token name. Defaults to `name`. This field is for remote state read. This field must not be mutated.                                                                                                                                                                                                                                                                                                              |    ✓     |
-| `token_symbol`                 | `String`                         | Token symbol. Defaults to `symbol`.This field is for remote state read. This field must not be mutated.                                                                                                                                                                                                                                                                                                           |    ✓     |
+| `token_symbol`                 | `String`                         | Token symbol. Defaults to `symbol`. This field is for remote state read. This field must not be mutated.                                                                                                                                                                                                                                                                                                          |    ✓     |
 | `contract_ownership_recipient` | `ByStr20`                        | Address of the contract ownership recipient. Defaults to zero address.                                                                                                                                                                                                                                                                                                                                            |          |
 
 ### C. Roles
@@ -625,8 +625,10 @@ Sets `contract_ownership_recipient` as the contract owner.
 - [Ethereum Smart Contract Best Practices - Software Engineering Techniques](https://github.com/ConsenSys/smart-contract-best-practices/blob/master/docs/software_engineering.md)
 - [EIP-721: Non-Fungible Token Standard](https://eips.ethereum.org/EIPS/eip-721)
 - [EIP-2981: NFT Royalty Standard](https://eips.ethereum.org/EIPS/eip-2981)
+- [EIP-1155: Multi Token Standard](https://eips.ethereum.org/EIPS/eip-1155)
 - [OpenZeppelin ERC721.sol Implementation](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/ERC721.sol)
 - [OpenZeppelin IERC2981.sol Implementation](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/interfaces/IERC2981.sol)
+- [OpenZeppelin ERC1155.sol Implementation](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC1155/ERC1155.sol)
 - [OpenZeppelin Pausable.sol Implementation](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/security/Pausable.sol)
 - [OpenSea - Metadata Standards](https://docs.opensea.io/docs/metadata-standards)
 - [Ethereum Smart Contract Best Practices - Token Implementation Best Practice](https://github.com/ConsenSys/smart-contract-best-practices/blob/master/docs/tokens.md)
