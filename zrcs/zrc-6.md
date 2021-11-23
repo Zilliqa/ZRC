@@ -339,9 +339,9 @@ Mints tokens and transfers them to `to_list`.
 
 **Messages:**
 
-|        | Name                     | Description                         | Callback Parameters |
-| ------ | ------------------------ | ----------------------------------- | ------------------- |
-| `_tag` | `ZRC6_BatchMintCallback` | Provide the sender with the result. |                     |
+|        | Name                     | Description        | Callback Parameters |
+| ------ | ------------------------ | ------------------ | ------------------- |
+| `_tag` | `ZRC6_BatchMintCallback` | An empty callback. |                     |
 
 **Events:**
 
@@ -395,9 +395,9 @@ Destroys `token_id_list`.
 
 **Messages:**
 
-|        | Name                     | Description                         | Callback Parameters |
-| ------ | ------------------------ | ----------------------------------- | ------------------- |
-| `_tag` | `ZRC6_BatchBurnCallback` | Provide the sender with the result. |                     |
+|        | Name                     | Description        | Callback Parameters |
+| ------ | ------------------------ | ------------------ | ------------------- |
+| `_tag` | `ZRC6_BatchBurnCallback` | An empty callback. |                     |
 
 **Events:**
 
@@ -597,9 +597,9 @@ Transfers multiple `token_id` to multiple `to`.
 
 **Messages:**
 
-|        | Name                             | Description                         | Callback Parameters |
-| ------ | -------------------------------- | ----------------------------------- | ------------------- |
-| `_tag` | `ZRC6_BatchTransferFromCallback` | Provide the sender with the result. |                     |
+|        | Name                             | Description        | Callback Parameters |
+| ------ | -------------------------------- | ------------------ | ------------------- |
+| `_tag` | `ZRC6_BatchTransferFromCallback` | An empty callback. |                     |
 
 **Events:**
 
