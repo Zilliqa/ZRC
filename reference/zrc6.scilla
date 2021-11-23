@@ -373,6 +373,33 @@ end
 
 (* @Requirements: *)
 (* - The contract must not be paused. Otherwise, it must throw `PausedError` *)
+(* - `token_id` must exist. Otherwise, it must throw `TokenNotFoundError` *)
+(* - `_sender` must be a token owner or an operator. Otherwise, it must throw `NotOwnerOrOperatorError` *)
+procedure BurnToken(token_id: Uint256)
+  RequireNotPaused;
+  (* Check if token exists *)
+  maybe_token_owner <- token_owners[token_id];
+  match maybe_token_owner with
+  | None =>
+    error = TokenNotFoundError;
+    Throw error
+  | Some token_owner =>
+    RequireOwnerOrOperator token_owner;
+    (* Destroy existing token *)
+    delete token_owners[token_id];
+    delete spenders[token_id];
+
+    (* subtract one from the balance *)
+    UpdateBalance sub_operation token_owner;
+    (* subtract one from the total supply *)
+    current_supply <- total_supply;
+    new_supply = builtin sub current_supply one;
+    total_supply := new_supply
+  end
+end
+
+(* @Requirements: *)
+(* - The contract must not be paused. Otherwise, it must throw `PausedError` *)
 (* - `to` must not be the zero address. Otherwise, it must throw `ZeroAddressDestinationError` *)
 (* - `to` must not be `_this_address`. Otherwise, it must throw `ThisAddressDestinationError` *)
 (* - `token_id` must exist. Otherwise, it must throw `TokenNotFoundError` *)
@@ -586,12 +613,7 @@ end
 
 (* Destroys `token_id`. *)
 (* @param: token_id - Unique ID of the NFT to be destroyed *)
-(* @Requirements: *)
-(* - The contract must not be paused. Otherwise, it must throw `PausedError` *)
-(* - `token_id` must exist. Otherwise, it must throw `TokenNotFoundError` *)
-(* - `_sender` must be a token owner or an operator. Otherwise, it must throw `NotOwnerOrOperatorError` *)
 transition Burn(token_id: Uint256)
-  RequireNotPaused;
   (* Check if token exists *)
   maybe_token_owner <- token_owners[token_id];
   match maybe_token_owner with
@@ -599,17 +621,7 @@ transition Burn(token_id: Uint256)
     error = TokenNotFoundError;
     Throw error
   | Some token_owner =>
-    RequireOwnerOrOperator token_owner;
-    (* Destroy existing token *)
-    delete token_owners[token_id];
-    delete spenders[token_id];
-
-    (* subtract one from the balance *)
-    UpdateBalance sub_operation token_owner;
-    (* subtract one from the total supply *)
-    current_supply <- total_supply;
-    new_supply = builtin sub current_supply one;
-    total_supply := new_supply;
+    BurnToken token_id;
     e = {
       _eventname: "Burn";
       token_owner: token_owner;
@@ -626,6 +638,24 @@ transition Burn(token_id: Uint256)
     msgs = one_msg msg_to_sender;
     send msgs
   end
+end
+
+(* Destroys `token_id_list`. *)
+(* @param: token_id_list - List of unique IDs of the NFT to be destroyed *)
+transition BatchBurn(token_id_list: List Uint256)
+  forall token_id_list BurnToken;
+  e = {
+    _eventname: "BatchBurn";
+    token_id_list: token_id_list
+  };
+  event e;
+  msg_to_sender = {
+    _tag: "ZRC6_BatchBurnCallback";
+    _recipient: _sender;
+    _amount: Uint128 0
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
 end
 
 (* Adds `minter`. *)

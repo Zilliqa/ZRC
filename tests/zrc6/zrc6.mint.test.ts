@@ -358,6 +358,62 @@ describe("Mint & Burn", () => {
         ],
       },
     },
+    {
+      name: "mints tokens in batches",
+      transition: "BatchMint",
+      getSender: () => toTestAddr(TOKEN_OWNER),
+      getParams: () => ({
+        to_list: [
+          toTestAddr(STRANGER),
+          toTestAddr(STRANGER),
+          toTestAddr(STRANGER),
+        ],
+      }),
+      error: undefined,
+      want: {
+        verifyState: (state) => {
+          if (state.token_id_count !== (INITIAL_TOTAL_SUPPLY * 2).toString()) {
+            return false;
+          }
+          for (
+            let i = INITIAL_TOTAL_SUPPLY + 1;
+            i <= INITIAL_TOTAL_SUPPLY * 2;
+            i++
+          ) {
+            if (!state.token_owners.hasOwnProperty(i.toString())) {
+              return false;
+            }
+            if (
+              state.token_owners[i.toString()] !==
+              toTestAddr(STRANGER).toLowerCase()
+            ) {
+              return false;
+            }
+          }
+          return true;
+        },
+        events: [
+          {
+            name: "BatchMint",
+            getParams: () => [
+              toMsgParam(
+                "List (ByStr20)",
+                [STRANGER, STRANGER, STRANGER].map((cur) =>
+                  toTestAddr(cur).toLowerCase()
+                ),
+                "to_list"
+              ),
+            ],
+          },
+        ],
+        transitions: [
+          {
+            tag: "ZRC6_BatchMintCallback",
+            getParams: () => [],
+          },
+        ],
+      },
+    },
 
     {
       name: "throws NotOwnerOrOperatorError",
@@ -411,56 +467,31 @@ describe("Mint & Burn", () => {
     },
 
     {
-      name: "mints tokens in batches",
-      transition: "BatchMint",
+      name: "burns tokens in batches",
+      transition: "BatchBurn",
       getSender: () => toTestAddr(TOKEN_OWNER),
       getParams: () => ({
-        to_list: [
-          toTestAddr(STRANGER),
-          toTestAddr(STRANGER),
-          toTestAddr(STRANGER),
-        ],
+        token_id_list: ["1", "2", "3"],
       }),
       error: undefined,
       want: {
         verifyState: (state) => {
-          if (state.token_id_count !== (INITIAL_TOTAL_SUPPLY * 2).toString()) {
+          if (state.total_supply !== "0") {
             return false;
           }
-          for (
-            let i = INITIAL_TOTAL_SUPPLY + 1;
-            i <= INITIAL_TOTAL_SUPPLY * 2;
-            i++
-          ) {
-            if (!state.token_owners.hasOwnProperty(i.toString())) {
-              return false;
-            }
-            if (
-              state.token_owners[i.toString()] !==
-              toTestAddr(STRANGER).toLowerCase()
-            ) {
-              return false;
-            }
-          }
-          return true;
+          return JSON.stringify(state.token_owners) === "{}";
         },
         events: [
           {
-            name: "BatchMint",
+            name: "BatchBurn",
             getParams: () => [
-              toMsgParam(
-                "List (ByStr20)",
-                [STRANGER, STRANGER, STRANGER].map((cur) =>
-                  toTestAddr(cur).toLowerCase()
-                ),
-                "to_list"
-              ),
+              toMsgParam("List (Uint256)", ["1", "2", "3"], "token_id_list"),
             ],
           },
         ],
         transitions: [
           {
-            tag: "ZRC6_BatchMintCallback",
+            tag: "ZRC6_BatchBurnCallback",
             getParams: () => [],
           },
         ],

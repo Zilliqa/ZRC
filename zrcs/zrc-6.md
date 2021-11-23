@@ -1,6 +1,6 @@
 | ZRC | Title                       | Status |   Type   | Author                                                                      | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
 | :-: | :-------------------------- | :----: | :------: | :-------------------------------------------------------------------------- | :------------------: | :------------------: |
-|  6  | Non-Fungible Token Standard | Ready  | Standard | Neuti Yoo<br/><noel@zilliqa.com> <br/> Jun Hao Tan<br/><junhao@zilliqa.com> |      2021-10-01      |      2021-11-22      |
+|  6  | Non-Fungible Token Standard | Ready  | Standard | Neuti Yoo<br/><noel@zilliqa.com> <br/> Jun Hao Tan<br/><junhao@zilliqa.com> |      2021-10-01      |      2021-11-23      |
 
 ## Table of Contents
 
@@ -35,11 +35,11 @@ The main advantages of this standard are:
 
 3. ZRC-6 is designed for remote state read ([`x <- & c.f`](https://scilla.readthedocs.io/en/latest/scilla-in-depth.html?#remote-fetches)) such that logic to get data from a ZRC-6 contract is straightforward. ZRC-6 exposes immutable parameters via mutable fields and includes only transitions that mutate the state of the contract.
 
-4. ZRC-6 is designed for failure. Therefore token transfers, minting, and burning are pausable.
+4. ZRC-6 is designed for failure. Therefore minting, burning, and token transfers are pausable.
 
-5. ZRC-6 features a single transition for token transfer with destination validation. The transition can be called by a token owner, a spender, or an operator. ZRC-6 prevents transferring tokens to the zero address or the address of a ZRC-6 contract.
+5. ZRC-6 features batch operations for minting, burning and token transfers such that only a single transaction is required.
 
-6. ZRC-6 features batch operations for minting and token transfers such that only a single transaction is required.
+6. ZRC-6 features a single transition for token transfer with destination validation. The transition can be called by a token owner, a spender, or an operator. ZRC-6 prevents transferring tokens to the zero address or the address of a ZRC-6 contract.
 
 7. ZRC-6 is compatible with ZRC-X since every callback name is prefixed with `ZRC6_`.
 
@@ -53,9 +53,9 @@ The main advantages of this standard are:
 
 4. Without an emergency stop mechanism, it's hard to respond to bugs and vulnerabilities gracefully.
 
-5. ZRC-1 includes `Transfer` and `TransferFrom` for the token transfer. The two transitions have the same type signature and the only difference is the access control. This has added unnecessary complexity. ZRC-1 does not validate the destination for token transfer and it is not safe.
+5. Without batch operations, it can be very inefficient to transfer or mint multiple tokens with multiple transactions.
 
-6. Without batch operations, it can be very inefficient to transfer or mint multiple tokens with multiple transactions.
+6. ZRC-1 includes `Transfer` and `TransferFrom` for the token transfer. The two transitions have the same type signature and the only difference is the access control. This has added unnecessary complexity. ZRC-1 does not validate the destination for token transfer and it is not safe.
 
 7. The ZRC-1 and ZRC-2 contracts can share the same callback names. Contracts must have unique names for callback transitions.
 
@@ -112,15 +112,16 @@ The main advantages of this standard are:
 | [`Mint`](#6-mint)                                                             |                  |    ✓     |               |           |            |                                |
 | [`BatchMint`](#7-batchmint-optional)                                          |                  |    ✓     |               |           |            |                                |
 | [`Burn`](#8-burn-optional)                                                    |                  |          |       ✓       |           |     ✓      |                                |
-| [`AddMinter`](#9-addminter)                                                   |        ✓         |          |               |           |            |                                |
-| [`RemoveMinter`](#10-removeminter)                                            |        ✓         |          |               |           |            |                                |
-| [`SetSpender`](#11-setspender)                                                |                  |          |       ✓       |           |     ✓      |                                |
-| [`AddOperator`](#12-addoperator)                                              |                  |          |       ✓       |           |            |                                |
-| [`RemoveOperator`](#13-removeoperator)                                        |                  |          |       ✓       |           |            |                                |
-| [`TransferFrom`](#14-transferfrom)                                            |                  |          |       ✓       |     ✓     |     ✓      |                                |
-| [`BatchTransferFrom`](#15-batchtransferfrom-optional)                         |                  |          |       ✓       |     ✓     |     ✓      |                                |
-| [`SetContractOwnershipRecipient`](#16-setcontractownershiprecipient-optional) |        ✓         |          |               |           |            |                                |
-| [`AcceptContractOwnership`](#17-acceptcontractownership-optional)             |                  |          |               |           |            |               ✓                |
+| [`BatchBurn`](#9-batchburn-optional)                                          |                  |          |       ✓       |           |     ✓      |                                |
+| [`AddMinter`](#10-addminter)                                                  |        ✓         |          |               |           |            |                                |
+| [`RemoveMinter`](#11-removeminter)                                            |        ✓         |          |               |           |            |                                |
+| [`SetSpender`](#12-setspender)                                                |                  |          |       ✓       |           |     ✓      |                                |
+| [`AddOperator`](#13-addoperator)                                              |                  |          |       ✓       |           |            |                                |
+| [`RemoveOperator`](#14-removeoperator)                                        |                  |          |       ✓       |           |            |                                |
+| [`TransferFrom`](#15-transferfrom)                                            |                  |          |       ✓       |     ✓     |     ✓      |                                |
+| [`BatchTransferFrom`](#16-batchtransferfrom-optional)                         |                  |          |       ✓       |     ✓     |     ✓      |                                |
+| [`SetContractOwnershipRecipient`](#17-setcontractownershiprecipient-optional) |        ✓         |          |               |           |            |                                |
+| [`AcceptContractOwnership`](#18-acceptcontractownership-optional)             |                  |          |               |           |            |               ✓                |
 
 ### D. Error Codes
 
@@ -159,15 +160,16 @@ The NFT contract must define the following constants for use as error codes for 
 |  6  | [`Mint(to: ByStr20)`](#6-mint)                                                                           |    ✓     |
 |  7  | [`BatchMint(to_list: List ByStr20)`](#7-batchmint-optional)                                              |          |
 |  8  | [`Burn(token_id: Uint256)`](#8-burn-optional)                                                            |          |
-|  9  | [`AddMinter(to: ByStr20)`](#9-addminter)                                                                 |    ✓     |
-| 10  | [`RemoveMinter(to: ByStr20)`](#10-removeminter)                                                          |    ✓     |
-| 11  | [`SetSpender(to: ByStr20, token_id: Uint256)`](#11-setspender)                                           |    ✓     |
-| 13  | [`AddOperator(to: ByStr20)`](#12-addoperator)                                                            |    ✓     |
-| 14  | [`RemoveOperator(to: ByStr20)`](#13-removeoperator)                                                      |    ✓     |
-| 15  | [`TransferFrom(to: ByStr20, token_id: Uint256)`](#14-transferfrom)                                       |    ✓     |
-| 15  | [`BatchTransferFrom(to_token_id_pair_list: List (Pair ByStr20 Uint256)`](#15-batchtransferfrom-optional) |          |
-| 16  | [`SetContractOwnershipRecipient(to: ByStr20)`](#16-setcontractownershiprecipient-optional)               |          |
-| 17  | [`AcceptContractOwnership()`](#17-acceptcontractownership-optional)                                      |          |
+|  8  | [`BatchBurn(token_id_list: List Uint256)`](#9-batchburn-optional)                                        |          |
+|  9  | [`AddMinter(to: ByStr20)`](#10-addminter)                                                                |    ✓     |
+| 10  | [`RemoveMinter(to: ByStr20)`](#11-removeminter)                                                          |    ✓     |
+| 11  | [`SetSpender(to: ByStr20, token_id: Uint256)`](#12-setspender)                                           |    ✓     |
+| 13  | [`AddOperator(to: ByStr20)`](#13-addoperator)                                                            |    ✓     |
+| 14  | [`RemoveOperator(to: ByStr20)`](#14-removeoperator)                                                      |    ✓     |
+| 15  | [`TransferFrom(to: ByStr20, token_id: Uint256)`](#15-transferfrom)                                       |    ✓     |
+| 15  | [`BatchTransferFrom(to_token_id_pair_list: List (Pair ByStr20 Uint256)`](#16-batchtransferfrom-optional) |          |
+| 16  | [`SetContractOwnershipRecipient(to: ByStr20)`](#17-setcontractownershiprecipient-optional)               |          |
+| 17  | [`AcceptContractOwnership()`](#18-acceptcontractownership-optional)                                      |          |
 
 #### 1. `Pause` (Optional)
 
@@ -375,7 +377,35 @@ Destroys `token_id`.
 | ------------ | ------ | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `Burn` | Token has been burned. | <ul><li>`token_owner` : `ByStr20`</br>Address of the token owner</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
-#### 9. `AddMinter`
+#### 9. `BatchBurn` (Optional)
+
+Destroys `token_id_list`.
+
+**Arguments:**
+
+| Name            | Type           | Description                                    |
+| --------------- | -------------- | ---------------------------------------------- |
+| `token_id_list` | `List Uint256` | List of unique IDs of the NFT to be destroyed. |
+
+**Requirements:**
+
+- The contract must not be paused. Otherwise, it must throw `PausedError`.
+- `token_id` must exist. Otherwise, it must throw `TokenNotFoundError`.
+- `_sender` must be a token owner or an operator. Otherwise, it must throw `NotOwnerOrOperatorError`.
+
+**Messages:**
+
+|        | Name                     | Description                         | Callback Parameters |
+| ------ | ------------------------ | ----------------------------------- | ------------------- |
+| `_tag` | `ZRC6_BatchBurnCallback` | Provide the sender with the result. |                     |
+
+**Events:**
+
+|              | Name        | Description                       | Event Parameters                                                                   |
+| ------------ | ----------- | --------------------------------- | ---------------------------------------------------------------------------------- |
+| `_eventname` | `BatchBurn` | Multiple tokens have been burned. | `token_id_list` : `List Uint256`<br/>List of unique IDs of the NFT to be destroyed |
+
+#### 10. `AddMinter`
 
 Adds `minter`.
 
@@ -402,7 +432,7 @@ Adds `minter`.
 | ------------ | ----------- | ---------------------- | ---------------------------------------------------------------------- |
 | `_eventname` | `AddMinter` | Minter has been added. | <ul><li>`minter` : `ByStr20`<br/>Address that has been added</li></ul> |
 
-#### 10. `RemoveMinter`
+#### 11. `RemoveMinter`
 
 Removes `minter`.
 
@@ -429,7 +459,7 @@ Removes `minter`.
 | ------------ | -------------- | ------------------------ | ------------------------------------------------------------------------ |
 | `_eventname` | `RemoveMinter` | Minter has been removed. | <ul><li>`minter` : `ByStr20`<br/>Address that has been removed</li></ul> |
 
-#### 11. `SetSpender`
+#### 12. `SetSpender`
 
 Sets `spender` for `token_id`. To remove `spender` for a token, use `zero_address`. i.e., `0x0000000000000000000000000000000000000000`
 
@@ -459,7 +489,7 @@ Sets `spender` for `token_id`. To remove `spender` for a token, use `zero_addres
 | ------------ | ------------ | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `SetSpender` | Spender has been updated. | <ul><li>`spender` : `ByStr20`<br/>Address that has been updated</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
 
-#### 12. `AddOperator`
+#### 13. `AddOperator`
 
 Adds `operator` for `_sender`.
 
@@ -487,7 +517,7 @@ Adds `operator` for `_sender`.
 | ------------ | ------------- | ------------------------ | ------------------------------------------------------------------------ |
 | `_eventname` | `AddOperator` | Operator has been added. | <ul><li>`operator` : `ByStr20`<br/>Address that has been added</li></ul> |
 
-#### 13. `RemoveOperator`
+#### 14. `RemoveOperator`
 
 Removes `operator` for `_sender`.
 
@@ -513,7 +543,7 @@ Removes `operator` for `_sender`.
 | ------------ | ---------------- | -------------------------- | -------------------------------------------------------------------------- |
 | `_eventname` | `RemoveOperator` | Operator has been removed. | <ul><li>`operator` : `ByStr20`<br/>Address that has been removed</li></ul> |
 
-#### 14. `TransferFrom`
+#### 15. `TransferFrom`
 
 Transfers `token_id` from the token owner to `to`.
 
@@ -546,7 +576,7 @@ Transfers `token_id` from the token owner to `to`.
 | ------------ | -------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `TransferFrom` | Token has been transferred. | <ul><li>`from` : `ByStr20`<br/>Address of the token owner</li><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
-#### 15. `BatchTransferFrom` (Optional)
+#### 16. `BatchTransferFrom` (Optional)
 
 Transfers multiple `token_id` to multiple `to`.
 
@@ -577,7 +607,7 @@ Transfers multiple `token_id` to multiple `to`.
 | ------------ | ------------------- | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_eventname` | `BatchTransferFrom` | Multiple tokens have been transferred. | `to_token_id_pair_list`: `List (Pair ByStr20 Uint256)` <br/><br/> List of Pair (`to`, `token_id`)<br/><br/><ul><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
-#### 16. `SetContractOwnershipRecipient` (Optional)
+#### 17. `SetContractOwnershipRecipient` (Optional)
 
 Sets `to` as the contract ownership recipient. To reset `contract_ownership_recipient`, use `zero_address`. i.e., `0x0000000000000000000000000000000000000000`.
 
@@ -604,7 +634,7 @@ Sets `to` as the contract ownership recipient. To reset `contract_ownership_reci
 | ------------ | ------------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------- |
 | `_eventname` | `SetContractOwnershipRecipient` | The contract ownership recipient has been updated. | <ul><li>`to` : `ByStr20`<br/>Address of the contract ownership recipient</li></ul> |
 
-#### 17. `AcceptContractOwnership` (Optional)
+#### 18. `AcceptContractOwnership` (Optional)
 
 Sets `contract_ownership_recipient` as the contract owner.
 
