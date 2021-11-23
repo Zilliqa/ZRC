@@ -444,8 +444,20 @@ describe("Mint & Burn", () => {
           }
           return true;
         },
-
-        events: undefined,
+        events: [
+          {
+            name: "BatchMint",
+            getParams: () => [
+              toMsgParam(
+                "List (ByStr20)",
+                [STRANGER, STRANGER, STRANGER].map((cur) =>
+                  toTestAddr(cur).toLowerCase()
+                ),
+                "to_list"
+              ),
+            ],
+          },
+        ],
         transitions: [
           {
             tag: "ZRC6_BatchMintCallback",

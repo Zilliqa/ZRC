@@ -570,6 +570,11 @@ end
 (* @param: to_list - List of addresses of the token recipient *)
 transition BatchMint(to_list: List ByStr20)
   forall to_list MintToken;
+  e = {
+    _eventname: "BatchMint";
+    to_list: to_list
+  };
+  event e;
   msg_to_sender = {
     _tag: "ZRC6_BatchMintCallback";
     _recipient: _sender;
@@ -846,6 +851,11 @@ end
 (* Transfers multiple `token_id` to multiple `to`. It takes List of Pair (to, token_id). *)
 transition BatchTransferFrom(to_token_id_pair_list: List (Pair ByStr20 Uint256))
   forall to_token_id_pair_list HandleTransfer;
+  e = {
+    _eventname: "BatchTransferFrom"; 
+    to_token_id_pair_list: to_token_id_pair_list
+  };
+  event e;
   msg_to_sender = {
     _tag: "ZRC6_BatchTransferFromCallback";
     _recipient: _sender;

@@ -16,8 +16,8 @@ export const toErrorMsg = (code) =>
   `Exception thrown: (Message [(_exception : (String "Error")) ; (code : (Int32 ${code}))])`;
 
 export const toMsgParam = (type, value, vname) => {
-  value = value.toString();
-  if (type.includes("ByStr")) {
+  value = typeof value === "number" ? value.toString() : value;
+  if (type.startsWith("ByStr")) {
     value = value.toLowerCase();
   }
   if (type === "Bool") {

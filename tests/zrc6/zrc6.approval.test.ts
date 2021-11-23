@@ -713,7 +713,31 @@ describe("Approval", () => {
           });
           return isTokenOwnerValid && isBalanceValid;
         },
-        events: undefined,
+        events: [
+          {
+            name: "BatchTransferFrom",
+            getParams: () => [
+              toMsgParam(
+                "List (Pair (ByStr20) (Uint256))",
+                [
+                  [TOKEN_OWNER_A, 2],
+                  [STRANGER_A, 3],
+                  [STRANGER_A, 4],
+                ].map(([to, tokenId]) => {
+                  return {
+                    argtypes: ["ByStr20", "Uint256"],
+                    arguments: [
+                      toTestAddr(to).toLowerCase(),
+                      tokenId?.toString(),
+                    ],
+                    constructor: "Pair",
+                  };
+                }),
+                "to_token_id_pair_list"
+              ),
+            ],
+          },
+        ],
         transitions: [
           {
             tag: "ZRC6_BatchTransferFromCallback",

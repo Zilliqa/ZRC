@@ -39,6 +39,7 @@ let globalTestAccounts: Array<{
   address: string;
 }> = [];
 const CONTRACT_OWNER = 0;
+const MINTER = 0;
 const CONTRACT_OWNERSHIP_RECIPIENT = 1;
 const TOKEN_OWNER = 2;
 const STRANGER = 9;
@@ -568,6 +569,249 @@ describe("Accept Contract Ownership", () => {
       )(testCase.transition, ...Object.values(testCase.getParams()));
       if (testCase.want === undefined) {
         // Nagative Cases
+        expect(tx.receipt.success).toBe(false);
+        expect(tx.receipt.exceptions[0].message).toBe(
+          toErrorMsg(testCase.error)
+        );
+      } else {
+        // Positive Cases
+        expect(tx.receipt.success).toBe(true);
+        expect(verifyEvents(tx.receipt.event_logs, testCase.want.events)).toBe(
+          true
+        );
+        expect(
+          verifyTransitions(tx.receipt.transitions, testCase.want.transitions)
+        ).toBe(true);
+
+        const state = await zilliqa.contracts
+          .at(globalContractAddress)
+          .getState();
+
+        expect(testCase.want.verifyState(state)).toBe(true);
+      }
+    });
+  }
+});
+
+describe("Unpaused", () => {
+  const testCases = [
+    {
+      name: "Throws NotPausedError for the not paused contract",
+      transition: "Unpause",
+      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getParams: () => ({}),
+      error: ZRC6_ERROR.NotPausedError,
+      want: undefined,
+    },
+    {
+      name: "Throws NotContractOwnerError",
+      transition: "Pause",
+      getSender: () => toTestAddr(STRANGER),
+      getParams: () => ({}),
+      error: ZRC6_ERROR.NotContractOwnerError,
+      want: undefined,
+    },
+    {
+      name: "Pause the contract",
+      transition: "Pause",
+      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getParams: () => ({}),
+      want: {
+        verifyState: (state) => {
+          return (
+            JSON.stringify(state.is_paused) ===
+            JSON.stringify({ argtypes: [], arguments: [], constructor: "True" })
+          );
+        },
+        events: [
+          {
+            name: "Pause",
+            getParams: () => [toMsgParam("Bool", "True", "is_paused")],
+          },
+        ],
+        transitions: [
+          {
+            tag: "ZRC6_PauseCallback",
+            getParams: () => [toMsgParam("Bool", "True", "is_paused")],
+          },
+        ],
+      },
+    },
+  ];
+
+  for (const testCase of testCases) {
+    it(`${testCase.transition}: ${testCase.name}`, async () => {
+      const state = await zilliqa.contracts
+        .at(globalContractAddress)
+        .getState();
+
+      expect(JSON.stringify(state.is_paused)).toBe(
+        JSON.stringify({
+          argtypes: [],
+          arguments: [],
+          constructor: "False",
+        })
+      );
+
+      zilliqa.wallet.setDefault(testCase.getSender());
+      const tx = await globalContractInfo.callGetter(
+        zilliqa.contracts.at(globalContractAddress),
+        TX_PARAMS
+      )(testCase.transition, ...Object.values(testCase.getParams()));
+
+      if (testCase.want === undefined) {
+        // Negative Cases
+        expect(tx.receipt.success).toBe(false);
+        expect(tx.receipt.exceptions[0].message).toBe(
+          toErrorMsg(testCase.error)
+        );
+      } else {
+        // Positive Cases
+        expect(tx.receipt.success).toBe(true);
+        expect(verifyEvents(tx.receipt.event_logs, testCase.want.events)).toBe(
+          true
+        );
+        expect(
+          verifyTransitions(tx.receipt.transitions, testCase.want.transitions)
+        ).toBe(true);
+
+        const state = await zilliqa.contracts
+          .at(globalContractAddress)
+          .getState();
+
+        expect(testCase.want.verifyState(state)).toBe(true);
+      }
+    });
+  }
+});
+
+describe("Paused", () => {
+  beforeEach(async () => {
+    let tx = await globalContractInfo.callGetter(
+      zilliqa.contracts.at(globalContractAddress),
+      TX_PARAMS
+    )("Pause", toTestAddr(CONTRACT_OWNER));
+    if (!tx.receipt.success) {
+      throw new Error();
+    }
+  });
+
+  const testCases = [
+    {
+      name: "Throws PausedError for the paused contract",
+      transition: "Pause",
+      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getParams: () => ({}),
+      error: ZRC6_ERROR.PausedError,
+      want: undefined,
+    },
+    {
+      name: "Throws NotContractOwnerError",
+      transition: "Unpause",
+      getSender: () => toTestAddr(STRANGER),
+      getParams: () => ({}),
+      error: ZRC6_ERROR.NotContractOwnerError,
+      want: undefined,
+    },
+    {
+      name: "Unpause the contract",
+      transition: "Unpause",
+      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getParams: () => ({}),
+      want: {
+        verifyState: (state) => {
+          return (
+            JSON.stringify(state.is_paused) ===
+            JSON.stringify({
+              argtypes: [],
+              arguments: [],
+              constructor: "False",
+            })
+          );
+        },
+        events: [
+          {
+            name: "Unpause",
+            getParams: () => [toMsgParam("Bool", "False", "is_paused")],
+          },
+        ],
+        transitions: [
+          {
+            tag: "ZRC6_UnpauseCallback",
+            getParams: () => [toMsgParam("Bool", "False", "is_paused")],
+          },
+        ],
+      },
+    },
+    {
+      name: "throws PausedError for Mint()",
+      transition: "Mint",
+      getSender: () => toTestAddr(MINTER),
+      getParams: () => ({
+        to: toTestAddr(MINTER),
+      }),
+      error: ZRC6_ERROR.PausedError,
+      want: undefined,
+    },
+    {
+      name: "throws PausedError for BatchMint()",
+      transition: "BatchMint",
+      getSender: () => toTestAddr(MINTER),
+      getParams: () => ({
+        to_list: [
+          toTestAddr(STRANGER),
+          toTestAddr(STRANGER),
+          toTestAddr(STRANGER),
+        ],
+      }),
+      error: ZRC6_ERROR.PausedError,
+      want: undefined,
+    },
+    {
+      name: "throws PausedError for Burn()",
+      transition: "Burn",
+      getSender: () => toTestAddr(TOKEN_OWNER),
+      getParams: () => ({
+        token_id: "1",
+      }),
+      error: ZRC6_ERROR.PausedError,
+      want: undefined,
+    },
+    {
+      name: "throws PausedError for TransferFrom()",
+      transition: "TransferFrom",
+      getSender: () => toTestAddr(TOKEN_OWNER),
+      getParams: () => ({
+        to: toTestAddr(STRANGER),
+        token_id: "1",
+      }),
+      error: ZRC6_ERROR.PausedError,
+      want: undefined,
+    },
+  ];
+
+  for (const testCase of testCases) {
+    it(`${testCase.transition}: ${testCase.name}`, async () => {
+      const state = await zilliqa.contracts
+        .at(globalContractAddress)
+        .getState();
+
+      expect(JSON.stringify(state.is_paused)).toBe(
+        JSON.stringify({
+          argtypes: [],
+          arguments: [],
+          constructor: "True",
+        })
+      );
+
+      zilliqa.wallet.setDefault(testCase.getSender());
+      const tx = await globalContractInfo.callGetter(
+        zilliqa.contracts.at(globalContractAddress),
+        TX_PARAMS
+      )(testCase.transition, ...Object.values(testCase.getParams()));
+
+      if (testCase.want === undefined) {
+        // Negative Cases
         expect(tx.receipt.success).toBe(false);
         expect(tx.receipt.exceptions[0].message).toBe(
           toErrorMsg(testCase.error)
