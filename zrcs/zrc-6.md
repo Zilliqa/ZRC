@@ -160,16 +160,16 @@ The NFT contract must define the following constants for use as error codes for 
 |  6  | [`Mint(to: ByStr20)`](#6-mint)                                                                           |    ✓     |
 |  7  | [`BatchMint(to_list: List ByStr20)`](#7-batchmint-optional)                                              |          |
 |  8  | [`Burn(token_id: Uint256)`](#8-burn-optional)                                                            |          |
-|  8  | [`BatchBurn(token_id_list: List Uint256)`](#9-batchburn-optional)                                        |          |
-|  9  | [`AddMinter(to: ByStr20)`](#10-addminter)                                                                |    ✓     |
-| 10  | [`RemoveMinter(to: ByStr20)`](#11-removeminter)                                                          |    ✓     |
-| 11  | [`SetSpender(to: ByStr20, token_id: Uint256)`](#12-setspender)                                           |    ✓     |
+|  9  | [`BatchBurn(token_id_list: List Uint256)`](#9-batchburn-optional)                                        |          |
+| 10  | [`AddMinter(to: ByStr20)`](#10-addminter)                                                                |    ✓     |
+| 11  | [`RemoveMinter(to: ByStr20)`](#11-removeminter)                                                          |    ✓     |
+| 12  | [`SetSpender(to: ByStr20, token_id: Uint256)`](#12-setspender)                                           |    ✓     |
 | 13  | [`AddOperator(to: ByStr20)`](#13-addoperator)                                                            |    ✓     |
 | 14  | [`RemoveOperator(to: ByStr20)`](#14-removeoperator)                                                      |    ✓     |
 | 15  | [`TransferFrom(to: ByStr20, token_id: Uint256)`](#15-transferfrom)                                       |    ✓     |
-| 15  | [`BatchTransferFrom(to_token_id_pair_list: List (Pair ByStr20 Uint256)`](#16-batchtransferfrom-optional) |          |
-| 16  | [`SetContractOwnershipRecipient(to: ByStr20)`](#17-setcontractownershiprecipient-optional)               |          |
-| 17  | [`AcceptContractOwnership()`](#18-acceptcontractownership-optional)                                      |          |
+| 16  | [`BatchTransferFrom(to_token_id_pair_list: List (Pair ByStr20 Uint256)`](#16-batchtransferfrom-optional) |          |
+| 17  | [`SetContractOwnershipRecipient(to: ByStr20)`](#17-setcontractownershiprecipient-optional)               |          |
+| 18  | [`AcceptContractOwnership()`](#18-acceptcontractownership-optional)                                      |          |
 
 #### 1. `Pause` (Optional)
 
@@ -603,9 +603,9 @@ Transfers multiple `token_id` to multiple `to`.
 
 **Events:**
 
-|              | Name                | Description                            | Event Parameters                                                                                                                                                                                                                 |
-| ------------ | ------------------- | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `BatchTransferFrom` | Multiple tokens have been transferred. | `to_token_id_pair_list`: `List (Pair ByStr20 Uint256)` <br/><br/> List of Pair (`to`, `token_id`)<br/><br/><ul><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+|              | Name                | Description                            | Event Parameters                                                                                                                                                                                                                  |
+| ------------ | ------------------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `BatchTransferFrom` | Multiple tokens have been transferred. | `to_token_id_pair_list` : `List (Pair ByStr20 Uint256)` <br/><br/> List of Pair (`to`, `token_id`)<br/><br/><ul><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
 
 #### 17. `SetContractOwnershipRecipient` (Optional)
 
