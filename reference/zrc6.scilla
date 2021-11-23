@@ -596,10 +596,15 @@ end
 (* Mints tokens and transfers them to `to_list`. *)
 (* @param: to_list - List of addresses of the token recipient *)
 transition BatchMint(to_list: List ByStr20)
+  cur_id <- token_id_count;
+  start_id = builtin add cur_id one;
   forall to_list MintToken;
+  end_id <- token_id_count;
   e = {
     _eventname: "BatchMint";
-    to_list: to_list
+    to_list: to_list;
+    start_id: start_id;
+    end_id: end_id
   };
   event e;
   msg_to_sender = {

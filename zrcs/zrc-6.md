@@ -328,9 +328,9 @@ Mints tokens and transfers them to `to_list`.
 
 **Arguments:**
 
-| Name      | Type           | Description                       |
-| --------- | -------------- | --------------------------------- |
-| `to_list` | `List ByStr20` | Addresses of the token recipient. |
+| Name      | Type           | Description                               |
+| --------- | -------------- | ----------------------------------------- |
+| `to_list` | `List ByStr20` | List of addresses of the token recipient. |
 
 **Requirements:**
 
@@ -345,9 +345,9 @@ Mints tokens and transfers them to `to_list`.
 
 **Events:**
 
-|              | Name        | Description                       | Event Parameters                                                |
-| ------------ | ----------- | --------------------------------- | --------------------------------------------------------------- |
-| `_eventname` | `BatchMint` | Multiple tokens have been minted. | `to_list` : `List ByStr20`<br/>Addresses of the token recipient |
+|              | Name        | Description                       | Event Parameters                                                                                                                                                                                                                         |
+| ------------ | ----------- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `BatchMint` | Multiple tokens have been minted. | <ul><li>`to_list` : `List ByStr20`<br/>List of addresses of the token recipient</li><li>`start_id` : `Uint256`<br/>ID of the token that was minted first</li><li>`end_id` : `Uint256`<br/>ID of the token that was minted last</li></ul> |
 
 #### 8. `Burn` (Optional)
 

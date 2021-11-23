@@ -403,6 +403,8 @@ describe("Mint & Burn", () => {
                 ),
                 "to_list"
               ),
+              toMsgParam("Uint256", "4", "start_id"),
+              toMsgParam("Uint256", "6", "end_id"),
             ],
           },
         ],
