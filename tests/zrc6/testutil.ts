@@ -1,31 +1,59 @@
 import { exec } from "child_process";
 import { promisify } from "util";
-import { getAddressFromPrivateKey, schnorr } from "@zilliqa-js/crypto";
 
 const execAsync = promisify(exec);
 
-export const genAccounts = (n) =>
-  Array.from({ length: n }, () => undefined)
-    .map(schnorr.generatePrivateKey)
-    .map((privateKey) => ({
-      privateKey,
-      address: getAddressFromPrivateKey(privateKey),
-    }));
-
-export const toErrorMsg = (code) =>
+export const getErrorMsg = (code) =>
   `Exception thrown: (Message [(_exception : (String "Error")) ; (code : (Int32 ${code}))])`;
 
-export const toMsgParam = (type, value, vname) => {
+export const getJSONValue = (value, type?) => {
   value = typeof value === "number" ? value.toString() : value;
-  if (type.startsWith("ByStr")) {
-    value = value.toLowerCase();
+
+  if (
+    typeof type === "string" &&
+    type.startsWith("ByStr") &&
+    typeof value === "string"
+  ) {
+    return value.toLowerCase();
   }
-  if (type === "Bool") {
-    value = { argtypes: [], arguments: [], constructor: value };
+
+  if (
+    typeof type === "string" &&
+    type.startsWith("List") &&
+    Array.isArray(value)
+  ) {
+    const types = type.replace(/[()]/g, "").split(" ").slice(1);
+    return value.map((x) => getJSONValue(x, types.join(" ")));
   }
+
+  if (
+    typeof type === "string" &&
+    type.startsWith("Pair") &&
+    Array.isArray(value)
+  ) {
+    const types = type.replace(/[()]/g, "").split(" ").slice(1);
+    return {
+      argtypes: types,
+      arguments: value.map((x, i) => getJSONValue(x, types[i])),
+      constructor: "Pair",
+    };
+  }
+
+  if (typeof value === "boolean") {
+    return {
+      argtypes: [],
+      arguments: [],
+      constructor: value ? "True" : "False",
+    };
+  }
+
+  return value;
+};
+
+export const getJSONParam = (type, value, vname) => {
   return {
     type,
-    value,
+    value: getJSONValue(value, type),
     vname,
   };
 };
@@ -71,7 +99,7 @@ const transitionParamsGetter =
       return {
         ...cur,
         type,
-        value: params[index],
+        value: getJSONValue(params[index], type),
       };
     });
     return res;
@@ -128,25 +156,30 @@ export const useContractInfo = async (
   }
 };
 
+const logDelta = (want, got) =>
+  console.log(
+    "\x1b[32m",
+    `\nExpected: ${want}`,
+    "\x1b[31m",
+    `\nReceived: ${got}`
+  );
+
 export const verifyEvents = (events, want) => {
   if (events === undefined) {
     return want === undefined;
   }
   for (const [index, event] of events.entries()) {
     if (event._eventname !== want[index].name) {
-      console.table({
-        got: event._eventname,
-        want: want[index].name,
-      });
+      logDelta(want[index].name, event._eventname);
       return false;
     }
     if (
       JSON.stringify(event.params) !== JSON.stringify(want[index].getParams())
     ) {
-      console.table({
-        got: JSON.stringify(event.params),
-        want: JSON.stringify(want[index].getParams()),
-      });
+      logDelta(
+        JSON.stringify(want[index].getParams()),
+        JSON.stringify(event.params)
+      );
       return false;
     }
   }
@@ -160,19 +193,16 @@ export const verifyTransitions = (transitions, want) => {
   for (const [index, transition] of transitions.entries()) {
     const { msg } = transition;
     if (msg._tag !== want[index].tag) {
-      console.table({
-        got: msg._tag,
-        want: want[index].tag,
-      });
+      logDelta(want[index].tag, msg._tag);
       return false;
     }
     if (
       JSON.stringify(msg.params) !== JSON.stringify(want[index].getParams())
     ) {
-      console.table({
-        got: JSON.stringify(msg.params),
-        want: JSON.stringify(want[index].getParams()),
-      });
+      logDelta(
+        JSON.stringify(want[index].getParams()),
+        JSON.stringify(msg.params)
+      );
       return false;
     }
   }

@@ -1,13 +1,14 @@
 import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { expect } from "@jest/globals";
+import { getAddressFromPrivateKey, schnorr } from "@zilliqa-js/crypto";
 
 import {
-  genAccounts,
-  toErrorMsg,
-  toMsgParam,
+  getErrorMsg,
+  getJSONParam,
   useContractInfo,
   verifyTransitions,
   verifyEvents,
+  getJSONValue,
 } from "./testutil";
 
 import {
@@ -42,11 +43,16 @@ const CONTRACT_OWNER = 0;
 const MINTER = 0;
 const CONTRACT_OWNERSHIP_RECIPIENT = 1;
 const TOKEN_OWNER = 2;
-const STRANGER = 9;
-const toTestAddr = (index) => globalTestAccounts[index]?.address as string;
+const STRANGER = 3;
+const getTestAddr = (index) => globalTestAccounts[index]?.address as string;
 
 beforeAll(async () => {
-  const accounts = genAccounts(10);
+  const accounts = Array.from({ length: 4 }, schnorr.generatePrivateKey).map(
+    (privateKey) => ({
+      privateKey,
+      address: getAddressFromPrivateKey(privateKey),
+    })
+  );
   for (const { privateKey, address } of accounts) {
     zilliqa.wallet.addByPrivateKey(privateKey);
     const tx = await zilliqa.blockchain.createTransaction(
@@ -67,19 +73,19 @@ beforeAll(async () => {
   console.table({
     JEST_WORKER_ID,
     GENESIS_PRIVATE_KEY,
-    CONTRACT_OWNER: toTestAddr(CONTRACT_OWNER),
-    CONTRACT_OWNERSHIP_RECIPIENT: toTestAddr(CONTRACT_OWNERSHIP_RECIPIENT),
-    TOKEN_OWNER: toTestAddr(TOKEN_OWNER),
-    STRANGER: toTestAddr(STRANGER),
+    CONTRACT_OWNER: getTestAddr(CONTRACT_OWNER),
+    CONTRACT_OWNERSHIP_RECIPIENT: getTestAddr(CONTRACT_OWNERSHIP_RECIPIENT),
+    TOKEN_OWNER: getTestAddr(TOKEN_OWNER),
+    STRANGER: getTestAddr(STRANGER),
   });
 
   globalContractInfo = await useContractInfo(CONTAINER, CODE_PATH, GAS_LIMIT);
 });
 
 beforeEach(async () => {
-  zilliqa.wallet.setDefault(toTestAddr(CONTRACT_OWNER));
+  zilliqa.wallet.setDefault(getTestAddr(CONTRACT_OWNER));
   const init = globalContractInfo.getInitParams(
-    toTestAddr(CONTRACT_OWNER),
+    getTestAddr(CONTRACT_OWNER),
     BASE_URI,
     TOKEN_NAME,
     TOKEN_SYMBOL
@@ -98,7 +104,7 @@ beforeEach(async () => {
     TX_PARAMS
   )(
     "BatchMint",
-    Array.from({ length: INITIAL_TOTAL_SUPPLY }, () => toTestAddr(TOKEN_OWNER))
+    Array.from({ length: INITIAL_TOTAL_SUPPLY }, () => getTestAddr(TOKEN_OWNER))
   );
   if (!tx.receipt.success) {
     throw new Error();
@@ -119,7 +125,7 @@ describe("Contract Contraint", () => {
     {
       name: "invalid initial base URI: empty string",
       getInitParams: () => [
-        toTestAddr(CONTRACT_OWNER),
+        getTestAddr(CONTRACT_OWNER),
         "",
         TOKEN_NAME,
         TOKEN_SYMBOL,
@@ -128,7 +134,7 @@ describe("Contract Contraint", () => {
     {
       name: "invalid name: empty string",
       getInitParams: () => [
-        toTestAddr(CONTRACT_OWNER),
+        getTestAddr(CONTRACT_OWNER),
         BASE_URI,
         "",
         TOKEN_SYMBOL,
@@ -137,7 +143,7 @@ describe("Contract Contraint", () => {
     {
       name: "invalid symbol: empty string",
       getInitParams: () => [
-        toTestAddr(CONTRACT_OWNER),
+        getTestAddr(CONTRACT_OWNER),
         BASE_URI,
         TOKEN_NAME,
         "",
@@ -147,7 +153,7 @@ describe("Contract Contraint", () => {
 
   for (const testCase of testCases) {
     it(`${testCase.name}`, async () => {
-      zilliqa.wallet.setDefault(toTestAddr(CONTRACT_OWNER));
+      zilliqa.wallet.setDefault(getTestAddr(CONTRACT_OWNER));
       const init = globalContractInfo.getInitParams(
         ...testCase.getInitParams()
       );
@@ -169,9 +175,9 @@ describe("Contract", () => {
     {
       name: "throws NotContractOwnerError",
       transition: "SetRoyaltyRecipient",
-      getSender: () => toTestAddr(STRANGER),
+      getSender: () => getTestAddr(STRANGER),
       getParams: () => ({
-        to: toTestAddr(STRANGER),
+        to: getTestAddr(STRANGER),
       }),
       error: ZRC6_ERROR.NotContractOwnerError,
       want: undefined,
@@ -179,7 +185,7 @@ describe("Contract", () => {
     {
       name: "throws ZeroAddressDestinationError",
       transition: "SetRoyaltyRecipient",
-      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
         to: "0x0000000000000000000000000000000000000000",
       }),
@@ -189,7 +195,7 @@ describe("Contract", () => {
     {
       name: "throws ThisAddressDestinationError",
       transition: "SetRoyaltyRecipient",
-      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
         to: globalContractAddress,
       }),
@@ -199,19 +205,19 @@ describe("Contract", () => {
     {
       name: "sets stranger as recipient",
       transition: "SetRoyaltyRecipient",
-      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        to: toTestAddr(STRANGER),
+        to: getTestAddr(STRANGER),
       }),
       error: undefined,
       want: {
         verifyState: (state) =>
-          state.royalty_recipient === toTestAddr(STRANGER).toLowerCase(),
+          state.royalty_recipient === getTestAddr(STRANGER).toLowerCase(),
         events: [
           {
             name: "SetRoyaltyRecipient",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
+              getJSONParam("ByStr20", getTestAddr(STRANGER), "to"),
             ],
           },
         ],
@@ -219,7 +225,7 @@ describe("Contract", () => {
           {
             tag: "ZRC6_SetRoyaltyRecipientCallback",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
+              getJSONParam("ByStr20", getTestAddr(STRANGER), "to"),
             ],
           },
         ],
@@ -228,9 +234,9 @@ describe("Contract", () => {
     {
       name: "throws NotContractOwnerError",
       transition: "SetRoyaltyFeeBPS",
-      getSender: () => toTestAddr(STRANGER),
+      getSender: () => getTestAddr(STRANGER),
       getParams: () => ({
-        feeBps: "1000",
+        feeBps: 1000,
       }),
       error: ZRC6_ERROR.NotContractOwnerError,
       want: undefined,
@@ -238,9 +244,9 @@ describe("Contract", () => {
     {
       name: "throws invalid fee bps error: 10001",
       transition: "SetRoyaltyFeeBPS",
-      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        feeBps: "10001",
+        feeBps: 10001,
       }),
       error: ZRC6_ERROR.InvalidFeeBPSError,
       want: undefined,
@@ -248,7 +254,7 @@ describe("Contract", () => {
     {
       name: "throws invalid fee bps error: 0",
       transition: "SetRoyaltyFeeBPS",
-      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
         feeBps: "0",
       }),
@@ -258,9 +264,9 @@ describe("Contract", () => {
     {
       name: "sets fee bps: max",
       transition: "SetRoyaltyFeeBPS",
-      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        feeBps: "10000",
+        feeBps: 10000,
       }),
       error: undefined,
       want: {
@@ -268,13 +274,17 @@ describe("Contract", () => {
         events: [
           {
             name: "SetRoyaltyFeeBPS",
-            getParams: () => [toMsgParam("Uint128", 10000, "royalty_fee_bps")],
+            getParams: () => [
+              getJSONParam("Uint128", 10000, "royalty_fee_bps"),
+            ],
           },
         ],
         transitions: [
           {
             tag: "ZRC6_SetRoyaltyFeeBPSCallback",
-            getParams: () => [toMsgParam("Uint128", 10000, "royalty_fee_bps")],
+            getParams: () => [
+              getJSONParam("Uint128", 10000, "royalty_fee_bps"),
+            ],
           },
         ],
       },
@@ -282,9 +292,9 @@ describe("Contract", () => {
     {
       name: "sets fee bps: min",
       transition: "SetRoyaltyFeeBPS",
-      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        feeBps: "1",
+        feeBps: 1,
       }),
       error: undefined,
       want: {
@@ -292,13 +302,13 @@ describe("Contract", () => {
         events: [
           {
             name: "SetRoyaltyFeeBPS",
-            getParams: () => [toMsgParam("Uint128", 1, "royalty_fee_bps")],
+            getParams: () => [getJSONParam("Uint128", 1, "royalty_fee_bps")],
           },
         ],
         transitions: [
           {
             tag: "ZRC6_SetRoyaltyFeeBPSCallback",
-            getParams: () => [toMsgParam("Uint128", 1, "royalty_fee_bps")],
+            getParams: () => [getJSONParam("Uint128", 1, "royalty_fee_bps")],
           },
         ],
       },
@@ -306,7 +316,7 @@ describe("Contract", () => {
     {
       name: "throws NotContractOwnerError",
       transition: "SetBaseURI",
-      getSender: () => toTestAddr(STRANGER),
+      getSender: () => getTestAddr(STRANGER),
       getParams: () => ({
         uri: BASE_URI,
       }),
@@ -316,21 +326,21 @@ describe("Contract", () => {
     {
       name: "sets new base URI",
       transition: "SetBaseURI",
-      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        uri: "http://localhost:1111/testcase/1",
+        uri: "https://gateway.zilliqa.com/ipfs/hash/1",
       }),
       error: undefined,
       want: {
         verifyState: (state) =>
-          state.base_uri === "http://localhost:1111/testcase/1",
+          state.base_uri === "https://gateway.zilliqa.com/ipfs/hash/1",
         events: [
           {
             name: "SetBaseURI",
             getParams: () => [
-              toMsgParam(
+              getJSONParam(
                 "String",
-                "http://localhost:1111/testcase/1",
+                "https://gateway.zilliqa.com/ipfs/hash/1",
                 "base_uri"
               ),
             ],
@@ -340,9 +350,9 @@ describe("Contract", () => {
           {
             tag: "ZRC6_SetBaseURICallback",
             getParams: () => [
-              toMsgParam(
+              getJSONParam(
                 "String",
-                "http://localhost:1111/testcase/1",
+                "https://gateway.zilliqa.com/ipfs/hash/1",
                 "base_uri"
               ),
             ],
@@ -353,9 +363,9 @@ describe("Contract", () => {
     {
       name: "throws SelfError",
       transition: "SetContractOwnershipRecipient",
-      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        to: toTestAddr(CONTRACT_OWNER),
+        to: getTestAddr(CONTRACT_OWNER),
       }),
       error: ZRC6_ERROR.SelfError,
       want: undefined,
@@ -363,20 +373,20 @@ describe("Contract", () => {
     {
       name: "sets stranger as contract owner candidate by contract owner",
       transition: "SetContractOwnershipRecipient",
-      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        to: toTestAddr(STRANGER),
+        to: getTestAddr(STRANGER),
       }),
       error: undefined,
       want: {
         verifyState: (state) =>
           state.contract_ownership_recipient ===
-          toTestAddr(STRANGER).toLowerCase(),
+          getTestAddr(STRANGER).toLowerCase(),
         events: [
           {
             name: "SetContractOwnershipRecipient",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
+              getJSONParam("ByStr20", getTestAddr(STRANGER), "to"),
             ],
           },
         ],
@@ -384,7 +394,7 @@ describe("Contract", () => {
           {
             tag: "ZRC6_SetContractOwnershipRecipientCallback",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
+              getJSONParam("ByStr20", getTestAddr(STRANGER), "to"),
             ],
           },
         ],
@@ -399,31 +409,27 @@ describe("Contract", () => {
         JSON.stringify({
           _balance: "0",
           balances: {
-            [toTestAddr(TOKEN_OWNER).toLowerCase()]:
+            [getTestAddr(TOKEN_OWNER).toLowerCase()]:
               INITIAL_TOTAL_SUPPLY.toString(),
           },
           base_uri: BASE_URI,
-          contract_owner: toTestAddr(CONTRACT_OWNER).toLowerCase(),
+          contract_owner: getTestAddr(CONTRACT_OWNER).toLowerCase(),
           contract_ownership_recipient:
             "0x0000000000000000000000000000000000000000",
-          is_paused: { argtypes: [], arguments: [], constructor: "False" },
+          is_paused: getJSONValue(false),
           minters: {
-            [toTestAddr(CONTRACT_OWNER).toLowerCase()]: {
-              argtypes: [],
-              arguments: [],
-              constructor: "True",
-            },
+            [getTestAddr(CONTRACT_OWNER).toLowerCase()]: getJSONValue(true),
           },
           operators: {},
           royalty_fee_bps: "1000",
-          royalty_recipient: toTestAddr(CONTRACT_OWNER).toLowerCase(),
+          royalty_recipient: getTestAddr(CONTRACT_OWNER).toLowerCase(),
           spenders: {},
           token_id_count: INITIAL_TOTAL_SUPPLY.toString(),
           token_name: TOKEN_NAME,
           token_owners: {
-            "1": toTestAddr(TOKEN_OWNER).toLowerCase(),
-            "2": toTestAddr(TOKEN_OWNER).toLowerCase(),
-            "3": toTestAddr(TOKEN_OWNER).toLowerCase(),
+            "1": getTestAddr(TOKEN_OWNER).toLowerCase(),
+            "2": getTestAddr(TOKEN_OWNER).toLowerCase(),
+            "3": getTestAddr(TOKEN_OWNER).toLowerCase(),
           },
           token_symbol: TOKEN_SYMBOL,
           total_supply: INITIAL_TOTAL_SUPPLY.toString(),
@@ -439,7 +445,7 @@ describe("Contract", () => {
         // Nagative Cases
         expect(tx.receipt.success).toBe(false);
         expect(tx.receipt.exceptions[0].message).toBe(
-          toErrorMsg(testCase.error)
+          getErrorMsg(testCase.error)
         );
       } else {
         // Positive Cases
@@ -468,7 +474,7 @@ describe("Accept Contract Ownership", () => {
       TX_PARAMS
     )(
       "SetContractOwnershipRecipient",
-      toTestAddr(CONTRACT_OWNERSHIP_RECIPIENT)
+      getTestAddr(CONTRACT_OWNERSHIP_RECIPIENT)
     );
     if (!tx.receipt.success) {
       throw new Error();
@@ -479,7 +485,7 @@ describe("Accept Contract Ownership", () => {
     {
       name: "throws NotContractOwnershipRecipientError",
       transition: "AcceptContractOwnership",
-      getSender: () => toTestAddr(STRANGER),
+      getSender: () => getTestAddr(STRANGER),
       getParams: () => ({}),
       error: ZRC6_ERROR.NotContractOwnershipRecipientError,
       want: undefined,
@@ -487,20 +493,20 @@ describe("Accept Contract Ownership", () => {
     {
       name: "sets contract owner candidate as contract owner",
       transition: "AcceptContractOwnership",
-      getSender: () => toTestAddr(CONTRACT_OWNERSHIP_RECIPIENT),
+      getSender: () => getTestAddr(CONTRACT_OWNERSHIP_RECIPIENT),
       getParams: () => ({}),
       error: undefined,
       want: {
         verifyState: (state) =>
           state.contract_owner ===
-          toTestAddr(CONTRACT_OWNERSHIP_RECIPIENT).toLowerCase(),
+          getTestAddr(CONTRACT_OWNERSHIP_RECIPIENT).toLowerCase(),
         events: [
           {
             name: "AcceptContractOwnership",
             getParams: () => [
-              toMsgParam(
+              getJSONParam(
                 "ByStr20",
-                toTestAddr(CONTRACT_OWNERSHIP_RECIPIENT),
+                getTestAddr(CONTRACT_OWNERSHIP_RECIPIENT),
                 "contract_owner"
               ),
             ],
@@ -510,9 +516,9 @@ describe("Accept Contract Ownership", () => {
           {
             tag: "ZRC6_AcceptContractOwnershipCallback",
             getParams: () => [
-              toMsgParam(
+              getJSONParam(
                 "ByStr20",
-                toTestAddr(CONTRACT_OWNERSHIP_RECIPIENT),
+                getTestAddr(CONTRACT_OWNERSHIP_RECIPIENT),
                 "contract_owner"
               ),
             ],
@@ -530,32 +536,28 @@ describe("Accept Contract Ownership", () => {
         JSON.stringify({
           _balance: "0",
           balances: {
-            [toTestAddr(TOKEN_OWNER).toLowerCase()]:
+            [getTestAddr(TOKEN_OWNER).toLowerCase()]:
               INITIAL_TOTAL_SUPPLY.toString(),
           },
           base_uri: BASE_URI,
-          contract_owner: toTestAddr(CONTRACT_OWNER).toLowerCase(),
-          contract_ownership_recipient: toTestAddr(
+          contract_owner: getTestAddr(CONTRACT_OWNER).toLowerCase(),
+          contract_ownership_recipient: getTestAddr(
             CONTRACT_OWNERSHIP_RECIPIENT
           ).toLowerCase(),
-          is_paused: { argtypes: [], arguments: [], constructor: "False" },
+          is_paused: getJSONValue(false),
           minters: {
-            [toTestAddr(CONTRACT_OWNER).toLowerCase()]: {
-              argtypes: [],
-              arguments: [],
-              constructor: "True",
-            },
+            [getTestAddr(CONTRACT_OWNER).toLowerCase()]: getJSONValue(true),
           },
           operators: {},
           royalty_fee_bps: "1000",
-          royalty_recipient: toTestAddr(CONTRACT_OWNER).toLowerCase(),
+          royalty_recipient: getTestAddr(CONTRACT_OWNER).toLowerCase(),
           spenders: {},
           token_id_count: INITIAL_TOTAL_SUPPLY.toString(),
           token_name: TOKEN_NAME,
           token_owners: {
-            "1": toTestAddr(TOKEN_OWNER).toLowerCase(),
-            "2": toTestAddr(TOKEN_OWNER).toLowerCase(),
-            "3": toTestAddr(TOKEN_OWNER).toLowerCase(),
+            "1": getTestAddr(TOKEN_OWNER).toLowerCase(),
+            "2": getTestAddr(TOKEN_OWNER).toLowerCase(),
+            "3": getTestAddr(TOKEN_OWNER).toLowerCase(),
           },
           token_symbol: TOKEN_SYMBOL,
           total_supply: INITIAL_TOTAL_SUPPLY.toString(),
@@ -571,7 +573,7 @@ describe("Accept Contract Ownership", () => {
         // Nagative Cases
         expect(tx.receipt.success).toBe(false);
         expect(tx.receipt.exceptions[0].message).toBe(
-          toErrorMsg(testCase.error)
+          getErrorMsg(testCase.error)
         );
       } else {
         // Positive Cases
@@ -598,7 +600,7 @@ describe("Unpaused", () => {
     {
       name: "Throws NotPausedError for the not paused contract",
       transition: "Unpause",
-      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({}),
       error: ZRC6_ERROR.NotPausedError,
       want: undefined,
@@ -606,7 +608,7 @@ describe("Unpaused", () => {
     {
       name: "Throws NotContractOwnerError",
       transition: "Pause",
-      getSender: () => toTestAddr(STRANGER),
+      getSender: () => getTestAddr(STRANGER),
       getParams: () => ({}),
       error: ZRC6_ERROR.NotContractOwnerError,
       want: undefined,
@@ -614,25 +616,25 @@ describe("Unpaused", () => {
     {
       name: "Pause the contract",
       transition: "Pause",
-      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({}),
       want: {
         verifyState: (state) => {
           return (
             JSON.stringify(state.is_paused) ===
-            JSON.stringify({ argtypes: [], arguments: [], constructor: "True" })
+            JSON.stringify(getJSONValue(true))
           );
         },
         events: [
           {
             name: "Pause",
-            getParams: () => [toMsgParam("Bool", "True", "is_paused")],
+            getParams: () => [getJSONParam("Bool", true, "is_paused")],
           },
         ],
         transitions: [
           {
             tag: "ZRC6_PauseCallback",
-            getParams: () => [toMsgParam("Bool", "True", "is_paused")],
+            getParams: () => [getJSONParam("Bool", true, "is_paused")],
           },
         ],
       },
@@ -646,11 +648,7 @@ describe("Unpaused", () => {
         .getState();
 
       expect(JSON.stringify(state.is_paused)).toBe(
-        JSON.stringify({
-          argtypes: [],
-          arguments: [],
-          constructor: "False",
-        })
+        JSON.stringify(getJSONValue(false))
       );
 
       zilliqa.wallet.setDefault(testCase.getSender());
@@ -663,7 +661,7 @@ describe("Unpaused", () => {
         // Negative Cases
         expect(tx.receipt.success).toBe(false);
         expect(tx.receipt.exceptions[0].message).toBe(
-          toErrorMsg(testCase.error)
+          getErrorMsg(testCase.error)
         );
       } else {
         // Positive Cases
@@ -690,7 +688,7 @@ describe("Paused", () => {
     let tx = await globalContractInfo.callGetter(
       zilliqa.contracts.at(globalContractAddress),
       TX_PARAMS
-    )("Pause", toTestAddr(CONTRACT_OWNER));
+    )("Pause", getTestAddr(CONTRACT_OWNER));
     if (!tx.receipt.success) {
       throw new Error();
     }
@@ -700,7 +698,7 @@ describe("Paused", () => {
     {
       name: "Throws PausedError for the paused contract",
       transition: "Pause",
-      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({}),
       error: ZRC6_ERROR.PausedError,
       want: undefined,
@@ -708,7 +706,7 @@ describe("Paused", () => {
     {
       name: "Throws NotContractOwnerError",
       transition: "Unpause",
-      getSender: () => toTestAddr(STRANGER),
+      getSender: () => getTestAddr(STRANGER),
       getParams: () => ({}),
       error: ZRC6_ERROR.NotContractOwnerError,
       want: undefined,
@@ -716,29 +714,25 @@ describe("Paused", () => {
     {
       name: "Unpause the contract",
       transition: "Unpause",
-      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({}),
       want: {
         verifyState: (state) => {
           return (
             JSON.stringify(state.is_paused) ===
-            JSON.stringify({
-              argtypes: [],
-              arguments: [],
-              constructor: "False",
-            })
+            JSON.stringify(getJSONValue(false))
           );
         },
         events: [
           {
             name: "Unpause",
-            getParams: () => [toMsgParam("Bool", "False", "is_paused")],
+            getParams: () => [getJSONParam("Bool", false, "is_paused")],
           },
         ],
         transitions: [
           {
             tag: "ZRC6_UnpauseCallback",
-            getParams: () => [toMsgParam("Bool", "False", "is_paused")],
+            getParams: () => [getJSONParam("Bool", false, "is_paused")],
           },
         ],
       },
@@ -746,9 +740,9 @@ describe("Paused", () => {
     {
       name: "throws PausedError for Mint()",
       transition: "Mint",
-      getSender: () => toTestAddr(MINTER),
+      getSender: () => getTestAddr(MINTER),
       getParams: () => ({
-        to: toTestAddr(MINTER),
+        to: getTestAddr(MINTER),
       }),
       error: ZRC6_ERROR.PausedError,
       want: undefined,
@@ -756,12 +750,12 @@ describe("Paused", () => {
     {
       name: "throws PausedError for BatchMint()",
       transition: "BatchMint",
-      getSender: () => toTestAddr(MINTER),
+      getSender: () => getTestAddr(MINTER),
       getParams: () => ({
         to_list: [
-          toTestAddr(STRANGER),
-          toTestAddr(STRANGER),
-          toTestAddr(STRANGER),
+          getTestAddr(STRANGER),
+          getTestAddr(STRANGER),
+          getTestAddr(STRANGER),
         ],
       }),
       error: ZRC6_ERROR.PausedError,
@@ -770,9 +764,9 @@ describe("Paused", () => {
     {
       name: "throws PausedError for Burn()",
       transition: "Burn",
-      getSender: () => toTestAddr(TOKEN_OWNER),
+      getSender: () => getTestAddr(TOKEN_OWNER),
       getParams: () => ({
-        token_id: "1",
+        token_id: 1,
       }),
       error: ZRC6_ERROR.PausedError,
       want: undefined,
@@ -780,10 +774,10 @@ describe("Paused", () => {
     {
       name: "throws PausedError for TransferFrom()",
       transition: "TransferFrom",
-      getSender: () => toTestAddr(TOKEN_OWNER),
+      getSender: () => getTestAddr(TOKEN_OWNER),
       getParams: () => ({
-        to: toTestAddr(STRANGER),
-        token_id: "1",
+        to: getTestAddr(STRANGER),
+        token_id: 1,
       }),
       error: ZRC6_ERROR.PausedError,
       want: undefined,
@@ -797,11 +791,7 @@ describe("Paused", () => {
         .getState();
 
       expect(JSON.stringify(state.is_paused)).toBe(
-        JSON.stringify({
-          argtypes: [],
-          arguments: [],
-          constructor: "True",
-        })
+        JSON.stringify(getJSONValue(true))
       );
 
       zilliqa.wallet.setDefault(testCase.getSender());
@@ -814,7 +804,7 @@ describe("Paused", () => {
         // Negative Cases
         expect(tx.receipt.success).toBe(false);
         expect(tx.receipt.exceptions[0].message).toBe(
-          toErrorMsg(testCase.error)
+          getErrorMsg(testCase.error)
         );
       } else {
         // Positive Cases

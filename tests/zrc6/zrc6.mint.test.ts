@@ -1,10 +1,10 @@
 import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { expect } from "@jest/globals";
+import { getAddressFromPrivateKey, schnorr } from "@zilliqa-js/crypto";
 
 import {
-  genAccounts,
-  toErrorMsg,
-  toMsgParam,
+  getErrorMsg,
+  getJSONParam,
   useContractInfo,
   verifyTransitions,
   verifyEvents,
@@ -41,11 +41,16 @@ let globalTestAccounts: Array<{
 const CONTRACT_OWNER = 0;
 const TOKEN_OWNER = 0;
 const MINTER = 1;
-const STRANGER = 9;
-const toTestAddr = (index) => globalTestAccounts[index]?.address as string;
+const STRANGER = 2;
+const getTestAddr = (index) => globalTestAccounts[index]?.address as string;
 
 beforeAll(async () => {
-  const accounts = genAccounts(10);
+  const accounts = Array.from({ length: 3 }, schnorr.generatePrivateKey).map(
+    (privateKey) => ({
+      privateKey,
+      address: getAddressFromPrivateKey(privateKey),
+    })
+  );
   for (const { privateKey, address } of accounts) {
     zilliqa.wallet.addByPrivateKey(privateKey);
     const tx = await zilliqa.blockchain.createTransaction(
@@ -66,19 +71,19 @@ beforeAll(async () => {
   console.table({
     JEST_WORKER_ID,
     GENESIS_PRIVATE_KEY,
-    CONTRACT_OWNER: toTestAddr(CONTRACT_OWNER),
-    TOKEN_OWNER: toTestAddr(TOKEN_OWNER),
-    MINTER: toTestAddr(MINTER),
-    STRANGER: toTestAddr(STRANGER),
+    CONTRACT_OWNER: getTestAddr(CONTRACT_OWNER),
+    TOKEN_OWNER: getTestAddr(TOKEN_OWNER),
+    MINTER: getTestAddr(MINTER),
+    STRANGER: getTestAddr(STRANGER),
   });
 
   globalContractInfo = await useContractInfo(CONTAINER, CODE_PATH, GAS_LIMIT);
 });
 
 beforeEach(async () => {
-  zilliqa.wallet.setDefault(toTestAddr(CONTRACT_OWNER));
+  zilliqa.wallet.setDefault(getTestAddr(CONTRACT_OWNER));
   const init = globalContractInfo.getInitParams(
-    toTestAddr(CONTRACT_OWNER),
+    getTestAddr(CONTRACT_OWNER),
     BASE_URI,
     TOKEN_NAME,
     TOKEN_SYMBOL
@@ -95,7 +100,7 @@ beforeEach(async () => {
   let tx = await globalContractInfo.callGetter(
     zilliqa.contracts.at(globalContractAddress),
     TX_PARAMS
-  )("AddMinter", toTestAddr(MINTER));
+  )("AddMinter", getTestAddr(MINTER));
   if (!tx.receipt.success) {
     throw new Error();
   }
@@ -106,7 +111,7 @@ beforeEach(async () => {
   )(
     "BatchMint",
     Array.from({ length: INITIAL_TOTAL_SUPPLY }, () => undefined).map(() =>
-      toTestAddr(TOKEN_OWNER)
+      getTestAddr(TOKEN_OWNER)
     )
   );
   if (!tx.receipt.success) {
@@ -119,9 +124,9 @@ describe("Minter", () => {
     {
       name: "throws NotContractOwnerError by stranger",
       transition: "AddMinter",
-      getSender: () => toTestAddr(STRANGER),
+      getSender: () => getTestAddr(STRANGER),
       getParams: () => ({
-        minter: toTestAddr(STRANGER),
+        minter: getTestAddr(STRANGER),
       }),
       error: ZRC6_ERROR.NotContractOwnerError,
       want: undefined,
@@ -129,9 +134,9 @@ describe("Minter", () => {
     {
       name: "throws MinterFoundError",
       transition: "AddMinter",
-      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        minter: toTestAddr(MINTER),
+        minter: getTestAddr(MINTER),
       }),
       error: ZRC6_ERROR.MinterFoundError,
       want: undefined,
@@ -139,19 +144,19 @@ describe("Minter", () => {
     {
       name: "adds minter",
       transition: "AddMinter",
-      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        minter: toTestAddr(STRANGER),
+        minter: getTestAddr(STRANGER),
       }),
       error: undefined,
       want: {
         verifyState: (state) =>
-          state.minters.hasOwnProperty(toTestAddr(STRANGER).toLowerCase()),
+          state.minters.hasOwnProperty(getTestAddr(STRANGER).toLowerCase()),
         events: [
           {
             name: "AddMinter",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER), "minter"),
+              getJSONParam("ByStr20", getTestAddr(STRANGER), "minter"),
             ],
           },
         ],
@@ -159,7 +164,7 @@ describe("Minter", () => {
           {
             tag: "ZRC6_AddMinterCallback",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER), "minter"),
+              getJSONParam("ByStr20", getTestAddr(STRANGER), "minter"),
             ],
           },
         ],
@@ -168,9 +173,9 @@ describe("Minter", () => {
     {
       name: "throws NotContractOwnerError by stranger",
       transition: "RemoveMinter",
-      getSender: () => toTestAddr(STRANGER),
+      getSender: () => getTestAddr(STRANGER),
       getParams: () => ({
-        minter: toTestAddr(MINTER),
+        minter: getTestAddr(MINTER),
       }),
       error: ZRC6_ERROR.NotContractOwnerError,
       want: undefined,
@@ -178,9 +183,9 @@ describe("Minter", () => {
     {
       name: "throws MinterNotFoundError",
       transition: "RemoveMinter",
-      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        minter: toTestAddr(STRANGER),
+        minter: getTestAddr(STRANGER),
       }),
       error: ZRC6_ERROR.MinterNotFoundError,
       want: undefined,
@@ -188,19 +193,19 @@ describe("Minter", () => {
     {
       name: "removes minter",
       transition: "RemoveMinter",
-      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        minter: toTestAddr(MINTER),
+        minter: getTestAddr(MINTER),
       }),
       error: undefined,
       want: {
         verifyState: (state) =>
-          !state.minters.hasOwnProperty(toTestAddr(STRANGER).toLowerCase()),
+          !state.minters.hasOwnProperty(getTestAddr(STRANGER).toLowerCase()),
         events: [
           {
             name: "RemoveMinter",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(MINTER), "minter"),
+              getJSONParam("ByStr20", getTestAddr(MINTER), "minter"),
             ],
           },
         ],
@@ -208,7 +213,7 @@ describe("Minter", () => {
           {
             tag: "ZRC6_RemoveMinterCallback",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(MINTER), "minter"),
+              getJSONParam("ByStr20", getTestAddr(MINTER), "minter"),
             ],
           },
         ],
@@ -228,7 +233,7 @@ describe("Minter", () => {
         // Negative Cases
         expect(tx.receipt.success).toBe(false);
         expect(tx.receipt.exceptions[0].message).toBe(
-          toErrorMsg(testCase.error)
+          getErrorMsg(testCase.error)
         );
       } else {
         // Positive Cases
@@ -255,9 +260,9 @@ describe("Mint & Burn", () => {
     {
       name: "throws NotMinterError",
       transition: "Mint",
-      getSender: () => toTestAddr(STRANGER),
+      getSender: () => getTestAddr(STRANGER),
       getParams: () => ({
-        to: toTestAddr(STRANGER),
+        to: getTestAddr(STRANGER),
       }),
       error: ZRC6_ERROR.NotMinterError,
       want: undefined,
@@ -265,16 +270,16 @@ describe("Mint & Burn", () => {
     {
       name: "mints token by contract owner",
       transition: "Mint",
-      getSender: () => toTestAddr(CONTRACT_OWNER),
+      getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        to: toTestAddr(STRANGER),
+        to: getTestAddr(STRANGER),
       }),
       error: undefined,
       want: {
         verifyState: (state) => {
           return (
             state.token_owners[(INITIAL_TOTAL_SUPPLY + 1).toString()] ===
-              toTestAddr(STRANGER).toLowerCase() &&
+              getTestAddr(STRANGER).toLowerCase() &&
             state.token_id_count === (INITIAL_TOTAL_SUPPLY + 1).toString()
           );
         },
@@ -282,8 +287,8 @@ describe("Mint & Burn", () => {
           {
             name: "Mint",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
-              toMsgParam(
+              getJSONParam("ByStr20", getTestAddr(STRANGER), "to"),
+              getJSONParam(
                 "Uint256",
                 (INITIAL_TOTAL_SUPPLY + 1).toString(),
                 "token_id"
@@ -299,8 +304,8 @@ describe("Mint & Burn", () => {
           {
             tag: "ZRC6_MintCallback",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(STRANGER), "to"),
-              toMsgParam(
+              getJSONParam("ByStr20", getTestAddr(STRANGER), "to"),
+              getJSONParam(
                 "Uint256",
                 (INITIAL_TOTAL_SUPPLY + 1).toString(),
                 "token_id"
@@ -313,16 +318,16 @@ describe("Mint & Burn", () => {
     {
       name: "mints token by minter",
       transition: "Mint",
-      getSender: () => toTestAddr(MINTER),
+      getSender: () => getTestAddr(MINTER),
       getParams: () => ({
-        to: toTestAddr(MINTER),
+        to: getTestAddr(MINTER),
       }),
       error: undefined,
       want: {
         verifyState: (state) => {
           return (
             state.token_owners[(INITIAL_TOTAL_SUPPLY + 1).toString()] ===
-              toTestAddr(MINTER).toLowerCase() &&
+              getTestAddr(MINTER).toLowerCase() &&
             state.token_id_count === (INITIAL_TOTAL_SUPPLY + 1).toString()
           );
         },
@@ -330,8 +335,8 @@ describe("Mint & Burn", () => {
           {
             name: "Mint",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(MINTER), "to"),
-              toMsgParam(
+              getJSONParam("ByStr20", getTestAddr(MINTER), "to"),
+              getJSONParam(
                 "Uint256",
                 (INITIAL_TOTAL_SUPPLY + 1).toString(),
                 "token_id"
@@ -347,8 +352,8 @@ describe("Mint & Burn", () => {
           {
             tag: "ZRC6_MintCallback",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(MINTER), "to"),
-              toMsgParam(
+              getJSONParam("ByStr20", getTestAddr(MINTER), "to"),
+              getJSONParam(
                 "Uint256",
                 (INITIAL_TOTAL_SUPPLY + 1).toString(),
                 "token_id"
@@ -361,12 +366,12 @@ describe("Mint & Burn", () => {
     {
       name: "mints tokens in batches",
       transition: "BatchMint",
-      getSender: () => toTestAddr(TOKEN_OWNER),
+      getSender: () => getTestAddr(TOKEN_OWNER),
       getParams: () => ({
         to_list: [
-          toTestAddr(STRANGER),
-          toTestAddr(STRANGER),
-          toTestAddr(STRANGER),
+          getTestAddr(STRANGER),
+          getTestAddr(STRANGER),
+          getTestAddr(STRANGER),
         ],
       }),
       error: undefined,
@@ -385,7 +390,7 @@ describe("Mint & Burn", () => {
             }
             if (
               state.token_owners[i.toString()] !==
-              toTestAddr(STRANGER).toLowerCase()
+              getTestAddr(STRANGER).toLowerCase()
             ) {
               return false;
             }
@@ -396,15 +401,13 @@ describe("Mint & Burn", () => {
           {
             name: "BatchMint",
             getParams: () => [
-              toMsgParam(
+              getJSONParam(
                 "List (ByStr20)",
-                [STRANGER, STRANGER, STRANGER].map((cur) =>
-                  toTestAddr(cur).toLowerCase()
-                ),
+                [STRANGER, STRANGER, STRANGER].map((cur) => getTestAddr(cur)),
                 "to_list"
               ),
-              toMsgParam("Uint256", "4", "start_id"),
-              toMsgParam("Uint256", "6", "end_id"),
+              getJSONParam("Uint256", "4", "start_id"),
+              getJSONParam("Uint256", "6", "end_id"),
             ],
           },
         ],
@@ -420,9 +423,9 @@ describe("Mint & Burn", () => {
     {
       name: "throws NotOwnerOrOperatorError",
       transition: "Burn",
-      getSender: () => toTestAddr(STRANGER),
+      getSender: () => getTestAddr(STRANGER),
       getParams: () => ({
-        token_id: "1",
+        token_id: 1,
       }),
       error: ZRC6_ERROR.NotOwnerOrOperatorError,
       want: undefined,
@@ -430,9 +433,9 @@ describe("Mint & Burn", () => {
     {
       name: "throws TokenNotFoundError",
       transition: "Burn",
-      getSender: () => toTestAddr(TOKEN_OWNER),
+      getSender: () => getTestAddr(TOKEN_OWNER),
       getParams: () => ({
-        token_id: "999",
+        token_id: 999,
       }),
       error: ZRC6_ERROR.TokenNotFoundError,
       want: undefined,
@@ -440,9 +443,9 @@ describe("Mint & Burn", () => {
     {
       name: "burns a token",
       transition: "Burn",
-      getSender: () => toTestAddr(TOKEN_OWNER),
+      getSender: () => getTestAddr(TOKEN_OWNER),
       getParams: () => ({
-        token_id: "1",
+        token_id: 1,
       }),
       error: undefined,
       want: {
@@ -451,8 +454,12 @@ describe("Mint & Burn", () => {
           {
             name: "Burn",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "token_owner"),
-              toMsgParam("Uint256", 1, "token_id"),
+              getJSONParam(
+                "ByStr20",
+                getTestAddr(CONTRACT_OWNER),
+                "token_owner"
+              ),
+              getJSONParam("Uint256", 1, "token_id"),
             ],
           },
         ],
@@ -460,8 +467,12 @@ describe("Mint & Burn", () => {
           {
             tag: "ZRC6_BurnCallback",
             getParams: () => [
-              toMsgParam("ByStr20", toTestAddr(CONTRACT_OWNER), "token_owner"),
-              toMsgParam("Uint256", 1, "token_id"),
+              getJSONParam(
+                "ByStr20",
+                getTestAddr(CONTRACT_OWNER),
+                "token_owner"
+              ),
+              getJSONParam("Uint256", 1, "token_id"),
             ],
           },
         ],
@@ -471,9 +482,9 @@ describe("Mint & Burn", () => {
     {
       name: "burns tokens in batches",
       transition: "BatchBurn",
-      getSender: () => toTestAddr(TOKEN_OWNER),
+      getSender: () => getTestAddr(TOKEN_OWNER),
       getParams: () => ({
-        token_id_list: ["1", "2", "3"],
+        token_id_list: [1, 2, 3],
       }),
       error: undefined,
       want: {
@@ -487,7 +498,7 @@ describe("Mint & Burn", () => {
           {
             name: "BatchBurn",
             getParams: () => [
-              toMsgParam("List (Uint256)", ["1", "2", "3"], "token_id_list"),
+              getJSONParam("List (Uint256)", [1, 2, 3], "token_id_list"),
             ],
           },
         ],
@@ -513,7 +524,7 @@ describe("Mint & Burn", () => {
         // Negative Cases
         expect(tx.receipt.success).toBe(false);
         expect(tx.receipt.exceptions[0].message).toBe(
-          toErrorMsg(testCase.error)
+          getErrorMsg(testCase.error)
         );
       } else {
         // Positive Cases
