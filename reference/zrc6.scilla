@@ -1,0 +1,960 @@
+(* SPDX-License-Identifier: MIT *)
+scilla_version 0
+
+(***************************************************)
+(*               Associated library                *)
+(***************************************************)
+import BoolUtils ListUtils IntUtils
+library NonfungibleToken
+
+type Operation =
+| Add
+| Sub
+
+(* Global variables *)
+let zero_address = 0x0000000000000000000000000000000000000000
+let false = False
+let true = True
+let zero = Uint256 0
+let one = Uint256 1
+let empty_string = ""
+
+let add_operation = Add
+let sub_operation = Sub
+let min_fee_bps = Uint128 1
+let max_fee_bps = Uint128 10000
+
+(* Library functions *)
+let one_msg = 
+  fun (msg: Message) => 
+    let nil_msg = Nil {Message} in
+    Cons {Message} msg nil_msg
+
+let two_msgs =
+  fun (msg1: Message) =>
+  fun (msg2: Message) =>
+    let msgs_tmp = one_msg msg2 in
+    Cons {Message} msg1 msgs_tmp
+
+let get_bal =
+  fun (maybe_bal: Option Uint256) =>
+    match maybe_bal with
+    | None => zero
+    | Some bal => bal
+    end
+
+(* Error exception *)
+type Error =
+  | NotPausedError
+  | PausedError
+  | SelfError
+  | NotContractOwnerError
+  | NotContractOwnershipRecipientError
+  | NotTokenOwnerError
+  | NotMinterError
+  | NotOwnerOrOperatorError
+  | MinterNotFoundError
+  | MinterFoundError
+  | SpenderFoundError
+  | OperatorNotFoundError
+  | OperatorFoundError
+  | NotAllowedToTransferError
+  | TokenNotFoundError
+  | InvalidFeeBPSError
+  | ZeroAddressDestinationError
+  | ThisAddressDestinationError
+
+let make_error =
+  fun (result: Error) =>
+    let result_code = 
+      match result with
+      | NotPausedError                     => Int32 -1
+      | PausedError                        => Int32 -2
+      | SelfError                          => Int32 -3
+      | NotContractOwnerError              => Int32 -4
+      | NotTokenOwnerError                 => Int32 -5
+      | NotMinterError                     => Int32 -6
+      | NotOwnerOrOperatorError            => Int32 -7
+      | MinterNotFoundError                => Int32 -8
+      | MinterFoundError                   => Int32 -9
+      | SpenderFoundError                  => Int32 -10
+      | OperatorNotFoundError              => Int32 -11
+      | OperatorFoundError                 => Int32 -12
+      | NotAllowedToTransferError          => Int32 -13
+      | TokenNotFoundError                 => Int32 -14
+      | InvalidFeeBPSError                 => Int32 -15
+      | ZeroAddressDestinationError        => Int32 -16
+      | ThisAddressDestinationError        => Int32 -17
+      | NotContractOwnershipRecipientError => Int32 -18
+      end
+    in
+    { _exception: "Error"; code: result_code }
+
+(***************************************************)
+(*             The contract definition             *)
+(***************************************************)
+
+contract NonfungibleToken
+(
+  initial_contract_owner: ByStr20,
+  (* Initial Base URI. e.g. `https://creatures-api.zilliqa.com/api/creature/` *)
+  initial_base_uri: String,
+  name: String,
+  symbol: String
+)
+
+(* Contract constraints *)
+with
+  (* `initial_contract_owner` must not be the zero address *)
+  let is_contract_owner_invalid = builtin eq initial_contract_owner zero_address in
+  (* `initial_base_uri` must not be an empty string *)
+  let is_base_uri_invalid = builtin eq initial_base_uri empty_string in
+  (* `name` must not be an empty string *)
+  let is_name_invalid = builtin eq name empty_string in
+  (* `symbol` must not be an empty string *)
+  let is_symbol_invalid = builtin eq symbol empty_string in
+  (* Check if any parameter is invalid *)
+  let is_name_or_symbol_invalid = orb is_name_invalid is_symbol_invalid in
+  let is_base_uri_or_name_or_symbol_invalid = orb is_base_uri_invalid is_name_or_symbol_invalid in
+  let is_invalid = orb is_contract_owner_invalid is_base_uri_or_name_or_symbol_invalid in
+  negb is_invalid
+=>
+
+(* Mutable fields *)
+
+(* Emergency stop mechanism *)
+(* Defaults to False *)
+field is_paused: Bool = false
+
+(* Token Name *)
+(* Defaults to `name` *)
+(* No need to mutate this field since this is for remote fetch to retrieve the immutable parameter. *)
+field token_name: String = name
+
+(* Token Symbol *)
+(* Defaults to `symbol` *)
+(* No need to mutate this field since this is for remote fetch to retrieve the immutable parameter. *)
+field token_symbol: String = symbol
+
+(* Contract Owner *)
+(* Defaults to `initial_contract_owner` *)
+field contract_owner: ByStr20 = initial_contract_owner
+
+(* Contract ownership recipient *)
+(* Defaults to `zero_address` *)
+field contract_ownership_recipient: ByStr20 = zero_address
+
+(* Address to send royalties to *)
+(* Defaults to `initial_contract_owner` *)
+field royalty_recipient: ByStr20 = initial_contract_owner
+
+(* Royalty fee BPS *)
+(* e.g. 1 = 0.01%, 10000 = 100% *)
+(* Defaults to 1000 *)
+field royalty_fee_bps: Uint128 = Uint128 1000
+
+(* Base URI *)
+(* Defaults to `initial_base_uri` *)
+field base_uri: String = initial_base_uri
+
+(* Mapping from token ID to its owner *)
+field token_owners: Map Uint256 ByStr20 = Emp Uint256 ByStr20
+
+(* The total number of tokens minted *)
+field token_id_count: Uint256 = Uint256 0
+
+(* The total number of existing tokens *)
+field total_supply: Uint256 = Uint256 0
+
+(* Mapping from token owner to the number of existing tokens *)
+field balances: Map ByStr20 Uint256 = Emp ByStr20 Uint256
+
+(* Set for minters *)
+(* `initial_contract_owner` is a minter by default *)
+field minters: Map ByStr20 Bool =
+    let emp_map = Emp ByStr20 Bool in
+    builtin put emp_map initial_contract_owner true
+
+(* Mapping from token ID to a spender *)
+field spenders: Map Uint256 ByStr20 = Emp Uint256 ByStr20
+
+(* Mapping from token owner to operators authorized by the token owner *)
+field operators: Map ByStr20 (Map ByStr20 Bool) = Emp ByStr20 (Map ByStr20 Bool)
+
+(* Emit Errors *)
+procedure Throw(error: Error)
+  e = make_error error;
+  throw e
+end
+
+procedure RequireNotPaused()
+  (* Reference: *)
+  (* https://consensys.github.io/smart-contract-best-practices/general_philosophy/#prepare-for-failure *)
+  paused <- is_paused;
+  match paused with
+  | False =>
+  | True =>
+    (* Contract is paused *)
+    error = PausedError;
+    Throw error
+  end
+end
+
+procedure RequireValidRoyaltyFee(fee_bps: Uint128)
+  is_gte_min = uint128_ge fee_bps min_fee_bps;
+  is_lte_max = uint128_le fee_bps max_fee_bps;
+  
+  is_valid = andb is_gte_min is_lte_max;
+  match is_valid with 
+    | True => 
+    | False =>
+      error = InvalidFeeBPSError;
+      Throw error
+  end
+end
+
+procedure RequireContractOwner()
+  cur_owner <- contract_owner;
+  is_contract_owner = builtin eq cur_owner _sender;
+  match is_contract_owner with
+  | True => 
+  | False =>
+    error = NotContractOwnerError;
+    Throw error
+  end
+end
+
+procedure RequireNotSelf(address_a: ByStr20, address_b: ByStr20)
+  is_self = builtin eq address_a address_b;
+  match is_self with
+  | False =>
+  | True =>
+    error = SelfError;
+    Throw error
+  end
+end
+
+procedure RequireExistingToken(token_id: Uint256)
+  has_token <- exists token_owners[token_id];
+  match has_token with
+  | True =>
+  | False =>
+    error = TokenNotFoundError;
+    Throw error
+  end
+end
+
+procedure RequireValidDestination(to: ByStr20)
+  (* Reference: https://github.com/ConsenSys/smart-contract-best-practices/blob/master/docs/tokens.md *)
+  is_zero_address = builtin eq to zero_address;
+  match is_zero_address with
+  | False =>
+  | True =>
+    error = ZeroAddressDestinationError;
+    Throw error
+  end;
+
+  is_this_address = builtin eq to _this_address;
+  match is_this_address with
+  | False =>
+  | True =>
+    error = ThisAddressDestinationError;
+    Throw error
+  end
+end
+
+procedure IsMinter(address: ByStr20)
+  has_minter <- exists minters[address];
+  match has_minter with
+  | True =>
+  | False =>
+    error = NotMinterError;
+    Throw error
+  end
+end
+
+procedure RequireTokenOwner(token_id: Uint256, address: ByStr20)
+  maybe_token_owner <- token_owners[token_id];
+  match maybe_token_owner with
+  | None =>
+    error = TokenNotFoundError;
+    Throw error
+  | Some addr => 
+    is_token_owner = builtin eq addr address;
+    match is_token_owner with
+    | True =>
+    | False =>
+      error = NotTokenOwnerError;
+      Throw error
+    end
+  end
+end
+
+procedure RequireOwnerOrOperator(address: ByStr20)
+  is_owner = builtin eq _sender address;
+  has_operator <- exists operators[address][_sender];
+  is_allowed = orb is_owner has_operator;
+  match is_allowed with
+  | True =>
+  | False =>
+    error = NotOwnerOrOperatorError;
+    Throw error
+  end
+end
+
+procedure RequireAccessToTransfer(token_owner: ByStr20, token_id: Uint256)  
+  (* check if _sender is token owner *)
+  is_token_owner = builtin eq token_owner _sender;
+  
+  (* check if _sender is spender *)
+  maybe_spender <- spenders[token_id];
+  is_spender = match maybe_spender with
+    | None => False
+    | Some spender => 
+      builtin eq spender _sender
+    end;
+
+  (* check if _sender is operator *)
+  is_operator <- exists operators[token_owner][_sender];
+  
+  is_spender_or_operator = orb is_spender is_operator;
+  is_allowed = orb is_spender_or_operator is_token_owner;
+  match is_allowed with
+  | True =>
+  | False =>
+    error = NotAllowedToTransferError;
+    Throw error
+  end
+end
+
+procedure UpdateBalance(operation: Operation, address: ByStr20)
+  match operation with
+  | Add =>
+    maybe_count <- balances[address];
+    new_count = 
+      let cur_count = get_bal maybe_count in
+      (* if overflow occurs, it throws CALL_CONTRACT_FAILED *)
+      builtin add cur_count one;
+    balances[address] := new_count
+  | Sub =>
+    maybe_count <- balances[address];
+    new_count = 
+      let cur_count = get_bal maybe_count in
+      (* if underflow occurs, it throws CALL_CONTRACT_FAILED *)
+      builtin sub cur_count one;
+    balances[address] := new_count
+  end
+end
+
+(* @Requirements: *)
+(* - The contract must not be paused. Otherwise, it must throw `PausedError` *)
+(* - `_sender` must be a minter. Otherwise, it must throw `NotMinterError` *)
+procedure MintToken(to: ByStr20)
+  RequireNotPaused;
+  IsMinter _sender;
+
+  (* generate ID *)
+  current_token_id_count <- token_id_count;
+  new_token_id_count = builtin add current_token_id_count one;
+  token_id_count := new_token_id_count;
+  token_id = new_token_id_count;
+
+  (* mint a new token *)
+  token_owners[token_id] := to;
+
+  (* add one to the token owner balance *)
+  UpdateBalance add_operation to;
+  
+  (* add one to the total supply *)
+  current_supply <- total_supply;
+  new_supply = builtin add current_supply one;
+  total_supply := new_supply
+end
+
+(* @Requirements: *)
+(* - The contract must not be paused. Otherwise, it must throw `PausedError` *)
+(* - `token_id` must exist. Otherwise, it must throw `TokenNotFoundError` *)
+(* - `_sender` must be a token owner or an operator. Otherwise, it must throw `NotOwnerOrOperatorError` *)
+procedure BurnToken(token_id: Uint256)
+  RequireNotPaused;
+  (* Check if token exists *)
+  maybe_token_owner <- token_owners[token_id];
+  match maybe_token_owner with
+  | None =>
+    error = TokenNotFoundError;
+    Throw error
+  | Some token_owner =>
+    RequireOwnerOrOperator token_owner;
+    (* Destroy existing token *)
+    delete token_owners[token_id];
+    delete spenders[token_id];
+
+    (* subtract one from the balance *)
+    UpdateBalance sub_operation token_owner;
+    (* subtract one from the total supply *)
+    current_supply <- total_supply;
+    new_supply = builtin sub current_supply one;
+    total_supply := new_supply
+  end
+end
+
+(* @Requirements: *)
+(* - The contract must not be paused. Otherwise, it must throw `PausedError` *)
+(* - `to` must not be the zero address. Otherwise, it must throw `ZeroAddressDestinationError` *)
+(* - `to` must not be `_this_address`. Otherwise, it must throw `ThisAddressDestinationError` *)
+(* - `token_id` must exist. Otherwise, it must throw `TokenNotFoundError` *)
+(* - `_sender` must be a token owner, spender, or operator. Otherwise, it must throw `NotAllowedToTransferError` *)
+(* - `_sender` must not be `to`. Otherwise, it must throw `SelfError` *)
+procedure TransferToken(to: ByStr20, token_id: Uint256)
+  RequireNotPaused;
+  RequireValidDestination to;
+
+  maybe_token_owner <- token_owners[token_id];
+  match maybe_token_owner with
+  | None =>
+    error = TokenNotFoundError;
+    Throw error
+  | Some token_owner =>
+    RequireAccessToTransfer token_owner token_id;
+    RequireNotSelf token_owner to;
+    
+    (* change token_owner for that token_id *)
+    token_owners[token_id] := to;
+
+    delete spenders[token_id];
+
+    (* subtract one from previous token owner balance *)
+    UpdateBalance sub_operation token_owner;
+    (* add one to the new token owner balance *)
+    UpdateBalance add_operation to
+  end
+end
+
+procedure HandleTransfer(info: Pair ByStr20 Uint256)
+  match info with
+  | Pair to token_id =>
+    TransferToken to token_id
+  end
+end
+
+(* Pauses the contract. Use this when things are going wrong ('circuit breaker'). *)
+(* @Requirements: *)
+(* - The contract must not be paused. Otherwise, it must throw `PausedError` *)
+(* - `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError` *)
+transition Pause()
+  RequireNotPaused;
+  RequireContractOwner;
+
+  is_paused := true;
+  e = {
+    _eventname: "Pause";
+    is_paused: true
+  };
+  event e;
+  msg_to_sender = {
+    _tag: "ZRC6_PauseCallback";
+    _recipient: _sender;
+    _amount: Uint128 0;
+    is_paused: true
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* Unpauses the contract. *)
+(* @Requirements: *)
+(* - The contract must be paused. Otherwise, it must throw `NotPausedError` *)
+(* - `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError` *)
+transition Unpause()
+  paused <- is_paused;
+  match paused with
+  | True =>
+  | False =>
+    error = NotPausedError;
+    Throw error
+  end;
+  RequireContractOwner;
+
+  is_paused := false;
+  e = {
+    _eventname: "Unpause";
+    is_paused: false
+  };
+  event e;
+  msg_to_sender = {
+    _tag: "ZRC6_UnpauseCallback";
+    _recipient: _sender;
+    _amount: Uint128 0;
+    is_paused: false
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* Sets `to` as the royalty recipient. *)
+(* @param: to - Royalty recipient address  *)
+(* @Requirements: *)
+(* - `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError` *)
+(* - `to` must not be the zero address. Otherwise, it must throw `ZeroAddressDestinationError` *)
+(* - `to` must not be `_this_address`. Otherwise, it must throw `ThisAddressDestinationError` *)
+transition SetRoyaltyRecipient(to: ByStr20)
+  RequireContractOwner;
+  RequireValidDestination to;
+  
+  royalty_recipient := to;
+  
+  e = { 
+    _eventname: "SetRoyaltyRecipient";
+    to: to
+  };
+  event e;
+  msg_to_sender = {
+    _tag: "ZRC6_SetRoyaltyRecipientCallback"; 
+    _recipient: _sender;
+    _amount: Uint128 0;
+    to: to
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs  
+end
+
+(* Sets `fee_bps` as royalty fee bps. *)
+(* @param: fee_bps - Royalty fee BPS *)
+(* @Requirements: *)
+(* - `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError` *)
+(* - `fee_bps` must be in the range of 1 and 10000. Otherwise, it must throw `InvalidFeeBPSError` *)
+transition SetRoyaltyFeeBPS(fee_bps: Uint128)
+  RequireContractOwner;
+  RequireValidRoyaltyFee fee_bps;
+  royalty_fee_bps := fee_bps;
+  
+  e = { 
+    _eventname: "SetRoyaltyFeeBPS";
+    royalty_fee_bps: fee_bps
+  };
+  event e;
+  msg_to_sender = {
+    _tag: "ZRC6_SetRoyaltyFeeBPSCallback"; 
+    _recipient: _sender;
+    _amount: Uint128 0;
+    royalty_fee_bps: fee_bps
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* Sets `uri` as the base URI. *)
+(* @Requirements: *)
+(* - `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError` *)
+transition SetBaseURI(uri: String)
+  RequireContractOwner;
+  base_uri := uri;
+
+  e = { 
+    _eventname: "SetBaseURI";
+    base_uri: uri
+  };
+  event e;
+  msg_to_sender = {
+    _tag: "ZRC6_SetBaseURICallback"; 
+    _recipient: _sender;
+    _amount: Uint128 0;
+    base_uri: uri
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs  
+end
+
+(* Mints a token and transfers it to `to`. *)
+(* @param: to - Address of the token recipient   *)
+transition Mint(to: ByStr20)
+  MintToken to;
+  token_id <- token_id_count;
+
+  e = {
+    _eventname: "Mint";
+    to: to;
+    token_id: token_id
+  };
+  event e;
+  msg_to_recipient = {
+    _tag: "ZRC6_RecipientAcceptMint";
+    _recipient: to;
+    _amount: Uint128 0
+  };
+  msg_to_sender = {
+    _tag: "ZRC6_MintCallback";
+    _recipient: _sender;
+    _amount: Uint128 0;
+    to: to;
+    token_id: token_id
+  };
+  msgs = two_msgs msg_to_recipient msg_to_sender;
+  send msgs
+end
+
+(* Mints tokens and transfers them to `to_list`. *)
+(* @param: to_list - List of addresses of the token recipient *)
+transition BatchMint(to_list: List ByStr20)
+  cur_id <- token_id_count;
+  start_id = builtin add cur_id one;
+  forall to_list MintToken;
+  end_id <- token_id_count;
+  e = {
+    _eventname: "BatchMint";
+    to_list: to_list;
+    start_id: start_id;
+    end_id: end_id
+  };
+  event e;
+  msg_to_sender = {
+    _tag: "ZRC6_BatchMintCallback";
+    _recipient: _sender;
+    _amount: Uint128 0
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* Destroys `token_id`. *)
+(* @param: token_id - Unique ID of the NFT to be destroyed *)
+transition Burn(token_id: Uint256)
+  (* Check if token exists *)
+  maybe_token_owner <- token_owners[token_id];
+  match maybe_token_owner with
+  | None =>
+    error = TokenNotFoundError;
+    Throw error
+  | Some token_owner =>
+    BurnToken token_id;
+    e = {
+      _eventname: "Burn";
+      token_owner: token_owner;
+      token_id: token_id
+    };
+    event e;
+    msg_to_sender = {
+      _tag: "ZRC6_BurnCallback";
+      _recipient: _sender;
+      _amount: Uint128 0;
+      token_owner: token_owner;
+      token_id: token_id
+    };
+    msgs = one_msg msg_to_sender;
+    send msgs
+  end
+end
+
+(* Destroys `token_id_list`. *)
+(* @param: token_id_list - List of unique IDs of the NFT to be destroyed *)
+transition BatchBurn(token_id_list: List Uint256)
+  forall token_id_list BurnToken;
+  e = {
+    _eventname: "BatchBurn";
+    token_id_list: token_id_list
+  };
+  event e;
+  msg_to_sender = {
+    _tag: "ZRC6_BatchBurnCallback";
+    _recipient: _sender;
+    _amount: Uint128 0
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* Adds `minter`. *)
+(* @Requirements: *)
+(* - `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError` *)
+(* - `minter` must not be already a minter. Otherwise, it must throw `MinterFoundError` *)
+transition AddMinter(minter: ByStr20)
+  RequireContractOwner;
+  has_minter <- exists minters[minter];
+  match has_minter with
+  | True => 
+    error = MinterFoundError;
+    Throw error
+  | False =>
+    (* Add minter *)
+    minters[minter] := true
+  end;
+  e = { 
+    _eventname: "AddMinter";
+    minter: minter
+  };
+  event e;
+  msg_to_sender = {
+    _tag: "ZRC6_AddMinterCallback";
+    _recipient: _sender;
+    _amount: Uint128 0;
+    minter: minter
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* Removes `minter`. *)
+(* @Requirements: *)
+(* - `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError` *)
+(* - `minter` must be already a minter. Otherwise, it must throw `MinterNotFoundError` *)
+transition RemoveMinter(minter: ByStr20)
+  RequireContractOwner;
+  has_minter <- exists minters[minter];
+  match has_minter with
+  | False =>
+    error = MinterNotFoundError;
+    Throw error
+  | True => 
+    delete minters[minter]
+  end;
+  e = { 
+    _eventname: "RemoveMinter";
+    minter: minter
+  };
+  event e;
+  msg_to_sender = {
+    _tag: "ZRC6_RemoveMinterCallback";
+    _recipient: _sender;
+    _amount: Uint128 0;
+    minter: minter
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* Sets `spender` for `token_id`. *)
+(* To remove `spender` for a token, use `zero_address`. *)
+(* i.e., `0x0000000000000000000000000000000000000000` *)
+(* @Requirements: *)
+(* - `token_id` must exist. Otherwise, it must throw `TokenNotFoundError` *)
+(* - `_sender` must be a token owner or an operator. Otherwise, it must throw `NotOwnerOrOperatorError` *)
+(* - `_sender` must not be `spender`. Otherwise, it must throw `SelfError` *)
+(* - `spender` must not be already a spender. Otherwise, it must throw `SpenderFoundError` *)
+transition SetSpender(spender: ByStr20, token_id: Uint256)
+  RequireNotSelf spender _sender;
+  
+  maybe_token_owner <- token_owners[token_id];
+  match maybe_token_owner with
+  | None =>
+    error = TokenNotFoundError;
+    Throw error
+  | Some token_owner =>
+    RequireOwnerOrOperator token_owner;
+    
+    (* Check if the spender exists *)
+    maybe_spender <- spenders[token_id];
+    match maybe_spender with
+      | None =>
+      | Some cur_spender =>
+        has_spender = builtin eq cur_spender spender;
+        match has_spender with 
+        | False =>
+        | True => 
+          error = SpenderFoundError;
+          Throw error
+        end
+    end;
+      
+    spenders[token_id] := spender;
+
+    e = {
+      _eventname: "SetSpender";
+      spender: spender;
+      token_id: token_id
+    };
+    event e;
+    msg_to_sender = {
+      _tag: "ZRC6_SetSpenderCallback";
+      _recipient: _sender;
+      _amount: Uint128 0;
+      spender: spender;
+      token_id: token_id
+    };
+    msgs = one_msg msg_to_sender;
+    send msgs
+  end
+end
+
+(* Adds `operator` for `_sender`. *)
+(* @Requirements: *)
+(* - `_sender` must be the token owner. Otherwise, it must throw `NotTokenOwnerError` *)
+(* - `_sender` must not be `operator`. Otherwise, it must throw `SelfError` *)
+(* - `operator` must not be already an operator. Otherwise, it must throw `OperatorFoundError` *)
+transition AddOperator(operator: ByStr20)
+  RequireNotSelf operator _sender;
+  
+  maybe_bal <- balances[_sender];
+  balance = get_bal maybe_bal;
+  
+  is_balance_zero = builtin eq zero balance;
+  (* _sender must have at least 1 token *)
+  match is_balance_zero with 
+  | True =>    
+    error = NotTokenOwnerError;
+    Throw error
+  | False =>
+    has_operator <- exists operators[_sender][operator];
+    match has_operator with
+    | False =>
+      (* Add operator *)
+      operators[_sender][operator] := true
+    | True =>
+      error = OperatorFoundError;
+      Throw error
+    end;
+    e = {
+      _eventname: "AddOperator";
+      operator: operator
+    };
+    event e;
+    msg_to_sender = {
+      _tag: "ZRC6_AddOperatorCallback";
+      _recipient: _sender;
+      _amount: Uint128 0;
+      operator: operator
+    };
+    msgs = one_msg msg_to_sender;
+    send msgs
+  end
+end
+
+(* Removes `operator` for `_sender`. *)
+(* @Requirements:  *)
+(* - `operator` must be already an operator of `_sender`. Otherwise, it must throw `OperatorNotFoundError` *)
+transition RemoveOperator(operator: ByStr20)
+  has_operator <- exists operators[_sender][operator];
+  match has_operator with
+  | False =>
+    error = OperatorNotFoundError;
+    Throw error
+  | True =>
+    (* Remove operator *)
+    delete operators[_sender][operator]
+  end;
+  e = {
+    _eventname: "RemoveOperator";
+    operator: operator
+  };
+  event e;
+  msg_to_sender = {
+    _tag: "ZRC6_RemoveOperatorCallback";
+    _recipient: _sender;
+    _amount: Uint128 0;
+    operator: operator
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* Transfers `token_id` from the token owner to `to`.  *)
+transition TransferFrom(to: ByStr20, token_id: Uint256)
+  maybe_token_owner <- token_owners[token_id];
+  match maybe_token_owner with
+  | None =>
+    error = TokenNotFoundError;
+    Throw error
+  | Some token_owner =>
+    TransferToken to token_id;
+    e = {
+      _eventname: "TransferFrom"; 
+      from: token_owner;
+      to: to;
+      token_id: token_id
+    };
+    event e;
+    msg_to_recipient = {
+      _tag: "ZRC6_RecipientAcceptTransferFrom";
+      _recipient: to;
+      _amount: Uint128 0;
+      from: token_owner;
+      to: to;
+      token_id: token_id
+    };
+    msg_to_sender = {
+      _tag: "ZRC6_TransferFromCallback";
+      _recipient: _sender;
+      _amount: Uint128 0;
+      from: token_owner;
+      to: to;
+      token_id: token_id
+    };
+    msgs = two_msgs msg_to_recipient msg_to_sender;
+    send msgs
+  end
+end
+
+(* Transfers multiple `token_id` to multiple `to`. It takes List of Pair (to, token_id). *)
+transition BatchTransferFrom(to_token_id_pair_list: List (Pair ByStr20 Uint256))
+  forall to_token_id_pair_list HandleTransfer;
+  e = {
+    _eventname: "BatchTransferFrom"; 
+    to_token_id_pair_list: to_token_id_pair_list
+  };
+  event e;
+  msg_to_sender = {
+    _tag: "ZRC6_BatchTransferFromCallback";
+    _recipient: _sender;
+    _amount: Uint128 0
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* Sets `to` as the contract ownership recipient. *)
+(* To reset `contract_ownership_recipient`, use `zero_address`. *)
+(* i.e., `0x0000000000000000000000000000000000000000` *)
+(* @param: to - Address of contract ownership recipient *)
+(* @Requirements: *)
+(* - `_sender` must be the contract owner. Otherwise, it must throw `NotContractOwnerError` *)
+(* - `_sender` must not be `to`. Otherwise, it must throw `SelfError` *)
+transition SetContractOwnershipRecipient(to: ByStr20)
+  RequireContractOwner;
+  RequireNotSelf to _sender;
+  
+  contract_ownership_recipient := to;
+
+  e = {
+    _eventname: "SetContractOwnershipRecipient";
+    to: to
+  };
+  event e;
+  msg_to_sender = {
+    _tag: "ZRC6_SetContractOwnershipRecipientCallback";
+    _recipient: _sender;
+    _amount: Uint128 0;
+    to: to
+  };
+  msgs = one_msg msg_to_sender;
+  send msgs
+end
+
+(* Sets `contract_ownership_recipient` as the contract owner. *)
+(* @Requirements: *)
+(* - `_sender` must be the contract ownership recipient. Otherwise, it must throw `NotContractOwnershipRecipientError` *)
+transition AcceptContractOwnership()
+  recipient <- contract_ownership_recipient;
+
+  is_recipient = builtin eq _sender recipient;
+  match is_recipient with
+  | False =>
+    error = NotContractOwnershipRecipientError;
+    Throw error
+  | True =>
+    contract_owner := _sender;
+    contract_ownership_recipient := zero_address;
+
+    e = {
+      _eventname: "AcceptContractOwnership";
+      contract_owner: _sender
+    };
+    event e;
+    msg_to_sender = {
+      _tag: "ZRC6_AcceptContractOwnershipCallback";
+      _recipient: _sender;
+      _amount: Uint128 0;
+      contract_owner: _sender
+    };
+    msgs = one_msg msg_to_sender;
+    send msgs
+  end
+end
