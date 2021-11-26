@@ -28,7 +28,21 @@ Compared to ERC-1155, the JSON Metadata schema allows to indicate the MIME type 
 
 Metadata localization should be standardized to increase presentation uniformity across all languages. As such, a simple overlay method is proposed to enable localization.
 
+NFT's are broken into two parts. The first is the blockchain smart contract, which contains the association between users and a token. Each token when examained points off-chain to an external resource which contains the metadata for that particular token. This could be on the surface web or using a decentralised storage solution such as IPFS or Arweave.
+
 ZRC-6 gives the developer the ability to set an ```base_uri``` which exposes a field for the developer to insert a URI they control. When navigating to ```base_uri/{id}``` for a given ```token_id```, the response returned should be a standardised JSON structure for it to be considered ZRC-7 compliant.
+
+The main advantages of keeping metadata offchain are as follows.
+
+* Mutability
+  * Owner can update the metadata at anytime without a chain call (changing hashes of IPFS and Arweave resources)
+* Storage
+  * Owner can store more data offchain than onchain and for a cheaper cost to maintain and amend.
+
+The main disadvantages of keeping metadata offchain are as follows.
+
+* Mutability 
+  * Owner can maliciously update the metadata at anytime without a chain call.
 
 ### B. Metadata JSON Schema
 
