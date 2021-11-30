@@ -348,9 +348,13 @@ end
 
 (* @Requirements: *)
 (* - The contract must not be paused. Otherwise, it must throw `PausedError` *)
+(* - `to` must not be the zero address. Otherwise, it must throw `ZeroAddressDestinationError` *)
+(* - `to` must not be `_this_address`. Otherwise, it must throw `ThisAddressDestinationError` *)
 (* - `_sender` must be a minter. Otherwise, it must throw `NotMinterError` *)
 procedure MintToken(to: ByStr20)
   RequireNotPaused;
+  RequireValidDestination to;
+
   IsMinter _sender;
 
   (* generate ID *)
