@@ -258,6 +258,26 @@ describe("Minter", () => {
 describe("Mint & Burn", () => {
   const testCases = [
     {
+      name: "throws ZeroAddressDestinationError",
+      transition: "Mint",
+      getSender: () => getTestAddr(STRANGER),
+      getParams: () => ({
+        to: "0x0000000000000000000000000000000000000000",
+      }),
+      error: ZRC6_ERROR.ZeroAddressDestinationError,
+      want: undefined,
+    },
+    {
+      name: "throws ThisAddressDestinationError",
+      transition: "Mint",
+      getSender: () => getTestAddr(STRANGER),
+      getParams: () => ({
+        to: globalContractAddress,
+      }),
+      error: ZRC6_ERROR.ThisAddressDestinationError,
+      want: undefined,
+    },
+    {
       name: "throws NotMinterError",
       transition: "Mint",
       getSender: () => getTestAddr(STRANGER),
