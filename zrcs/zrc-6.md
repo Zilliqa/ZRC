@@ -31,7 +31,7 @@ The main advantages of this standard are:
 
 1. ZRC-6 standardizes royalty information retrieval with a percentage-based royalty fee model and unit-less royalty payments to a single address. Funds will be paid for secondary sales only if a marketplace chooses to implement royalty payments. Marketplace contracts should transfer the actual funds.
 
-2. ZRC-6 standardizes token URI with the concatenation of base token URI and token ID. A token URI is an HTTP or IPFS URL. This URL must return a JSON blob of data with the metadata for the NFT when queried.
+2. ZRC-6 includes base token URI to support token URI with the concatenation of base token URI and token ID. A token URI is an HTTP or IPFS URL. This URL must return a JSON blob of data with the metadata for the NFT when queried.
 
 3. ZRC-6 is designed for remote state read ([`x <- & c.f`](https://scilla.readthedocs.io/en/latest/scilla-in-depth.html?#remote-fetches)) such that logic to get data from a ZRC-6 contract is straightforward. ZRC-6 exposes immutable parameters via mutable fields and includes only transitions that mutate the state of the contract.
 
@@ -47,7 +47,7 @@ The main advantages of this standard are:
 
 1. Many of the largest NFT marketplaces have implemented incompatible royalty payment solutions.
 
-2. The marketplace builders had to handle inconsistent token URIs.
+2. The concatenated token URIs can be very efficient.
 
 3. Using callbacks to get data can complicate the logic easily. Unlike immutable parameters, mutable fields are available for remote state read.
 
@@ -66,7 +66,7 @@ The main advantages of this standard are:
 | Name                     | Type      | Description                                                                                                     |
 | ------------------------ | --------- | --------------------------------------------------------------------------------------------------------------- |
 | `initial_contract_owner` | `ByStr20` | Address of contract owner. It must not be the zero address. i.e., `0x0000000000000000000000000000000000000000`. |
-| `initial_base_uri`       | `String`  | Base token URI. e.g. `https://creatures-api.zilliqa.com/api/creature/`. It must not be an empty string.         |
+| `initial_base_uri`       | `String`  | Base token URI. e.g. `https://creatures-api.zilliqa.com/api/creature/`.                                         |
 | `name`                   | `String`  | NFT name. It must not be an empty string.                                                                       |
 | `symbol`                 | `String`  | NFT symbol. It must not be an empty string.                                                                     |
 
@@ -78,7 +78,8 @@ The main advantages of this standard are:
 | `contract_owner`               | `ByStr20`                        | Address of the contract owner. `contract_owner` defaults to `initial_contract_owner`.                                                                                                                                                                                                                                                                                                                             |    ✓     |
 | `royalty_recipient`            | `ByStr20`                        | Address to send royalties to. `royalty_recipient` defaults to `initial_contract_owner`.                                                                                                                                                                                                                                                                                                                           |          |
 | `royalty_fee_bps`              | `Uint128`                        | Royalty fee BPS. e.g. `1` = 0.01%, `10000` = 100%. `royalty_fee_bps` ranges from `1` to `10000` and defaults to `1000`. <br/><br/> When calculating the royalty amount, you must only use division to avoid integer overflow. <br/><br/> <b>`royalty amount = sale price ÷ ( 10000 ÷ royalty fee bps )`</b> <br/><br/> e.g. if `royalty_fee_bps` is `1000` (10%) and sale price is `999`, royalty amount is `99`. |          |
-| `base_uri`                     | `String`                         | Token URI is <b>`<base_uri><token_id>`</b>. <br/><br/> e.g. if `base_uri` is `https://creatures-api.zilliqa.com/api/creature/` and `token_id` is `1`, token URI is `https://creatures-api.zilliqa.com/api/creature/1`.<br/><br/> `base_uri` defaults to `initial_base_uri`. This field must not be mutated unless there is a strong reason.                                                                       |    ✓     |
+| `base_uri`                     | `String`                         | Base token URI. e.g. if `base_uri` is `https://creatures-api.zilliqa.com/api/creature/` and `token_id` is `1`, token URI is `https://creatures-api.zilliqa.com/api/creature/1`. <br/><br/> To save gas cost, use the concatenated token URI. <br/><br/> `base_uri` defaults to `initial_base_uri`. This field must not be mutated unless there is a strong reason.                                                |    ✓     |
+| `token_uris`                   | `Map Uint256 String`             | Mapping from token ID to its specific token URI. <br/><br/> When it is required to set a specific token URI per token, use this field.                                                                                                                                                                                                                                                                            |          |
 | `minters`                      | `Map ByStr20 Bool`               | Set of minters.                                                                                                                                                                                                                                                                                                                                                                                                   |    ✓     |
 | `token_owners`                 | `Map Uint256 ByStr20`            | Mapping from token ID to its owner.                                                                                                                                                                                                                                                                                                                                                                               |    ✓     |
 | `spenders`                     | `Map Uint256 ByStr20`            | Mapping from token ID to a spender.                                                                                                                                                                                                                                                                                                                                                                               |    ✓     |
@@ -157,8 +158,8 @@ The NFT contract must define the following constants for use as error codes for 
 |  3  | [`SetRoyaltyRecipient(to: ByStr20)`](#3-setroyaltyrecipient-optional)                                    |          |
 |  4  | [`SetRoyaltyFeeBPS(fee_bps: Uint128)`](#4-setroyaltyfeebps-optional)                                     |          |
 |  5  | [`SetBaseURI(uri: String)`](#5-setbaseuri-optional)                                                      |          |
-|  6  | [`Mint(to: ByStr20)`](#6-mint)                                                                           |    ✓     |
-|  7  | [`BatchMint(to_list: List ByStr20)`](#7-batchmint-optional)                                              |          |
+|  6  | [`Mint(to: ByStr20, token_uri: String)`](#6-mint)                                                        |    ✓     |
+|  7  | [`BatchMint(to_token_uri_pair_list: List (Pair ByStr20 String)`](#7-batchmint-optional)                  |          |
 |  8  | [`Burn(token_id: Uint256)`](#8-burn-optional)                                                            |          |
 |  9  | [`BatchBurn(token_id_list: List Uint256)`](#9-batchburn-optional)                                        |          |
 | 10  | [`AddMinter(to: ByStr20)`](#10-addminter)                                                                |    ✓     |
@@ -296,13 +297,15 @@ Sets `uri` as the base URI. Use this only if there is a strong reason to change 
 
 #### 6. `Mint`
 
-Mints a token and transfers it to `to`.
+Mints a token with a specific `token_uri` and transfers it to `to`.
+Pass empty string to `token_uri` to use the concatenated token URI. i.e. `<base_uri><token_id>`.
 
 **Arguments:**
 
-| Name | Type      | Description                                         |
-| ---- | --------- | --------------------------------------------------- |
-| `to` | `ByStr20` | Address of the recipient of the token to be minted. |
+| Name        | Type      | Description                                         |
+| ----------- | --------- | --------------------------------------------------- |
+| `to`        | `ByStr20` | Address of the recipient of the token to be minted. |
+| `token_uri` | `String`  | URI of a token.                                     |
 
 **Requirements:**
 
@@ -313,26 +316,27 @@ Mints a token and transfers it to `to`.
 
 **Messages:**
 
-|        | Name                       | Description                                                     | Callback Parameters                                                                                                   |
-| ------ | -------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_RecipientAcceptMint` | Dummy callback to prevent invalid recipient contract.           |                                                                                                                       |
-| `_tag` | `ZRC6_MintCallback`        | Provide the sender the address of token recipient and token ID. | <ul><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+|        | Name                       | Description                                                     | Callback Parameters                                                                                                                                                     |
+| ------ | -------------------------- | --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_RecipientAcceptMint` | Dummy callback to prevent invalid recipient contract.           |                                                                                                                                                                         |
+| `_tag` | `ZRC6_MintCallback`        | Provide the sender the address of token recipient and token ID. | <ul><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li><li>`token_uri` : `String`<br/>URI of a token</li></ul> |
 
 **Events:**
 
-|              | Name   | Description            | Event Parameters                                                                                                       |
-| ------------ | ------ | ---------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `Mint` | Token has been minted. | <ul><li> `to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+|              | Name   | Description                                | Event Parameters                                                                                                                                                         |
+| ------------ | ------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `_eventname` | `Mint` | Token has been minted with a specific URI. | <ul><li> `to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li><li>`token_uri` : `String`<br/>URI of a token</li></ul> |
 
 #### 7. `BatchMint` (Optional)
 
-Mints tokens and transfers them to `to_list`.
+Mints multiple tokens with `token_uri`s and transfers them to multiple `to`s.
+Pass empty string to `token_uri` to use the concatenated token URI. i.e. `<base_uri><token_id>`.
 
 **Arguments:**
 
-| Name      | Type           | Description                               |
-| --------- | -------------- | ----------------------------------------- |
-| `to_list` | `List ByStr20` | List of addresses of the token recipient. |
+| Name                     | Type                         | Description                                                                                                                                               |
+| ------------------------ | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `to_token_uri_pair_list` | `List (Pair ByStr20 String)` | List of Pair (`to`, `token_uri`)<br/><br/><ul><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_uri` : `String`<br/>URI of a token</li></ul> |
 
 **Requirements:**
 
@@ -349,9 +353,9 @@ Mints tokens and transfers them to `to_list`.
 
 **Events:**
 
-|              | Name        | Description                       | Event Parameters                                                                                                                                                                                                                         |
-| ------------ | ----------- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `BatchMint` | Multiple tokens have been minted. | <ul><li>`to_list` : `List ByStr20`<br/>List of addresses of the token recipient</li><li>`start_id` : `Uint256`<br/>ID of the token that was minted first</li><li>`end_id` : `Uint256`<br/>ID of the token that was minted last</li></ul> |
+|              | Name        | Description                                       | Event Parameters                                                                                                                                                                                                             |
+| ------------ | ----------- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `BatchMint` | Multiple tokens have been minted with token URIs. | `to_token_uri_pair_list` : `List (Pair ByStr20 String)` <br/><br/> List of Pair (`to`, `token_uri`)<br/><br/><ul><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_uri` : `String`<br/>URI of a token</li></ul> |
 
 #### 8. `Burn` (Optional)
 

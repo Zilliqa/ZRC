@@ -8,6 +8,7 @@ import {
   useContractInfo,
   verifyTransitions,
   verifyEvents,
+  getJSONValue,
 } from "./testutil";
 
 import {
@@ -110,9 +111,10 @@ beforeEach(async () => {
     TX_PARAMS
   )(
     "BatchMint",
-    Array.from({ length: INITIAL_TOTAL_SUPPLY }, () => undefined).map(() =>
-      getTestAddr(TOKEN_OWNER)
-    )
+    Array.from({ length: INITIAL_TOTAL_SUPPLY }, () => undefined).map(() => [
+      getTestAddr(TOKEN_OWNER),
+      "",
+    ])
   );
   if (!tx.receipt.success) {
     throw new Error();
@@ -263,6 +265,7 @@ describe("Mint & Burn", () => {
       getSender: () => getTestAddr(STRANGER),
       getParams: () => ({
         to: "0x0000000000000000000000000000000000000000",
+        token_uri: "",
       }),
       error: ZRC6_ERROR.ZeroAddressDestinationError,
       want: undefined,
@@ -273,6 +276,7 @@ describe("Mint & Burn", () => {
       getSender: () => getTestAddr(STRANGER),
       getParams: () => ({
         to: globalContractAddress,
+        token_uri: "",
       }),
       error: ZRC6_ERROR.ThisAddressDestinationError,
       want: undefined,
@@ -283,6 +287,7 @@ describe("Mint & Burn", () => {
       getSender: () => getTestAddr(STRANGER),
       getParams: () => ({
         to: getTestAddr(STRANGER),
+        token_uri: "",
       }),
       error: ZRC6_ERROR.NotMinterError,
       want: undefined,
@@ -293,6 +298,7 @@ describe("Mint & Burn", () => {
       getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
         to: getTestAddr(STRANGER),
+        token_uri: "",
       }),
       error: undefined,
       want: {
@@ -313,6 +319,7 @@ describe("Mint & Burn", () => {
                 (INITIAL_TOTAL_SUPPLY + 1).toString(),
                 "token_id"
               ),
+              getJSONParam("String", "", "token_uri"),
             ],
           },
         ],
@@ -330,6 +337,7 @@ describe("Mint & Burn", () => {
                 (INITIAL_TOTAL_SUPPLY + 1).toString(),
                 "token_id"
               ),
+              getJSONParam("String", "", "token_uri"),
             ],
           },
         ],
@@ -341,6 +349,7 @@ describe("Mint & Burn", () => {
       getSender: () => getTestAddr(MINTER),
       getParams: () => ({
         to: getTestAddr(MINTER),
+        token_uri: "",
       }),
       error: undefined,
       want: {
@@ -361,6 +370,7 @@ describe("Mint & Burn", () => {
                 (INITIAL_TOTAL_SUPPLY + 1).toString(),
                 "token_id"
               ),
+              getJSONParam("String", "", "token_uri"),
             ],
           },
         ],
@@ -378,25 +388,113 @@ describe("Mint & Burn", () => {
                 (INITIAL_TOTAL_SUPPLY + 1).toString(),
                 "token_id"
               ),
+              getJSONParam("String", "", "token_uri"),
             ],
           },
         ],
       },
     },
     {
-      name: "mints tokens in batches",
-      transition: "BatchMint",
-      getSender: () => getTestAddr(TOKEN_OWNER),
+      name: "mints a token with a URI by minter",
+      transition: "Mint",
+      getSender: () => getTestAddr(MINTER),
       getParams: () => ({
-        to_list: [
-          getTestAddr(STRANGER),
-          getTestAddr(STRANGER),
-          getTestAddr(STRANGER),
-        ],
+        to: getTestAddr(MINTER),
+        token_uri:
+          "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL4",
       }),
       error: undefined,
       want: {
         verifyState: (state) => {
+          if (
+            JSON.stringify(state.token_uris) !==
+            JSON.stringify({
+              "4": "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL4",
+            })
+          ) {
+            return false;
+          }
+          return (
+            state.token_owners[(INITIAL_TOTAL_SUPPLY + 1).toString()] ===
+              getTestAddr(MINTER).toLowerCase() &&
+            state.token_id_count === (INITIAL_TOTAL_SUPPLY + 1).toString()
+          );
+        },
+        events: [
+          {
+            name: "Mint",
+            getParams: () => [
+              getJSONParam("ByStr20", getTestAddr(MINTER), "to"),
+              getJSONParam(
+                "Uint256",
+                (INITIAL_TOTAL_SUPPLY + 1).toString(),
+                "token_id"
+              ),
+              getJSONParam(
+                "String",
+                "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL4",
+                "token_uri"
+              ),
+            ],
+          },
+        ],
+        transitions: [
+          {
+            tag: "ZRC6_RecipientAcceptMint",
+            getParams: () => [],
+          },
+          {
+            tag: "ZRC6_MintCallback",
+            getParams: () => [
+              getJSONParam("ByStr20", getTestAddr(MINTER), "to"),
+              getJSONParam(
+                "Uint256",
+                (INITIAL_TOTAL_SUPPLY + 1).toString(),
+                "token_id"
+              ),
+              getJSONParam(
+                "String",
+                "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL4",
+                "token_uri"
+              ),
+            ],
+          },
+        ],
+      },
+    },
+    {
+      name: "mints tokens with URIs in batches",
+      transition: "BatchMint",
+      getSender: () => getTestAddr(TOKEN_OWNER),
+      getParams: () => ({
+        to_token_id_pair_list: [
+          [
+            getTestAddr(STRANGER),
+            "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL4",
+          ],
+          [
+            getTestAddr(STRANGER),
+            "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL5",
+          ],
+          [
+            getTestAddr(STRANGER),
+            "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL6",
+          ],
+        ].map((cur) => getJSONValue(cur, "Pair ByStr20 String")),
+      }),
+      error: undefined,
+      want: {
+        verifyState: (state) => {
+          if (
+            JSON.stringify(state.token_uris) !==
+            JSON.stringify({
+              "4": "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL4",
+              "5": "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL5",
+              "6": "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL6",
+            })
+          ) {
+            return false;
+          }
           if (state.token_id_count !== (INITIAL_TOTAL_SUPPLY * 2).toString()) {
             return false;
           }
@@ -422,9 +520,22 @@ describe("Mint & Burn", () => {
             name: "BatchMint",
             getParams: () => [
               getJSONParam(
-                "List (ByStr20)",
-                [STRANGER, STRANGER, STRANGER].map((cur) => getTestAddr(cur)),
-                "to_list"
+                "List (Pair (ByStr20) (String))",
+                [
+                  [
+                    getTestAddr(STRANGER),
+                    "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL4",
+                  ],
+                  [
+                    getTestAddr(STRANGER),
+                    "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL5",
+                  ],
+                  [
+                    getTestAddr(STRANGER),
+                    "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL6",
+                  ],
+                ].map((cur) => getJSONValue(cur, "Pair ByStr20 String")),
+                "to_token_uri_pair_list"
               ),
               getJSONParam("Uint256", "4", "start_id"),
               getJSONParam("Uint256", "6", "end_id"),

@@ -106,12 +106,18 @@ beforeEach(async () => {
   let tx = await globalContractInfo.callGetter(
     zilliqa.contracts.at(globalContractAddress),
     TX_PARAMS
-  )("BatchMint", [
-    getTestAddr(TOKEN_OWNER_A),
-    getTestAddr(TOKEN_OWNER_B),
-    getTestAddr(TOKEN_OWNER_B),
-    getTestAddr(TOKEN_OWNER_B),
-  ]);
+  )(
+    "BatchMint",
+    getJSONValue(
+      [
+        [getTestAddr(TOKEN_OWNER_A), ""],
+        [getTestAddr(TOKEN_OWNER_B), ""],
+        [getTestAddr(TOKEN_OWNER_B), ""],
+        [getTestAddr(TOKEN_OWNER_B), ""],
+      ],
+      "List (Pair (ByStr20) (String))"
+    )
+  );
   if (!tx.receipt.success) {
     throw new Error();
   }

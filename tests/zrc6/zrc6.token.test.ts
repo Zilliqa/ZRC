@@ -104,7 +104,10 @@ beforeEach(async () => {
     TX_PARAMS
   )(
     "BatchMint",
-    Array.from({ length: INITIAL_TOTAL_SUPPLY }, () => getTestAddr(TOKEN_OWNER))
+    Array.from({ length: INITIAL_TOTAL_SUPPLY }, () => [
+      getTestAddr(TOKEN_OWNER),
+      "",
+    ])
   );
   if (!tx.receipt.success) {
     throw new Error();
@@ -121,15 +124,17 @@ describe("Contract Contraint", () => {
         TOKEN_NAME,
         TOKEN_SYMBOL,
       ],
+      want: false,
     },
     {
-      name: "invalid initial base URI: empty string",
+      name: "valid initial base URI: empty string",
       getInitParams: () => [
         getTestAddr(CONTRACT_OWNER),
         "",
         TOKEN_NAME,
         TOKEN_SYMBOL,
       ],
+      want: true,
     },
     {
       name: "invalid name: empty string",
@@ -139,6 +144,7 @@ describe("Contract Contraint", () => {
         "",
         TOKEN_SYMBOL,
       ],
+      want: false,
     },
     {
       name: "invalid symbol: empty string",
@@ -148,6 +154,7 @@ describe("Contract Contraint", () => {
         TOKEN_NAME,
         "",
       ],
+      want: false,
     },
   ];
 
@@ -160,12 +167,14 @@ describe("Contract Contraint", () => {
       const [tx] = await zilliqa.contracts
         .new(CODE, init)
         .deploy(TX_PARAMS, 33, 1000, true);
-      expect(tx.txParams.receipt?.success).toBe(false);
-      expect(JSON.stringify(tx.txParams.receipt?.exceptions)).toBe(
-        JSON.stringify([
-          { line: 0, message: "Contract constraint violation.\n" },
-        ])
-      );
+      expect(tx.txParams.receipt?.success).toBe(testCase.want);
+      if (testCase.want === false) {
+        expect(JSON.stringify(tx.txParams.receipt?.exceptions)).toBe(
+          JSON.stringify([
+            { line: 0, message: "Contract constraint violation.\n" },
+          ])
+        );
+      }
     });
   }
 });
@@ -432,6 +441,7 @@ describe("Contract", () => {
             "3": getTestAddr(TOKEN_OWNER).toLowerCase(),
           },
           token_symbol: TOKEN_SYMBOL,
+          token_uris: {},
           total_supply: INITIAL_TOTAL_SUPPLY.toString(),
         })
       );
@@ -560,6 +570,7 @@ describe("Accept Contract Ownership", () => {
             "3": getTestAddr(TOKEN_OWNER).toLowerCase(),
           },
           token_symbol: TOKEN_SYMBOL,
+          token_uris: {},
           total_supply: INITIAL_TOTAL_SUPPLY.toString(),
         })
       );
@@ -743,6 +754,7 @@ describe("Paused", () => {
       getSender: () => getTestAddr(MINTER),
       getParams: () => ({
         to: getTestAddr(MINTER),
+        token_uri: "",
       }),
       error: ZRC6_ERROR.PausedError,
       want: undefined,
@@ -753,9 +765,9 @@ describe("Paused", () => {
       getSender: () => getTestAddr(MINTER),
       getParams: () => ({
         to_list: [
-          getTestAddr(STRANGER),
-          getTestAddr(STRANGER),
-          getTestAddr(STRANGER),
+          [getTestAddr(STRANGER), ""],
+          [getTestAddr(STRANGER), ""],
+          [getTestAddr(STRANGER), ""],
         ],
       }),
       error: ZRC6_ERROR.PausedError,
