@@ -1,6 +1,6 @@
 | ZRC | Title                                    | Status | Type     | Author                              | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
 | --- | ---------------------------------------- | ------ | -------- | ----------------------------------- | -------------------- | -------------------- |
-| 7   | Standardisation of non-fungible metadata | Draft  | Standard | Elliott Green <elliott@zilliqa.com> | 2021-10-11           | 2021-11-26           |
+| 7   | Standardisation of non-fungible metadata | Draft  | Standard | Elliott Green <elliott@zilliqa.com> | 2021-10-11           | 2021-12-04           |
 
 ## I. What is Metadata?
 
@@ -12,15 +12,15 @@ ZRC-7 defines an optional standard for non-fungible tokens to present their asso
 
 ## III. Motivation
 
-This specification builds from the using the existing metadata JSON Schema from [ERC721 - Non-Fungible Token Standard](https://eips.ethereum.org/EIPS/eip-721) and utilises the localization JSON schema from [ERC1155 - Multi Token Standard](https://eips.ethereum.org/EIPS/eip-1155). Several blockchains and ecosystems have defined a richer standard that previously build on ERC721 that provide a better user experience. This specification also takes inspiration from [OpenSea Metadata Standards](https://docs.opensea.io/docs/metadata-standards) to define how non-fungible attributes should be presented and [Algorands Standard Asset Parameters Conventions for Fungible and Non-Fungible Tokens](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0003.md) to define how ecosystem partners should consume the NFT resources by presenting a related mime type. By standardising the base JSON to ERC-1155's metadata format, it should ensure that bridging of these assets to Zilliqa causes the least friction for existing marketplaces.
+This specification defines how non-fungible tokens data should be presented from a particular token_uri. By standardising the metadata format that tokens in the ecosystem share, it should reduce friction and complexity to individual projects which want to present and consume data from non fungible tokens.
 
 ## IV. Specification
 
 The metadata specification describes:
 
-1. the metadata interface that is returned by an API for developers to implement and ecosystems to consume
-2. the localization interface for developers to implement and ecosystems to consume
-3. the dynamic interpolation that may be present in the URL string, such as {id} and {locale}
+1. The metadata standard that should be found when navigating to a particular non fungible token's token_uri.
+2. The localization interface for developers to implement and ecosystems to consume.
+3. The dynamic string literals that may be present in the URL string, such as {id} and {locale}
 
 ### A. Rationale
 
@@ -41,197 +41,142 @@ The main advantages of keeping metadata offchain are as follows.
 
 The main disadvantages of keeping metadata offchain are as follows.
 
-* Mutability 
+* Mutability
   * Owner can maliciously update the metadata at anytime without a chain call.
 
-### B. Metadata JSON Schema
+### B. Metadata Structure Example
 
-```js
+ZRC-6 has a field whereby developers can store a resource where all of the base metadata can be found. This can either be an API or direct storage. The ```token_uri``` returned from the contract for a particular ```token_id``` is ```base_uri/token_id``` appended together. 
+
+If ```base_uri``` is https://creatures-api.zilliqa.com/api/creature/ and ```token_id``` is 1, then `token_uri` for token id 1 becomes ```https://creatures-api.zilliqa.com/api/creature/1```.
+
+```json
 {
-    "name": "Cloud Quackers",
-    "description": "Non-Fungible Ducks",
-    "resource": "ipfs://QmTwmV66VMgq5YzEUZj48oqvznkiUGVMCT4UnWRjr1L9gU",
+    "name": "Advertising Space",
+    "description": "Each token represents a unique advertising space in the city.",
+    "resource": "ipfs://QmSjJGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3QkSsty",
     "resource_mimetype": "image/png",
-    "external_url": "https://duck.community",
-    "external_description": "Non-Fungible Ducks are the first randomised, hard-cap project on the Zilliqa blockchain.",
+    "external_url": "https://example.com",
+    "external_description": "A generic headline from the project shared between all tokens.",
     "attributes": 
     [ 
-          {
-            "display_type" : "string",
-            "trait_type": "Base name", 
-            "value": "Mandarin Shiny"
-          }, 
-          {
-            "display_type" : "string",
-            "trait_type": "Base rarity percent", 
-            "value": "10%"
-          }, 
-          {
-            "display_type" : "string",
-            "trait_type": "Base occurance chance", 
-            "value": "0.91%"
-          }
+      {
+        "trait_type": "City", 
+        "value": "London"
+      }, 
+      {
+        "trait_type": "Population", 
+        "trait_value": "8961989"
+      }, 
     ],
     "localization": {
-        "type": "object",
-        "properties": {
-            "uri": "",
-            "default": "",
-            "locales": ""
-        }
+      "localization_uri": "ipfs://QmebDaB3PMQv816WVsKt7JhCM3aBjtNA1hc1d7fvGhGfG2/{id}-{locale}.json",
+      "default": "en",
+      "locales": ["en", "es", "fr"]
     }
 }
-
 ```
 
-### JSON Object
+### C. Localization Structure Example
 
-The data required in the JSON object is predefined, this should not be changed. This is a required field.
+Given a localization URI is present ```ipfs://QmebDaB3PMQv816WVsKt7JhCM3aBjtNA1hc1d7fvGhGfG2/{id}-{locale}.json``` this should resolve for a particular ```token_id``` and ```locale```.
 
-| Name         | Type             | Description                                                           | Required |
-|--------------| ---------------- | --------------------------------------------------------------------- | -------- |
-| `title`      | `string`         | The title of the metadata. Expected to be presented as "ZRC_7".       | true     |
-| `value`      | `string`         | A JSON object representing the metadata for the token.                | true     |
+If ```token_id``` is 1 and the locale chosen was ```fr``` then the localization data can be resolved at ```https://ipfs.io/ipfs/QmebDaB3PMQv816WVsKt7JhCM3aBjtNA1hc1d7fvGhGfG2/1-fr.json```
 
-### Name
+```json
+{
+  "name": "Espace Publicitaire",
+  "description": "Chaque jeton représente un espace publicitaire unique dans la ville.",
+  "external_description": "Un titre générique du projet partagé entre tous les jetons.",
+   "attributes": 
+    [ 
+      {
+        "trait_type": "Ville", 
+        "value": "Londres"
+      }, 
+      {
+        "trait_type": "Population", 
+        "trait_value": "8961989"
+      }
+    ]
+}
+```
 
-The name of the asset. This is a required field.
+If ```token_id``` is 1 and the locale chosen was ```es``` then the localization data can be resolved at ```https://ipfs.io/ipfs/QmebDaB3PMQv816WVsKt7JhCM3aBjtNA1hc1d7fvGhGfG2/1-es.json```
 
-| Name          | Type             | Description                                                           | Required |
-|---------------| ---------------- | --------------------------------------------------------------------- | -------- |
-| `name`        | `object`         | A JSON object representing the name of the token.                     | true     |
-| `value`      | `string`          | The name of the asset to which this token represents.                 | true     |
-
-### Description
-
-A textual description of the asset. This is a optional field.
-
-| Name          | Type             | Description                                                           | Required  |
-|---------------| ---------------- | --------------------------------------------------------------------- | --------- |
-| `description` | `object`         | A JSON object representing the description of the token.              | false     |
-| `value`      | `string`          | The description of the asset to which this token represents.          | false     |
-
-### Resource
-
-A URI which points to the asset resource. This is a required field.
-The resource URI must follow RFC-3986 and must not contain any whitespace character.
-The resource URI may include the string {id} which should be substituted for the token_id by ecosystem partners.
-The resource URI should persist publically forever.
-The resource URI should use one of the following URI schemes defined in this document section URI Schema.
-
-| Name         | Type             | Description                                                                 | Required |
-|--------------| ---------------- | --------------------------------------------------------------------------- | -------- |
-| `resource`   | `object`         | A JSON object representing the resource of the token.                       | true     |
-| `value`      | `string`         | The URI of the asset to which this token represents.                        | true     |
-
-### Resource Mimetype
-
-A mimetype which represents the resource URI conforming to RFC 2045. This is a required field.
-
-| Name                  | Type             | Description                                                           | Required |
-|-----------------------| ---------------- | ----------------------------------------------------------------------| -------- |
-| `resource_mimetype`   | `object`         | A JSON object representing the tokens resource mime type.             | true     |
-| `value`               | `string`         | A RFC 2045 compliant mime type of the asset resource.                 | true     |
-
-### External URL
-
-A URI which points to an external resource for presenting the token. This is an optional field.
-The external URI must follow RFC-3986 and must not contain any whitespace character.
-The external URI should use one of the following URI schemes defined in this document section URI Schema.
-
-| Name              | Type             | Description                                                           | Required |
-|-------------------| ---------------- | --------------------------------------------------------------------- | -------- |
-| `external_url`    | `object`         | A JSON object representing the external URL of the token.             | false    |
-| `value`           | `string`         | The URI pointing to an external website presenting the asset.         | false    |
-
-### External Description
-
-A textual description of the external resource for presenting the token. This is an optional field.
-
-| Name                     | Type             | Description                                                                   | Required |
-|--------------------------| ---------------- | ----------------------------------------------------------------------------- | -------- |
-| `external_description`   | `object`         | A JSON object representing the description of the external URL.               | false    |
-| `value`                  | `string`         | The description of the external url.                                          | false    |
-
-### Attributes
-
-An array of attributes with predefined types. Attributes can have the type of string, integer, decimal or date.
-
-| Name                     | Type             | Description                                                                   | Required |
-|--------------------------| ---------------- | ----------------------------------------------------------------------------- | -------- |
-| `attributes`             | `array`          | A JSON array of attributes with customised types of key value pairs.                                        | false    |
-
-| Name                     | Type             | Description                                                                   | Required |
-|--------------------------| ---------------- | ----------------------------------------------------------------------------- | -------- |
-| `type`                   | `*`              | The customised type of the attribute. Can be string, integer, decimal or date.           | false    |
-| `value`                  | `*`              | The value of the attribute.                                                   | false    |
-
-### Localization
-
-The data required for the sub-object is predefined, this should not be changed. This is a optional field.
-If the metadata contains a ```localization``` attribute, its content may be used to provide localized values for fields that need it.
-The localization attribute should be a sub-object with three attributes: uri, default and locales
-
-| Name            | Type             | Description                                                                    | Required |
-|-----------------| ---------------- | ------------------------------------------------------------------------------ | -------- |
-| `localization`  | `object`         | A JSON object representing the localization metadata.                          | false    |  |
-| `value`         | `string`         | A JSON object representing the localization properties.                        | false    |
-
-### Localization URI
-
-A URI which points to an external resource for presenting the token. This is an optional field.
-Ecosystem partners may consume the localization URI pattern with the permitted string substitutions to
-The localization resource URI may include the string {id} which should be substituted for the token_id by ecosystem partners.
-The localization resource URI may include the string {locale} which may be substituted for the current locale by ecosystem partners.
-The localization URI should persist publically forever.
-The localization URI must follow RFC-3986 and must not contain any whitespace character
-The localization URI should use one of the following URI schemes defined in this document section URI Schema
-
-| Name          | Type             | Description                                                                       | Required  |
-|---------------| ---------------- | --------------------------------------------------------------------------------- | --------- |
-| `uri`         | `object`         |  A JSON object representing the localization URI pattern.                         | false     |
-| `value`      | `string`         | The URI pattern to fetch localized data from. This URI should contain the substring `{locale}` which will be replaced with the appropriate locale value before sending the request. | false     |
-
-### Default Localization
-
-The language of the default metadata defined in the parent object. This is an optional field. This locale should conform to those defined in the Unicode Common Locale Data Repository.
-
-| Name          | Type             | Description                                                                                 | Required  |
-|---------------| ---------------- | ------------------------------------------------------------------------------------------- | --------- |
-| `default`     | `object`         | A JSON object representing the locale of the default metadata within the parent JSON.       | false     |
-| `value`       | `string`         |The value of the default localization metadata within the parent JSON. This locale should conform to those defined in the Unicode Common Locale Data Repository (<http://cldr.unicode.org/>)        | false     |
-
-### Locale
-
-An array of supported languages. This is an optional field. This locale should conform to those defined in the Unicode Common Locale Data Repository.
-
-| Name          | Type             | Description                                                                            | Required  |
-|---------------| ---------------- | -------------------------------------------------------------------------------------- | --------- |
-| `locale`      | `object`         | A JSON object representing the locale of the default metadata within the parent JSON.  | false     |
-| `value`       | `string`         | The array values of locales for which data is available. These locales should conform to those defined in the Unicode Common Locale Data Repository (<http://cldr.unicode.org/>) | false     |
+```json
+{
+  "name": "Espacio Publicitario",
+  "description": "Cada token representa un espacio publicitario único en la ciudad.",
+  "external_description": "Un título genérico del proyecto compartido entre todos los tokens.",
+   "attributes": 
+    [ 
+      {
+        "trait_type": "Ciudad", 
+        "value": "Londres"
+      }, 
+      {
+        "trait_type": "Población", 
+        "trait_value": "8961989"
+      }
+    ]
+}
+```
 
 ### B. URI Schema Examples
 
 Developers should use one of the following URI schemes.
 
-When the resource is stored on the web, https should be used.
+#### Web Servers
+
+When the resource is stored on a web server. ```http``` or ```https```  may be used to reference a resource.
+
 ```https://example.com/mypict```
 
-When the resource is stored on IPFS, the ```ipfs://``` URI should be used. The IPFS Gateway URI (such as ```https://ipfs.io/ipfs/...```) should not be used.
-```ipfs://QmWS1VAdMD353A6SDk9wNyvkT14kyCiZrNDYAad4w1tKqT```
+#### IPFS
 
-When the resource is stored on Arweave, https should be used.
-```https://arweave.net/MAVgEMO3qlqe-qHNVs00qgwwbCb6FY2k15vJP3gBLW4```
+IPFS allows NFTs to represent data of any format in a secure, verifiable, and distributed way.
 
-When the resource contains the string ```{id}``` this should be substituted for the token_id by ecosystem partners.
+IFPS resources using ```http``` or ```https``` with a gateway specified are considered valid. However a direct gateway link may error in the case where the gateway operator goes offline.
+
+```https://dweb.link/ipfs/bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi```
+
+IPFS resources using the static string ```ipfs://``` are considered valid. This is the recommended pattern than storing a direct gateway since it's not tied to a specific provider and any node will be able to respond with the requested content.
+
+You can verify your CID can be reached on multiple gateways through browsing the [Public IPFS gateways](https://ipfs.github.io/public-gateway-checker/).
+
+```ipfs://bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi```
+
+You may also include filenames inside the path component of an IPFS URI. For example, if you've stored your token's metadata on IPFS in a directory, your URI for the files in the directory will appear as the example.
+
+```ipfs://bafybeibnsoufr2renqzsh347nrx54wcubt5lgkeivez63xvivplfwhtpym/metadata.json```
+
+
+#### Template Literals
+
+The URI value allows for substitution by clients.
+
+The resource URI may contains the string ```{id}``` this must be substituted for the requested ZRC-6 ```token_id``` by ecosystem partners.
+
 ```https://s3.amazonaws.com/your-bucket/images/{id}.json```
 
-When the localization URI contains the string ```{locale}``` this should be substituted for the current locale by ecosystem partners.
-```https://example.com/mypict/{locale}.json```
+The localization URI may contain the string ```{locale}``` this must be substituted for the requested locale by ecosystem partners.
 
-## V. Existing Implementation(s)
+```https://example.com/json/{locale}.json```
 
-JSON examples of ZRC7.
+# References
+
+## Standards
+
+* [ERC721 - Non-Fungible Token Standard](https://eips.ethereum.org/EIPS/eip-721)
+* [ERC1155 - Multi Token Standard](https://eips.ethereum.org/EIPS/eip-1155)
+* [Algorands Standard Asset Parameters Conventions for Fungible and Non-Fungible Tokens](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0003.md)
+* [OpenSea Metadata Standards](https://docs.opensea.io/docs/metadata-standards)
+
+## Articles
+
+* [Best Practices for Storing NFT Data using IPFS](https://docs.ipfs.io/how-to/best-practices-for-nft-data/#types-of-ipfs-links-and-when-to-use-them)
+
 
 ## VI. Copyright
 
