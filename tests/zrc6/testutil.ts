@@ -1,6 +1,3 @@
-import { exec } from "child_process";
-import { promisify } from "util";
-
 export const extractTypes = (type) => {
   let count = 0;
   let startIndex = -1;
@@ -91,100 +88,6 @@ export const getJSONValue = (value, type?) => {
   }
 
   return value;
-};
-
-const initParamsGetter =
-  (contractInfo) =>
-  (...params) => {
-    const res = contractInfo.params.map((cur, index) => {
-      if (params[index] === undefined) {
-        throw new Error("invalid params");
-      }
-      return { ...cur, value: params[index] };
-    });
-    const versionParam = {
-      vname: "_scilla_version",
-      type: "Uint32",
-      value: contractInfo.scilla_major_version,
-    };
-    return [...res, versionParam];
-  };
-
-const transitionParamsGetter =
-  (contractInfo) =>
-  (name, ...params) => {
-    const transition = contractInfo.transitions.find(
-      (cur) => cur.vname === name
-    );
-    if (transition === undefined) {
-      throw new Error("invalid transition name");
-    }
-    const res = transition.params.map((cur, index) => {
-      if (params[index] === undefined) {
-        throw new Error("invalid params");
-      }
-
-      let type = cur.type;
-
-      // ByStr20 with <address contents> end -> ByStr20
-      if (type.startsWith("ByStr")) {
-        type = type.split(" ").shift();
-      }
-
-      return {
-        ...cur,
-        type,
-        value: getJSONValue(params[index], type),
-      };
-    });
-    return res;
-  };
-
-export const useContractInfo = (contractInfo) => {
-  return {
-    getInitParams: initParamsGetter(contractInfo),
-    callGetter:
-      (contract, txParams) =>
-      (transitionName, ...args) => {
-        return contract.call(
-          transitionName,
-          transitionParamsGetter(contractInfo)(transitionName, ...args),
-          txParams
-        );
-      },
-  };
-};
-
-export const getContractInfo = async (
-  src,
-  { container, gasLimit = 100000 }
-) => {
-  const execAsync = promisify(exec);
-  const contractFilename = src.split("/").pop();
-  const scillaPath = "/scilla/0/";
-  const paths = {
-    checker: `${scillaPath}bin/scilla-checker`,
-    stdlib: `${scillaPath}src/stdlib`,
-    dest: `${scillaPath}${contractFilename}`,
-  };
-
-  await execAsync(`docker cp ${src} ${container}:${paths.dest}`);
-
-  const cmd = [
-    "docker exec",
-    container,
-    paths.checker,
-    "-libdir",
-    paths.stdlib,
-    "-gaslimit",
-    gasLimit,
-    paths.dest,
-    "-contractinfo",
-  ].join(" ");
-
-  const res = await execAsync(cmd);
-  const msg = JSON.parse(res.stdout);
-  return msg.contract_info;
 };
 
 const logDelta = (want, got) =>

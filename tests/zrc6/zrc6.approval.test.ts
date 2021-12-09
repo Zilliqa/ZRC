@@ -4,19 +4,16 @@ import { getAddressFromPrivateKey, schnorr } from "@zilliqa-js/crypto";
 
 import {
   getErrorMsg,
-  useContractInfo,
   verifyTransitions,
   verifyEvents,
   getJSONValue,
-  getContractInfo,
+  getJSONParams,
 } from "./testutil";
 
 import {
-  CONTAINER,
   API,
   TX_PARAMS,
   CODE,
-  CODE_PATH,
   ZRC6_ERROR,
   TOKEN_NAME,
   TOKEN_SYMBOL,
@@ -30,7 +27,6 @@ const GENESIS_PRIVATE_KEY = global.GENESIS_PRIVATE_KEYS[JEST_WORKER_ID - 1];
 const zilliqa = new Zilliqa(API);
 zilliqa.wallet.addByPrivateKey(GENESIS_PRIVATE_KEY);
 
-let globalContractInfo;
 let globalContractAddress;
 
 let globalTestAccounts: Array<{
@@ -81,20 +77,17 @@ beforeAll(async () => {
     STRANGER_A: getTestAddr(STRANGER_A),
     STRANGER_B: getTestAddr(STRANGER_B),
   });
-
-  globalContractInfo = await useContractInfo(
-    await getContractInfo(CODE_PATH, { container: CONTAINER })
-  );
 });
 
 beforeEach(async () => {
   zilliqa.wallet.setDefault(getTestAddr(CONTRACT_OWNER));
-  const init = globalContractInfo.getInitParams(
-    getTestAddr(CONTRACT_OWNER),
-    BASE_URI,
-    TOKEN_NAME,
-    TOKEN_SYMBOL
-  );
+  const init = getJSONParams({
+    _scilla_version: ["Uint32", 0],
+    initial_contract_owner: ["ByStr20", getTestAddr(CONTRACT_OWNER)],
+    initial_base_uri: ["String", BASE_URI],
+    name: ["String", TOKEN_NAME],
+    symbol: ["String", TOKEN_SYMBOL],
+  });
   const [, contract] = await zilliqa.contracts
     .new(CODE, init)
     .deploy(TX_PARAMS, 33, 1000, true);
@@ -104,37 +97,46 @@ beforeEach(async () => {
     throw new Error();
   }
 
-  let tx = await globalContractInfo.callGetter(
-    zilliqa.contracts.at(globalContractAddress),
-    TX_PARAMS
-  )(
+  let tx: any = await zilliqa.contracts.at(globalContractAddress).call(
     "BatchMint",
-    getJSONValue(
-      [
-        [getTestAddr(TOKEN_OWNER_A), ""],
-        [getTestAddr(TOKEN_OWNER_B), ""],
-        [getTestAddr(TOKEN_OWNER_B), ""],
-        [getTestAddr(TOKEN_OWNER_B), ""],
+    getJSONParams({
+      to_token_uri_pair_list: [
+        "List (Pair ByStr20 String)",
+        [
+          [getTestAddr(TOKEN_OWNER_A), ""],
+          [getTestAddr(TOKEN_OWNER_B), ""],
+          [getTestAddr(TOKEN_OWNER_B), ""],
+          [getTestAddr(TOKEN_OWNER_B), ""],
+        ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (String)")),
       ],
-      "List (Pair (ByStr20) (String))"
-    )
+    }),
+    TX_PARAMS
+  );
+
+  if (!tx.receipt.success) {
+    throw new Error();
+  }
+
+  tx = await zilliqa.contracts.at(globalContractAddress).call(
+    "SetSpender",
+    getJSONParams({
+      spender: ["ByStr20", getTestAddr(SPENDER)],
+      token_id: ["Uint256", 1],
+    }),
+    TX_PARAMS
   );
   if (!tx.receipt.success) {
     throw new Error();
   }
 
-  tx = await globalContractInfo.callGetter(
-    zilliqa.contracts.at(globalContractAddress),
+  tx = await zilliqa.contracts.at(globalContractAddress).call(
+    "AddOperator",
+    getJSONParams({
+      operator: ["ByStr20", getTestAddr(OPERATOR)],
+    }),
     TX_PARAMS
-  )("SetSpender", getTestAddr(SPENDER), "1");
-  if (!tx.receipt.success) {
-    throw new Error();
-  }
+  );
 
-  tx = await globalContractInfo.callGetter(
-    zilliqa.contracts.at(globalContractAddress),
-    TX_PARAMS
-  )("AddOperator", getTestAddr(OPERATOR));
   if (!tx.receipt.success) {
     throw new Error();
   }
@@ -147,8 +149,8 @@ describe("Approval", () => {
       transition: "SetSpender",
       getSender: () => getTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        spender: getTestAddr(STRANGER_A),
-        token_id: 999, // Non-existing token
+        spender: ["ByStr20", getTestAddr(STRANGER_A)],
+        token_id: ["Uint256", 999], // Non-existing token
       }),
       error: ZRC6_ERROR.TokenNotFoundError,
       want: undefined,
@@ -158,8 +160,8 @@ describe("Approval", () => {
       transition: "SetSpender",
       getSender: () => getTestAddr(STRANGER_A), // Not a token owner
       getParams: () => ({
-        spender: getTestAddr(STRANGER_B),
-        token_id: 1,
+        spender: ["ByStr20", getTestAddr(STRANGER_B)],
+        token_id: ["Uint256", 1],
       }),
       error: ZRC6_ERROR.NotOwnerOrOperatorError,
       want: undefined,
@@ -169,8 +171,8 @@ describe("Approval", () => {
       transition: "SetSpender",
       getSender: () => getTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        spender: getTestAddr(TOKEN_OWNER_A),
-        token_id: 1,
+        spender: ["ByStr20", getTestAddr(TOKEN_OWNER_A)],
+        token_id: ["Uint256", 1],
       }),
       error: ZRC6_ERROR.SelfError,
       want: undefined,
@@ -180,8 +182,8 @@ describe("Approval", () => {
       transition: "SetSpender",
       getSender: () => getTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        spender: getTestAddr(SPENDER),
-        token_id: 1,
+        spender: ["ByStr20", getTestAddr(SPENDER)],
+        token_id: ["Uint256", 1],
       }),
       error: ZRC6_ERROR.SpenderFoundError,
       want: undefined,
@@ -191,8 +193,8 @@ describe("Approval", () => {
       transition: "SetSpender",
       getSender: () => getTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        spender: getTestAddr(STRANGER_A),
-        token_id: 1,
+        spender: ["ByStr20", getTestAddr(STRANGER_A)],
+        token_id: ["Uint256", 1],
       }),
       error: undefined,
       want: {
@@ -224,8 +226,8 @@ describe("Approval", () => {
       transition: "SetSpender",
       getSender: () => getTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        spender: "0x0000000000000000000000000000000000000000",
-        token_id: 1,
+        spender: ["ByStr20", "0x0000000000000000000000000000000000000000"],
+        token_id: ["Uint256", 1],
       }),
       error: undefined,
       want: {
@@ -265,7 +267,7 @@ describe("Approval", () => {
       transition: "AddOperator",
       getSender: () => getTestAddr(STRANGER_B),
       getParams: () => ({
-        operator: getTestAddr(STRANGER_A),
+        operator: ["ByStr20", getTestAddr(STRANGER_A)],
       }),
       error: ZRC6_ERROR.NotTokenOwnerError,
       want: undefined,
@@ -275,7 +277,7 @@ describe("Approval", () => {
       transition: "AddOperator",
       getSender: () => getTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        operator: getTestAddr(TOKEN_OWNER_A), // Self
+        operator: ["ByStr20", getTestAddr(TOKEN_OWNER_A)], // Self
       }),
       error: ZRC6_ERROR.SelfError,
       want: undefined,
@@ -285,7 +287,7 @@ describe("Approval", () => {
       transition: "AddOperator",
       getSender: () => getTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        operator: getTestAddr(OPERATOR),
+        operator: ["ByStr20", getTestAddr(OPERATOR)],
       }),
       error: ZRC6_ERROR.OperatorFoundError,
       want: undefined,
@@ -295,7 +297,7 @@ describe("Approval", () => {
       transition: "AddOperator",
       getSender: () => getTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        operator: getTestAddr(STRANGER_A),
+        operator: ["ByStr20", getTestAddr(STRANGER_A)],
       }),
       error: undefined,
       want: {
@@ -327,7 +329,7 @@ describe("Approval", () => {
       transition: "RemoveOperator",
       getSender: () => getTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        operator: getTestAddr(STRANGER_A),
+        operator: ["ByStr20", getTestAddr(STRANGER_A)],
       }),
       error: ZRC6_ERROR.OperatorNotFoundError,
       want: undefined,
@@ -337,7 +339,7 @@ describe("Approval", () => {
       transition: "RemoveOperator",
       getSender: () => getTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        operator: getTestAddr(STRANGER_A),
+        operator: ["ByStr20", getTestAddr(STRANGER_A)],
       }),
       error: ZRC6_ERROR.OperatorNotFoundError,
       want: undefined,
@@ -347,7 +349,7 @@ describe("Approval", () => {
       transition: "RemoveOperator",
       getSender: () => getTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        operator: getTestAddr(OPERATOR),
+        operator: ["ByStr20", getTestAddr(OPERATOR)],
       }),
       error: undefined,
       want: {
@@ -381,8 +383,8 @@ describe("Approval", () => {
       transition: "TransferFrom",
       getSender: () => getTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        to: getTestAddr(TOKEN_OWNER_A), // Self
-        token_id: 1,
+        to: ["ByStr20", getTestAddr(TOKEN_OWNER_A)], // Self
+        token_id: ["Uint256", 1],
       }),
       error: ZRC6_ERROR.SelfError,
       want: undefined,
@@ -392,8 +394,8 @@ describe("Approval", () => {
       transition: "TransferFrom",
       getSender: () => getTestAddr(STRANGER_A), // Not Owner
       getParams: () => ({
-        to: getTestAddr(STRANGER_A),
-        token_id: 1,
+        to: ["ByStr20", getTestAddr(STRANGER_A)],
+        token_id: ["Uint256", 1],
       }),
       error: ZRC6_ERROR.NotAllowedToTransferError,
       want: undefined,
@@ -403,8 +405,8 @@ describe("Approval", () => {
       transition: "TransferFrom",
       getSender: () => getTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        to: "0x0000000000000000000000000000000000000000",
-        token_id: 1,
+        to: ["ByStr20", "0x0000000000000000000000000000000000000000"],
+        token_id: ["Uint256", 1],
       }),
       error: ZRC6_ERROR.ZeroAddressDestinationError,
       want: undefined,
@@ -414,8 +416,8 @@ describe("Approval", () => {
       transition: "TransferFrom",
       getSender: () => getTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        to: globalContractAddress,
-        token_id: 1,
+        to: ["ByStr20", globalContractAddress],
+        token_id: ["Uint256", 1],
       }),
       error: ZRC6_ERROR.ThisAddressDestinationError,
       want: undefined,
@@ -425,8 +427,8 @@ describe("Approval", () => {
       transition: "TransferFrom",
       getSender: () => getTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        to: getTestAddr(STRANGER_A),
-        token_id: 1,
+        to: ["ByStr20", getTestAddr(STRANGER_A)],
+        token_id: ["Uint256", 1],
       }),
       error: undefined,
       want: {
@@ -471,8 +473,8 @@ describe("Approval", () => {
       transition: "TransferFrom",
       getSender: () => getTestAddr(SPENDER),
       getParams: () => ({
-        to: getTestAddr(STRANGER_A),
-        token_id: 1,
+        to: ["ByStr20", getTestAddr(STRANGER_A)],
+        token_id: ["Uint256", 1],
       }),
       error: undefined,
       want: {
@@ -517,8 +519,8 @@ describe("Approval", () => {
       transition: "TransferFrom",
       getSender: () => getTestAddr(OPERATOR),
       getParams: () => ({
-        to: getTestAddr(STRANGER_A),
-        token_id: 1,
+        to: ["ByStr20", getTestAddr(STRANGER_A)],
+        token_id: ["Uint256", 1],
       }),
       error: undefined,
       want: {
@@ -563,8 +565,8 @@ describe("Approval", () => {
       transition: "TransferFrom",
       getSender: () => getTestAddr(SPENDER),
       getParams: () => ({
-        to: getTestAddr(SPENDER),
-        token_id: 1,
+        to: ["ByStr20", getTestAddr(SPENDER)],
+        token_id: ["Uint256", 1],
       }),
       error: undefined,
       want: {
@@ -609,8 +611,8 @@ describe("Approval", () => {
       transition: "TransferFrom",
       getSender: () => getTestAddr(OPERATOR),
       getParams: () => ({
-        to: getTestAddr(OPERATOR),
-        token_id: 1,
+        to: ["ByStr20", getTestAddr(OPERATOR)],
+        token_id: ["Uint256", 1],
       }),
       error: undefined,
       want: {
@@ -656,10 +658,13 @@ describe("Approval", () => {
       getSender: () => getTestAddr(TOKEN_OWNER_B),
       getParams: () => ({
         to_token_id_pair_list: [
-          [getTestAddr(TOKEN_OWNER_A), 2],
-          [getTestAddr(TOKEN_OWNER_B), 3],
-          [getTestAddr(STRANGER_A), 4],
-        ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (Uint256)")),
+          "List (Pair (ByStr20) (Uint256))",
+          [
+            [getTestAddr(TOKEN_OWNER_A), 2],
+            [getTestAddr(TOKEN_OWNER_B), 3],
+            [getTestAddr(STRANGER_A), 4],
+          ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (Uint256)")),
+        ],
       }),
       error: ZRC6_ERROR.SelfError,
       want: undefined,
@@ -670,10 +675,13 @@ describe("Approval", () => {
       getSender: () => getTestAddr(TOKEN_OWNER_B),
       getParams: () => ({
         to_token_id_pair_list: [
-          [getTestAddr(TOKEN_OWNER_A), 2],
-          [getTestAddr(STRANGER_A), 3],
-          [getTestAddr(STRANGER_A), 4],
-        ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (Uint256)")),
+          "List (Pair (ByStr20) (Uint256))",
+          [
+            [getTestAddr(TOKEN_OWNER_A), 2],
+            [getTestAddr(STRANGER_A), 3],
+            [getTestAddr(STRANGER_A), 4],
+          ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (Uint256)")),
+        ],
       }),
       error: undefined,
       want: {
@@ -728,10 +736,13 @@ describe("Approval", () => {
   for (const testCase of testCases) {
     it(`${testCase.transition}: ${testCase.name}`, async () => {
       zilliqa.wallet.setDefault(testCase.getSender());
-      const tx = await globalContractInfo.callGetter(
-        zilliqa.contracts.at(globalContractAddress),
-        TX_PARAMS
-      )(testCase.transition, ...Object.values(testCase.getParams()));
+      const tx: any = await zilliqa.contracts
+        .at(globalContractAddress)
+        .call(
+          testCase.transition,
+          getJSONParams(testCase.getParams()),
+          TX_PARAMS
+        );
 
       if (testCase.want === undefined) {
         // Negative Cases

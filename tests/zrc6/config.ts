@@ -2,14 +2,12 @@ import { bytes, units } from "@zilliqa-js/util";
 import fs from "fs";
 import { Long, BN } from "@zilliqa-js/util";
 
-export const CONTAINER = process.env["CONTAINER"];
-
 export const API = `http://localhost:${process.env["PORT"]}`; // Zilliqa Isolated Server
 export const CHAIN_ID = 222;
 export const MSG_VERSION = 1;
 export const VERSION = bytes.pack(CHAIN_ID, MSG_VERSION);
 
-export const CODE_PATH = "reference/zrc6.scilla";
+const CODE_PATH = "reference/zrc6.scilla";
 export const CODE = fs.readFileSync(CODE_PATH).toString();
 
 export const ZRC6_ERROR = {
