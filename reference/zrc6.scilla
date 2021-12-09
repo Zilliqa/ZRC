@@ -589,7 +589,6 @@ end
 (* @param: token_uri - URI of a token *)
 (* @Requirements: *)
 (* - The contract must not be paused. Otherwise, it must throw `PausedError` *)
-
 transition Mint(to: ByStr20, token_uri: String)
   RequireNotPaused;
   MintToken to;
