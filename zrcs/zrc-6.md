@@ -337,8 +337,8 @@ Mints tokens and transfers them to `to_list`.
 **Requirements:**
 
 - The contract must not be paused. Otherwise, it must throw `PausedError`.
-- `to` must not be the zero address. Otherwise, it must throw `ZeroAddressDestinationError`
-- `to` must not be `_this_address`. Otherwise, it must throw `ThisAddressDestinationError`
+- `to_list` must not include the zero address. Otherwise, it must throw `ZeroAddressDestinationError`
+- `to_list` must not include `_this_address`. Otherwise, it must throw `ThisAddressDestinationError`
 - `_sender` must be a minter. Otherwise, it must throw `NotMinterError`.
 
 **Messages:**
