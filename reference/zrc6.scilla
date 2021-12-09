@@ -352,7 +352,6 @@ end
 (* - `to` must not be `_this_address`. Otherwise, it must throw `ThisAddressDestinationError` *)
 (* - `_sender` must be a minter. Otherwise, it must throw `NotMinterError` *)
 procedure MintToken(to: ByStr20)
-  RequireNotPaused;
   RequireValidDestination to;
 
   IsMinter _sender;
@@ -380,7 +379,6 @@ end
 (* - `token_id` must exist. Otherwise, it must throw `TokenNotFoundError` *)
 (* - `_sender` must be a token owner or an operator. Otherwise, it must throw `NotOwnerOrOperatorError` *)
 procedure BurnToken(token_id: Uint256)
-  RequireNotPaused;
   (* Check if token exists *)
   maybe_token_owner <- token_owners[token_id];
   match maybe_token_owner with
@@ -410,7 +408,6 @@ end
 (* - `_sender` must be a token owner, spender, or operator. Otherwise, it must throw `NotAllowedToTransferError` *)
 (* - `_sender` must not be `to`. Otherwise, it must throw `SelfError` *)
 procedure TransferToken(to: ByStr20, token_id: Uint256)
-  RequireNotPaused;
   RequireValidDestination to;
 
   maybe_token_owner <- token_owners[token_id];
@@ -572,6 +569,7 @@ end
 (* Mints a token and transfers it to `to`. *)
 (* @param: to - Address of the token recipient   *)
 transition Mint(to: ByStr20)
+  RequireNotPaused;
   MintToken to;
   token_id <- token_id_count;
 
@@ -600,6 +598,7 @@ end
 (* Mints tokens and transfers them to `to_list`. *)
 (* @param: to_list - List of addresses of the token recipient *)
 transition BatchMint(to_list: List ByStr20)
+  RequireNotPaused;
   cur_id <- token_id_count;
   start_id = builtin add cur_id one;
   forall to_list MintToken;
@@ -623,6 +622,7 @@ end
 (* Destroys `token_id`. *)
 (* @param: token_id - Unique ID of the NFT to be destroyed *)
 transition Burn(token_id: Uint256)
+  RequireNotPaused;
   (* Check if token exists *)
   maybe_token_owner <- token_owners[token_id];
   match maybe_token_owner with
@@ -652,6 +652,7 @@ end
 (* Destroys `token_id_list`. *)
 (* @param: token_id_list - List of unique IDs of the NFT to be destroyed *)
 transition BatchBurn(token_id_list: List Uint256)
+  RequireNotPaused;
   forall token_id_list BurnToken;
   e = {
     _eventname: "BatchBurn";
@@ -852,6 +853,7 @@ end
 
 (* Transfers `token_id` from the token owner to `to`.  *)
 transition TransferFrom(to: ByStr20, token_id: Uint256)
+  RequireNotPaused;
   maybe_token_owner <- token_owners[token_id];
   match maybe_token_owner with
   | None =>
@@ -889,6 +891,7 @@ end
 
 (* Transfers multiple `token_id` to multiple `to`. It takes List of Pair (to, token_id). *)
 transition BatchTransferFrom(to_token_id_pair_list: List (Pair ByStr20 Uint256))
+  RequireNotPaused;
   forall to_token_id_pair_list HandleTransfer;
   e = {
     _eventname: "BatchTransferFrom"; 
