@@ -4,7 +4,7 @@ describe("extractTypes", () => {
   const testCases = [
     {
       type: "Option (ByStr20)",
-      want: ["ByStr21"],
+      want: ["ByStr20"],
     },
     {
       type: "Pair (ByStr20) (Uint256)",
