@@ -4,19 +4,16 @@ import { getAddressFromPrivateKey, schnorr } from "@zilliqa-js/crypto";
 
 import {
   getErrorMsg,
-  getJSONParam,
-  useContractInfo,
   verifyTransitions,
   verifyEvents,
+  getJSONValue,
+  getJSONParams,
 } from "./testutil";
 
 import {
-  CONTAINER,
   API,
   TX_PARAMS,
   CODE,
-  CODE_PATH,
-  GAS_LIMIT,
   ZRC6_ERROR,
   TOKEN_NAME,
   TOKEN_SYMBOL,
@@ -31,7 +28,6 @@ const GENESIS_PRIVATE_KEY = global.GENESIS_PRIVATE_KEYS[JEST_WORKER_ID - 1];
 const zilliqa = new Zilliqa(API);
 zilliqa.wallet.addByPrivateKey(GENESIS_PRIVATE_KEY);
 
-let globalContractInfo;
 let globalContractAddress;
 
 let globalTestAccounts: Array<{
@@ -76,18 +72,17 @@ beforeAll(async () => {
     MINTER: getTestAddr(MINTER),
     STRANGER: getTestAddr(STRANGER),
   });
-
-  globalContractInfo = await useContractInfo(CONTAINER, CODE_PATH, GAS_LIMIT);
 });
 
 beforeEach(async () => {
   zilliqa.wallet.setDefault(getTestAddr(CONTRACT_OWNER));
-  const init = globalContractInfo.getInitParams(
-    getTestAddr(CONTRACT_OWNER),
-    BASE_URI,
-    TOKEN_NAME,
-    TOKEN_SYMBOL
-  );
+  const init = getJSONParams({
+    _scilla_version: ["Uint32", 0],
+    initial_contract_owner: ["ByStr20", getTestAddr(CONTRACT_OWNER)],
+    initial_base_uri: ["String", BASE_URI],
+    name: ["String", TOKEN_NAME],
+    symbol: ["String", TOKEN_SYMBOL],
+  });
   const [, contract] = await zilliqa.contracts
     .new(CODE, init)
     .deploy(TX_PARAMS, 33, 1000, true);
@@ -97,24 +92,35 @@ beforeEach(async () => {
     throw new Error();
   }
 
-  let tx = await globalContractInfo.callGetter(
-    zilliqa.contracts.at(globalContractAddress),
+  let tx: any = await zilliqa.contracts.at(globalContractAddress).call(
+    "AddMinter",
+    getJSONParams({
+      minter: ["ByStr20", getTestAddr(MINTER)],
+    }),
     TX_PARAMS
-  )("AddMinter", getTestAddr(MINTER));
+  );
+
   if (!tx.receipt.success) {
     throw new Error();
   }
 
-  tx = await globalContractInfo.callGetter(
-    zilliqa.contracts.at(globalContractAddress),
-    TX_PARAMS
-  )(
+  tx = await zilliqa.contracts.at(globalContractAddress).call(
     "BatchMint",
-    Array.from({ length: INITIAL_TOTAL_SUPPLY }, () => undefined).map(() =>
-      getTestAddr(TOKEN_OWNER)
-    )
+    getJSONParams({
+      to_token_uri_pair_list: [
+        "List (Pair ByStr20 String)",
+        [
+          [getTestAddr(TOKEN_OWNER), ""],
+          [getTestAddr(TOKEN_OWNER), ""],
+          [getTestAddr(TOKEN_OWNER), ""],
+        ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (String)")),
+      ],
+    }),
+    TX_PARAMS
   );
+
   if (!tx.receipt.success) {
+    console.log(tx.receipt);
     throw new Error();
   }
 });
@@ -126,7 +132,7 @@ describe("Minter", () => {
       transition: "AddMinter",
       getSender: () => getTestAddr(STRANGER),
       getParams: () => ({
-        minter: getTestAddr(STRANGER),
+        minter: ["ByStr20", getTestAddr(STRANGER)],
       }),
       error: ZRC6_ERROR.NotContractOwnerError,
       want: undefined,
@@ -136,7 +142,7 @@ describe("Minter", () => {
       transition: "AddMinter",
       getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        minter: getTestAddr(MINTER),
+        minter: ["ByStr20", getTestAddr(MINTER)],
       }),
       error: ZRC6_ERROR.MinterFoundError,
       want: undefined,
@@ -146,7 +152,7 @@ describe("Minter", () => {
       transition: "AddMinter",
       getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        minter: getTestAddr(STRANGER),
+        minter: ["ByStr20", getTestAddr(STRANGER)],
       }),
       error: undefined,
       want: {
@@ -155,17 +161,17 @@ describe("Minter", () => {
         events: [
           {
             name: "AddMinter",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(STRANGER), "minter"),
-            ],
+            getParams: () => ({
+              minter: ["ByStr20", getTestAddr(STRANGER)],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_AddMinterCallback",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(STRANGER), "minter"),
-            ],
+            getParams: () => ({
+              minter: ["ByStr20", getTestAddr(STRANGER)],
+            }),
           },
         ],
       },
@@ -175,7 +181,7 @@ describe("Minter", () => {
       transition: "RemoveMinter",
       getSender: () => getTestAddr(STRANGER),
       getParams: () => ({
-        minter: getTestAddr(MINTER),
+        minter: ["ByStr20", getTestAddr(MINTER)],
       }),
       error: ZRC6_ERROR.NotContractOwnerError,
       want: undefined,
@@ -185,7 +191,7 @@ describe("Minter", () => {
       transition: "RemoveMinter",
       getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        minter: getTestAddr(STRANGER),
+        minter: ["ByStr20", getTestAddr(STRANGER)],
       }),
       error: ZRC6_ERROR.MinterNotFoundError,
       want: undefined,
@@ -195,7 +201,7 @@ describe("Minter", () => {
       transition: "RemoveMinter",
       getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        minter: getTestAddr(MINTER),
+        minter: ["ByStr20", getTestAddr(MINTER)],
       }),
       error: undefined,
       want: {
@@ -204,17 +210,17 @@ describe("Minter", () => {
         events: [
           {
             name: "RemoveMinter",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(MINTER), "minter"),
-            ],
+            getParams: () => ({
+              minter: ["ByStr20", getTestAddr(MINTER)],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_RemoveMinterCallback",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(MINTER), "minter"),
-            ],
+            getParams: () => ({
+              minter: ["ByStr20", getTestAddr(MINTER)],
+            }),
           },
         ],
       },
@@ -224,10 +230,13 @@ describe("Minter", () => {
   for (const testCase of testCases) {
     it(`${testCase.transition}: ${testCase.name}`, async () => {
       zilliqa.wallet.setDefault(testCase.getSender());
-      const tx = await globalContractInfo.callGetter(
-        zilliqa.contracts.at(globalContractAddress),
-        TX_PARAMS
-      )(testCase.transition, ...Object.values(testCase.getParams()));
+      const tx: any = await zilliqa.contracts
+        .at(globalContractAddress)
+        .call(
+          testCase.transition,
+          getJSONParams(testCase.getParams()),
+          TX_PARAMS
+        );
 
       if (testCase.want === undefined) {
         // Negative Cases
@@ -262,7 +271,8 @@ describe("Mint & Burn", () => {
       transition: "Mint",
       getSender: () => getTestAddr(STRANGER),
       getParams: () => ({
-        to: "0x0000000000000000000000000000000000000000",
+        to: ["ByStr20", "0x0000000000000000000000000000000000000000"],
+        token_uri: ["String", ""],
       }),
       error: ZRC6_ERROR.ZeroAddressDestinationError,
       want: undefined,
@@ -272,7 +282,8 @@ describe("Mint & Burn", () => {
       transition: "Mint",
       getSender: () => getTestAddr(STRANGER),
       getParams: () => ({
-        to: globalContractAddress,
+        to: ["ByStr20", globalContractAddress],
+        token_uri: ["String", ""],
       }),
       error: ZRC6_ERROR.ThisAddressDestinationError,
       want: undefined,
@@ -282,7 +293,8 @@ describe("Mint & Burn", () => {
       transition: "Mint",
       getSender: () => getTestAddr(STRANGER),
       getParams: () => ({
-        to: getTestAddr(STRANGER),
+        to: ["ByStr20", getTestAddr(STRANGER)],
+        token_uri: ["String", ""],
       }),
       error: ZRC6_ERROR.NotMinterError,
       want: undefined,
@@ -292,7 +304,8 @@ describe("Mint & Burn", () => {
       transition: "Mint",
       getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        to: getTestAddr(STRANGER),
+        to: ["ByStr20", getTestAddr(STRANGER)],
+        token_uri: ["String", ""],
       }),
       error: undefined,
       want: {
@@ -306,31 +319,25 @@ describe("Mint & Burn", () => {
         events: [
           {
             name: "Mint",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(STRANGER), "to"),
-              getJSONParam(
-                "Uint256",
-                (INITIAL_TOTAL_SUPPLY + 1).toString(),
-                "token_id"
-              ),
-            ],
+            getParams: () => ({
+              to: ["ByStr20", getTestAddr(STRANGER)],
+              token_id: ["Uint256", INITIAL_TOTAL_SUPPLY + 1],
+              token_uri: ["String", ""],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_RecipientAcceptMint",
-            getParams: () => [],
+            getParams: () => ({}),
           },
           {
             tag: "ZRC6_MintCallback",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(STRANGER), "to"),
-              getJSONParam(
-                "Uint256",
-                (INITIAL_TOTAL_SUPPLY + 1).toString(),
-                "token_id"
-              ),
-            ],
+            getParams: () => ({
+              to: ["ByStr20", getTestAddr(STRANGER)],
+              token_id: ["Uint256", INITIAL_TOTAL_SUPPLY + 1],
+              token_uri: ["String", ""],
+            }),
           },
         ],
       },
@@ -340,7 +347,8 @@ describe("Mint & Burn", () => {
       transition: "Mint",
       getSender: () => getTestAddr(MINTER),
       getParams: () => ({
-        to: getTestAddr(MINTER),
+        to: ["ByStr20", getTestAddr(MINTER)],
+        token_uri: ["String", ""],
       }),
       error: undefined,
       want: {
@@ -354,49 +362,125 @@ describe("Mint & Burn", () => {
         events: [
           {
             name: "Mint",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(MINTER), "to"),
-              getJSONParam(
-                "Uint256",
-                (INITIAL_TOTAL_SUPPLY + 1).toString(),
-                "token_id"
-              ),
-            ],
+            getParams: () => ({
+              to: ["ByStr20", getTestAddr(MINTER)],
+              token_id: ["Uint256", INITIAL_TOTAL_SUPPLY + 1],
+              token_uri: ["String", ""],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_RecipientAcceptMint",
-            getParams: () => [],
+            getParams: () => ({}),
           },
           {
             tag: "ZRC6_MintCallback",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(MINTER), "to"),
-              getJSONParam(
-                "Uint256",
-                (INITIAL_TOTAL_SUPPLY + 1).toString(),
-                "token_id"
-              ),
-            ],
+            getParams: () => ({
+              to: ["ByStr20", getTestAddr(MINTER)],
+              token_id: ["Uint256", INITIAL_TOTAL_SUPPLY + 1],
+              token_uri: ["String", ""],
+            }),
           },
         ],
       },
     },
     {
-      name: "mints tokens in batches",
-      transition: "BatchMint",
-      getSender: () => getTestAddr(TOKEN_OWNER),
+      name: "mints a token with a URI by minter",
+      transition: "Mint",
+      getSender: () => getTestAddr(MINTER),
       getParams: () => ({
-        to_list: [
-          getTestAddr(STRANGER),
-          getTestAddr(STRANGER),
-          getTestAddr(STRANGER),
+        to: ["ByStr20", getTestAddr(MINTER)],
+        token_uri: [
+          "String",
+          "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL4",
         ],
       }),
       error: undefined,
       want: {
         verifyState: (state) => {
+          if (
+            JSON.stringify(state.token_uris) !==
+            JSON.stringify({
+              "4": "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL4",
+            })
+          ) {
+            return false;
+          }
+          return (
+            state.token_owners[(INITIAL_TOTAL_SUPPLY + 1).toString()] ===
+              getTestAddr(MINTER).toLowerCase() &&
+            state.token_id_count === (INITIAL_TOTAL_SUPPLY + 1).toString()
+          );
+        },
+        events: [
+          {
+            name: "Mint",
+            getParams: () => ({
+              to: ["ByStr20", getTestAddr(MINTER)],
+              token_id: ["Uint256", INITIAL_TOTAL_SUPPLY + 1],
+              token_uri: [
+                "String",
+                "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL4",
+              ],
+            }),
+          },
+        ],
+        transitions: [
+          {
+            tag: "ZRC6_RecipientAcceptMint",
+            getParams: () => ({}),
+          },
+          {
+            tag: "ZRC6_MintCallback",
+            getParams: () => ({
+              to: ["ByStr20", getTestAddr(MINTER)],
+              token_id: ["Uint256", INITIAL_TOTAL_SUPPLY + 1],
+              token_uri: [
+                "String",
+                "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL4",
+              ],
+            }),
+          },
+        ],
+      },
+    },
+    {
+      name: "mints tokens with URIs in batches",
+      transition: "BatchMint",
+      getSender: () => getTestAddr(TOKEN_OWNER),
+      getParams: () => ({
+        to_token_uri_pair_list: [
+          "List (Pair (ByStr20) (String))",
+          [
+            [
+              getTestAddr(STRANGER),
+              "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL4",
+            ],
+            [
+              getTestAddr(STRANGER),
+              "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL5",
+            ],
+            [
+              getTestAddr(STRANGER),
+              "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL6",
+            ],
+          ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (String)")),
+        ],
+      }),
+      error: undefined,
+      want: {
+        verifyState: (state) => {
+          if (
+            JSON.stringify(state.token_uris) !==
+            JSON.stringify({
+              "4": "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL4",
+              "5": "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL5",
+              "6": "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL6",
+            })
+          ) {
+            return false;
+          }
           if (state.token_id_count !== (INITIAL_TOTAL_SUPPLY * 2).toString()) {
             return false;
           }
@@ -420,21 +504,33 @@ describe("Mint & Burn", () => {
         events: [
           {
             name: "BatchMint",
-            getParams: () => [
-              getJSONParam(
-                "List (ByStr20)",
-                [STRANGER, STRANGER, STRANGER].map((cur) => getTestAddr(cur)),
-                "to_list"
-              ),
-              getJSONParam("Uint256", "4", "start_id"),
-              getJSONParam("Uint256", "6", "end_id"),
-            ],
+            getParams: () => ({
+              to_token_uri_pair_list: [
+                "List (Pair (ByStr20) (String))",
+                [
+                  [
+                    getTestAddr(STRANGER),
+                    "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL4",
+                  ],
+                  [
+                    getTestAddr(STRANGER),
+                    "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL5",
+                  ],
+                  [
+                    getTestAddr(STRANGER),
+                    "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL6",
+                  ],
+                ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (String)")),
+              ],
+              start_id: ["Uint256", 4],
+              end_id: ["Uint256", 6],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_BatchMintCallback",
-            getParams: () => [],
+            getParams: () => ({}),
           },
         ],
       },
@@ -445,7 +541,7 @@ describe("Mint & Burn", () => {
       transition: "Burn",
       getSender: () => getTestAddr(STRANGER),
       getParams: () => ({
-        token_id: 1,
+        token_id: ["Uint256", 1],
       }),
       error: ZRC6_ERROR.NotOwnerOrOperatorError,
       want: undefined,
@@ -455,7 +551,7 @@ describe("Mint & Burn", () => {
       transition: "Burn",
       getSender: () => getTestAddr(TOKEN_OWNER),
       getParams: () => ({
-        token_id: 999,
+        token_id: ["Uint256", 999],
       }),
       error: ZRC6_ERROR.TokenNotFoundError,
       want: undefined,
@@ -465,7 +561,7 @@ describe("Mint & Burn", () => {
       transition: "Burn",
       getSender: () => getTestAddr(TOKEN_OWNER),
       getParams: () => ({
-        token_id: 1,
+        token_id: ["Uint256", 1],
       }),
       error: undefined,
       want: {
@@ -473,27 +569,19 @@ describe("Mint & Burn", () => {
         events: [
           {
             name: "Burn",
-            getParams: () => [
-              getJSONParam(
-                "ByStr20",
-                getTestAddr(CONTRACT_OWNER),
-                "token_owner"
-              ),
-              getJSONParam("Uint256", 1, "token_id"),
-            ],
+            getParams: () => ({
+              token_owner: ["ByStr20", getTestAddr(CONTRACT_OWNER)],
+              token_id: ["Uint256", 1],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_BurnCallback",
-            getParams: () => [
-              getJSONParam(
-                "ByStr20",
-                getTestAddr(CONTRACT_OWNER),
-                "token_owner"
-              ),
-              getJSONParam("Uint256", 1, "token_id"),
-            ],
+            getParams: () => ({
+              token_owner: ["ByStr20", getTestAddr(CONTRACT_OWNER)],
+              token_id: ["Uint256", 1],
+            }),
           },
         ],
       },
@@ -504,7 +592,7 @@ describe("Mint & Burn", () => {
       transition: "BatchBurn",
       getSender: () => getTestAddr(TOKEN_OWNER),
       getParams: () => ({
-        token_id_list: [1, 2, 3],
+        token_id_list: ["List (Uint256)", [1, 2, 3]],
       }),
       error: undefined,
       want: {
@@ -517,15 +605,15 @@ describe("Mint & Burn", () => {
         events: [
           {
             name: "BatchBurn",
-            getParams: () => [
-              getJSONParam("List (Uint256)", [1, 2, 3], "token_id_list"),
-            ],
+            getParams: () => ({
+              token_id_list: ["List (Uint256)", [1, 2, 3]],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_BatchBurnCallback",
-            getParams: () => [],
+            getParams: () => ({}),
           },
         ],
       },
@@ -535,10 +623,13 @@ describe("Mint & Burn", () => {
   for (const testCase of testCases) {
     it(`${testCase.transition}: ${testCase.name}`, async () => {
       zilliqa.wallet.setDefault(testCase.getSender());
-      const tx = await globalContractInfo.callGetter(
-        zilliqa.contracts.at(globalContractAddress),
-        TX_PARAMS
-      )(testCase.transition, ...Object.values(testCase.getParams()));
+      const tx: any = await zilliqa.contracts
+        .at(globalContractAddress)
+        .call(
+          testCase.transition,
+          getJSONParams(testCase.getParams()),
+          TX_PARAMS
+        );
 
       if (testCase.want === undefined) {
         // Negative Cases
@@ -548,6 +639,7 @@ describe("Mint & Burn", () => {
         );
       } else {
         // Positive Cases
+        !tx.receipt.success && console.log(tx.receipt);
         expect(tx.receipt.success).toBe(true);
         expect(verifyEvents(tx.receipt.event_logs, testCase.want.events)).toBe(
           true

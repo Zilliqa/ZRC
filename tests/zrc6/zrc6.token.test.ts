@@ -4,11 +4,11 @@ import { getAddressFromPrivateKey, schnorr } from "@zilliqa-js/crypto";
 
 import {
   getErrorMsg,
-  getJSONParam,
   useContractInfo,
   verifyTransitions,
   verifyEvents,
   getJSONValue,
+  getContractInfo,
 } from "./testutil";
 
 import {
@@ -17,7 +17,6 @@ import {
   TX_PARAMS,
   CODE,
   CODE_PATH,
-  GAS_LIMIT,
   ZRC6_ERROR,
   TOKEN_NAME,
   TOKEN_SYMBOL,
@@ -79,7 +78,9 @@ beforeAll(async () => {
     STRANGER: getTestAddr(STRANGER),
   });
 
-  globalContractInfo = await useContractInfo(CONTAINER, CODE_PATH, GAS_LIMIT);
+  globalContractInfo = await useContractInfo(
+    await getContractInfo(CODE_PATH, { container: CONTAINER })
+  );
 });
 
 beforeEach(async () => {
@@ -104,7 +105,10 @@ beforeEach(async () => {
     TX_PARAMS
   )(
     "BatchMint",
-    Array.from({ length: INITIAL_TOTAL_SUPPLY }, () => getTestAddr(TOKEN_OWNER))
+    Array.from({ length: INITIAL_TOTAL_SUPPLY }, () => [
+      getTestAddr(TOKEN_OWNER),
+      "",
+    ])
   );
   if (!tx.receipt.success) {
     throw new Error();
@@ -115,57 +119,56 @@ describe("Contract Contraint", () => {
   const testCases = [
     {
       name: "invalid initial contract owner: zero address",
-      getInitParams: () => [
+      getParams: () => [
         "0x0000000000000000000000000000000000000000",
         BASE_URI,
         TOKEN_NAME,
         TOKEN_SYMBOL,
       ],
+      want: false,
     },
     {
-      name: "invalid initial base URI: empty string",
-      getInitParams: () => [
+      name: "valid initial base URI: empty string",
+      getParams: () => [
         getTestAddr(CONTRACT_OWNER),
         "",
         TOKEN_NAME,
         TOKEN_SYMBOL,
       ],
+      want: true,
     },
     {
       name: "invalid name: empty string",
-      getInitParams: () => [
+      getParams: () => [
         getTestAddr(CONTRACT_OWNER),
         BASE_URI,
         "",
         TOKEN_SYMBOL,
       ],
+      want: false,
     },
     {
       name: "invalid symbol: empty string",
-      getInitParams: () => [
-        getTestAddr(CONTRACT_OWNER),
-        BASE_URI,
-        TOKEN_NAME,
-        "",
-      ],
+      getParams: () => [getTestAddr(CONTRACT_OWNER), BASE_URI, TOKEN_NAME, ""],
+      want: false,
     },
   ];
 
   for (const testCase of testCases) {
     it(`${testCase.name}`, async () => {
       zilliqa.wallet.setDefault(getTestAddr(CONTRACT_OWNER));
-      const init = globalContractInfo.getInitParams(
-        ...testCase.getInitParams()
-      );
+      const init = globalContractInfo.getInitParams(...testCase.getParams());
       const [tx] = await zilliqa.contracts
         .new(CODE, init)
         .deploy(TX_PARAMS, 33, 1000, true);
-      expect(tx.txParams.receipt?.success).toBe(false);
-      expect(JSON.stringify(tx.txParams.receipt?.exceptions)).toBe(
-        JSON.stringify([
-          { line: 0, message: "Contract constraint violation.\n" },
-        ])
-      );
+      expect(tx.txParams.receipt?.success).toBe(testCase.want);
+      if (testCase.want === false) {
+        expect(JSON.stringify(tx.txParams.receipt?.exceptions)).toBe(
+          JSON.stringify([
+            { line: 0, message: "Contract constraint violation.\n" },
+          ])
+        );
+      }
     });
   }
 });
@@ -216,17 +219,17 @@ describe("Contract", () => {
         events: [
           {
             name: "SetRoyaltyRecipient",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(STRANGER), "to"),
-            ],
+            getParams: () => ({
+              to: ["ByStr20", getTestAddr(STRANGER)],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_SetRoyaltyRecipientCallback",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(STRANGER), "to"),
-            ],
+            getParams: () => ({
+              to: ["ByStr20", getTestAddr(STRANGER)],
+            }),
           },
         ],
       },
@@ -274,17 +277,17 @@ describe("Contract", () => {
         events: [
           {
             name: "SetRoyaltyFeeBPS",
-            getParams: () => [
-              getJSONParam("Uint128", 10000, "royalty_fee_bps"),
-            ],
+            getParams: () => ({
+              royalty_fee_bps: ["Uint128", 10000],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_SetRoyaltyFeeBPSCallback",
-            getParams: () => [
-              getJSONParam("Uint128", 10000, "royalty_fee_bps"),
-            ],
+            getParams: () => ({
+              royalty_fee_bps: ["Uint128", 10000],
+            }),
           },
         ],
       },
@@ -302,13 +305,17 @@ describe("Contract", () => {
         events: [
           {
             name: "SetRoyaltyFeeBPS",
-            getParams: () => [getJSONParam("Uint128", 1, "royalty_fee_bps")],
+            getParams: () => ({
+              royalty_fee_bps: ["Uint128", 1],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_SetRoyaltyFeeBPSCallback",
-            getParams: () => [getJSONParam("Uint128", 1, "royalty_fee_bps")],
+            getParams: () => ({
+              royalty_fee_bps: ["Uint128", 1],
+            }),
           },
         ],
       },
@@ -337,25 +344,17 @@ describe("Contract", () => {
         events: [
           {
             name: "SetBaseURI",
-            getParams: () => [
-              getJSONParam(
-                "String",
-                "https://gateway.zilliqa.com/ipfs/hash/1",
-                "base_uri"
-              ),
-            ],
+            getParams: () => ({
+              base_uri: ["String", "https://gateway.zilliqa.com/ipfs/hash/1"],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_SetBaseURICallback",
-            getParams: () => [
-              getJSONParam(
-                "String",
-                "https://gateway.zilliqa.com/ipfs/hash/1",
-                "base_uri"
-              ),
-            ],
+            getParams: () => ({
+              base_uri: ["String", "https://gateway.zilliqa.com/ipfs/hash/1"],
+            }),
           },
         ],
       },
@@ -385,17 +384,17 @@ describe("Contract", () => {
         events: [
           {
             name: "SetContractOwnershipRecipient",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(STRANGER), "to"),
-            ],
+            getParams: () => ({
+              to: ["ByStr20", getTestAddr(STRANGER)],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_SetContractOwnershipRecipientCallback",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(STRANGER), "to"),
-            ],
+            getParams: () => ({
+              to: ["ByStr20", getTestAddr(STRANGER)],
+            }),
           },
         ],
       },
@@ -432,6 +431,7 @@ describe("Contract", () => {
             "3": getTestAddr(TOKEN_OWNER).toLowerCase(),
           },
           token_symbol: TOKEN_SYMBOL,
+          token_uris: {},
           total_supply: INITIAL_TOTAL_SUPPLY.toString(),
         })
       );
@@ -503,25 +503,23 @@ describe("Accept Contract Ownership", () => {
         events: [
           {
             name: "AcceptContractOwnership",
-            getParams: () => [
-              getJSONParam(
+            getParams: () => ({
+              contract_owner: [
                 "ByStr20",
                 getTestAddr(CONTRACT_OWNERSHIP_RECIPIENT),
-                "contract_owner"
-              ),
-            ],
+              ],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_AcceptContractOwnershipCallback",
-            getParams: () => [
-              getJSONParam(
+            getParams: () => ({
+              contract_owner: [
                 "ByStr20",
                 getTestAddr(CONTRACT_OWNERSHIP_RECIPIENT),
-                "contract_owner"
-              ),
-            ],
+              ],
+            }),
           },
         ],
       },
@@ -560,6 +558,7 @@ describe("Accept Contract Ownership", () => {
             "3": getTestAddr(TOKEN_OWNER).toLowerCase(),
           },
           token_symbol: TOKEN_SYMBOL,
+          token_uris: {},
           total_supply: INITIAL_TOTAL_SUPPLY.toString(),
         })
       );
@@ -628,13 +627,17 @@ describe("Unpaused", () => {
         events: [
           {
             name: "Pause",
-            getParams: () => [getJSONParam("Bool", true, "is_paused")],
+            getParams: () => ({
+              is_paused: ["Bool", true],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_PauseCallback",
-            getParams: () => [getJSONParam("Bool", true, "is_paused")],
+            getParams: () => ({
+              is_paused: ["Bool", true],
+            }),
           },
         ],
       },
@@ -726,13 +729,17 @@ describe("Paused", () => {
         events: [
           {
             name: "Unpause",
-            getParams: () => [getJSONParam("Bool", false, "is_paused")],
+            getParams: () => ({
+              is_paused: ["Bool", false],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_UnpauseCallback",
-            getParams: () => [getJSONParam("Bool", false, "is_paused")],
+            getParams: () => ({
+              is_paused: ["Bool", false],
+            }),
           },
         ],
       },
@@ -743,6 +750,7 @@ describe("Paused", () => {
       getSender: () => getTestAddr(MINTER),
       getParams: () => ({
         to: getTestAddr(MINTER),
+        token_uri: "",
       }),
       error: ZRC6_ERROR.PausedError,
       want: undefined,
@@ -753,9 +761,9 @@ describe("Paused", () => {
       getSender: () => getTestAddr(MINTER),
       getParams: () => ({
         to_list: [
-          getTestAddr(STRANGER),
-          getTestAddr(STRANGER),
-          getTestAddr(STRANGER),
+          [getTestAddr(STRANGER), ""],
+          [getTestAddr(STRANGER), ""],
+          [getTestAddr(STRANGER), ""],
         ],
       }),
       error: ZRC6_ERROR.PausedError,

@@ -107,16 +107,14 @@ contract NonfungibleToken
 with
   (* `initial_contract_owner` must not be the zero address *)
   let is_contract_owner_invalid = builtin eq initial_contract_owner zero_address in
-  (* `initial_base_uri` must not be an empty string *)
-  let is_base_uri_invalid = builtin eq initial_base_uri empty_string in
   (* `name` must not be an empty string *)
   let is_name_invalid = builtin eq name empty_string in
   (* `symbol` must not be an empty string *)
   let is_symbol_invalid = builtin eq symbol empty_string in
   (* Check if any parameter is invalid *)
   let is_name_or_symbol_invalid = orb is_name_invalid is_symbol_invalid in
-  let is_base_uri_or_name_or_symbol_invalid = orb is_base_uri_invalid is_name_or_symbol_invalid in
-  let is_invalid = orb is_contract_owner_invalid is_base_uri_or_name_or_symbol_invalid in
+
+  let is_invalid = orb is_contract_owner_invalid is_name_or_symbol_invalid in
   negb is_invalid
 =>
 
@@ -156,6 +154,9 @@ field royalty_fee_bps: Uint128 = Uint128 1000
 (* Base URI *)
 (* Defaults to `initial_base_uri` *)
 field base_uri: String = initial_base_uri
+
+(* Token URIs *)
+field token_uris: Map Uint256 String = Emp Uint256 String
 
 (* Mapping from token ID to its owner *)
 field token_owners: Map Uint256 ByStr20 = Emp Uint256 ByStr20
@@ -373,6 +374,25 @@ procedure MintToken(to: ByStr20)
   total_supply := new_supply
 end
 
+procedure SetTokenURI(token_id: Uint256, token_uri: String)
+  is_empty_string = builtin eq token_uri empty_string;
+  match is_empty_string with 
+  | True => 
+    (* noop *)
+  | False =>
+    token_uris[token_id] := token_uri
+  end
+end
+
+procedure HandleMint(info: Pair ByStr20 String)
+  match info with
+  | Pair to token_uri =>
+    MintToken to;
+    token_id <- token_id_count;
+    SetTokenURI token_id token_uri
+  end
+end
+
 (* @Requirements: *)
 (* - `token_id` must exist. Otherwise, it must throw `TokenNotFoundError` *)
 (* - `_sender` must be a token owner or an operator. Otherwise, it must throw `NotOwnerOrOperatorError` *)
@@ -563,19 +583,23 @@ transition SetBaseURI(uri: String)
   send msgs  
 end
 
-(* Mints a token and transfers it to `to`. *)
-(* @param: to - Address of the token recipient   *)
+(* Mints a token with a specific `token_uri` and transfers it to `to`. *)
+(* Pass empty string to `token_uri` to use the concatenated token URI. i.e. `<base_uri><token_id>`. *)
+(* @param: to - Address of the token recipient *)
+(* @param: token_uri - URI of a token *)
 (* @Requirements: *)
 (* - The contract must not be paused. Otherwise, it must throw `PausedError` *)
-transition Mint(to: ByStr20)
+transition Mint(to: ByStr20, token_uri: String)
   RequireNotPaused;
   MintToken to;
   token_id <- token_id_count;
+  SetTokenURI token_id token_uri;
 
   e = {
     _eventname: "Mint";
     to: to;
-    token_id: token_id
+    token_id: token_id;
+    token_uri: token_uri
   };
   event e;
   msg_to_recipient = {
@@ -588,25 +612,27 @@ transition Mint(to: ByStr20)
     _recipient: _sender;
     _amount: Uint128 0;
     to: to;
-    token_id: token_id
+    token_id: token_id;
+    token_uri: token_uri
   };
   msgs = two_msgs msg_to_recipient msg_to_sender;
   send msgs
 end
 
-(* Mints tokens and transfers them to `to_list`. *)
-(* @param: to_list - List of addresses of the token recipient *)
+(* Mints multiple tokens with `token_uri`s and transfers them to multiple `to`s. *)
+(* Pass empty string to `token_uri` to use the concatenated token URI. i.e. `<base_uri><token_id>`. *)
+(* @param: to_token_uri_pair_list - List of Pair (to, token_uri). *)
 (* @Requirements: *)
 (* - The contract must not be paused. Otherwise, it must throw `PausedError` *)
-transition BatchMint(to_list: List ByStr20)
+transition BatchMint(to_token_uri_pair_list: List (Pair ByStr20 String))
   RequireNotPaused;
   cur_id <- token_id_count;
   start_id = builtin add cur_id one;
-  forall to_list MintToken;
+  forall to_token_uri_pair_list HandleMint;
   end_id <- token_id_count;
   e = {
     _eventname: "BatchMint";
-    to_list: to_list;
+    to_token_uri_pair_list: to_token_uri_pair_list;
     start_id: start_id;
     end_id: end_id
   };
@@ -896,7 +922,8 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
   end
 end
 
-(* Transfers multiple `token_id` to multiple `to`. It takes List of Pair (to, token_id). *)
+(* Transfers multiple `token_id` to multiple `to`. *)
+(* @param: to_token_id_pair_list - List of Pair (to, token_id). *)
 (* @Requirements: *)
 (* - The contract must not be paused. Otherwise, it must throw `PausedError` *)
 transition BatchTransferFrom(to_token_id_pair_list: List (Pair ByStr20 Uint256))
