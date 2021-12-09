@@ -195,6 +195,18 @@ const logDelta = (want, got) =>
     `\nReceived: ${got}`
   );
 
+export const getJSONParams = (obj) => {
+  const result = Object.keys(obj).map((vname) => {
+    const [type, value] = obj[vname];
+    return {
+      type,
+      value: getJSONValue(value, type),
+      vname,
+    };
+  });
+  return result;
+};
+
 export const verifyEvents = (events, want) => {
   if (events === undefined) {
     return want === undefined;
@@ -206,14 +218,7 @@ export const verifyEvents = (events, want) => {
       return false;
     }
 
-    const wantParams = Object.keys(want[index].getParams()).map((vname) => {
-      const [type, value] = want[index].getParams()[vname];
-      return {
-        type,
-        value: getJSONValue(value, type),
-        vname,
-      };
-    });
+    const wantParams = getJSONParams(want[index].getParams());
 
     if (JSON.stringify(event.params) !== JSON.stringify(wantParams)) {
       logDelta(wantParams, JSON.stringify(event.params));
@@ -245,14 +250,7 @@ export const verifyTransitions = (transitions, want) => {
       return false;
     }
 
-    const wantParams = Object.keys(want[index].getParams()).map((vname) => {
-      const [type, value] = want[index].getParams()[vname];
-      return {
-        type,
-        value: getJSONValue(value, type),
-        vname,
-      };
-    });
+    const wantParams = getJSONParams(want[index].getParams());
 
     if (JSON.stringify(msg.params) !== JSON.stringify(wantParams)) {
       logDelta(wantParams, JSON.stringify(msg.params));
