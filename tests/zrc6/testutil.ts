@@ -206,11 +206,14 @@ export const verifyEvents = (events, want) => {
       return false;
     }
 
-    const wantParams = want[index].getParams().map(([type, value, vname]) => ({
-      type,
-      value: getJSONValue(value, type),
-      vname,
-    }));
+    const wantParams = Object.keys(want[index].getParams()).map((vname) => {
+      const [type, value] = want[index].getParams()[vname];
+      return {
+        type,
+        value: getJSONValue(value, type),
+        vname,
+      };
+    });
 
     if (JSON.stringify(event.params) !== JSON.stringify(wantParams)) {
       logDelta(wantParams, JSON.stringify(event.params));
@@ -242,11 +245,14 @@ export const verifyTransitions = (transitions, want) => {
       return false;
     }
 
-    const wantParams = want[index].getParams().map(([type, value, vname]) => ({
-      type,
-      value: getJSONValue(value, type),
-      vname,
-    }));
+    const wantParams = Object.keys(want[index].getParams()).map((vname) => {
+      const [type, value] = want[index].getParams()[vname];
+      return {
+        type,
+        value: getJSONValue(value, type),
+        vname,
+      };
+    });
 
     if (JSON.stringify(msg.params) !== JSON.stringify(wantParams)) {
       logDelta(wantParams, JSON.stringify(msg.params));
@@ -258,3 +264,11 @@ export const verifyTransitions = (transitions, want) => {
 
 export const getErrorMsg = (code) =>
   `Exception thrown: (Message [(_exception : (String "Error")) ; (code : (Int32 ${code}))])`;
+
+export const getBNum = async (zilliqa) => {
+  const response = await zilliqa.provider.send("GetBlocknum", "");
+  return Number(response.result);
+};
+
+export const increaseBNum = async (zilliqa, n) =>
+  zilliqa.provider.send("IncreaseBlocknum", n);

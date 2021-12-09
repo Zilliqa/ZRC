@@ -158,13 +158,17 @@ describe("Minter", () => {
         events: [
           {
             name: "AddMinter",
-            getParams: () => [["ByStr20", getTestAddr(STRANGER), "minter"]],
+            getParams: () => ({
+              minter: ["ByStr20", getTestAddr(STRANGER)],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_AddMinterCallback",
-            getParams: () => [["ByStr20", getTestAddr(STRANGER), "minter"]],
+            getParams: () => ({
+              minter: ["ByStr20", getTestAddr(STRANGER)],
+            }),
           },
         ],
       },
@@ -203,13 +207,17 @@ describe("Minter", () => {
         events: [
           {
             name: "RemoveMinter",
-            getParams: () => [["ByStr20", getTestAddr(MINTER), "minter"]],
+            getParams: () => ({
+              minter: ["ByStr20", getTestAddr(MINTER)],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_RemoveMinterCallback",
-            getParams: () => [["ByStr20", getTestAddr(MINTER), "minter"]],
+            getParams: () => ({
+              minter: ["ByStr20", getTestAddr(MINTER)],
+            }),
           },
         ],
       },
@@ -305,25 +313,25 @@ describe("Mint & Burn", () => {
         events: [
           {
             name: "Mint",
-            getParams: () => [
-              ["ByStr20", getTestAddr(STRANGER), "to"],
-              ["Uint256", (INITIAL_TOTAL_SUPPLY + 1).toString(), "token_id"],
-              ["String", "", "token_uri"],
-            ],
+            getParams: () => ({
+              to: ["ByStr20", getTestAddr(STRANGER)],
+              token_id: ["Uint256", INITIAL_TOTAL_SUPPLY + 1],
+              token_uri: ["String", ""],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_RecipientAcceptMint",
-            getParams: () => [],
+            getParams: () => ({}),
           },
           {
             tag: "ZRC6_MintCallback",
-            getParams: () => [
-              ["ByStr20", getTestAddr(STRANGER), "to"],
-              ["Uint256", (INITIAL_TOTAL_SUPPLY + 1).toString(), "token_id"],
-              ["String", "", "token_uri"],
-            ],
+            getParams: () => ({
+              to: ["ByStr20", getTestAddr(STRANGER)],
+              token_id: ["Uint256", INITIAL_TOTAL_SUPPLY + 1],
+              token_uri: ["String", ""],
+            }),
           },
         ],
       },
@@ -348,25 +356,25 @@ describe("Mint & Burn", () => {
         events: [
           {
             name: "Mint",
-            getParams: () => [
-              ["ByStr20", getTestAddr(MINTER), "to"],
-              ["Uint256", (INITIAL_TOTAL_SUPPLY + 1).toString(), "token_id"],
-              ["String", "", "token_uri"],
-            ],
+            getParams: () => ({
+              to: ["ByStr20", getTestAddr(MINTER)],
+              token_id: ["Uint256", INITIAL_TOTAL_SUPPLY + 1],
+              token_uri: ["String", ""],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_RecipientAcceptMint",
-            getParams: () => [],
+            getParams: () => ({}),
           },
           {
             tag: "ZRC6_MintCallback",
-            getParams: () => [
-              ["ByStr20", getTestAddr(MINTER), "to"],
-              ["Uint256", (INITIAL_TOTAL_SUPPLY + 1).toString(), "token_id"],
-              ["String", "", "token_uri"],
-            ],
+            getParams: () => ({
+              to: ["ByStr20", getTestAddr(MINTER)],
+              token_id: ["Uint256", INITIAL_TOTAL_SUPPLY + 1],
+              token_uri: ["String", ""],
+            }),
           },
         ],
       },
@@ -400,33 +408,31 @@ describe("Mint & Burn", () => {
         events: [
           {
             name: "Mint",
-            getParams: () => [
-              ["ByStr20", getTestAddr(MINTER), "to"],
-              ["Uint256", (INITIAL_TOTAL_SUPPLY + 1).toString(), "token_id"],
-              [
+            getParams: () => ({
+              to: ["ByStr20", getTestAddr(MINTER)],
+              token_id: ["Uint256", INITIAL_TOTAL_SUPPLY + 1],
+              token_uri: [
                 "String",
                 "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL4",
-                "token_uri",
               ],
-            ],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_RecipientAcceptMint",
-            getParams: () => [],
+            getParams: () => ({}),
           },
           {
             tag: "ZRC6_MintCallback",
-            getParams: () => [
-              ["ByStr20", getTestAddr(MINTER), "to"],
-              ["Uint256", (INITIAL_TOTAL_SUPPLY + 1).toString(), "token_id"],
-              [
+            getParams: () => ({
+              to: ["ByStr20", getTestAddr(MINTER)],
+              token_id: ["Uint256", INITIAL_TOTAL_SUPPLY + 1],
+              token_uri: [
                 "String",
                 "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL4",
-                "token_uri",
               ],
-            ],
+            }),
           },
         ],
       },
@@ -487,8 +493,9 @@ describe("Mint & Burn", () => {
         events: [
           {
             name: "BatchMint",
-            getParams: () => [
-              [
+
+            getParams: () => ({
+              to_token_uri_pair_list: [
                 "List (Pair (ByStr20) (String))",
                 [
                   [
@@ -504,17 +511,16 @@ describe("Mint & Burn", () => {
                     "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL6",
                   ],
                 ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (String)")),
-                "to_token_uri_pair_list",
               ],
-              ["Uint256", "4", "start_id"],
-              ["Uint256", "6", "end_id"],
-            ],
+              start_id: ["Uint256", 4],
+              end_id: ["Uint256", 6],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_BatchMintCallback",
-            getParams: () => [],
+            getParams: () => ({}),
           },
         ],
       },
@@ -553,19 +559,19 @@ describe("Mint & Burn", () => {
         events: [
           {
             name: "Burn",
-            getParams: () => [
-              ["ByStr20", getTestAddr(CONTRACT_OWNER), "token_owner"],
-              ["Uint256", 1, "token_id"],
-            ],
+            getParams: () => ({
+              token_owner: ["ByStr20", getTestAddr(CONTRACT_OWNER)],
+              token_id: ["Uint256", 1],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_BurnCallback",
-            getParams: () => [
-              ["ByStr20", getTestAddr(CONTRACT_OWNER), "token_owner"],
-              ["Uint256", 1, "token_id"],
-            ],
+            getParams: () => ({
+              token_owner: ["ByStr20", getTestAddr(CONTRACT_OWNER)],
+              token_id: ["Uint256", 1],
+            }),
           },
         ],
       },
@@ -589,13 +595,15 @@ describe("Mint & Burn", () => {
         events: [
           {
             name: "BatchBurn",
-            getParams: () => [["List (Uint256)", [1, 2, 3], "token_id_list"]],
+            getParams: () => ({
+              token_id_list: ["List (Uint256)", [1, 2, 3]],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_BatchBurnCallback",
-            getParams: () => [],
+            getParams: () => ({}),
           },
         ],
       },

@@ -202,19 +202,19 @@ describe("Approval", () => {
         events: [
           {
             name: "SetSpender",
-            getParams: () => [
-              ["ByStr20", getTestAddr(STRANGER_A), "spender"],
-              ["Uint256", 1, "token_id"],
-            ],
+            getParams: () => ({
+              spender: ["ByStr20", getTestAddr(STRANGER_A)],
+              token_id: ["Uint256", 1],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_SetSpenderCallback",
-            getParams: () => [
-              ["ByStr20", getTestAddr(STRANGER_A), "spender"],
-              ["Uint256", 1, "token_id"],
-            ],
+            getParams: () => ({
+              spender: ["ByStr20", getTestAddr(STRANGER_A)],
+              token_id: ["Uint256", 1],
+            }),
           },
         ],
       },
@@ -237,27 +237,25 @@ describe("Approval", () => {
         events: [
           {
             name: "SetSpender",
-            getParams: () => [
-              [
+            getParams: () => ({
+              spender: [
                 "ByStr20",
                 "0x0000000000000000000000000000000000000000",
-                "spender",
               ],
-              ["Uint256", 1, "token_id"],
-            ],
+              token_id: ["Uint256", 1],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_SetSpenderCallback",
-            getParams: () => [
-              [
+            getParams: () => ({
+              spender: [
                 "ByStr20",
                 "0x0000000000000000000000000000000000000000",
-                "spender",
               ],
-              ["Uint256", 1, "token_id"],
-            ],
+              token_id: ["Uint256", 1],
+            }),
           },
         ],
       },
@@ -309,13 +307,17 @@ describe("Approval", () => {
         events: [
           {
             name: "AddOperator",
-            getParams: () => [["ByStr20", getTestAddr(STRANGER_A), "operator"]],
+            getParams: () => ({
+              operator: ["ByStr20", getTestAddr(STRANGER_A)],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_AddOperatorCallback",
-            getParams: () => [["ByStr20", getTestAddr(STRANGER_A), "operator"]],
+            getParams: () => ({
+              operator: ["ByStr20", getTestAddr(STRANGER_A)],
+            }),
           },
         ],
       },
@@ -359,13 +361,17 @@ describe("Approval", () => {
         events: [
           {
             name: "RemoveOperator",
-            getParams: () => [["ByStr20", getTestAddr(OPERATOR), "operator"]],
+            getParams: () => ({
+              operator: ["ByStr20", getTestAddr(OPERATOR)],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_RemoveOperatorCallback",
-            getParams: () => [["ByStr20", getTestAddr(OPERATOR), "operator"]],
+            getParams: () => ({
+              operator: ["ByStr20", getTestAddr(OPERATOR)],
+            }),
           },
         ],
       },
@@ -433,29 +439,29 @@ describe("Approval", () => {
         events: [
           {
             name: "TransferFrom",
-            getParams: () => [
-              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
-              ["ByStr20", getTestAddr(STRANGER_A), "to"],
-              ["Uint256", 1, "token_id"],
-            ],
+            getParams: () => ({
+              from: ["ByStr20", getTestAddr(TOKEN_OWNER_A)],
+              to: ["ByStr20", getTestAddr(STRANGER_A)],
+              token_id: ["Uint256", 1],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_RecipientAcceptTransferFrom",
-            getParams: () => [
-              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
-              ["ByStr20", getTestAddr(STRANGER_A), "to"],
-              ["Uint256", 1, "token_id"],
-            ],
+            getParams: () => ({
+              from: ["ByStr20", getTestAddr(TOKEN_OWNER_A)],
+              to: ["ByStr20", getTestAddr(STRANGER_A)],
+              token_id: ["Uint256", 1],
+            }),
           },
           {
             tag: "ZRC6_TransferFromCallback",
-            getParams: () => [
-              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
-              ["ByStr20", getTestAddr(STRANGER_A), "to"],
-              ["Uint256", 1, "token_id"],
-            ],
+            getParams: () => ({
+              from: ["ByStr20", getTestAddr(TOKEN_OWNER_A)],
+              to: ["ByStr20", getTestAddr(STRANGER_A)],
+              token_id: ["Uint256", 1],
+            }),
           },
         ],
       },
@@ -479,29 +485,29 @@ describe("Approval", () => {
         events: [
           {
             name: "TransferFrom",
-            getParams: () => [
-              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
-              ["ByStr20", getTestAddr(STRANGER_A), "to"],
-              ["Uint256", 1, "token_id"],
-            ],
+            getParams: () => ({
+              from: ["ByStr20", getTestAddr(TOKEN_OWNER_A)],
+              to: ["ByStr20", getTestAddr(STRANGER_A)],
+              token_id: ["Uint256", 1],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_RecipientAcceptTransferFrom",
-            getParams: () => [
-              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
-              ["ByStr20", getTestAddr(STRANGER_A), "to"],
-              ["Uint256", 1, "token_id"],
-            ],
+            getParams: () => ({
+              from: ["ByStr20", getTestAddr(TOKEN_OWNER_A)],
+              to: ["ByStr20", getTestAddr(STRANGER_A)],
+              token_id: ["Uint256", 1],
+            }),
           },
           {
             tag: "ZRC6_TransferFromCallback",
-            getParams: () => [
-              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
-              ["ByStr20", getTestAddr(STRANGER_A), "to"],
-              ["Uint256", 1, "token_id"],
-            ],
+            getParams: () => ({
+              from: ["ByStr20", getTestAddr(TOKEN_OWNER_A)],
+              to: ["ByStr20", getTestAddr(STRANGER_A)],
+              token_id: ["Uint256", 1],
+            }),
           },
         ],
       },
@@ -525,29 +531,29 @@ describe("Approval", () => {
         events: [
           {
             name: "TransferFrom",
-            getParams: () => [
-              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
-              ["ByStr20", getTestAddr(STRANGER_A), "to"],
-              ["Uint256", 1, "token_id"],
-            ],
+            getParams: () => ({
+              from: ["ByStr20", getTestAddr(TOKEN_OWNER_A)],
+              to: ["ByStr20", getTestAddr(STRANGER_A)],
+              token_id: ["Uint256", 1],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_RecipientAcceptTransferFrom",
-            getParams: () => [
-              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
-              ["ByStr20", getTestAddr(STRANGER_A), "to"],
-              ["Uint256", 1, "token_id"],
-            ],
+            getParams: () => ({
+              from: ["ByStr20", getTestAddr(TOKEN_OWNER_A)],
+              to: ["ByStr20", getTestAddr(STRANGER_A)],
+              token_id: ["Uint256", 1],
+            }),
           },
           {
             tag: "ZRC6_TransferFromCallback",
-            getParams: () => [
-              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
-              ["ByStr20", getTestAddr(STRANGER_A), "to"],
-              ["Uint256", 1, "token_id"],
-            ],
+            getParams: () => ({
+              from: ["ByStr20", getTestAddr(TOKEN_OWNER_A)],
+              to: ["ByStr20", getTestAddr(STRANGER_A)],
+              token_id: ["Uint256", 1],
+            }),
           },
         ],
       },
@@ -571,29 +577,29 @@ describe("Approval", () => {
         events: [
           {
             name: "TransferFrom",
-            getParams: () => [
-              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
-              ["ByStr20", getTestAddr(SPENDER), "to"],
-              ["Uint256", 1, "token_id"],
-            ],
+            getParams: () => ({
+              from: ["ByStr20", getTestAddr(TOKEN_OWNER_A)],
+              to: ["ByStr20", getTestAddr(SPENDER)],
+              token_id: ["Uint256", 1],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_RecipientAcceptTransferFrom",
-            getParams: () => [
-              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
-              ["ByStr20", getTestAddr(SPENDER), "to"],
-              ["Uint256", 1, "token_id"],
-            ],
+            getParams: () => ({
+              from: ["ByStr20", getTestAddr(TOKEN_OWNER_A)],
+              to: ["ByStr20", getTestAddr(SPENDER)],
+              token_id: ["Uint256", 1],
+            }),
           },
           {
             tag: "ZRC6_TransferFromCallback",
-            getParams: () => [
-              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
-              ["ByStr20", getTestAddr(SPENDER), "to"],
-              ["Uint256", 1, "token_id"],
-            ],
+            getParams: () => ({
+              from: ["ByStr20", getTestAddr(TOKEN_OWNER_A)],
+              to: ["ByStr20", getTestAddr(SPENDER)],
+              token_id: ["Uint256", 1],
+            }),
           },
         ],
       },
@@ -617,29 +623,29 @@ describe("Approval", () => {
         events: [
           {
             name: "TransferFrom",
-            getParams: () => [
-              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
-              ["ByStr20", getTestAddr(OPERATOR), "to"],
-              ["Uint256", 1, "token_id"],
-            ],
+            getParams: () => ({
+              from: ["ByStr20", getTestAddr(TOKEN_OWNER_A)],
+              to: ["ByStr20", getTestAddr(OPERATOR)],
+              token_id: ["Uint256", 1],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_RecipientAcceptTransferFrom",
-            getParams: () => [
-              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
-              ["ByStr20", getTestAddr(OPERATOR), "to"],
-              ["Uint256", 1, "token_id"],
-            ],
+            getParams: () => ({
+              from: ["ByStr20", getTestAddr(TOKEN_OWNER_A)],
+              to: ["ByStr20", getTestAddr(OPERATOR)],
+              token_id: ["Uint256", 1],
+            }),
           },
           {
             tag: "ZRC6_TransferFromCallback",
-            getParams: () => [
-              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
-              ["ByStr20", getTestAddr(OPERATOR), "to"],
-              ["Uint256", 1, "token_id"],
-            ],
+            getParams: () => ({
+              from: ["ByStr20", getTestAddr(TOKEN_OWNER_A)],
+              to: ["ByStr20", getTestAddr(OPERATOR)],
+              token_id: ["Uint256", 1],
+            }),
           },
         ],
       },
@@ -697,23 +703,22 @@ describe("Approval", () => {
         events: [
           {
             name: "BatchTransferFrom",
-            getParams: () => [
-              [
+            getParams: () => ({
+              to_token_id_pair_list: [
                 "List (Pair (ByStr20) (Uint256))",
                 [
                   [getTestAddr(TOKEN_OWNER_A), 2],
                   [getTestAddr(STRANGER_A), 3],
                   [getTestAddr(STRANGER_A), 4],
                 ],
-                "to_token_id_pair_list",
               ],
-            ],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_BatchTransferFromCallback",
-            getParams: () => [],
+            getParams: () => ({}),
           },
         ],
       },

@@ -119,7 +119,7 @@ describe("Contract Contraint", () => {
   const testCases = [
     {
       name: "invalid initial contract owner: zero address",
-      getInitParams: () => [
+      getParams: () => [
         "0x0000000000000000000000000000000000000000",
         BASE_URI,
         TOKEN_NAME,
@@ -129,7 +129,7 @@ describe("Contract Contraint", () => {
     },
     {
       name: "valid initial base URI: empty string",
-      getInitParams: () => [
+      getParams: () => [
         getTestAddr(CONTRACT_OWNER),
         "",
         TOKEN_NAME,
@@ -139,7 +139,7 @@ describe("Contract Contraint", () => {
     },
     {
       name: "invalid name: empty string",
-      getInitParams: () => [
+      getParams: () => [
         getTestAddr(CONTRACT_OWNER),
         BASE_URI,
         "",
@@ -149,12 +149,7 @@ describe("Contract Contraint", () => {
     },
     {
       name: "invalid symbol: empty string",
-      getInitParams: () => [
-        getTestAddr(CONTRACT_OWNER),
-        BASE_URI,
-        TOKEN_NAME,
-        "",
-      ],
+      getParams: () => [getTestAddr(CONTRACT_OWNER), BASE_URI, TOKEN_NAME, ""],
       want: false,
     },
   ];
@@ -162,9 +157,7 @@ describe("Contract Contraint", () => {
   for (const testCase of testCases) {
     it(`${testCase.name}`, async () => {
       zilliqa.wallet.setDefault(getTestAddr(CONTRACT_OWNER));
-      const init = globalContractInfo.getInitParams(
-        ...testCase.getInitParams()
-      );
+      const init = globalContractInfo.getInitParams(...testCase.getParams());
       const [tx] = await zilliqa.contracts
         .new(CODE, init)
         .deploy(TX_PARAMS, 33, 1000, true);
@@ -226,13 +219,17 @@ describe("Contract", () => {
         events: [
           {
             name: "SetRoyaltyRecipient",
-            getParams: () => [["ByStr20", getTestAddr(STRANGER), "to"]],
+            getParams: () => ({
+              to: ["ByStr20", getTestAddr(STRANGER)],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_SetRoyaltyRecipientCallback",
-            getParams: () => [["ByStr20", getTestAddr(STRANGER), "to"]],
+            getParams: () => ({
+              to: ["ByStr20", getTestAddr(STRANGER)],
+            }),
           },
         ],
       },
@@ -280,13 +277,17 @@ describe("Contract", () => {
         events: [
           {
             name: "SetRoyaltyFeeBPS",
-            getParams: () => [["Uint128", 10000, "royalty_fee_bps"]],
+            getParams: () => ({
+              royalty_fee_bps: ["Uint128", 10000],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_SetRoyaltyFeeBPSCallback",
-            getParams: () => [["Uint128", 10000, "royalty_fee_bps"]],
+            getParams: () => ({
+              royalty_fee_bps: ["Uint128", 10000],
+            }),
           },
         ],
       },
@@ -304,13 +305,17 @@ describe("Contract", () => {
         events: [
           {
             name: "SetRoyaltyFeeBPS",
-            getParams: () => [["Uint128", 1, "royalty_fee_bps"]],
+            getParams: () => ({
+              royalty_fee_bps: ["Uint128", 1],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_SetRoyaltyFeeBPSCallback",
-            getParams: () => [["Uint128", 1, "royalty_fee_bps"]],
+            getParams: () => ({
+              royalty_fee_bps: ["Uint128", 1],
+            }),
           },
         ],
       },
@@ -339,17 +344,17 @@ describe("Contract", () => {
         events: [
           {
             name: "SetBaseURI",
-            getParams: () => [
-              ["String", "https://gateway.zilliqa.com/ipfs/hash/1", "base_uri"],
-            ],
+            getParams: () => ({
+              base_uri: ["String", "https://gateway.zilliqa.com/ipfs/hash/1"],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_SetBaseURICallback",
-            getParams: () => [
-              ["String", "https://gateway.zilliqa.com/ipfs/hash/1", "base_uri"],
-            ],
+            getParams: () => ({
+              base_uri: ["String", "https://gateway.zilliqa.com/ipfs/hash/1"],
+            }),
           },
         ],
       },
@@ -379,13 +384,17 @@ describe("Contract", () => {
         events: [
           {
             name: "SetContractOwnershipRecipient",
-            getParams: () => [["ByStr20", getTestAddr(STRANGER), "to"]],
+            getParams: () => ({
+              to: ["ByStr20", getTestAddr(STRANGER)],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_SetContractOwnershipRecipientCallback",
-            getParams: () => [["ByStr20", getTestAddr(STRANGER), "to"]],
+            getParams: () => ({
+              to: ["ByStr20", getTestAddr(STRANGER)],
+            }),
           },
         ],
       },
@@ -494,25 +503,23 @@ describe("Accept Contract Ownership", () => {
         events: [
           {
             name: "AcceptContractOwnership",
-            getParams: () => [
-              [
+            getParams: () => ({
+              contract_owner: [
                 "ByStr20",
                 getTestAddr(CONTRACT_OWNERSHIP_RECIPIENT),
-                "contract_owner",
               ],
-            ],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_AcceptContractOwnershipCallback",
-            getParams: () => [
-              [
+            getParams: () => ({
+              contract_owner: [
                 "ByStr20",
                 getTestAddr(CONTRACT_OWNERSHIP_RECIPIENT),
-                "contract_owner",
               ],
-            ],
+            }),
           },
         ],
       },
@@ -620,13 +627,17 @@ describe("Unpaused", () => {
         events: [
           {
             name: "Pause",
-            getParams: () => [["Bool", true, "is_paused"]],
+            getParams: () => ({
+              is_paused: ["Bool", true],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_PauseCallback",
-            getParams: () => [["Bool", true, "is_paused"]],
+            getParams: () => ({
+              is_paused: ["Bool", true],
+            }),
           },
         ],
       },
@@ -718,13 +729,17 @@ describe("Paused", () => {
         events: [
           {
             name: "Unpause",
-            getParams: () => [["Bool", false, "is_paused"]],
+            getParams: () => ({
+              is_paused: ["Bool", false],
+            }),
           },
         ],
         transitions: [
           {
             tag: "ZRC6_UnpauseCallback",
-            getParams: () => [["Bool", false, "is_paused"]],
+            getParams: () => ({
+              is_paused: ["Bool", false],
+            }),
           },
         ],
       },
