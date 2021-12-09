@@ -4,11 +4,11 @@ import { getAddressFromPrivateKey, schnorr } from "@zilliqa-js/crypto";
 
 import {
   getErrorMsg,
-  getJSONParam,
   useContractInfo,
   verifyTransitions,
   verifyEvents,
   getJSONValue,
+  getContractInfo,
 } from "./testutil";
 
 import {
@@ -17,7 +17,6 @@ import {
   TX_PARAMS,
   CODE,
   CODE_PATH,
-  GAS_LIMIT,
   ZRC6_ERROR,
   TOKEN_NAME,
   TOKEN_SYMBOL,
@@ -78,7 +77,9 @@ beforeAll(async () => {
     STRANGER: getTestAddr(STRANGER),
   });
 
-  globalContractInfo = await useContractInfo(CONTAINER, CODE_PATH, GAS_LIMIT);
+  globalContractInfo = await useContractInfo(
+    await getContractInfo(CODE_PATH, { container: CONTAINER })
+  );
 });
 
 beforeEach(async () => {
@@ -157,17 +158,13 @@ describe("Minter", () => {
         events: [
           {
             name: "AddMinter",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(STRANGER), "minter"),
-            ],
+            getParams: () => [["ByStr20", getTestAddr(STRANGER), "minter"]],
           },
         ],
         transitions: [
           {
             tag: "ZRC6_AddMinterCallback",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(STRANGER), "minter"),
-            ],
+            getParams: () => [["ByStr20", getTestAddr(STRANGER), "minter"]],
           },
         ],
       },
@@ -206,17 +203,13 @@ describe("Minter", () => {
         events: [
           {
             name: "RemoveMinter",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(MINTER), "minter"),
-            ],
+            getParams: () => [["ByStr20", getTestAddr(MINTER), "minter"]],
           },
         ],
         transitions: [
           {
             tag: "ZRC6_RemoveMinterCallback",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(MINTER), "minter"),
-            ],
+            getParams: () => [["ByStr20", getTestAddr(MINTER), "minter"]],
           },
         ],
       },
@@ -313,13 +306,9 @@ describe("Mint & Burn", () => {
           {
             name: "Mint",
             getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(STRANGER), "to"),
-              getJSONParam(
-                "Uint256",
-                (INITIAL_TOTAL_SUPPLY + 1).toString(),
-                "token_id"
-              ),
-              getJSONParam("String", "", "token_uri"),
+              ["ByStr20", getTestAddr(STRANGER), "to"],
+              ["Uint256", (INITIAL_TOTAL_SUPPLY + 1).toString(), "token_id"],
+              ["String", "", "token_uri"],
             ],
           },
         ],
@@ -331,13 +320,9 @@ describe("Mint & Burn", () => {
           {
             tag: "ZRC6_MintCallback",
             getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(STRANGER), "to"),
-              getJSONParam(
-                "Uint256",
-                (INITIAL_TOTAL_SUPPLY + 1).toString(),
-                "token_id"
-              ),
-              getJSONParam("String", "", "token_uri"),
+              ["ByStr20", getTestAddr(STRANGER), "to"],
+              ["Uint256", (INITIAL_TOTAL_SUPPLY + 1).toString(), "token_id"],
+              ["String", "", "token_uri"],
             ],
           },
         ],
@@ -364,13 +349,9 @@ describe("Mint & Burn", () => {
           {
             name: "Mint",
             getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(MINTER), "to"),
-              getJSONParam(
-                "Uint256",
-                (INITIAL_TOTAL_SUPPLY + 1).toString(),
-                "token_id"
-              ),
-              getJSONParam("String", "", "token_uri"),
+              ["ByStr20", getTestAddr(MINTER), "to"],
+              ["Uint256", (INITIAL_TOTAL_SUPPLY + 1).toString(), "token_id"],
+              ["String", "", "token_uri"],
             ],
           },
         ],
@@ -382,13 +363,9 @@ describe("Mint & Burn", () => {
           {
             tag: "ZRC6_MintCallback",
             getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(MINTER), "to"),
-              getJSONParam(
-                "Uint256",
-                (INITIAL_TOTAL_SUPPLY + 1).toString(),
-                "token_id"
-              ),
-              getJSONParam("String", "", "token_uri"),
+              ["ByStr20", getTestAddr(MINTER), "to"],
+              ["Uint256", (INITIAL_TOTAL_SUPPLY + 1).toString(), "token_id"],
+              ["String", "", "token_uri"],
             ],
           },
         ],
@@ -424,17 +401,13 @@ describe("Mint & Burn", () => {
           {
             name: "Mint",
             getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(MINTER), "to"),
-              getJSONParam(
-                "Uint256",
-                (INITIAL_TOTAL_SUPPLY + 1).toString(),
-                "token_id"
-              ),
-              getJSONParam(
+              ["ByStr20", getTestAddr(MINTER), "to"],
+              ["Uint256", (INITIAL_TOTAL_SUPPLY + 1).toString(), "token_id"],
+              [
                 "String",
                 "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL4",
-                "token_uri"
-              ),
+                "token_uri",
+              ],
             ],
           },
         ],
@@ -446,17 +419,13 @@ describe("Mint & Burn", () => {
           {
             tag: "ZRC6_MintCallback",
             getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(MINTER), "to"),
-              getJSONParam(
-                "Uint256",
-                (INITIAL_TOTAL_SUPPLY + 1).toString(),
-                "token_id"
-              ),
-              getJSONParam(
+              ["ByStr20", getTestAddr(MINTER), "to"],
+              ["Uint256", (INITIAL_TOTAL_SUPPLY + 1).toString(), "token_id"],
+              [
                 "String",
                 "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL4",
-                "token_uri"
-              ),
+                "token_uri",
+              ],
             ],
           },
         ],
@@ -480,7 +449,7 @@ describe("Mint & Burn", () => {
             getTestAddr(STRANGER),
             "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL6",
           ],
-        ].map((cur) => getJSONValue(cur, "Pair ByStr20 String")),
+        ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (String)")),
       }),
       error: undefined,
       want: {
@@ -519,7 +488,7 @@ describe("Mint & Burn", () => {
           {
             name: "BatchMint",
             getParams: () => [
-              getJSONParam(
+              [
                 "List (Pair (ByStr20) (String))",
                 [
                   [
@@ -534,11 +503,11 @@ describe("Mint & Burn", () => {
                     getTestAddr(STRANGER),
                     "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL6",
                   ],
-                ].map((cur) => getJSONValue(cur, "Pair ByStr20 String")),
-                "to_token_uri_pair_list"
-              ),
-              getJSONParam("Uint256", "4", "start_id"),
-              getJSONParam("Uint256", "6", "end_id"),
+                ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (String)")),
+                "to_token_uri_pair_list",
+              ],
+              ["Uint256", "4", "start_id"],
+              ["Uint256", "6", "end_id"],
             ],
           },
         ],
@@ -585,12 +554,8 @@ describe("Mint & Burn", () => {
           {
             name: "Burn",
             getParams: () => [
-              getJSONParam(
-                "ByStr20",
-                getTestAddr(CONTRACT_OWNER),
-                "token_owner"
-              ),
-              getJSONParam("Uint256", 1, "token_id"),
+              ["ByStr20", getTestAddr(CONTRACT_OWNER), "token_owner"],
+              ["Uint256", 1, "token_id"],
             ],
           },
         ],
@@ -598,12 +563,8 @@ describe("Mint & Burn", () => {
           {
             tag: "ZRC6_BurnCallback",
             getParams: () => [
-              getJSONParam(
-                "ByStr20",
-                getTestAddr(CONTRACT_OWNER),
-                "token_owner"
-              ),
-              getJSONParam("Uint256", 1, "token_id"),
+              ["ByStr20", getTestAddr(CONTRACT_OWNER), "token_owner"],
+              ["Uint256", 1, "token_id"],
             ],
           },
         ],
@@ -628,9 +589,7 @@ describe("Mint & Burn", () => {
         events: [
           {
             name: "BatchBurn",
-            getParams: () => [
-              getJSONParam("List (Uint256)", [1, 2, 3], "token_id_list"),
-            ],
+            getParams: () => [["List (Uint256)", [1, 2, 3], "token_id_list"]],
           },
         ],
         transitions: [

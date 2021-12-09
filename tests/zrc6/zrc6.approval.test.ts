@@ -4,11 +4,11 @@ import { getAddressFromPrivateKey, schnorr } from "@zilliqa-js/crypto";
 
 import {
   getErrorMsg,
-  getJSONParam,
   useContractInfo,
   verifyTransitions,
   verifyEvents,
   getJSONValue,
+  getContractInfo,
 } from "./testutil";
 
 import {
@@ -17,7 +17,6 @@ import {
   TX_PARAMS,
   CODE,
   CODE_PATH,
-  GAS_LIMIT,
   ZRC6_ERROR,
   TOKEN_NAME,
   TOKEN_SYMBOL,
@@ -83,7 +82,9 @@ beforeAll(async () => {
     STRANGER_B: getTestAddr(STRANGER_B),
   });
 
-  globalContractInfo = await useContractInfo(CONTAINER, CODE_PATH, GAS_LIMIT);
+  globalContractInfo = await useContractInfo(
+    await getContractInfo(CODE_PATH, { container: CONTAINER })
+  );
 });
 
 beforeEach(async () => {
@@ -202,8 +203,8 @@ describe("Approval", () => {
           {
             name: "SetSpender",
             getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(STRANGER_A), "spender"),
-              getJSONParam("Uint256", 1, "token_id"),
+              ["ByStr20", getTestAddr(STRANGER_A), "spender"],
+              ["Uint256", 1, "token_id"],
             ],
           },
         ],
@@ -211,8 +212,8 @@ describe("Approval", () => {
           {
             tag: "ZRC6_SetSpenderCallback",
             getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(STRANGER_A), "spender"),
-              getJSONParam("Uint256", 1, "token_id"),
+              ["ByStr20", getTestAddr(STRANGER_A), "spender"],
+              ["Uint256", 1, "token_id"],
             ],
           },
         ],
@@ -237,12 +238,12 @@ describe("Approval", () => {
           {
             name: "SetSpender",
             getParams: () => [
-              getJSONParam(
+              [
                 "ByStr20",
                 "0x0000000000000000000000000000000000000000",
-                "spender"
-              ),
-              getJSONParam("Uint256", 1, "token_id"),
+                "spender",
+              ],
+              ["Uint256", 1, "token_id"],
             ],
           },
         ],
@@ -250,12 +251,12 @@ describe("Approval", () => {
           {
             tag: "ZRC6_SetSpenderCallback",
             getParams: () => [
-              getJSONParam(
+              [
                 "ByStr20",
                 "0x0000000000000000000000000000000000000000",
-                "spender"
-              ),
-              getJSONParam("Uint256", 1, "token_id"),
+                "spender",
+              ],
+              ["Uint256", 1, "token_id"],
             ],
           },
         ],
@@ -308,17 +309,13 @@ describe("Approval", () => {
         events: [
           {
             name: "AddOperator",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(STRANGER_A), "operator"),
-            ],
+            getParams: () => [["ByStr20", getTestAddr(STRANGER_A), "operator"]],
           },
         ],
         transitions: [
           {
             tag: "ZRC6_AddOperatorCallback",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(STRANGER_A), "operator"),
-            ],
+            getParams: () => [["ByStr20", getTestAddr(STRANGER_A), "operator"]],
           },
         ],
       },
@@ -362,17 +359,13 @@ describe("Approval", () => {
         events: [
           {
             name: "RemoveOperator",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(OPERATOR), "operator"),
-            ],
+            getParams: () => [["ByStr20", getTestAddr(OPERATOR), "operator"]],
           },
         ],
         transitions: [
           {
             tag: "ZRC6_RemoveOperatorCallback",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(OPERATOR), "operator"),
-            ],
+            getParams: () => [["ByStr20", getTestAddr(OPERATOR), "operator"]],
           },
         ],
       },
@@ -441,9 +434,9 @@ describe("Approval", () => {
           {
             name: "TransferFrom",
             getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(TOKEN_OWNER_A), "from"),
-              getJSONParam("ByStr20", getTestAddr(STRANGER_A), "to"),
-              getJSONParam("Uint256", 1, "token_id"),
+              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
+              ["ByStr20", getTestAddr(STRANGER_A), "to"],
+              ["Uint256", 1, "token_id"],
             ],
           },
         ],
@@ -451,17 +444,17 @@ describe("Approval", () => {
           {
             tag: "ZRC6_RecipientAcceptTransferFrom",
             getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(TOKEN_OWNER_A), "from"),
-              getJSONParam("ByStr20", getTestAddr(STRANGER_A), "to"),
-              getJSONParam("Uint256", 1, "token_id"),
+              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
+              ["ByStr20", getTestAddr(STRANGER_A), "to"],
+              ["Uint256", 1, "token_id"],
             ],
           },
           {
             tag: "ZRC6_TransferFromCallback",
             getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(TOKEN_OWNER_A), "from"),
-              getJSONParam("ByStr20", getTestAddr(STRANGER_A), "to"),
-              getJSONParam("Uint256", 1, "token_id"),
+              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
+              ["ByStr20", getTestAddr(STRANGER_A), "to"],
+              ["Uint256", 1, "token_id"],
             ],
           },
         ],
@@ -487,9 +480,9 @@ describe("Approval", () => {
           {
             name: "TransferFrom",
             getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(TOKEN_OWNER_A), "from"),
-              getJSONParam("ByStr20", getTestAddr(STRANGER_A), "to"),
-              getJSONParam("Uint256", 1, "token_id"),
+              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
+              ["ByStr20", getTestAddr(STRANGER_A), "to"],
+              ["Uint256", 1, "token_id"],
             ],
           },
         ],
@@ -497,17 +490,17 @@ describe("Approval", () => {
           {
             tag: "ZRC6_RecipientAcceptTransferFrom",
             getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(TOKEN_OWNER_A), "from"),
-              getJSONParam("ByStr20", getTestAddr(STRANGER_A), "to"),
-              getJSONParam("Uint256", 1, "token_id"),
+              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
+              ["ByStr20", getTestAddr(STRANGER_A), "to"],
+              ["Uint256", 1, "token_id"],
             ],
           },
           {
             tag: "ZRC6_TransferFromCallback",
             getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(TOKEN_OWNER_A), "from"),
-              getJSONParam("ByStr20", getTestAddr(STRANGER_A), "to"),
-              getJSONParam("Uint256", 1, "token_id"),
+              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
+              ["ByStr20", getTestAddr(STRANGER_A), "to"],
+              ["Uint256", 1, "token_id"],
             ],
           },
         ],
@@ -533,9 +526,9 @@ describe("Approval", () => {
           {
             name: "TransferFrom",
             getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(TOKEN_OWNER_A), "from"),
-              getJSONParam("ByStr20", getTestAddr(STRANGER_A), "to"),
-              getJSONParam("Uint256", 1, "token_id"),
+              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
+              ["ByStr20", getTestAddr(STRANGER_A), "to"],
+              ["Uint256", 1, "token_id"],
             ],
           },
         ],
@@ -543,17 +536,17 @@ describe("Approval", () => {
           {
             tag: "ZRC6_RecipientAcceptTransferFrom",
             getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(TOKEN_OWNER_A), "from"),
-              getJSONParam("ByStr20", getTestAddr(STRANGER_A), "to"),
-              getJSONParam("Uint256", 1, "token_id"),
+              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
+              ["ByStr20", getTestAddr(STRANGER_A), "to"],
+              ["Uint256", 1, "token_id"],
             ],
           },
           {
             tag: "ZRC6_TransferFromCallback",
             getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(TOKEN_OWNER_A), "from"),
-              getJSONParam("ByStr20", getTestAddr(STRANGER_A), "to"),
-              getJSONParam("Uint256", 1, "token_id"),
+              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
+              ["ByStr20", getTestAddr(STRANGER_A), "to"],
+              ["Uint256", 1, "token_id"],
             ],
           },
         ],
@@ -579,9 +572,9 @@ describe("Approval", () => {
           {
             name: "TransferFrom",
             getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(TOKEN_OWNER_A), "from"),
-              getJSONParam("ByStr20", getTestAddr(SPENDER), "to"),
-              getJSONParam("Uint256", 1, "token_id"),
+              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
+              ["ByStr20", getTestAddr(SPENDER), "to"],
+              ["Uint256", 1, "token_id"],
             ],
           },
         ],
@@ -589,17 +582,17 @@ describe("Approval", () => {
           {
             tag: "ZRC6_RecipientAcceptTransferFrom",
             getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(TOKEN_OWNER_A), "from"),
-              getJSONParam("ByStr20", getTestAddr(SPENDER), "to"),
-              getJSONParam("Uint256", 1, "token_id"),
+              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
+              ["ByStr20", getTestAddr(SPENDER), "to"],
+              ["Uint256", 1, "token_id"],
             ],
           },
           {
             tag: "ZRC6_TransferFromCallback",
             getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(TOKEN_OWNER_A), "from"),
-              getJSONParam("ByStr20", getTestAddr(SPENDER), "to"),
-              getJSONParam("Uint256", 1, "token_id"),
+              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
+              ["ByStr20", getTestAddr(SPENDER), "to"],
+              ["Uint256", 1, "token_id"],
             ],
           },
         ],
@@ -625,9 +618,9 @@ describe("Approval", () => {
           {
             name: "TransferFrom",
             getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(TOKEN_OWNER_A), "from"),
-              getJSONParam("ByStr20", getTestAddr(OPERATOR), "to"),
-              getJSONParam("Uint256", 1, "token_id"),
+              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
+              ["ByStr20", getTestAddr(OPERATOR), "to"],
+              ["Uint256", 1, "token_id"],
             ],
           },
         ],
@@ -635,17 +628,17 @@ describe("Approval", () => {
           {
             tag: "ZRC6_RecipientAcceptTransferFrom",
             getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(TOKEN_OWNER_A), "from"),
-              getJSONParam("ByStr20", getTestAddr(OPERATOR), "to"),
-              getJSONParam("Uint256", 1, "token_id"),
+              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
+              ["ByStr20", getTestAddr(OPERATOR), "to"],
+              ["Uint256", 1, "token_id"],
             ],
           },
           {
             tag: "ZRC6_TransferFromCallback",
             getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(TOKEN_OWNER_A), "from"),
-              getJSONParam("ByStr20", getTestAddr(OPERATOR), "to"),
-              getJSONParam("Uint256", 1, "token_id"),
+              ["ByStr20", getTestAddr(TOKEN_OWNER_A), "from"],
+              ["ByStr20", getTestAddr(OPERATOR), "to"],
+              ["Uint256", 1, "token_id"],
             ],
           },
         ],
@@ -660,7 +653,7 @@ describe("Approval", () => {
           [getTestAddr(TOKEN_OWNER_A), 2],
           [getTestAddr(TOKEN_OWNER_B), 3],
           [getTestAddr(STRANGER_A), 4],
-        ].map((cur) => getJSONValue(cur, "Pair ByStr20 Uint256")),
+        ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (Uint256)")),
       }),
       error: ZRC6_ERROR.SelfError,
       want: undefined,
@@ -674,7 +667,7 @@ describe("Approval", () => {
           [getTestAddr(TOKEN_OWNER_A), 2],
           [getTestAddr(STRANGER_A), 3],
           [getTestAddr(STRANGER_A), 4],
-        ].map((cur) => getJSONValue(cur, "Pair ByStr20 Uint256")),
+        ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (Uint256)")),
       }),
       error: undefined,
       want: {
@@ -705,15 +698,15 @@ describe("Approval", () => {
           {
             name: "BatchTransferFrom",
             getParams: () => [
-              getJSONParam(
+              [
                 "List (Pair (ByStr20) (Uint256))",
                 [
                   [getTestAddr(TOKEN_OWNER_A), 2],
                   [getTestAddr(STRANGER_A), 3],
                   [getTestAddr(STRANGER_A), 4],
                 ],
-                "to_token_id_pair_list"
-              ),
+                "to_token_id_pair_list",
+              ],
             ],
           },
         ],

@@ -4,11 +4,11 @@ import { getAddressFromPrivateKey, schnorr } from "@zilliqa-js/crypto";
 
 import {
   getErrorMsg,
-  getJSONParam,
   useContractInfo,
   verifyTransitions,
   verifyEvents,
   getJSONValue,
+  getContractInfo,
 } from "./testutil";
 
 import {
@@ -17,7 +17,6 @@ import {
   TX_PARAMS,
   CODE,
   CODE_PATH,
-  GAS_LIMIT,
   ZRC6_ERROR,
   TOKEN_NAME,
   TOKEN_SYMBOL,
@@ -79,7 +78,9 @@ beforeAll(async () => {
     STRANGER: getTestAddr(STRANGER),
   });
 
-  globalContractInfo = await useContractInfo(CONTAINER, CODE_PATH, GAS_LIMIT);
+  globalContractInfo = await useContractInfo(
+    await getContractInfo(CODE_PATH, { container: CONTAINER })
+  );
 });
 
 beforeEach(async () => {
@@ -225,17 +226,13 @@ describe("Contract", () => {
         events: [
           {
             name: "SetRoyaltyRecipient",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(STRANGER), "to"),
-            ],
+            getParams: () => [["ByStr20", getTestAddr(STRANGER), "to"]],
           },
         ],
         transitions: [
           {
             tag: "ZRC6_SetRoyaltyRecipientCallback",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(STRANGER), "to"),
-            ],
+            getParams: () => [["ByStr20", getTestAddr(STRANGER), "to"]],
           },
         ],
       },
@@ -283,17 +280,13 @@ describe("Contract", () => {
         events: [
           {
             name: "SetRoyaltyFeeBPS",
-            getParams: () => [
-              getJSONParam("Uint128", 10000, "royalty_fee_bps"),
-            ],
+            getParams: () => [["Uint128", 10000, "royalty_fee_bps"]],
           },
         ],
         transitions: [
           {
             tag: "ZRC6_SetRoyaltyFeeBPSCallback",
-            getParams: () => [
-              getJSONParam("Uint128", 10000, "royalty_fee_bps"),
-            ],
+            getParams: () => [["Uint128", 10000, "royalty_fee_bps"]],
           },
         ],
       },
@@ -311,13 +304,13 @@ describe("Contract", () => {
         events: [
           {
             name: "SetRoyaltyFeeBPS",
-            getParams: () => [getJSONParam("Uint128", 1, "royalty_fee_bps")],
+            getParams: () => [["Uint128", 1, "royalty_fee_bps"]],
           },
         ],
         transitions: [
           {
             tag: "ZRC6_SetRoyaltyFeeBPSCallback",
-            getParams: () => [getJSONParam("Uint128", 1, "royalty_fee_bps")],
+            getParams: () => [["Uint128", 1, "royalty_fee_bps"]],
           },
         ],
       },
@@ -347,11 +340,7 @@ describe("Contract", () => {
           {
             name: "SetBaseURI",
             getParams: () => [
-              getJSONParam(
-                "String",
-                "https://gateway.zilliqa.com/ipfs/hash/1",
-                "base_uri"
-              ),
+              ["String", "https://gateway.zilliqa.com/ipfs/hash/1", "base_uri"],
             ],
           },
         ],
@@ -359,11 +348,7 @@ describe("Contract", () => {
           {
             tag: "ZRC6_SetBaseURICallback",
             getParams: () => [
-              getJSONParam(
-                "String",
-                "https://gateway.zilliqa.com/ipfs/hash/1",
-                "base_uri"
-              ),
+              ["String", "https://gateway.zilliqa.com/ipfs/hash/1", "base_uri"],
             ],
           },
         ],
@@ -394,17 +379,13 @@ describe("Contract", () => {
         events: [
           {
             name: "SetContractOwnershipRecipient",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(STRANGER), "to"),
-            ],
+            getParams: () => [["ByStr20", getTestAddr(STRANGER), "to"]],
           },
         ],
         transitions: [
           {
             tag: "ZRC6_SetContractOwnershipRecipientCallback",
-            getParams: () => [
-              getJSONParam("ByStr20", getTestAddr(STRANGER), "to"),
-            ],
+            getParams: () => [["ByStr20", getTestAddr(STRANGER), "to"]],
           },
         ],
       },
@@ -514,11 +495,11 @@ describe("Accept Contract Ownership", () => {
           {
             name: "AcceptContractOwnership",
             getParams: () => [
-              getJSONParam(
+              [
                 "ByStr20",
                 getTestAddr(CONTRACT_OWNERSHIP_RECIPIENT),
-                "contract_owner"
-              ),
+                "contract_owner",
+              ],
             ],
           },
         ],
@@ -526,11 +507,11 @@ describe("Accept Contract Ownership", () => {
           {
             tag: "ZRC6_AcceptContractOwnershipCallback",
             getParams: () => [
-              getJSONParam(
+              [
                 "ByStr20",
                 getTestAddr(CONTRACT_OWNERSHIP_RECIPIENT),
-                "contract_owner"
-              ),
+                "contract_owner",
+              ],
             ],
           },
         ],
@@ -639,13 +620,13 @@ describe("Unpaused", () => {
         events: [
           {
             name: "Pause",
-            getParams: () => [getJSONParam("Bool", true, "is_paused")],
+            getParams: () => [["Bool", true, "is_paused"]],
           },
         ],
         transitions: [
           {
             tag: "ZRC6_PauseCallback",
-            getParams: () => [getJSONParam("Bool", true, "is_paused")],
+            getParams: () => [["Bool", true, "is_paused"]],
           },
         ],
       },
@@ -737,13 +718,13 @@ describe("Paused", () => {
         events: [
           {
             name: "Unpause",
-            getParams: () => [getJSONParam("Bool", false, "is_paused")],
+            getParams: () => [["Bool", false, "is_paused"]],
           },
         ],
         transitions: [
           {
             tag: "ZRC6_UnpauseCallback",
-            getParams: () => [getJSONParam("Bool", false, "is_paused")],
+            getParams: () => [["Bool", false, "is_paused"]],
           },
         ],
       },
