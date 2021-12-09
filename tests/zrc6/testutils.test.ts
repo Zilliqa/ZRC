@@ -1,4 +1,4 @@
-import { extractTypes, getJSONValue } from "./testutil";
+import { extractTypes, getJSONParams, getJSONValue } from "./testutil";
 
 describe("extractTypes", () => {
   const testCases = [
@@ -149,6 +149,41 @@ describe("getJSONValue", () => {
     const { value, type, want } = testCase;
     it(type, () => {
       const res = getJSONValue(value, type);
+      expect(JSON.stringify(res)).toBe(JSON.stringify(want));
+    });
+  }
+});
+
+describe("getJSONParams", () => {
+  const testCases = [
+    {
+      param: {},
+      want: [],
+    },
+    {
+      param: {
+        x: ["ByStr20", "0x0000000000000000000000000000000000000000"],
+        y: ["Uint256", 1],
+      },
+      want: [
+        {
+          type: "ByStr20",
+          value: "0x0000000000000000000000000000000000000000",
+          vname: "x",
+        },
+        {
+          type: "Uint256",
+          value: "1",
+          vname: "y",
+        },
+      ],
+    },
+  ];
+
+  for (const testCase of testCases) {
+    const { param, want } = testCase;
+    it(JSON.stringify(param), () => {
+      const res = getJSONParams(param);
       expect(JSON.stringify(res)).toBe(JSON.stringify(want));
     });
   }

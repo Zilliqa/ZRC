@@ -4,19 +4,16 @@ import { getAddressFromPrivateKey, schnorr } from "@zilliqa-js/crypto";
 
 import {
   getErrorMsg,
-  useContractInfo,
   verifyTransitions,
   verifyEvents,
   getJSONValue,
-  getContractInfo,
+  getJSONParams,
 } from "./testutil";
 
 import {
-  CONTAINER,
   API,
   TX_PARAMS,
   CODE,
-  CODE_PATH,
   ZRC6_ERROR,
   TOKEN_NAME,
   TOKEN_SYMBOL,
@@ -31,7 +28,6 @@ const GENESIS_PRIVATE_KEY = global.GENESIS_PRIVATE_KEYS[JEST_WORKER_ID - 1];
 const zilliqa = new Zilliqa(API);
 zilliqa.wallet.addByPrivateKey(GENESIS_PRIVATE_KEY);
 
-let globalContractInfo;
 let globalContractAddress;
 
 let globalTestAccounts: Array<{
@@ -77,20 +73,17 @@ beforeAll(async () => {
     TOKEN_OWNER: getTestAddr(TOKEN_OWNER),
     STRANGER: getTestAddr(STRANGER),
   });
-
-  globalContractInfo = await useContractInfo(
-    await getContractInfo(CODE_PATH, { container: CONTAINER })
-  );
 });
 
 beforeEach(async () => {
   zilliqa.wallet.setDefault(getTestAddr(CONTRACT_OWNER));
-  const init = globalContractInfo.getInitParams(
-    getTestAddr(CONTRACT_OWNER),
-    BASE_URI,
-    TOKEN_NAME,
-    TOKEN_SYMBOL
-  );
+  const init = getJSONParams({
+    _scilla_version: ["Uint32", 0],
+    initial_contract_owner: ["ByStr20", getTestAddr(CONTRACT_OWNER)],
+    initial_base_uri: ["String", BASE_URI],
+    name: ["String", TOKEN_NAME],
+    symbol: ["String", TOKEN_SYMBOL],
+  });
   const [, contract] = await zilliqa.contracts
     .new(CODE, init)
     .deploy(TX_PARAMS, 33, 1000, true);
@@ -100,16 +93,21 @@ beforeEach(async () => {
     throw new Error();
   }
 
-  const tx = await globalContractInfo.callGetter(
-    zilliqa.contracts.at(globalContractAddress),
-    TX_PARAMS
-  )(
+  const tx: any = await zilliqa.contracts.at(globalContractAddress).call(
     "BatchMint",
-    Array.from({ length: INITIAL_TOTAL_SUPPLY }, () => [
-      getTestAddr(TOKEN_OWNER),
-      "",
-    ])
+    getJSONParams({
+      to_token_uri_pair_list: [
+        "List (Pair ByStr20 String)",
+        [
+          [getTestAddr(TOKEN_OWNER), ""],
+          [getTestAddr(TOKEN_OWNER), ""],
+          [getTestAddr(TOKEN_OWNER), ""],
+        ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (String)")),
+      ],
+    }),
+    TX_PARAMS
   );
+
   if (!tx.receipt.success) {
     throw new Error();
   }
@@ -119,37 +117,49 @@ describe("Contract Contraint", () => {
   const testCases = [
     {
       name: "invalid initial contract owner: zero address",
-      getParams: () => [
-        "0x0000000000000000000000000000000000000000",
-        BASE_URI,
-        TOKEN_NAME,
-        TOKEN_SYMBOL,
-      ],
+      getParams: () => ({
+        _scilla_version: ["Uint32", 0],
+        initial_contract_owner: [
+          "ByStr20",
+          "0x0000000000000000000000000000000000000000",
+        ],
+        initial_base_uri: ["String", BASE_URI],
+        name: ["String", TOKEN_NAME],
+        symbol: ["String", TOKEN_SYMBOL],
+      }),
       want: false,
     },
     {
       name: "valid initial base URI: empty string",
-      getParams: () => [
-        getTestAddr(CONTRACT_OWNER),
-        "",
-        TOKEN_NAME,
-        TOKEN_SYMBOL,
-      ],
+      getParams: () => ({
+        _scilla_version: ["Uint32", 0],
+        initial_contract_owner: ["ByStr20", getTestAddr(CONTRACT_OWNER)],
+        initial_base_uri: ["String", ""],
+        name: ["String", TOKEN_NAME],
+        symbol: ["String", TOKEN_SYMBOL],
+      }),
       want: true,
     },
     {
       name: "invalid name: empty string",
-      getParams: () => [
-        getTestAddr(CONTRACT_OWNER),
-        BASE_URI,
-        "",
-        TOKEN_SYMBOL,
-      ],
+      getParams: () => ({
+        _scilla_version: ["Uint32", 0],
+        initial_contract_owner: ["ByStr20", getTestAddr(CONTRACT_OWNER)],
+        initial_base_uri: ["String", BASE_URI],
+        name: ["String", ""],
+        symbol: ["String", TOKEN_SYMBOL],
+      }),
       want: false,
     },
     {
       name: "invalid symbol: empty string",
-      getParams: () => [getTestAddr(CONTRACT_OWNER), BASE_URI, TOKEN_NAME, ""],
+      getParams: () => ({
+        _scilla_version: ["Uint32", 0],
+        initial_contract_owner: ["ByStr20", getTestAddr(CONTRACT_OWNER)],
+        initial_base_uri: ["String", BASE_URI],
+        name: ["String", TOKEN_NAME],
+        symbol: ["String", ""],
+      }),
       want: false,
     },
   ];
@@ -157,7 +167,7 @@ describe("Contract Contraint", () => {
   for (const testCase of testCases) {
     it(`${testCase.name}`, async () => {
       zilliqa.wallet.setDefault(getTestAddr(CONTRACT_OWNER));
-      const init = globalContractInfo.getInitParams(...testCase.getParams());
+      const init = getJSONParams(testCase.getParams());
       const [tx] = await zilliqa.contracts
         .new(CODE, init)
         .deploy(TX_PARAMS, 33, 1000, true);
@@ -180,7 +190,7 @@ describe("Contract", () => {
       transition: "SetRoyaltyRecipient",
       getSender: () => getTestAddr(STRANGER),
       getParams: () => ({
-        to: getTestAddr(STRANGER),
+        to: ["ByStr20", getTestAddr(STRANGER)],
       }),
       error: ZRC6_ERROR.NotContractOwnerError,
       want: undefined,
@@ -190,7 +200,7 @@ describe("Contract", () => {
       transition: "SetRoyaltyRecipient",
       getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        to: "0x0000000000000000000000000000000000000000",
+        to: ["ByStr20", "0x0000000000000000000000000000000000000000"],
       }),
       error: ZRC6_ERROR.ZeroAddressDestinationError,
       want: undefined,
@@ -200,7 +210,7 @@ describe("Contract", () => {
       transition: "SetRoyaltyRecipient",
       getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        to: globalContractAddress,
+        to: ["ByStr20", globalContractAddress],
       }),
       error: ZRC6_ERROR.ThisAddressDestinationError,
       want: undefined,
@@ -210,7 +220,7 @@ describe("Contract", () => {
       transition: "SetRoyaltyRecipient",
       getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        to: getTestAddr(STRANGER),
+        to: ["ByStr20", getTestAddr(STRANGER)],
       }),
       error: undefined,
       want: {
@@ -239,7 +249,7 @@ describe("Contract", () => {
       transition: "SetRoyaltyFeeBPS",
       getSender: () => getTestAddr(STRANGER),
       getParams: () => ({
-        feeBps: 1000,
+        fee_bps: ["Uint128", 1000],
       }),
       error: ZRC6_ERROR.NotContractOwnerError,
       want: undefined,
@@ -249,7 +259,7 @@ describe("Contract", () => {
       transition: "SetRoyaltyFeeBPS",
       getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        feeBps: 10001,
+        fee_bps: ["Uint128", 10001],
       }),
       error: ZRC6_ERROR.InvalidFeeBPSError,
       want: undefined,
@@ -259,7 +269,7 @@ describe("Contract", () => {
       transition: "SetRoyaltyFeeBPS",
       getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        feeBps: "0",
+        fee_bps: ["Uint128", 0],
       }),
       error: ZRC6_ERROR.InvalidFeeBPSError,
       want: undefined,
@@ -269,7 +279,7 @@ describe("Contract", () => {
       transition: "SetRoyaltyFeeBPS",
       getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        feeBps: 10000,
+        fee_bps: ["Uint128", 10000],
       }),
       error: undefined,
       want: {
@@ -297,7 +307,7 @@ describe("Contract", () => {
       transition: "SetRoyaltyFeeBPS",
       getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        feeBps: 1,
+        fee_bps: ["Uint128", 1],
       }),
       error: undefined,
       want: {
@@ -325,7 +335,7 @@ describe("Contract", () => {
       transition: "SetBaseURI",
       getSender: () => getTestAddr(STRANGER),
       getParams: () => ({
-        uri: BASE_URI,
+        uri: ["String", BASE_URI],
       }),
       error: ZRC6_ERROR.NotContractOwnerError,
       want: undefined,
@@ -335,7 +345,7 @@ describe("Contract", () => {
       transition: "SetBaseURI",
       getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        uri: "https://gateway.zilliqa.com/ipfs/hash/1",
+        uri: ["String", "https://gateway.zilliqa.com/ipfs/hash/1"],
       }),
       error: undefined,
       want: {
@@ -364,7 +374,7 @@ describe("Contract", () => {
       transition: "SetContractOwnershipRecipient",
       getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        to: getTestAddr(CONTRACT_OWNER),
+        to: ["ByStr20", getTestAddr(CONTRACT_OWNER)],
       }),
       error: ZRC6_ERROR.SelfError,
       want: undefined,
@@ -374,7 +384,7 @@ describe("Contract", () => {
       transition: "SetContractOwnershipRecipient",
       getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        to: getTestAddr(STRANGER),
+        to: ["ByStr20", getTestAddr(STRANGER)],
       }),
       error: undefined,
       want: {
@@ -437,10 +447,14 @@ describe("Contract", () => {
       );
 
       zilliqa.wallet.setDefault(testCase.getSender());
-      const tx = await globalContractInfo.callGetter(
-        zilliqa.contracts.at(globalContractAddress),
-        TX_PARAMS
-      )(testCase.transition, ...Object.values(testCase.getParams()));
+      const tx: any = await zilliqa.contracts
+        .at(globalContractAddress)
+        .call(
+          testCase.transition,
+          getJSONParams(testCase.getParams()),
+          TX_PARAMS
+        );
+
       if (testCase.want === undefined) {
         // Nagative Cases
         expect(tx.receipt.success).toBe(false);
@@ -469,12 +483,12 @@ describe("Contract", () => {
 
 describe("Accept Contract Ownership", () => {
   beforeEach(async () => {
-    let tx = await globalContractInfo.callGetter(
-      zilliqa.contracts.at(globalContractAddress),
-      TX_PARAMS
-    )(
+    const tx: any = await zilliqa.contracts.at(globalContractAddress).call(
       "SetContractOwnershipRecipient",
-      getTestAddr(CONTRACT_OWNERSHIP_RECIPIENT)
+      getJSONParams({
+        to: ["ByStr20", getTestAddr(CONTRACT_OWNERSHIP_RECIPIENT)],
+      }),
+      TX_PARAMS
     );
     if (!tx.receipt.success) {
       throw new Error();
@@ -564,10 +578,14 @@ describe("Accept Contract Ownership", () => {
       );
 
       zilliqa.wallet.setDefault(testCase.getSender());
-      const tx = await globalContractInfo.callGetter(
-        zilliqa.contracts.at(globalContractAddress),
-        TX_PARAMS
-      )(testCase.transition, ...Object.values(testCase.getParams()));
+      const tx: any = await zilliqa.contracts
+        .at(globalContractAddress)
+        .call(
+          testCase.transition,
+          getJSONParams(testCase.getParams()),
+          TX_PARAMS
+        );
+
       if (testCase.want === undefined) {
         // Nagative Cases
         expect(tx.receipt.success).toBe(false);
@@ -655,10 +673,13 @@ describe("Unpaused", () => {
       );
 
       zilliqa.wallet.setDefault(testCase.getSender());
-      const tx = await globalContractInfo.callGetter(
-        zilliqa.contracts.at(globalContractAddress),
-        TX_PARAMS
-      )(testCase.transition, ...Object.values(testCase.getParams()));
+      const tx: any = await zilliqa.contracts
+        .at(globalContractAddress)
+        .call(
+          testCase.transition,
+          getJSONParams(testCase.getParams()),
+          TX_PARAMS
+        );
 
       if (testCase.want === undefined) {
         // Negative Cases
@@ -688,10 +709,10 @@ describe("Unpaused", () => {
 
 describe("Paused", () => {
   beforeEach(async () => {
-    let tx = await globalContractInfo.callGetter(
-      zilliqa.contracts.at(globalContractAddress),
-      TX_PARAMS
-    )("Pause", getTestAddr(CONTRACT_OWNER));
+    let tx: any = await zilliqa.contracts
+      .at(globalContractAddress)
+      .call("Pause", [], TX_PARAMS);
+
     if (!tx.receipt.success) {
       throw new Error();
     }
@@ -749,8 +770,8 @@ describe("Paused", () => {
       transition: "Mint",
       getSender: () => getTestAddr(MINTER),
       getParams: () => ({
-        to: getTestAddr(MINTER),
-        token_uri: "",
+        to: ["ByStr20", getTestAddr(MINTER)],
+        token_uri: ["String", ""],
       }),
       error: ZRC6_ERROR.PausedError,
       want: undefined,
@@ -760,10 +781,13 @@ describe("Paused", () => {
       transition: "BatchMint",
       getSender: () => getTestAddr(MINTER),
       getParams: () => ({
-        to_list: [
-          [getTestAddr(STRANGER), ""],
-          [getTestAddr(STRANGER), ""],
-          [getTestAddr(STRANGER), ""],
+        to_token_uri_pair_list: [
+          "List (Pair ByStr20 String)",
+          [
+            [getTestAddr(TOKEN_OWNER), ""],
+            [getTestAddr(TOKEN_OWNER), ""],
+            [getTestAddr(TOKEN_OWNER), ""],
+          ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (String)")),
         ],
       }),
       error: ZRC6_ERROR.PausedError,
@@ -774,7 +798,7 @@ describe("Paused", () => {
       transition: "Burn",
       getSender: () => getTestAddr(TOKEN_OWNER),
       getParams: () => ({
-        token_id: 1,
+        token_id: ["Uint256", 1],
       }),
       error: ZRC6_ERROR.PausedError,
       want: undefined,
@@ -784,8 +808,8 @@ describe("Paused", () => {
       transition: "TransferFrom",
       getSender: () => getTestAddr(TOKEN_OWNER),
       getParams: () => ({
-        to: getTestAddr(STRANGER),
-        token_id: 1,
+        to: ["ByStr20", getTestAddr(STRANGER)],
+        token_id: ["Uint256", 1],
       }),
       error: ZRC6_ERROR.PausedError,
       want: undefined,
@@ -803,10 +827,13 @@ describe("Paused", () => {
       );
 
       zilliqa.wallet.setDefault(testCase.getSender());
-      const tx = await globalContractInfo.callGetter(
-        zilliqa.contracts.at(globalContractAddress),
-        TX_PARAMS
-      )(testCase.transition, ...Object.values(testCase.getParams()));
+      const tx: any = await zilliqa.contracts
+        .at(globalContractAddress)
+        .call(
+          testCase.transition,
+          getJSONParams(testCase.getParams()),
+          TX_PARAMS
+        );
 
       if (testCase.want === undefined) {
         // Negative Cases
