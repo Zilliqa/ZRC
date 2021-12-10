@@ -97,12 +97,12 @@ beforeEach(async () => {
     "BatchMint",
     getJSONParams({
       to_token_uri_pair_list: [
-        "List (Pair ByStr20 String)",
+        "List (Pair (ByStr20) (String))",
         [
           [getTestAddr(TOKEN_OWNER), ""],
           [getTestAddr(TOKEN_OWNER), ""],
           [getTestAddr(TOKEN_OWNER), ""],
-        ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (String)")),
+        ],
       ],
     }),
     TX_PARAMS
@@ -782,12 +782,12 @@ describe("Paused", () => {
       getSender: () => getTestAddr(MINTER),
       getParams: () => ({
         to_token_uri_pair_list: [
-          "List (Pair ByStr20 String)",
+          "List (Pair (ByStr20) (String))",
           [
             [getTestAddr(TOKEN_OWNER), ""],
             [getTestAddr(TOKEN_OWNER), ""],
             [getTestAddr(TOKEN_OWNER), ""],
-          ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (String)")),
+          ],
         ],
       }),
       error: ZRC6_ERROR.PausedError,

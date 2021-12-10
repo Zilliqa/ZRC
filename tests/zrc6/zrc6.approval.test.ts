@@ -6,7 +6,6 @@ import {
   getErrorMsg,
   verifyTransitions,
   verifyEvents,
-  getJSONValue,
   getJSONParams,
 } from "./testutil";
 
@@ -101,13 +100,13 @@ beforeEach(async () => {
     "BatchMint",
     getJSONParams({
       to_token_uri_pair_list: [
-        "List (Pair ByStr20 String)",
+        "List (Pair (ByStr20) (String))",
         [
           [getTestAddr(TOKEN_OWNER_A), ""],
           [getTestAddr(TOKEN_OWNER_B), ""],
           [getTestAddr(TOKEN_OWNER_B), ""],
           [getTestAddr(TOKEN_OWNER_B), ""],
-        ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (String)")),
+        ],
       ],
     }),
     TX_PARAMS
@@ -663,7 +662,7 @@ describe("Approval", () => {
             [getTestAddr(TOKEN_OWNER_A), 2],
             [getTestAddr(TOKEN_OWNER_B), 3],
             [getTestAddr(STRANGER_A), 4],
-          ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (Uint256)")),
+          ],
         ],
       }),
       error: ZRC6_ERROR.SelfError,
@@ -680,7 +679,7 @@ describe("Approval", () => {
             [getTestAddr(TOKEN_OWNER_A), 2],
             [getTestAddr(STRANGER_A), 3],
             [getTestAddr(STRANGER_A), 4],
-          ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (Uint256)")),
+          ],
         ],
       }),
       error: undefined,

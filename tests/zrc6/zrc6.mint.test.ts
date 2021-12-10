@@ -6,7 +6,6 @@ import {
   getErrorMsg,
   verifyTransitions,
   verifyEvents,
-  getJSONValue,
   getJSONParams,
 } from "./testutil";
 
@@ -108,19 +107,18 @@ beforeEach(async () => {
     "BatchMint",
     getJSONParams({
       to_token_uri_pair_list: [
-        "List (Pair ByStr20 String)",
+        "List (Pair (ByStr20) (String))",
         [
           [getTestAddr(TOKEN_OWNER), ""],
           [getTestAddr(TOKEN_OWNER), ""],
           [getTestAddr(TOKEN_OWNER), ""],
-        ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (String)")),
+        ],
       ],
     }),
     TX_PARAMS
   );
 
   if (!tx.receipt.success) {
-    console.log(tx.receipt);
     throw new Error();
   }
 });
@@ -465,7 +463,7 @@ describe("Mint & Burn", () => {
               getTestAddr(STRANGER),
               "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL6",
             ],
-          ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (String)")),
+          ],
         ],
       }),
       error: undefined,
@@ -520,7 +518,7 @@ describe("Mint & Burn", () => {
                     getTestAddr(STRANGER),
                     "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL6",
                   ],
-                ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (String)")),
+                ],
               ],
               start_id: ["Uint256", 4],
               end_id: ["Uint256", 6],
@@ -639,7 +637,6 @@ describe("Mint & Burn", () => {
         );
       } else {
         // Positive Cases
-        !tx.receipt.success && console.log(tx.receipt);
         expect(tx.receipt.success).toBe(true);
         expect(verifyEvents(tx.receipt.event_logs, testCase.want.events)).toBe(
           true
