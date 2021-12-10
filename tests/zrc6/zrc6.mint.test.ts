@@ -7,7 +7,7 @@ import {
   verifyTransitions,
   verifyEvents,
   getJSONParams,
-} from "./testutil";
+} from "./testutils";
 
 import {
   API,

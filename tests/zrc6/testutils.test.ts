@@ -1,4 +1,4 @@
-import { extractTypes, getJSONParams, getJSONValue } from "./testutil";
+import { extractTypes, getJSONParams, getJSONValue } from "./testutils";
 
 describe("extractTypes", () => {
   const testCases = [

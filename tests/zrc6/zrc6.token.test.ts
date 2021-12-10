@@ -8,7 +8,7 @@ import {
   verifyEvents,
   getJSONValue,
   getJSONParams,
-} from "./testutil";
+} from "./testutils";
 
 import {
   API,
