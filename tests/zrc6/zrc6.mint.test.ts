@@ -7,6 +7,7 @@ import {
   verifyTransitions,
   verifyEvents,
   getJSONParams,
+  ZERO_ADDRESS,
 } from "./testutils";
 
 import {
@@ -269,7 +270,7 @@ describe("Mint & Burn", () => {
       transition: "Mint",
       getSender: () => getTestAddr(STRANGER),
       getParams: () => ({
-        to: ["ByStr20", "0x0000000000000000000000000000000000000000"],
+        to: ["ByStr20", ZERO_ADDRESS],
         token_uri: ["String", ""],
       }),
       error: ZRC6_ERROR.ZeroAddressDestinationError,

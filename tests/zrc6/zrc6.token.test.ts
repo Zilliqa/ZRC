@@ -8,6 +8,7 @@ import {
   verifyEvents,
   getJSONValue,
   getJSONParams,
+  ZERO_ADDRESS,
 } from "./testutils";
 
 import {
@@ -119,10 +120,7 @@ describe("Contract Contraint", () => {
       name: "invalid initial contract owner: zero address",
       getParams: () => ({
         _scilla_version: ["Uint32", 0],
-        initial_contract_owner: [
-          "ByStr20",
-          "0x0000000000000000000000000000000000000000",
-        ],
+        initial_contract_owner: ["ByStr20", ZERO_ADDRESS],
         initial_base_uri: ["String", BASE_URI],
         name: ["String", TOKEN_NAME],
         symbol: ["String", TOKEN_SYMBOL],
@@ -200,7 +198,7 @@ describe("Contract", () => {
       transition: "SetRoyaltyRecipient",
       getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        to: ["ByStr20", "0x0000000000000000000000000000000000000000"],
+        to: ["ByStr20", ZERO_ADDRESS],
       }),
       error: ZRC6_ERROR.ZeroAddressDestinationError,
       want: undefined,
@@ -423,8 +421,7 @@ describe("Contract", () => {
           },
           base_uri: BASE_URI,
           contract_owner: getTestAddr(CONTRACT_OWNER).toLowerCase(),
-          contract_ownership_recipient:
-            "0x0000000000000000000000000000000000000000",
+          contract_ownership_recipient: ZERO_ADDRESS,
           is_paused: getJSONValue(false),
           minters: {
             [getTestAddr(CONTRACT_OWNER).toLowerCase()]: getJSONValue(true),

@@ -7,6 +7,7 @@ import {
   verifyTransitions,
   verifyEvents,
   getJSONParams,
+  ZERO_ADDRESS,
 } from "./testutils";
 
 import {
@@ -225,24 +226,19 @@ describe("Approval", () => {
       transition: "SetSpender",
       getSender: () => getTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        spender: ["ByStr20", "0x0000000000000000000000000000000000000000"],
+        spender: ["ByStr20", ZERO_ADDRESS],
         token_id: ["Uint256", 1],
       }),
       error: undefined,
       want: {
         verifyState: (state) => {
-          return (
-            state.spenders["1"] === "0x0000000000000000000000000000000000000000"
-          );
+          return state.spenders["1"] === ZERO_ADDRESS;
         },
         events: [
           {
             name: "SetSpender",
             getParams: () => ({
-              spender: [
-                "ByStr20",
-                "0x0000000000000000000000000000000000000000",
-              ],
+              spender: ["ByStr20", ZERO_ADDRESS],
               token_id: ["Uint256", 1],
             }),
           },
@@ -251,10 +247,7 @@ describe("Approval", () => {
           {
             tag: "ZRC6_SetSpenderCallback",
             getParams: () => ({
-              spender: [
-                "ByStr20",
-                "0x0000000000000000000000000000000000000000",
-              ],
+              spender: ["ByStr20", ZERO_ADDRESS],
               token_id: ["Uint256", 1],
             }),
           },
@@ -404,7 +397,7 @@ describe("Approval", () => {
       transition: "TransferFrom",
       getSender: () => getTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        to: ["ByStr20", "0x0000000000000000000000000000000000000000"],
+        to: ["ByStr20", ZERO_ADDRESS],
         token_id: ["Uint256", 1],
       }),
       error: ZRC6_ERROR.ZeroAddressDestinationError,

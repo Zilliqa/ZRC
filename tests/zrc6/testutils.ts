@@ -1,3 +1,5 @@
+export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
 export const extractTypes = (type) => {
   let count = 0;
   let startIndex = -1;
