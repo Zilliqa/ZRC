@@ -1,12 +1,12 @@
 import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { expect } from "@jest/globals";
 import { getAddressFromPrivateKey, schnorr } from "@zilliqa-js/crypto";
+import { getJSONParams } from "@zilliqa-js/scilla-json-utils";
 
 import {
   getErrorMsg,
   verifyTransitions,
   verifyEvents,
-  getJSONParams,
   ZERO_ADDRESS,
 } from "./testutils";
 
