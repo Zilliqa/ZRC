@@ -19,36 +19,124 @@ This specification defines how non-fungible tokens data should be presented from
 The metadata specification describes:
 
 1. The metadata standard that should be found when navigating to a particular non fungible token's token_uri.
-2. The localization interface for developers to implement and ecosystems to consume.
-3. The dynamic string literals that may be present in the URL string, such as {id} and {locale}
+2. How to present a resource URI using either token_uri or base_uri/{id}
+3. The localization interface for developers to implement and ecosystems to consume.
+4. The dynamic string literals that may be present in the URI string, such as {id} and {locale}
 
 ### A. Rationale
 
-Compared to ERC-1155, the JSON Metadata schema allows to indicate the MIME type of the files pointed by any URI field. This is to allow clients to display appropriately the resource without having to first query it to find out the MIME type.
-
 Metadata localization should be standardized to increase presentation uniformity across all languages. As such, a simple overlay method is proposed to enable localization.
 
-NFT's are broken into two parts. The first is the blockchain smart contract, which contains the association between users and a token. Each token when examained points off-chain to an external resource which contains the metadata for that particular token. This could be on the surface web or using a decentralised storage solution such as IPFS or Arweave.
+NFT's are blockchain smart contracts which contains the association between users and a token. Each token when examined points off-chain to an external web resource which contains the metadata for that particular token. This could be on the surface web or using a decentralised storage solution such as IPFS or Arweave.
 
 ZRC-6 gives the developer the ability to set an ```base_uri``` which exposes a field for the developer to insert a URI they control. When navigating to ```base_uri/{id}``` for a given ```token_id```, the response returned should be a standardised JSON structure for it to be considered ZRC-7 compliant.
 
-The main advantages of keeping metadata offchain are as follows.
+Compared to ERC-1155, ZRC-7 JSON Metadata schema allows to indicate the MIME type of the files pointed by any URI field. This is to allow clients to display appropriately the resource without having to first query the resource to retrieve the MIME type.
+
+The main advantages of keeping metadata offchain are.
 
 * Mutability
   * Owner can update the metadata at anytime without a chain call (changing hashes of IPFS and Arweave resources)
 * Storage
   * Owner can store more data offchain than onchain and for a cheaper cost to maintain and amend.
 
-The main disadvantages of keeping metadata offchain are as follows.
+The main disadvantages of keeping metadata offchain are.
 
 * Mutability
   * Owner can maliciously update the metadata at anytime without a chain call.
 
-### B. Metadata Structure Example
+### B. Presenting Metadata
 
-ZRC-6 has a field whereby developers can store a resource where all of the base metadata can be found. This can either be an API or direct storage. The ```token_uri``` returned from the contract for a particular ```token_id``` is ```base_uri/token_id``` appended together. 
+ZRC-6 has three cases for how metadata could be presented in the contract state.
 
-If ```base_uri``` is https://creatures-api.zilliqa.com/api/creature/ and ```token_id``` is 1, then `token_uri` for token id 1 becomes ```https://creatures-api.zilliqa.com/api/creature/1```.
+#### Case 1: Every token uses <base_uri><token_id> as token URI
+
+The ```token_uri``` returned from the contract for a particular ```token_id``` is returned as ```base_uri/token_id``` appended together. Developers can set ```base_uri``` by calling ```SetBaseURI``` on ZRC-6. In this case, the tokens are minted without a token URI by Mint or BatchMint (empty string). Therefore, there is no specific URI present in the ```token_uri``` state field. token_uris field can is an empty map since every token uses <base_uri><token_id>.
+
+#### Example 1
+
+The base URI.
+
+```https://creatures-api.zilliqa.com/api/creature/```
+
+The ```token_uri``` state field.
+
+* 1 : ""
+* 2 : ""
+* 3 : ""
+
+Expected result.
+
+* 1 Metadata : ```https://creatures-api.zilliqa.com/api/creature/1```
+* 2 Metadata : ```https://creatures-api.zilliqa.com/api/creature/2```
+* 3 Metadata : ```https://creatures-api.zilliqa.com/api/creature/3```
+
+#### Case 2: Every token has its own token URI and doesn't use <base_uri><token_id> as token URI
+
+This case, the tokens are minted with token URI present by Mint or BatchMint. Therefore, there are specific URIs in token_uris field after minting. The base_uri field is an empty string in this case.
+
+#### Example 2
+
+The base URI.
+
+```""```
+
+The ```token_uri``` state field.
+
+* 1 : "https://ipfs.zilliqa.com/ipfs/1me7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZILX"
+* 2 : "https://ipfs.zilliqa.com/ipfs/1me7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZILX"
+* 3 : "https://ipfs.zilliqa.com/ipfs/1me7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZILX"
+
+Expected result.
+
+* 1 Metadata : ```https://ipfs.zilliqa.com/ipfs/1me7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZILX```
+* 2 Metadata : ```https://ipfs.zilliqa.com/ipfs/1me7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZILX```
+* 3 Metadata : ```https://ipfs.zilliqa.com/ipfs/1me7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZILX```
+
+#### Case 3: Some tokens use <base_uri><token_id> as token URI and some have their own token URI
+
+This cases is a mix of case 1 and case 2. Both base_uri and token_uris field are used. base_uri shouldn't an empty string and token_uris shouldn't be an empty map.
+
+Ecosystem partners should be aware of this case and implement the following rule.
+
+* Fetch a specific token URI first. If a specific token URI exists, use it as the token URI.
+* If there is no specific token URI for a token, fetch the base URI to use ```<base_uri><token_id>```.
+
+#### Example 3
+
+The base URI.
+
+```https://creatures-api.zilliqa.com/api/creature/```
+
+The ```token_uri``` state field.
+
+* 1 : "https://ipfs.zilliqa.com/ipfs/1me7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZILX"
+* 2 : "https://ipfs.zilliqa.com/ipfs/1me7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZILX"
+* 3 : "https://ipfs.zilliqa.com/ipfs/1me7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZILX"
+
+Expected result.
+
+* 1 Metadata : ```https://ipfs.zilliqa.com/ipfs/1me7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZILX```
+* 2 Metadata : ```https://ipfs.zilliqa.com/ipfs/1me7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZILX```
+* 3 Metadata : ```https://ipfs.zilliqa.com/ipfs/1me7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZILX```
+
+### C. Metadata Schema Description
+
+| Field name                 | Description                                                                                      |
+|----------------------------|--------------------------------------------------------------------------------------------------|
+| ```name```                 | The name of the asset. This is a required field.                                                 |
+| ```description```          | A textual description of the asset resource. This is a optional field.                           |
+| ```resource```             | A URI which points to the asset resource. This is a required field.                              |
+| ```resource_mimetype```    | A mimetype which represents the resource URI conforming to RFC 2045. This is a required field.   |
+| ```external_url```         | A URI which points to an external resource for presenting the token. This is an optional field.  |
+| ```external_description``` | A textual description which describes the entire collection. This is an optional field.          |
+| ```trait_type```           | The type name of the attribute. Can be string or integer.                                        |
+| ```value```                | The value of the attribute.                                                                      |
+| ```localization_uri```     | A URI which points to an external resource containing muti-language metadata for a specific locale This is a optional field.    |
+| ```default```              | The language of the default metadata defined in the parent object. This is an optional field.    |
+| ```locales```              | An array of supported muti-language metadata files that can be found at ```localization_uri```. This is an optional field.        |
+
+### D. Metadata Structure Example
 
 ```json
 {
@@ -66,8 +154,8 @@ If ```base_uri``` is https://creatures-api.zilliqa.com/api/creature/ and ```toke
       }, 
       {
         "trait_type": "Population", 
-        "trait_value": "8961989"
-      }, 
+        "value": 8961989
+      }
     ],
     "localization": {
       "localization_uri": "ipfs://QmebDaB3PMQv816WVsKt7JhCM3aBjtNA1hc1d7fvGhGfG2/{id}-{locale}.json",
@@ -123,7 +211,38 @@ If ```token_id``` is 1 and the locale chosen was ```es``` then the localization 
 }
 ```
 
-### B. URI Schema Examples
+### D. Bridged Tokens Standards
+
+Several ecosystem partners pioneered by the Openseas, standardised an extenstion to the work of ERC-1155 and created a richer interface of attributes definitions and values. As such ecosystem partners should be aware that the following attribute metadata definitions could be present when dealing with Ethereum bridged NFTs. The following attribute examples should be considered as valid ZRC-7.
+
+```json
+"attributes": 
+[ 
+  {
+    "display_type": "boost_number", 
+    "trait_type": "Aqua Power", 
+    "value": 40
+  }, 
+  {
+    "display_type": "boost_percentage", 
+    "trait_type": "Stamina Increase", 
+    "value": 10
+  }, 
+  {
+    "display_type": "number", 
+    "trait_type": "Generation", 
+    "value": 2
+  }
+]
+```
+
+| Field name                 | Description                                                                                      |
+|----------------------------|--------------------------------------------------------------------------------------------------|
+| ```display_type```         | The display type determines how attribute is shown on-page. This is a optional field.            |
+| ```trait_type```           | The textual description of the display type. This is a optional field.                           |
+| ```value```                | The value of the display type. This is a optional field.                                         |
+
+### E. URI Schema Examples
 
 Developers should use one of the following URI schemes.
 
@@ -151,7 +270,6 @@ You may also include filenames inside the path component of an IPFS URI. For exa
 
 ```ipfs://bafybeibnsoufr2renqzsh347nrx54wcubt5lgkeivez63xvivplfwhtpym/metadata.json```
 
-
 #### Template Literals
 
 The URI value allows for substitution by clients.
@@ -176,7 +294,6 @@ The localization URI may contain the string ```{locale}``` this must be substitu
 ## Articles
 
 * [Best Practices for Storing NFT Data using IPFS](https://docs.ipfs.io/how-to/best-practices-for-nft-data/#types-of-ipfs-links-and-when-to-use-them)
-
 
 ## VI. Copyright
 
