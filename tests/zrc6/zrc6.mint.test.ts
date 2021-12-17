@@ -5,8 +5,8 @@ import { getJSONParams } from "@zilliqa-js/scilla-json-utils";
 
 import {
   getErrorMsg,
-  verifyTransitions,
-  verifyEvents,
+  expectTransitions,
+  expectEvents,
   ZERO_ADDRESS,
 } from "./testutils";
 
@@ -246,12 +246,8 @@ describe("Minter", () => {
       } else {
         // Positive Cases
         expect(tx.receipt.success).toBe(true);
-        expect(verifyEvents(tx.receipt.event_logs, testCase.want.events)).toBe(
-          true
-        );
-        expect(
-          verifyTransitions(tx.receipt.transitions, testCase.want.transitions)
-        ).toBe(true);
+        expectEvents(tx.receipt.event_logs, testCase.want.events);
+        expectTransitions(tx.receipt.transitions, testCase.want.transitions);
 
         const state = await zilliqa.contracts
           .at(globalContractAddress)
@@ -639,12 +635,8 @@ describe("Mint & Burn", () => {
       } else {
         // Positive Cases
         expect(tx.receipt.success).toBe(true);
-        expect(verifyEvents(tx.receipt.event_logs, testCase.want.events)).toBe(
-          true
-        );
-        expect(
-          verifyTransitions(tx.receipt.transitions, testCase.want.transitions)
-        ).toBe(true);
+        expectEvents(tx.receipt.event_logs, testCase.want.events);
+        expectTransitions(tx.receipt.transitions, testCase.want.transitions);
 
         const state = await zilliqa.contracts
           .at(globalContractAddress)
