@@ -198,8 +198,10 @@ describe("Approval", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          return state.spenders["1"] === getTestAddr(STRANGER_A).toLowerCase();
+        expectState: (state) => {
+          expect(state.spenders["1"]).toBe(
+            getTestAddr(STRANGER_A).toLowerCase()
+          );
         },
         events: [
           {
@@ -231,8 +233,8 @@ describe("Approval", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          return state.spenders["1"] === ZERO_ADDRESS;
+        expectState: (state) => {
+          expect(state.spenders["1"]).toBe(ZERO_ADDRESS);
         },
         events: [
           {
@@ -293,10 +295,12 @@ describe("Approval", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          return Object.keys(
-            state.operators[getTestAddr(TOKEN_OWNER_A).toLowerCase()]
-          ).includes(getTestAddr(STRANGER_A).toLowerCase());
+        expectState: (state) => {
+          expect(
+            Object.keys(
+              state.operators[getTestAddr(TOKEN_OWNER_A).toLowerCase()]
+            ).includes(getTestAddr(STRANGER_A).toLowerCase())
+          ).toBe(true);
         },
         events: [
           {
@@ -345,12 +349,12 @@ describe("Approval", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          return (
+        expectState: (state) => {
+          expect(
             Object.keys(
               state.operators[getTestAddr(TOKEN_OWNER_A).toLowerCase()]
-            ).length === 0
-          );
+            ).length
+          ).toBe(0);
         },
         events: [
           {
@@ -424,10 +428,12 @@ describe("Approval", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          return (
-            state.balances[getTestAddr(STRANGER_A).toLowerCase()] === "1" &&
-            state.token_owners["1"] === getTestAddr(STRANGER_A).toLowerCase()
+        expectState: (state) => {
+          expect(state.balances[getTestAddr(STRANGER_A).toLowerCase()]).toBe(
+            "1"
+          );
+          expect(state.token_owners["1"]).toBe(
+            getTestAddr(STRANGER_A).toLowerCase()
           );
         },
         events: [
@@ -470,10 +476,12 @@ describe("Approval", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          return (
-            state.balances[getTestAddr(STRANGER_A).toLowerCase()] === "1" &&
-            state.token_owners["1"] === getTestAddr(STRANGER_A).toLowerCase()
+        expectState: (state) => {
+          expect(state.balances[getTestAddr(STRANGER_A).toLowerCase()]).toBe(
+            "1"
+          );
+          expect(state.token_owners["1"]).toBe(
+            getTestAddr(STRANGER_A).toLowerCase()
           );
         },
         events: [
@@ -516,10 +524,12 @@ describe("Approval", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          return (
-            state.balances[getTestAddr(STRANGER_A).toLowerCase()] === "1" &&
-            state.token_owners["1"] === getTestAddr(STRANGER_A).toLowerCase()
+        expectState: (state) => {
+          expect(state.balances[getTestAddr(STRANGER_A).toLowerCase()]).toBe(
+            "1"
+          );
+          expect(state.token_owners["1"]).toBe(
+            getTestAddr(STRANGER_A).toLowerCase()
           );
         },
         events: [
@@ -562,10 +572,10 @@ describe("Approval", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          return (
-            state.balances[getTestAddr(SPENDER).toLowerCase()] === "1" &&
-            state.token_owners["1"] === getTestAddr(SPENDER).toLowerCase()
+        expectState: (state) => {
+          expect(state.balances[getTestAddr(SPENDER).toLowerCase()]).toBe("1");
+          expect(state.token_owners["1"]).toBe(
+            getTestAddr(SPENDER).toLowerCase()
           );
         },
         events: [
@@ -608,10 +618,10 @@ describe("Approval", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          return (
-            state.balances[getTestAddr(OPERATOR).toLowerCase()] === "1" &&
-            state.token_owners["1"] === getTestAddr(OPERATOR).toLowerCase()
+        expectState: (state) => {
+          expect(state.balances[getTestAddr(OPERATOR).toLowerCase()]).toBe("1");
+          expect(state.token_owners["1"]).toBe(
+            getTestAddr(OPERATOR).toLowerCase()
           );
         },
         events: [
@@ -677,28 +687,26 @@ describe("Approval", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          const isTokenOwnerValid =
-            JSON.stringify(state.token_owners) ===
+        expectState: (state) => {
+          expect(JSON.stringify(state.token_owners)).toBe(
             JSON.stringify({
               "1": getTestAddr(TOKEN_OWNER_A).toLowerCase(),
               "2": getTestAddr(TOKEN_OWNER_A).toLowerCase(),
               "3": getTestAddr(STRANGER_A).toLowerCase(),
               "4": getTestAddr(STRANGER_A).toLowerCase(),
-            });
+            })
+          );
 
-          const isBalanceValid = [
+          [
             [TOKEN_OWNER_A, 2],
             [TOKEN_OWNER_B, 0],
             [STRANGER_A, 2],
-          ].every((x) => {
+          ].forEach((x) => {
             const [tokenOwner, balance] = x;
-            return (
-              state.balances[getTestAddr(tokenOwner).toLowerCase()] ===
+            expect(state.balances[getTestAddr(tokenOwner).toLowerCase()]).toBe(
               balance?.toString()
             );
           });
-          return isTokenOwnerValid && isBalanceValid;
         },
         events: [
           {
@@ -752,7 +760,7 @@ describe("Approval", () => {
           .at(globalContractAddress)
           .getState();
 
-        expect(testCase.want.verifyState(state)).toBe(true);
+        testCase.want.expectState(state);
       }
     });
   }

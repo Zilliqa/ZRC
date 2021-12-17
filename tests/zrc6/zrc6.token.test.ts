@@ -222,8 +222,11 @@ describe("Contract", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) =>
-          state.royalty_recipient === getTestAddr(STRANGER).toLowerCase(),
+        expectState: (state) => {
+          expect(state.royalty_recipient).toBe(
+            getTestAddr(STRANGER).toLowerCase()
+          );
+        },
         events: [
           {
             name: "SetRoyaltyRecipient",
@@ -281,7 +284,9 @@ describe("Contract", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => state.royalty_fee_bps === "10000",
+        expectState: (state) => {
+          expect(state.royalty_fee_bps).toBe("10000");
+        },
         events: [
           {
             name: "SetRoyaltyFeeBPS",
@@ -309,7 +314,9 @@ describe("Contract", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => state.royalty_fee_bps === "1",
+        expectState: (state) => {
+          expect(state.royalty_fee_bps).toBe("1");
+        },
         events: [
           {
             name: "SetRoyaltyFeeBPS",
@@ -347,8 +354,12 @@ describe("Contract", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) =>
-          state.base_uri === "https://gateway.zilliqa.com/ipfs/hash/1",
+        expectState: (state) => {
+          expect(state.base_uri).toBe(
+            "https://gateway.zilliqa.com/ipfs/hash/1"
+          );
+        },
+
         events: [
           {
             name: "SetBaseURI",
@@ -386,9 +397,11 @@ describe("Contract", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) =>
-          state.contract_ownership_recipient ===
-          getTestAddr(STRANGER).toLowerCase(),
+        expectState: (state) => {
+          expect(state.contract_ownership_recipient).toBe(
+            getTestAddr(STRANGER).toLowerCase()
+          );
+        },
         events: [
           {
             name: "SetContractOwnershipRecipient",
@@ -468,7 +481,7 @@ describe("Contract", () => {
           .at(globalContractAddress)
           .getState();
 
-        expect(testCase.want.verifyState(state)).toBe(true);
+        testCase.want.expectState(state);
       }
     });
   }
@@ -504,9 +517,11 @@ describe("Accept Contract Ownership", () => {
       getParams: () => ({}),
       error: undefined,
       want: {
-        verifyState: (state) =>
-          state.contract_owner ===
-          getTestAddr(CONTRACT_OWNERSHIP_RECIPIENT).toLowerCase(),
+        expectState: (state) => {
+          expect(state.contract_owner).toBe(
+            getTestAddr(CONTRACT_OWNERSHIP_RECIPIENT).toLowerCase()
+          );
+        },
         events: [
           {
             name: "AcceptContractOwnership",
@@ -595,7 +610,7 @@ describe("Accept Contract Ownership", () => {
           .at(globalContractAddress)
           .getState();
 
-        expect(testCase.want.verifyState(state)).toBe(true);
+        testCase.want.expectState(state);
       }
     });
   }
@@ -625,9 +640,8 @@ describe("Unpaused", () => {
       getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({}),
       want: {
-        verifyState: (state) => {
-          return (
-            JSON.stringify(state.is_paused) ===
+        expectState: (state) => {
+          expect(JSON.stringify(state.is_paused)).toBe(
             JSON.stringify(getJSONValue(true))
           );
         },
@@ -686,7 +700,7 @@ describe("Unpaused", () => {
           .at(globalContractAddress)
           .getState();
 
-        expect(testCase.want.verifyState(state)).toBe(true);
+        testCase.want.expectState(state);
       }
     });
   }
@@ -726,9 +740,8 @@ describe("Paused", () => {
       getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({}),
       want: {
-        verifyState: (state) => {
-          return (
-            JSON.stringify(state.is_paused) ===
+        expectState: (state) => {
+          expect(JSON.stringify(state.is_paused)).toBe(
             JSON.stringify(getJSONValue(false))
           );
         },
@@ -836,7 +849,7 @@ describe("Paused", () => {
           .at(globalContractAddress)
           .getState();
 
-        expect(testCase.want.verifyState(state)).toBe(true);
+        testCase.want.expectState(state);
       }
     });
   }

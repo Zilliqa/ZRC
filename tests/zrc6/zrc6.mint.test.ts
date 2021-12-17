@@ -155,8 +155,11 @@ describe("Minter", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) =>
-          state.minters.hasOwnProperty(getTestAddr(STRANGER).toLowerCase()),
+        expectState: (state) => {
+          expect(
+            state.minters.hasOwnProperty(getTestAddr(STRANGER).toLowerCase())
+          ).toBe(true);
+        },
         events: [
           {
             name: "AddMinter",
@@ -204,8 +207,11 @@ describe("Minter", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) =>
-          !state.minters.hasOwnProperty(getTestAddr(STRANGER).toLowerCase()),
+        expectState: (state) => {
+          expect(
+            state.minters.hasOwnProperty(getTestAddr(STRANGER).toLowerCase())
+          ).toBe(false);
+        },
         events: [
           {
             name: "RemoveMinter",
@@ -253,7 +259,7 @@ describe("Minter", () => {
           .at(globalContractAddress)
           .getState();
 
-        expect(testCase.want.verifyState(state)).toBe(true);
+        testCase.want.expectState(state);
       }
     });
   }
@@ -304,11 +310,12 @@ describe("Mint & Burn", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          return (
-            state.token_owners[(INITIAL_TOTAL_SUPPLY + 1).toString()] ===
-              getTestAddr(STRANGER).toLowerCase() &&
-            state.token_id_count === (INITIAL_TOTAL_SUPPLY + 1).toString()
+        expectState: (state) => {
+          expect(
+            state.token_owners[(INITIAL_TOTAL_SUPPLY + 1).toString()]
+          ).toBe(getTestAddr(STRANGER).toLowerCase());
+          expect(state.token_id_count).toBe(
+            (INITIAL_TOTAL_SUPPLY + 1).toString()
           );
         },
         events: [
@@ -347,11 +354,12 @@ describe("Mint & Burn", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          return (
-            state.token_owners[(INITIAL_TOTAL_SUPPLY + 1).toString()] ===
-              getTestAddr(MINTER).toLowerCase() &&
-            state.token_id_count === (INITIAL_TOTAL_SUPPLY + 1).toString()
+        expectState: (state) => {
+          expect(
+            state.token_owners[(INITIAL_TOTAL_SUPPLY + 1).toString()]
+          ).toBe(getTestAddr(MINTER).toLowerCase());
+          expect(state.token_id_count).toBe(
+            (INITIAL_TOTAL_SUPPLY + 1).toString()
           );
         },
         events: [
@@ -393,19 +401,17 @@ describe("Mint & Burn", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          if (
-            JSON.stringify(state.token_uris) !==
+        expectState: (state) => {
+          expect(JSON.stringify(state.token_uris)).toBe(
             JSON.stringify({
               "4": "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL4",
             })
-          ) {
-            return false;
-          }
-          return (
-            state.token_owners[(INITIAL_TOTAL_SUPPLY + 1).toString()] ===
-              getTestAddr(MINTER).toLowerCase() &&
-            state.token_id_count === (INITIAL_TOTAL_SUPPLY + 1).toString()
+          );
+          expect(
+            state.token_owners[(INITIAL_TOTAL_SUPPLY + 1).toString()]
+          ).toBe(getTestAddr(MINTER).toLowerCase());
+          expect(state.token_id_count).toBe(
+            (INITIAL_TOTAL_SUPPLY + 1).toString()
           );
         },
         events: [
@@ -465,36 +471,28 @@ describe("Mint & Burn", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          if (
-            JSON.stringify(state.token_uris) !==
+        expectState: (state) => {
+          expect(JSON.stringify(state.token_uris)).toBe(
             JSON.stringify({
               "4": "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL4",
               "5": "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL5",
               "6": "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL6",
             })
-          ) {
-            return false;
-          }
-          if (state.token_id_count !== (INITIAL_TOTAL_SUPPLY * 2).toString()) {
-            return false;
-          }
+          );
+          expect(state.token_id_count).toBe(
+            (INITIAL_TOTAL_SUPPLY * 2).toString()
+          );
+
           for (
             let i = INITIAL_TOTAL_SUPPLY + 1;
             i <= INITIAL_TOTAL_SUPPLY * 2;
             i++
           ) {
-            if (!state.token_owners.hasOwnProperty(i.toString())) {
-              return false;
-            }
-            if (
-              state.token_owners[i.toString()] !==
+            expect(state.token_owners.hasOwnProperty(i.toString())).toBe(true);
+            expect(state.token_owners[i.toString()]).toBe(
               getTestAddr(STRANGER).toLowerCase()
-            ) {
-              return false;
-            }
+            );
           }
-          return true;
         },
         events: [
           {
@@ -560,7 +558,9 @@ describe("Mint & Burn", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => !state.token_owners.hasOwnProperty("1"),
+        expectState: (state) => {
+          expect(state.token_owners.hasOwnProperty("1")).toBe(false);
+        },
         events: [
           {
             name: "Burn",
@@ -591,11 +591,9 @@ describe("Mint & Burn", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          if (state.total_supply !== "0") {
-            return false;
-          }
-          return JSON.stringify(state.token_owners) === "{}";
+        expectState: (state) => {
+          expect(state.total_supply).toBe("0");
+          expect(JSON.stringify(state.token_owners)).toBe("{}");
         },
         events: [
           {
@@ -642,7 +640,7 @@ describe("Mint & Burn", () => {
           .at(globalContractAddress)
           .getState();
 
-        expect(testCase.want.verifyState(state)).toBe(true);
+        testCase.want.expectState(state);
       }
     });
   }
