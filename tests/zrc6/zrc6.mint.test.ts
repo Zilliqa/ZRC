@@ -1,14 +1,14 @@
 import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { expect } from "@jest/globals";
 import { getAddressFromPrivateKey, schnorr } from "@zilliqa-js/crypto";
+import { getJSONParams } from "@zilliqa-js/scilla-json-utils";
 
 import {
   getErrorMsg,
-  verifyTransitions,
-  verifyEvents,
-  getJSONValue,
-  getJSONParams,
-} from "./testutil";
+  expectTransitions,
+  expectEvents,
+  ZERO_ADDRESS,
+} from "./testutils";
 
 import {
   API,
@@ -108,19 +108,18 @@ beforeEach(async () => {
     "BatchMint",
     getJSONParams({
       to_token_uri_pair_list: [
-        "List (Pair ByStr20 String)",
+        "List (Pair (ByStr20) (String))",
         [
           [getTestAddr(TOKEN_OWNER), ""],
           [getTestAddr(TOKEN_OWNER), ""],
           [getTestAddr(TOKEN_OWNER), ""],
-        ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (String)")),
+        ],
       ],
     }),
     TX_PARAMS
   );
 
   if (!tx.receipt.success) {
-    console.log(tx.receipt);
     throw new Error();
   }
 });
@@ -156,8 +155,11 @@ describe("Minter", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) =>
-          state.minters.hasOwnProperty(getTestAddr(STRANGER).toLowerCase()),
+        expectState: (state) => {
+          expect(
+            state.minters.hasOwnProperty(getTestAddr(STRANGER).toLowerCase())
+          ).toBe(true);
+        },
         events: [
           {
             name: "AddMinter",
@@ -205,8 +207,11 @@ describe("Minter", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) =>
-          !state.minters.hasOwnProperty(getTestAddr(STRANGER).toLowerCase()),
+        expectState: (state) => {
+          expect(
+            state.minters.hasOwnProperty(getTestAddr(STRANGER).toLowerCase())
+          ).toBe(false);
+        },
         events: [
           {
             name: "RemoveMinter",
@@ -247,18 +252,14 @@ describe("Minter", () => {
       } else {
         // Positive Cases
         expect(tx.receipt.success).toBe(true);
-        expect(verifyEvents(tx.receipt.event_logs, testCase.want.events)).toBe(
-          true
-        );
-        expect(
-          verifyTransitions(tx.receipt.transitions, testCase.want.transitions)
-        ).toBe(true);
+        expectEvents(tx.receipt.event_logs, testCase.want.events);
+        expectTransitions(tx.receipt.transitions, testCase.want.transitions);
 
         const state = await zilliqa.contracts
           .at(globalContractAddress)
           .getState();
 
-        expect(testCase.want.verifyState(state)).toBe(true);
+        testCase.want.expectState(state);
       }
     });
   }
@@ -271,7 +272,7 @@ describe("Mint & Burn", () => {
       transition: "Mint",
       getSender: () => getTestAddr(STRANGER),
       getParams: () => ({
-        to: ["ByStr20", "0x0000000000000000000000000000000000000000"],
+        to: ["ByStr20", ZERO_ADDRESS],
         token_uri: ["String", ""],
       }),
       error: ZRC6_ERROR.ZeroAddressDestinationError,
@@ -309,11 +310,12 @@ describe("Mint & Burn", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          return (
-            state.token_owners[(INITIAL_TOTAL_SUPPLY + 1).toString()] ===
-              getTestAddr(STRANGER).toLowerCase() &&
-            state.token_id_count === (INITIAL_TOTAL_SUPPLY + 1).toString()
+        expectState: (state) => {
+          expect(
+            state.token_owners[(INITIAL_TOTAL_SUPPLY + 1).toString()]
+          ).toBe(getTestAddr(STRANGER).toLowerCase());
+          expect(state.token_id_count).toBe(
+            (INITIAL_TOTAL_SUPPLY + 1).toString()
           );
         },
         events: [
@@ -352,11 +354,12 @@ describe("Mint & Burn", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          return (
-            state.token_owners[(INITIAL_TOTAL_SUPPLY + 1).toString()] ===
-              getTestAddr(MINTER).toLowerCase() &&
-            state.token_id_count === (INITIAL_TOTAL_SUPPLY + 1).toString()
+        expectState: (state) => {
+          expect(
+            state.token_owners[(INITIAL_TOTAL_SUPPLY + 1).toString()]
+          ).toBe(getTestAddr(MINTER).toLowerCase());
+          expect(state.token_id_count).toBe(
+            (INITIAL_TOTAL_SUPPLY + 1).toString()
           );
         },
         events: [
@@ -398,19 +401,17 @@ describe("Mint & Burn", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          if (
-            JSON.stringify(state.token_uris) !==
+        expectState: (state) => {
+          expect(JSON.stringify(state.token_uris)).toBe(
             JSON.stringify({
               "4": "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL4",
             })
-          ) {
-            return false;
-          }
-          return (
-            state.token_owners[(INITIAL_TOTAL_SUPPLY + 1).toString()] ===
-              getTestAddr(MINTER).toLowerCase() &&
-            state.token_id_count === (INITIAL_TOTAL_SUPPLY + 1).toString()
+          );
+          expect(
+            state.token_owners[(INITIAL_TOTAL_SUPPLY + 1).toString()]
+          ).toBe(getTestAddr(MINTER).toLowerCase());
+          expect(state.token_id_count).toBe(
+            (INITIAL_TOTAL_SUPPLY + 1).toString()
           );
         },
         events: [
@@ -465,41 +466,33 @@ describe("Mint & Burn", () => {
               getTestAddr(STRANGER),
               "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL6",
             ],
-          ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (String)")),
+          ],
         ],
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          if (
-            JSON.stringify(state.token_uris) !==
+        expectState: (state) => {
+          expect(JSON.stringify(state.token_uris)).toBe(
             JSON.stringify({
               "4": "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL4",
               "5": "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL5",
               "6": "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL6",
             })
-          ) {
-            return false;
-          }
-          if (state.token_id_count !== (INITIAL_TOTAL_SUPPLY * 2).toString()) {
-            return false;
-          }
+          );
+          expect(state.token_id_count).toBe(
+            (INITIAL_TOTAL_SUPPLY * 2).toString()
+          );
+
           for (
             let i = INITIAL_TOTAL_SUPPLY + 1;
             i <= INITIAL_TOTAL_SUPPLY * 2;
             i++
           ) {
-            if (!state.token_owners.hasOwnProperty(i.toString())) {
-              return false;
-            }
-            if (
-              state.token_owners[i.toString()] !==
+            expect(state.token_owners.hasOwnProperty(i.toString())).toBe(true);
+            expect(state.token_owners[i.toString()]).toBe(
               getTestAddr(STRANGER).toLowerCase()
-            ) {
-              return false;
-            }
+            );
           }
-          return true;
         },
         events: [
           {
@@ -520,7 +513,7 @@ describe("Mint & Burn", () => {
                     getTestAddr(STRANGER),
                     "https://ipfs.zilliqa.com/ipfs/Zme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pY0000ZIL6",
                   ],
-                ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (String)")),
+                ],
               ],
               start_id: ["Uint256", 4],
               end_id: ["Uint256", 6],
@@ -565,7 +558,9 @@ describe("Mint & Burn", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => !state.token_owners.hasOwnProperty("1"),
+        expectState: (state) => {
+          expect(state.token_owners.hasOwnProperty("1")).toBe(false);
+        },
         events: [
           {
             name: "Burn",
@@ -596,11 +591,9 @@ describe("Mint & Burn", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          if (state.total_supply !== "0") {
-            return false;
-          }
-          return JSON.stringify(state.token_owners) === "{}";
+        expectState: (state) => {
+          expect(state.total_supply).toBe("0");
+          expect(JSON.stringify(state.token_owners)).toBe("{}");
         },
         events: [
           {
@@ -639,20 +632,15 @@ describe("Mint & Burn", () => {
         );
       } else {
         // Positive Cases
-        !tx.receipt.success && console.log(tx.receipt);
         expect(tx.receipt.success).toBe(true);
-        expect(verifyEvents(tx.receipt.event_logs, testCase.want.events)).toBe(
-          true
-        );
-        expect(
-          verifyTransitions(tx.receipt.transitions, testCase.want.transitions)
-        ).toBe(true);
+        expectEvents(tx.receipt.event_logs, testCase.want.events);
+        expectTransitions(tx.receipt.transitions, testCase.want.transitions);
 
         const state = await zilliqa.contracts
           .at(globalContractAddress)
           .getState();
 
-        expect(testCase.want.verifyState(state)).toBe(true);
+        testCase.want.expectState(state);
       }
     });
   }

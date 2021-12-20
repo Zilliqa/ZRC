@@ -2,13 +2,14 @@ import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { expect } from "@jest/globals";
 import { getAddressFromPrivateKey, schnorr } from "@zilliqa-js/crypto";
 
+import { getJSONValue, getJSONParams } from "@zilliqa-js/scilla-json-utils";
+
 import {
   getErrorMsg,
-  verifyTransitions,
-  verifyEvents,
-  getJSONValue,
-  getJSONParams,
-} from "./testutil";
+  expectTransitions,
+  expectEvents,
+  ZERO_ADDRESS,
+} from "./testutils";
 
 import {
   API,
@@ -97,12 +98,12 @@ beforeEach(async () => {
     "BatchMint",
     getJSONParams({
       to_token_uri_pair_list: [
-        "List (Pair ByStr20 String)",
+        "List (Pair (ByStr20) (String))",
         [
           [getTestAddr(TOKEN_OWNER), ""],
           [getTestAddr(TOKEN_OWNER), ""],
           [getTestAddr(TOKEN_OWNER), ""],
-        ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (String)")),
+        ],
       ],
     }),
     TX_PARAMS
@@ -119,10 +120,7 @@ describe("Contract Contraint", () => {
       name: "invalid initial contract owner: zero address",
       getParams: () => ({
         _scilla_version: ["Uint32", 0],
-        initial_contract_owner: [
-          "ByStr20",
-          "0x0000000000000000000000000000000000000000",
-        ],
+        initial_contract_owner: ["ByStr20", ZERO_ADDRESS],
         initial_base_uri: ["String", BASE_URI],
         name: ["String", TOKEN_NAME],
         symbol: ["String", TOKEN_SYMBOL],
@@ -200,7 +198,7 @@ describe("Contract", () => {
       transition: "SetRoyaltyRecipient",
       getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({
-        to: ["ByStr20", "0x0000000000000000000000000000000000000000"],
+        to: ["ByStr20", ZERO_ADDRESS],
       }),
       error: ZRC6_ERROR.ZeroAddressDestinationError,
       want: undefined,
@@ -224,8 +222,11 @@ describe("Contract", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) =>
-          state.royalty_recipient === getTestAddr(STRANGER).toLowerCase(),
+        expectState: (state) => {
+          expect(state.royalty_recipient).toBe(
+            getTestAddr(STRANGER).toLowerCase()
+          );
+        },
         events: [
           {
             name: "SetRoyaltyRecipient",
@@ -283,7 +284,9 @@ describe("Contract", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => state.royalty_fee_bps === "10000",
+        expectState: (state) => {
+          expect(state.royalty_fee_bps).toBe("10000");
+        },
         events: [
           {
             name: "SetRoyaltyFeeBPS",
@@ -311,7 +314,9 @@ describe("Contract", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => state.royalty_fee_bps === "1",
+        expectState: (state) => {
+          expect(state.royalty_fee_bps).toBe("1");
+        },
         events: [
           {
             name: "SetRoyaltyFeeBPS",
@@ -349,8 +354,12 @@ describe("Contract", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) =>
-          state.base_uri === "https://gateway.zilliqa.com/ipfs/hash/1",
+        expectState: (state) => {
+          expect(state.base_uri).toBe(
+            "https://gateway.zilliqa.com/ipfs/hash/1"
+          );
+        },
+
         events: [
           {
             name: "SetBaseURI",
@@ -388,9 +397,11 @@ describe("Contract", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) =>
-          state.contract_ownership_recipient ===
-          getTestAddr(STRANGER).toLowerCase(),
+        expectState: (state) => {
+          expect(state.contract_ownership_recipient).toBe(
+            getTestAddr(STRANGER).toLowerCase()
+          );
+        },
         events: [
           {
             name: "SetContractOwnershipRecipient",
@@ -423,8 +434,7 @@ describe("Contract", () => {
           },
           base_uri: BASE_URI,
           contract_owner: getTestAddr(CONTRACT_OWNER).toLowerCase(),
-          contract_ownership_recipient:
-            "0x0000000000000000000000000000000000000000",
+          contract_ownership_recipient: ZERO_ADDRESS,
           is_paused: getJSONValue(false),
           minters: {
             [getTestAddr(CONTRACT_OWNER).toLowerCase()]: getJSONValue(true),
@@ -464,18 +474,14 @@ describe("Contract", () => {
       } else {
         // Positive Cases
         expect(tx.receipt.success).toBe(true);
-        expect(verifyEvents(tx.receipt.event_logs, testCase.want.events)).toBe(
-          true
-        );
-        expect(
-          verifyTransitions(tx.receipt.transitions, testCase.want.transitions)
-        ).toBe(true);
+        expectEvents(tx.receipt.event_logs, testCase.want.events);
+        expectTransitions(tx.receipt.transitions, testCase.want.transitions);
 
         const state = await zilliqa.contracts
           .at(globalContractAddress)
           .getState();
 
-        expect(testCase.want.verifyState(state)).toBe(true);
+        testCase.want.expectState(state);
       }
     });
   }
@@ -511,9 +517,11 @@ describe("Accept Contract Ownership", () => {
       getParams: () => ({}),
       error: undefined,
       want: {
-        verifyState: (state) =>
-          state.contract_owner ===
-          getTestAddr(CONTRACT_OWNERSHIP_RECIPIENT).toLowerCase(),
+        expectState: (state) => {
+          expect(state.contract_owner).toBe(
+            getTestAddr(CONTRACT_OWNERSHIP_RECIPIENT).toLowerCase()
+          );
+        },
         events: [
           {
             name: "AcceptContractOwnership",
@@ -595,18 +603,14 @@ describe("Accept Contract Ownership", () => {
       } else {
         // Positive Cases
         expect(tx.receipt.success).toBe(true);
-        expect(verifyEvents(tx.receipt.event_logs, testCase.want.events)).toBe(
-          true
-        );
-        expect(
-          verifyTransitions(tx.receipt.transitions, testCase.want.transitions)
-        ).toBe(true);
+        expectEvents(tx.receipt.event_logs, testCase.want.events);
+        expectTransitions(tx.receipt.transitions, testCase.want.transitions);
 
         const state = await zilliqa.contracts
           .at(globalContractAddress)
           .getState();
 
-        expect(testCase.want.verifyState(state)).toBe(true);
+        testCase.want.expectState(state);
       }
     });
   }
@@ -636,9 +640,8 @@ describe("Unpaused", () => {
       getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({}),
       want: {
-        verifyState: (state) => {
-          return (
-            JSON.stringify(state.is_paused) ===
+        expectState: (state) => {
+          expect(JSON.stringify(state.is_paused)).toBe(
             JSON.stringify(getJSONValue(true))
           );
         },
@@ -690,18 +693,14 @@ describe("Unpaused", () => {
       } else {
         // Positive Cases
         expect(tx.receipt.success).toBe(true);
-        expect(verifyEvents(tx.receipt.event_logs, testCase.want.events)).toBe(
-          true
-        );
-        expect(
-          verifyTransitions(tx.receipt.transitions, testCase.want.transitions)
-        ).toBe(true);
+        expectEvents(tx.receipt.event_logs, testCase.want.events);
+        expectTransitions(tx.receipt.transitions, testCase.want.transitions);
 
         const state = await zilliqa.contracts
           .at(globalContractAddress)
           .getState();
 
-        expect(testCase.want.verifyState(state)).toBe(true);
+        testCase.want.expectState(state);
       }
     });
   }
@@ -741,9 +740,8 @@ describe("Paused", () => {
       getSender: () => getTestAddr(CONTRACT_OWNER),
       getParams: () => ({}),
       want: {
-        verifyState: (state) => {
-          return (
-            JSON.stringify(state.is_paused) ===
+        expectState: (state) => {
+          expect(JSON.stringify(state.is_paused)).toBe(
             JSON.stringify(getJSONValue(false))
           );
         },
@@ -782,12 +780,12 @@ describe("Paused", () => {
       getSender: () => getTestAddr(MINTER),
       getParams: () => ({
         to_token_uri_pair_list: [
-          "List (Pair ByStr20 String)",
+          "List (Pair (ByStr20) (String))",
           [
             [getTestAddr(TOKEN_OWNER), ""],
             [getTestAddr(TOKEN_OWNER), ""],
             [getTestAddr(TOKEN_OWNER), ""],
-          ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (String)")),
+          ],
         ],
       }),
       error: ZRC6_ERROR.PausedError,
@@ -844,18 +842,14 @@ describe("Paused", () => {
       } else {
         // Positive Cases
         expect(tx.receipt.success).toBe(true);
-        expect(verifyEvents(tx.receipt.event_logs, testCase.want.events)).toBe(
-          true
-        );
-        expect(
-          verifyTransitions(tx.receipt.transitions, testCase.want.transitions)
-        ).toBe(true);
+        expectEvents(tx.receipt.event_logs, testCase.want.events);
+        expectTransitions(tx.receipt.transitions, testCase.want.transitions);
 
         const state = await zilliqa.contracts
           .at(globalContractAddress)
           .getState();
 
-        expect(testCase.want.verifyState(state)).toBe(true);
+        testCase.want.expectState(state);
       }
     });
   }

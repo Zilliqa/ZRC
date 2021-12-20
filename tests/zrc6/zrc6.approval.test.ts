@@ -1,14 +1,14 @@
 import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { expect } from "@jest/globals";
 import { getAddressFromPrivateKey, schnorr } from "@zilliqa-js/crypto";
+import { getJSONParams } from "@zilliqa-js/scilla-json-utils";
 
 import {
   getErrorMsg,
-  verifyTransitions,
-  verifyEvents,
-  getJSONValue,
-  getJSONParams,
-} from "./testutil";
+  expectTransitions,
+  expectEvents,
+  ZERO_ADDRESS,
+} from "./testutils";
 
 import {
   API,
@@ -101,13 +101,13 @@ beforeEach(async () => {
     "BatchMint",
     getJSONParams({
       to_token_uri_pair_list: [
-        "List (Pair ByStr20 String)",
+        "List (Pair (ByStr20) (String))",
         [
           [getTestAddr(TOKEN_OWNER_A), ""],
           [getTestAddr(TOKEN_OWNER_B), ""],
           [getTestAddr(TOKEN_OWNER_B), ""],
           [getTestAddr(TOKEN_OWNER_B), ""],
-        ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (String)")),
+        ],
       ],
     }),
     TX_PARAMS
@@ -198,8 +198,10 @@ describe("Approval", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          return state.spenders["1"] === getTestAddr(STRANGER_A).toLowerCase();
+        expectState: (state) => {
+          expect(state.spenders["1"]).toBe(
+            getTestAddr(STRANGER_A).toLowerCase()
+          );
         },
         events: [
           {
@@ -226,24 +228,19 @@ describe("Approval", () => {
       transition: "SetSpender",
       getSender: () => getTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        spender: ["ByStr20", "0x0000000000000000000000000000000000000000"],
+        spender: ["ByStr20", ZERO_ADDRESS],
         token_id: ["Uint256", 1],
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          return (
-            state.spenders["1"] === "0x0000000000000000000000000000000000000000"
-          );
+        expectState: (state) => {
+          expect(state.spenders["1"]).toBe(ZERO_ADDRESS);
         },
         events: [
           {
             name: "SetSpender",
             getParams: () => ({
-              spender: [
-                "ByStr20",
-                "0x0000000000000000000000000000000000000000",
-              ],
+              spender: ["ByStr20", ZERO_ADDRESS],
               token_id: ["Uint256", 1],
             }),
           },
@@ -252,10 +249,7 @@ describe("Approval", () => {
           {
             tag: "ZRC6_SetSpenderCallback",
             getParams: () => ({
-              spender: [
-                "ByStr20",
-                "0x0000000000000000000000000000000000000000",
-              ],
+              spender: ["ByStr20", ZERO_ADDRESS],
               token_id: ["Uint256", 1],
             }),
           },
@@ -301,10 +295,12 @@ describe("Approval", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          return Object.keys(
-            state.operators[getTestAddr(TOKEN_OWNER_A).toLowerCase()]
-          ).includes(getTestAddr(STRANGER_A).toLowerCase());
+        expectState: (state) => {
+          expect(
+            Object.keys(
+              state.operators[getTestAddr(TOKEN_OWNER_A).toLowerCase()]
+            ).includes(getTestAddr(STRANGER_A).toLowerCase())
+          ).toBe(true);
         },
         events: [
           {
@@ -353,12 +349,12 @@ describe("Approval", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          return (
+        expectState: (state) => {
+          expect(
             Object.keys(
               state.operators[getTestAddr(TOKEN_OWNER_A).toLowerCase()]
-            ).length === 0
-          );
+            ).length
+          ).toBe(0);
         },
         events: [
           {
@@ -405,7 +401,7 @@ describe("Approval", () => {
       transition: "TransferFrom",
       getSender: () => getTestAddr(TOKEN_OWNER_A),
       getParams: () => ({
-        to: ["ByStr20", "0x0000000000000000000000000000000000000000"],
+        to: ["ByStr20", ZERO_ADDRESS],
         token_id: ["Uint256", 1],
       }),
       error: ZRC6_ERROR.ZeroAddressDestinationError,
@@ -432,10 +428,12 @@ describe("Approval", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          return (
-            state.balances[getTestAddr(STRANGER_A).toLowerCase()] === "1" &&
-            state.token_owners["1"] === getTestAddr(STRANGER_A).toLowerCase()
+        expectState: (state) => {
+          expect(state.balances[getTestAddr(STRANGER_A).toLowerCase()]).toBe(
+            "1"
+          );
+          expect(state.token_owners["1"]).toBe(
+            getTestAddr(STRANGER_A).toLowerCase()
           );
         },
         events: [
@@ -478,10 +476,12 @@ describe("Approval", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          return (
-            state.balances[getTestAddr(STRANGER_A).toLowerCase()] === "1" &&
-            state.token_owners["1"] === getTestAddr(STRANGER_A).toLowerCase()
+        expectState: (state) => {
+          expect(state.balances[getTestAddr(STRANGER_A).toLowerCase()]).toBe(
+            "1"
+          );
+          expect(state.token_owners["1"]).toBe(
+            getTestAddr(STRANGER_A).toLowerCase()
           );
         },
         events: [
@@ -524,10 +524,12 @@ describe("Approval", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          return (
-            state.balances[getTestAddr(STRANGER_A).toLowerCase()] === "1" &&
-            state.token_owners["1"] === getTestAddr(STRANGER_A).toLowerCase()
+        expectState: (state) => {
+          expect(state.balances[getTestAddr(STRANGER_A).toLowerCase()]).toBe(
+            "1"
+          );
+          expect(state.token_owners["1"]).toBe(
+            getTestAddr(STRANGER_A).toLowerCase()
           );
         },
         events: [
@@ -570,10 +572,10 @@ describe("Approval", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          return (
-            state.balances[getTestAddr(SPENDER).toLowerCase()] === "1" &&
-            state.token_owners["1"] === getTestAddr(SPENDER).toLowerCase()
+        expectState: (state) => {
+          expect(state.balances[getTestAddr(SPENDER).toLowerCase()]).toBe("1");
+          expect(state.token_owners["1"]).toBe(
+            getTestAddr(SPENDER).toLowerCase()
           );
         },
         events: [
@@ -616,10 +618,10 @@ describe("Approval", () => {
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          return (
-            state.balances[getTestAddr(OPERATOR).toLowerCase()] === "1" &&
-            state.token_owners["1"] === getTestAddr(OPERATOR).toLowerCase()
+        expectState: (state) => {
+          expect(state.balances[getTestAddr(OPERATOR).toLowerCase()]).toBe("1");
+          expect(state.token_owners["1"]).toBe(
+            getTestAddr(OPERATOR).toLowerCase()
           );
         },
         events: [
@@ -663,7 +665,7 @@ describe("Approval", () => {
             [getTestAddr(TOKEN_OWNER_A), 2],
             [getTestAddr(TOKEN_OWNER_B), 3],
             [getTestAddr(STRANGER_A), 4],
-          ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (Uint256)")),
+          ],
         ],
       }),
       error: ZRC6_ERROR.SelfError,
@@ -680,33 +682,31 @@ describe("Approval", () => {
             [getTestAddr(TOKEN_OWNER_A), 2],
             [getTestAddr(STRANGER_A), 3],
             [getTestAddr(STRANGER_A), 4],
-          ].map((cur) => getJSONValue(cur, "Pair (ByStr20) (Uint256)")),
+          ],
         ],
       }),
       error: undefined,
       want: {
-        verifyState: (state) => {
-          const isTokenOwnerValid =
-            JSON.stringify(state.token_owners) ===
+        expectState: (state) => {
+          expect(JSON.stringify(state.token_owners)).toBe(
             JSON.stringify({
               "1": getTestAddr(TOKEN_OWNER_A).toLowerCase(),
               "2": getTestAddr(TOKEN_OWNER_A).toLowerCase(),
               "3": getTestAddr(STRANGER_A).toLowerCase(),
               "4": getTestAddr(STRANGER_A).toLowerCase(),
-            });
+            })
+          );
 
-          const isBalanceValid = [
+          [
             [TOKEN_OWNER_A, 2],
             [TOKEN_OWNER_B, 0],
             [STRANGER_A, 2],
-          ].every((x) => {
+          ].forEach((x) => {
             const [tokenOwner, balance] = x;
-            return (
-              state.balances[getTestAddr(tokenOwner).toLowerCase()] ===
+            expect(state.balances[getTestAddr(tokenOwner).toLowerCase()]).toBe(
               balance?.toString()
             );
           });
-          return isTokenOwnerValid && isBalanceValid;
         },
         events: [
           {
@@ -753,18 +753,14 @@ describe("Approval", () => {
       } else {
         // Positive Cases
         expect(tx.receipt.success).toBe(true);
-        expect(verifyEvents(tx.receipt.event_logs, testCase.want.events)).toBe(
-          true
-        );
-        expect(
-          verifyTransitions(tx.receipt.transitions, testCase.want.transitions)
-        ).toBe(true);
+        expectEvents(tx.receipt.event_logs, testCase.want.events);
+        expectTransitions(tx.receipt.transitions, testCase.want.transitions);
 
         const state = await zilliqa.contracts
           .at(globalContractAddress)
           .getState();
 
-        expect(testCase.want.verifyState(state)).toBe(true);
+        testCase.want.expectState(state);
       }
     });
   }
