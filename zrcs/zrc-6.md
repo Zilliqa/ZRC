@@ -47,7 +47,7 @@ The main advantages of this standard are:
 
 1. Many of the largest NFT marketplaces have implemented incompatible royalty payment solutions.
 
-2. The concatenated token URIs can be very efficient.
+2. The concatenated token URI can reduce gas cost and is more optimal for contract state.
 
 3. Using callbacks to get data can complicate the logic easily. Unlike immutable parameters, mutable fields are available for remote state read.
 
