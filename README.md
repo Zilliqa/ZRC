@@ -1,3 +1,13 @@
+<div align="center">
+  <h1>
+  ZRC (Zilliqa Reference Contracts)
+  </h1>
+  <strong>
+  Contract standards for the Zilliqa platform
+  </strong>
+</div>
+<hr/>
+
 [![Build Status](https://app.travis-ci.com/Zilliqa/ZRC.svg?branch=master)](https://app.travis-ci.com/Zilliqa/ZRC) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 # ZRC
