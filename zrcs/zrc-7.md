@@ -45,7 +45,7 @@ The main disadvantages of keeping metadata offchain are.
 * Mutability
   * Owner can maliciously update the metadata at anytime without a chain call.
 
-### B. Presenting Metadata
+### C. Presenting Metadata
 
 ZRC-6 has three cases for how metadata could be presented in the contract state.
 
@@ -122,19 +122,16 @@ Expected result.
 
 ### C. Metadata Schema Description
 
-| Field name                 | Description                                                                                      |
-|----------------------------|--------------------------------------------------------------------------------------------------|
-| ```name```                 | The name of the asset. This is a required field.                                                 |
-| ```description```          | A textual description of the asset resource. This is a optional field.                           |
-| ```resource```             | A URI which points to the asset resource. This is a required field.                              |
-| ```resource_mimetype```    | A mimetype which represents the resource URI conforming to RFC 2045. This is a required field.   |
-| ```external_url```         | A URI which points to an external resource for presenting the token. This is an optional field.  |
-| ```external_description``` | A textual description which describes the entire collection. This is an optional field.          |
-| ```trait_type```           | The type name of the attribute. Can be string or integer.                                        |
-| ```value```                | The value of the attribute.                                                                      |
-| ```localization_uri```     | A URI which points to an external resource containing muti-language metadata for a specific locale This is a optional field.    |
-| ```default```              | The language of the default metadata defined in the parent object. This is an optional field.    |
-| ```locales```              | An array of supported muti-language metadata files that can be found at ```localization_uri```. This is an optional field.        |
+| Field name             |        Type        | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Required |
+| ---------------------- | :----------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :------: |
+| `name`                 |      `String`      | The name of the asset.                                                                                                                                                                                                                                                                                                                                                                                                                                                               |    ✓     |
+| `description`          |      `String`      | A textual description of the asset resource.                                                                                                                                                                                                                                                                                                                                                                                                                                         |          |
+| `resource`             |      `String`      | A URI which points to the asset resource.                                                                                                                                                                                                                                                                                                                                                                                                                                            |    ✓     |
+| `resource_mimetype`    |      `String`      | A mimetype which represents the resource URI conforming to RFC 2045.                                                                                                                                                                                                                                                                                                                                                                                                                 |    ✓     |
+| `external_url`         |      `String`      | A URI which points to an external resource for presenting the token.                                                                                                                                                                                                                                                                                                                                                                                                                 |          |
+| `external_description` |      `String`      | A textual description of the entire collection.                                                                                                                                                                                                                                                                                                                                                                                                                                      |          |
+| `attributes`           | `Array of Objects` | Arbitrary attributes. <br/><br/> Each attribute has the following properties: <ul><li>`trait_type` : `String` - The trait type of attribute. </li> <li>`value` :`String` or `Number` - The value of attribute. </li> </ul>                                                                                                                                                                                                                                                           |          |
+| `localization`         |      `Object`      | Localization for the item.<br/><br/> `localization` has the following properties: <ul><li>`localization_uri` : `String` - A URI which points to an external resource containing muti-language metadata for a specific locale. </li> <li>`default` : `String` - The language of the default metadata defined in the parent object. </li> <li>`locales` : `Array of Strings` - An array of supported muti-language metadata files that can be found at `localization_uri`. </li> </ul> |          |
 
 ### D. Metadata Structure Example
 
