@@ -76,8 +76,8 @@ The metadata must be structured as the following:
   "name": "Creature #101",
   "description": "10,000 unique and diverse creatures living on the blockchain.",
   "resource": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1",
-  "animation_url": "https://example.zilliqa.com/3ea7c1a",
-  "external_url": "https://example.zilliqa.com"
+  "animation_url": "https://example.com/ipfs/QmQCJyWdRRsFNYZdpkhGLZVaMLv82GDuKG2wFeBqADksEi/?seed=eaaacee01ec4887f31da5cb500c1d7d19aed562492c93ce8c9a708f320d1a9eA",
+  "external_url": "https://example.com/?token_id=1"
 }
 ```
 
