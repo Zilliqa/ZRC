@@ -15,13 +15,13 @@
 
 ## I. What is Metadata and Token URI?
 
-Metadata is data that includes information about other data. Metadata allows NFTs to have additional properties e.g. name, description, and image. The example is the following:
+Metadata is data that includes information about other data. Metadata allows NFTs to have additional properties e.g. name, description, and resource. The example is the following:
 
 ```json
 {
   "name": "Creature #101",
   "description": "10,000 unique and diverse creatures living on the blockchain.",
-  "image": "ipfs://QmSjJGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3QkSsty"
+  "resource": "ipfs://QmSjJGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3QkSsty"
 }
 ```
 
@@ -48,14 +48,15 @@ The consistent metadata structure can help the NFT creators and builders to hand
 
 The metadata must be structured as the following:
 
-| Property        |        Type        | Description                                                                                                                                                                                                                                                                                                                                                                         | Required |
-| --------------- | :----------------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------: |
-| `name`          |      `String`      | Name of the asset.                                                                                                                                                                                                                                                                                                                                                                  |    ✓     |
-| `description`   |      `String`      | A description of the asset.                                                                                                                                                                                                                                                                                                                                                         |          |
-| `image`         |      `String`      | A URI that points to the asset's image. A decentralized URI is recommended.                                                                                                                                                                                                                                                                                                         |    ✓     |
-| `animation_url` |      `String`      | A URL to a multi-media attachment for the asset. <br/> The examples of file extensions are GLTF, GLB, WEBM, MP4, M4V, OGV, OGG, MP3, WAV, and OGA. <br/><br/> Also, `animation_url` can be HTML pages for interactive NFTs using JavaScript canvas, WebGL, etc.                                                                                                                     |          |
-| `external_url`  |      `String`      | A URI that points to an external website presenting the asset.                                                                                                                                                                                                                                                                                                                      |          |
-| `attributes`    | `Array of Objects` | An array of attributes.<br/><br/> Each attribute has the following properties: <ul> <li>`trait_type` : `String` <br/> The name of the trait. <br/> _This is optional._</li> <li>`value` : `String` or `Number` <br/> The value of the trait. <br/> _This is required._</li> <li>`display_type` : `String` <br/> The display type of the trait. <br/> _This is optional._</li> </ul> |          |
+| Property            |        Type        | Description                                                                                                                                                                                                                                                                                                                                                                         | Required |
+| ------------------- | :----------------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------: |
+| `name`              |      `String`      | Name of the asset.                                                                                                                                                                                                                                                                                                                                                                  |    ✓     |
+| `description`       |      `String`      | A human readable description of the asset.                                                                                                                                                                                                                                                                                                                                          |          |
+| `resource`          |      `String`      | A URI that points to the asset's resource. A decentralized URI is recommended.                                                                                                                                                                                                                                                                                                      |    ✓     |
+| `resource_mimetype` |      `String`      | A [MIME type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types#types) of the asset's resource (**discrete type only**). The examples of MIME types are `image/png`, `audio/mpeg`, `video/mp4`, `model/3mf`, `font/otf`, and `application/pdf`.                                                                                                           |          |
+| `animation_url`     |      `String`      | A URL to a multi-media attachment for the asset. <br/> The examples of file extensions are GLTF, GLB, WEBM, MP4, M4V, OGV, OGG, MP3, WAV, and OGA. <br/><br/> Also, `animation_url` can be HTML pages for interactive NFTs using JavaScript canvas, WebGL, etc.                                                                                                                     |          |
+| `external_url`      |      `String`      | A URI that points to an external website presenting the asset.                                                                                                                                                                                                                                                                                                                      |          |
+| `attributes`        | `Array of Objects` | An array of attributes.<br/><br/> Each attribute has the following properties: <ul> <li>`trait_type` : `String` <br/> The name of the trait. <br/> _This is optional._</li> <li>`value` : `String` or `Number` <br/> The value of the trait. <br/> _This is required._</li> <li>`display_type` : `String` <br/> The display type of the trait. <br/> _This is optional._</li> </ul> |          |
 
 #### Examples
 
@@ -64,7 +65,7 @@ The metadata must be structured as the following:
 ```json
 {
   "name": "Creature #101",
-  "image": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1"
+  "resource": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1"
 }
 ```
 
@@ -74,7 +75,7 @@ The metadata must be structured as the following:
 {
   "name": "Creature #101",
   "description": "10,000 unique and diverse creatures living on the blockchain.",
-  "image": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1",
+  "resource": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1",
   "animation_url": "https://example.zilliqa.com/3ea7c1a",
   "external_url": "https://example.zilliqa.com"
 }
@@ -85,7 +86,7 @@ The metadata must be structured as the following:
 ```json
 {
   "name": "Creature #101",
-  "image": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1",
+  "resource": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1",
   "attributes": [
     {
       "trait_type": "Background",
@@ -127,7 +128,7 @@ Note that it is valid to have other properties for the several use cases.
 ```json
 {
   "name": "Creature #101",
-  "image": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1",
+  "resource": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1",
   "id": 101
 }
 ```
@@ -135,7 +136,26 @@ Note that it is valid to have other properties for the several use cases.
 ```json
 {
   "name": "Creature #101",
-  "image": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1",
+  "resource": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1",
+  "attributes": [
+    {
+      "trait_type": "Pupil Color",
+      "value": "Deep Sea Green",
+      "colors": [
+        {
+          "name": "Pupil",
+          "value": "#07595c"
+        }
+      ]
+    }
+  ]
+}
+```
+
+```json
+{
+  "name": "Creature #101",
+  "resource": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1",
   "properties": {
     "rich_property": {
       "name": "Fur",
@@ -183,6 +203,9 @@ The token URIs can be just the following:
 - [ERC721 - Non-Fungible Token Standard](https://eips.ethereum.org/EIPS/eip-721)
 - [ERC1155 - Multi Token Standard](https://eips.ethereum.org/EIPS/eip-1155)
 - [IPFS - Best Practices for Storing NFT Data using IPFS](https://docs.ipfs.io/how-to/best-practices-for-nft-data/#best-practices-for-storing-nft-data-using-ipfs)
+- [RFC6838 - Media Type Specifications and Registration Procedures](https://datatracker.ietf.org/doc/html/rfc6838)
+- [IANA - Media Types](https://www.iana.org/assignments/media-types/media-types.xhtml)
+- [Mozilla - MIME types (IANA media types)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types)
 
 ## VI. Copyright
 
