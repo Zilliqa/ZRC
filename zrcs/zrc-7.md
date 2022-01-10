@@ -15,13 +15,13 @@
 
 ## I. What is Metadata and Token URI?
 
-Metadata is data that includes information about other data. Metadata allows NFTs to have additional properties e.g. name, description, and resource. The example is the following:
+Metadata is data that provides information about other data. Metadata allows NFTs to have additional properties e.g. name, description, and resource. The example is the following:
 
 ```json
 {
   "name": "Creature #101",
   "description": "10,000 unique and diverse creatures living on the blockchain.",
-  "resource": "ipfs://QmSjJGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3QkSsty"
+  "resource": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1"
 }
 ```
 
