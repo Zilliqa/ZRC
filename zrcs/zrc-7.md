@@ -4,7 +4,7 @@
 
 ## Table of Contents
 
-- [I. What is Metadata and Token URI?](#i-what-is-metadata)
+- [I. What is Metadata and Token URI?](#i-what-is-metadata-and-token-uri)
 - [II. Abstract](#ii-abstract)
 - [III. Motivation](#iii-motivation)
 - [IV. Specification](#iv-specification)
