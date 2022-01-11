@@ -10,11 +10,18 @@
 
 [![Build Status](https://app.travis-ci.com/Zilliqa/ZRC.svg?branch=master)](https://app.travis-ci.com/Zilliqa/ZRC) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-# ZRC
-
 The Zilliqa Reference Contracts (ZRCs) are the contract standards for the Zilliqa platform.
 
-# Contributing
+|           ZRC           | Title                                           |
+| :---------------------: | ----------------------------------------------- |
+| [ZRC-6](/zrcs/zrc-6.md) | Non-Fungible Token Standard                     |
+| [ZRC-5](/zrcs/zrc-5.md) | Convention for Deposit of ZIL                   |
+| [ZRC-4](/zrcs/zrc-4.md) | Standard for Multisig Wallet                    |
+| [ZRC-3](/zrcs/zrc-3.md) | Standard for Metatransactions                   |
+| [ZRC-2](/zrcs/zrc-2.md) | Standard for Fungible Tokens                    |
+| [ZRC-1](/zrcs/zrc-1.md) | Standard for Non Fungible Tokens _(deprecated)_ |
+
+## Contributing
 
 1. Review [ZRC-0](https://github.com/Zilliqa/ZRC/blob/master/zrcs/zrc-0.md).
 2. Fork the repository by clicking "Fork" in the top right.
@@ -27,7 +34,7 @@ If your ZRC requires images, the image files should be included in a subdirector
 
 When you believe your ZRC is ready to progress past the 'Draft' phase, you should go to our [Zilliqa Official Discord](https://discord.gg/XMRE9tt) server and ask to have your issue added to the next community dev call where it can be discussed for inclusion in a future platform upgrade. If the community agrees to include it, the ZRC editors will update the state of your ZRC to 'Approved'.
 
-# ZRC Status
+## ZRC Status
 
 1. **Draft** - a preliminary version of the ZRC that is not yet ready for submission.
 2. **Ready** - a preliminary version of the ZRC that is ready for review by a wide audience.
