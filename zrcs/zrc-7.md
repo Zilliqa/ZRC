@@ -1,6 +1,6 @@
 | ZRC | Title             | Status |   Type   | Author                                                                                                                    | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
 | :-: | ----------------- | :----: | :------: | ------------------------------------------------------------------------------------------------------------------------- | :------------------: | :------------------: |
-|  7  | Metadata Standard | Draft  | Standard | Neuti Yoo<br/><noel@zilliqa.com> <br/> Elliott Green<br/><elliott@zilliqa.com> <br/> Jun Hao Tan<br/><junhao@zilliqa.com> |      2021-10-11      |      2022-01-07      |
+|  7  | Metadata Standard | Ready  | Standard | Neuti Yoo<br/><noel@zilliqa.com> <br/> Elliott Green<br/><elliott@zilliqa.com> <br/> Jun Hao Tan<br/><junhao@zilliqa.com> |      2021-10-11      |      2022-01-11      |
 
 ## Table of Contents
 
