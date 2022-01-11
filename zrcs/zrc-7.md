@@ -54,9 +54,9 @@ The metadata must be structured as the following:
 | `description`       |      `String`      | A human readable description of the asset.                                                                                                                                                                                                                                                                                                                     |          |
 | `resource`          |      `String`      | A URI that points to the asset's resource. A decentralized URI is recommended.                                                                                                                                                                                                                                                                                 |    ✓     |
 | `resource_mimetype` |      `String`      | A [MIME type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types#types) of the asset's resource _(discrete type only)_. The examples of MIME types are `image/png`, `audio/mpeg`, `video/mp4`, `model/3mf`, `font/otf`, and `application/pdf`.                                                                                        |          |
-| `animation_url`     |      `String`      | A URL to a multi-media attachment for the asset. The examples of file extensions are GLTF, GLB, WEBM, MP4, M4V, OGV, OGG, MP3, WAV, and OGA. <br/><br/> Also, `animation_url` can be HTML pages for interactive NFTs using JavaScript canvas, WebGL, etc.                                                                                                      |          |
-| `external_url`      |      `String`      | A URI that points to an external website presenting the asset.                                                                                                                                                                                                                                                                                                 |          |
 | `attributes`        | `Array of Objects` | An array of attributes.<br/><br/> Each attribute has the following properties: <ul> <li>`trait_type` : `String` <br/> The name of the trait. <br/> _(optional)_</li> <li>`value` : `String` or `Number` <br/> The value of the trait. <br/> _(required)_</li> <li>`display_type` : `String` <br/> The display type of the trait. <br/> _(optional)_</li> </ul> |          |
+| `external_url`      |      `String`      | A URL that points to an external website presenting the asset.                                                                                                                                                                                                                                                                                                 |          |
+| `animation_url`     |      `String`      | A URL to a multi-media attachment for the asset. The examples of file extensions are GLTF, GLB, WEBM, MP4, M4V, OGV, OGG, MP3, WAV, and OGA. <br/><br/> Also, `animation_url` can be HTML pages for interactive NFTs using JavaScript canvas, WebGL, etc.                                                                                                      |          |
 
 #### Examples
 
@@ -76,25 +76,11 @@ The metadata must be structured as the following:
   "name": "Creature #101",
   "description": "10,000 unique and diverse creatures living on the blockchain.",
   "resource": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1",
-  "animation_url": "https://example.com/ipfs/QmQCJyWdRRsFNYZdpkhGLZVaMLv82GDuKG2wFeBqADksEi/?seed=eaaacee01ec4887f31da5cb500c1d7d19aed562492c93ce8c9a708f320d1a9eA",
-  "external_url": "https://example.com/?token_id=1"
-}
-```
-
-**Attributes**
-
-```json
-{
-  "name": "Creature #101",
-  "resource": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1",
+  "resource_mimetype": "image/png",
   "attributes": [
     {
       "trait_type": "Background",
       "value": "Black"
-    },
-    {
-      "trait_type": "Fur",
-      "value": "Teal"
     },
     {
       "trait_type": "Eyes",
@@ -105,19 +91,22 @@ The metadata must be structured as the following:
       "value": "Grin"
     },
     {
-      "trait_type": "Accessories",
-      "value": "None"
-    },
-    {
-      "trait_type": "Level",
-      "value": 7
-    },
-    {
       "display_type": "date",
-      "trait_type": "birthday",
+      "trait_type": "Birthday",
       "value": 1546360800
     }
   ]
+}
+```
+
+**External and Animation URL**
+
+```json
+{
+  "name": "Creature #101",
+  "resource": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1",
+  "external_url": "https://example.com/creature/101",
+  "animation_url": "https://animation.example.com/creature/101"
 }
 ```
 
@@ -137,6 +126,21 @@ Note that it is valid to have other properties for the several use cases.
 {
   "name": "Creature #101",
   "resource": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1",
+  "properties": {
+    "base": "cat",
+    "rich_property": {
+      "name": "eyes",
+      "value": "big",
+      "display_value": "Big"
+    }
+  }
+}
+```
+
+```json
+{
+  "name": "Creature #101",
+  "resource": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1",
   "attributes": [
     {
       "trait_type": "Pupil Color",
@@ -149,20 +153,6 @@ Note that it is valid to have other properties for the several use cases.
       ]
     }
   ]
-}
-```
-
-```json
-{
-  "name": "Creature #101",
-  "resource": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1",
-  "properties": {
-    "rich_property": {
-      "name": "Fur",
-      "value": "teal",
-      "display_value": "Teal"
-    }
-  }
 }
 ```
 
