@@ -187,7 +187,7 @@ The token URIs can be just the following:
 ## V. References
 
 - [OpenSea - Metadata Standards](https://docs.opensea.io/docs/metadata-standards)
-- [Metaplex - Token Metadata Standard](https://docs.metaplex.com/nft-standard)
+- [Metaplex - Token Metadata Standard](https://docs.metaplex.com/token-metadata/v1.1.0/specification)
 - [ARCs - Algorand Standard Asset Parameters Conventions for Fungible and Non-Fungible Tokens](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0003.md)
 - [ZRC-6 - Non-Fungible Token Standard](https://github.com/Zilliqa/ZRC/blob/master/zrcs/zrc-6.md)
 - [ERC721 - Non-Fungible Token Standard](https://eips.ethereum.org/EIPS/eip-721)
