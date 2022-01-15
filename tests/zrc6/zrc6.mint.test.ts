@@ -592,6 +592,7 @@ describe("Mint & Burn", () => {
       error: undefined,
       want: {
         expectState: (state) => {
+          expect(JSON.stringify(state.aux_addr_list_batch_burn)).toBe("[]");
           expect(state.total_supply).toBe("0");
           expect(JSON.stringify(state.token_owners)).toBe("{}");
         },
@@ -599,6 +600,14 @@ describe("Mint & Burn", () => {
           {
             name: "BatchBurn",
             getParams: () => ({
+              token_owner_list: [
+                "List (ByStr20)",
+                [
+                  getTestAddr(TOKEN_OWNER),
+                  getTestAddr(TOKEN_OWNER),
+                  getTestAddr(TOKEN_OWNER),
+                ],
+              ],
               token_id_list: ["List (Uint256)", [1, 2, 3]],
             }),
           },

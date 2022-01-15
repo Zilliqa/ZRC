@@ -688,6 +688,9 @@ describe("Approval", () => {
       error: undefined,
       want: {
         expectState: (state) => {
+          expect(JSON.stringify(state.aux_addr_list_batch_transfer_from)).toBe(
+            "[]"
+          );
           expect(JSON.stringify(state.token_owners)).toBe(
             JSON.stringify({
               "1": getTestAddr(TOKEN_OWNER_A).toLowerCase(),
@@ -712,6 +715,14 @@ describe("Approval", () => {
           {
             name: "BatchTransferFrom",
             getParams: () => ({
+              from_list: [
+                "List (ByStr20)",
+                [
+                  getTestAddr(TOKEN_OWNER_B),
+                  getTestAddr(TOKEN_OWNER_B),
+                  getTestAddr(TOKEN_OWNER_B),
+                ],
+              ],
               to_token_id_pair_list: [
                 "List (Pair (ByStr20) (Uint256))",
                 [

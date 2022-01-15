@@ -428,6 +428,8 @@ describe("Contract", () => {
       expect(JSON.stringify(state)).toBe(
         JSON.stringify({
           _balance: "0",
+          aux_addr_list_batch_burn: [],
+          aux_addr_list_batch_transfer_from: [],
           balances: {
             [getTestAddr(TOKEN_OWNER).toLowerCase()]:
               INITIAL_TOTAL_SUPPLY.toString(),
@@ -555,6 +557,8 @@ describe("Accept Contract Ownership", () => {
       expect(JSON.stringify(state)).toBe(
         JSON.stringify({
           _balance: "0",
+          aux_addr_list_batch_burn: [],
+          aux_addr_list_batch_transfer_from: [],
           balances: {
             [getTestAddr(TOKEN_OWNER).toLowerCase()]:
               INITIAL_TOTAL_SUPPLY.toString(),
