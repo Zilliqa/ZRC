@@ -18,6 +18,7 @@ let true = True
 let zero = Uint256 0
 let one = Uint256 1
 let empty_string = ""
+let empty_address_list = Nil {ByStr20}
 
 let add_operation = Add
 let sub_operation = Sub
@@ -169,6 +170,14 @@ field total_supply: Uint256 = Uint256 0
 
 (* Mapping from token owner to the number of existing tokens *)
 field balances: Map ByStr20 Uint256 = Emp ByStr20 Uint256
+
+(* Auxiliary space for BatchBurn *)
+(* It is set to an empty list after the transition. *)
+field aux_addr_list_batch_burn: List ByStr20 = empty_address_list
+
+(* Auxiliary space for BatchTransferFrom *)
+(* It is set to an empty list after the transition. *)
+field aux_addr_list_batch_transfer_from: List ByStr20 = empty_address_list
 
 (* Set for minters *)
 (* `initial_contract_owner` is a minter by default *)
@@ -405,6 +414,11 @@ procedure BurnToken(token_id: Uint256)
     Throw error
   | Some token_owner =>
     RequireOwnerOrOperator token_owner;
+
+    cur_list <- aux_addr_list_batch_burn;
+    new_list = Cons {ByStr20} token_owner cur_list;
+    aux_addr_list_batch_burn := new_list;
+    
     (* Destroy existing token *)
     delete token_owners[token_id];
     delete spenders[token_id];
@@ -435,6 +449,10 @@ procedure TransferToken(to: ByStr20, token_id: Uint256)
   | Some token_owner =>
     RequireAccessToTransfer token_owner token_id;
     RequireNotSelf token_owner to;
+
+    cur_list <- aux_addr_list_batch_transfer_from;
+    new_list = Cons {ByStr20} token_owner cur_list;
+    aux_addr_list_batch_transfer_from := new_list;
     
     (* change token_owner for that token_id *)
     token_owners[token_id] := to;
@@ -685,8 +703,14 @@ end
 transition BatchBurn(token_id_list: List Uint256)
   RequireNotPaused;
   forall token_id_list BurnToken;
+  
+  token_owner_list <- aux_addr_list_batch_burn;
+  (* cleanup *)
+  aux_addr_list_batch_burn := empty_address_list;
+
   e = {
     _eventname: "BatchBurn";
+    token_owner_list: token_owner_list;
     token_id_list: token_id_list
   };
   event e;
@@ -929,8 +953,14 @@ end
 transition BatchTransferFrom(to_token_id_pair_list: List (Pair ByStr20 Uint256))
   RequireNotPaused;
   forall to_token_id_pair_list HandleTransfer;
+    
+  from_list <- aux_addr_list_batch_transfer_from;
+  (* cleanup *)
+  aux_addr_list_batch_transfer_from := empty_address_list;
+
   e = {
     _eventname: "BatchTransferFrom"; 
+    from_list: from_list;
     to_token_id_pair_list: to_token_id_pair_list
   };
   event e;
