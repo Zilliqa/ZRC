@@ -414,7 +414,14 @@ procedure BurnToken(token_id: Uint256)
     (* subtract one from the total supply *)
     current_supply <- total_supply;
     new_supply = builtin sub current_supply one;
-    total_supply := new_supply
+    total_supply := new_supply;
+
+    e = {
+      _eventname: "Burn";
+      token_owner: token_owner;
+      token_id: token_id
+    };
+    event e
   end
 end
 
@@ -444,7 +451,15 @@ procedure TransferToken(to: ByStr20, token_id: Uint256)
     (* subtract one from previous token owner balance *)
     UpdateBalance sub_operation token_owner;
     (* add one to the new token owner balance *)
-    UpdateBalance add_operation to
+    UpdateBalance add_operation to;
+
+    e = {
+      _eventname: "TransferFrom"; 
+      from: token_owner;
+      to: to;
+      token_id: token_id
+    };
+    event e
   end
 end
 
@@ -660,12 +675,6 @@ transition Burn(token_id: Uint256)
     Throw error
   | Some token_owner =>
     BurnToken token_id;
-    e = {
-      _eventname: "Burn";
-      token_owner: token_owner;
-      token_id: token_id
-    };
-    event e;
     msg_to_sender = {
       _tag: "ZRC6_BurnCallback";
       _recipient: _sender;
@@ -685,11 +694,6 @@ end
 transition BatchBurn(token_id_list: List Uint256)
   RequireNotPaused;
   forall token_id_list BurnToken;
-  e = {
-    _eventname: "BatchBurn";
-    token_id_list: token_id_list
-  };
-  event e;
   msg_to_sender = {
     _tag: "ZRC6_BatchBurnCallback";
     _recipient: _sender;
@@ -894,13 +898,6 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
     Throw error
   | Some token_owner =>
     TransferToken to token_id;
-    e = {
-      _eventname: "TransferFrom"; 
-      from: token_owner;
-      to: to;
-      token_id: token_id
-    };
-    event e;
     msg_to_recipient = {
       _tag: "ZRC6_RecipientAcceptTransferFrom";
       _recipient: to;
@@ -929,11 +926,6 @@ end
 transition BatchTransferFrom(to_token_id_pair_list: List (Pair ByStr20 Uint256))
   RequireNotPaused;
   forall to_token_id_pair_list HandleTransfer;
-  e = {
-    _eventname: "BatchTransferFrom"; 
-    to_token_id_pair_list: to_token_id_pair_list
-  };
-  event e;
   msg_to_sender = {
     _tag: "ZRC6_BatchTransferFromCallback";
     _recipient: _sender;
