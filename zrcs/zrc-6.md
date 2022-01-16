@@ -353,9 +353,9 @@ Pass empty string to `token_uri` to use the concatenated token URI. i.e. `<base_
 
 **Events:**
 
-|              | Name        | Description                                       | Event Parameters                                                                                                                                                                                                             |
-| ------------ | ----------- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `BatchMint` | Multiple tokens have been minted with token URIs. | `to_token_uri_pair_list` : `List (Pair ByStr20 String)` <br/><br/> List of Pair (`to`, `token_uri`)<br/><br/><ul><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_uri` : `String`<br/>URI of a token</li></ul> |
+|              | Name        | Description                                       | Event Parameters                                                                                                                                                                                                                                                                                                                                                                 |
+| ------------ | ----------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `BatchMint` | Multiple tokens have been minted with token URIs. | <ul><li> `to_token_uri_pair_list` : `List (Pair ByStr20 String)` <br/><br/> List of Pair (`to`, `token_uri`)<br/><br/><ul><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_uri` : `String`<br/>URI of a token</li></ul><br/></li><li>`start_id` : `Uint256`<br/> The token ID minted firstly </li><li>`end_id` : `Uint256`<br/>The token ID minted lastly</li><ul> |
 
 #### 8. `Burn` (Optional)
 
