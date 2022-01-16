@@ -597,9 +597,24 @@ describe("Mint & Burn", () => {
         },
         events: [
           {
-            name: "BatchBurn",
+            name: "Burn",
             getParams: () => ({
-              token_id_list: ["List (Uint256)", [1, 2, 3]],
+              token_owner: ["ByStr20", getTestAddr(CONTRACT_OWNER)],
+              token_id: ["Uint256", 3],
+            }),
+          },
+          {
+            name: "Burn",
+            getParams: () => ({
+              token_owner: ["ByStr20", getTestAddr(CONTRACT_OWNER)],
+              token_id: ["Uint256", 2],
+            }),
+          },
+          {
+            name: "Burn",
+            getParams: () => ({
+              token_owner: ["ByStr20", getTestAddr(CONTRACT_OWNER)],
+              token_id: ["Uint256", 1],
             }),
           },
         ],
