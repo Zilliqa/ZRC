@@ -409,9 +409,7 @@ Destroys `token_id_list`.
 
 **Events:**
 
-|              | Name        | Description                       | Event Parameters                                                                   |
-| ------------ | ----------- | --------------------------------- | ---------------------------------------------------------------------------------- |
-| `_eventname` | `BatchBurn` | Multiple tokens have been burned. | `token_id_list` : `List Uint256`<br/>List of unique IDs of the NFT to be destroyed |
+Equivalent to multiple [`Burn`](#8-burn-optional) events.
 
 #### 10. `AddMinter`
 
@@ -611,9 +609,7 @@ Transfers multiple `token_id` to multiple `to`.
 
 **Events:**
 
-|              | Name                | Description                            | Event Parameters                                                                                                                                                                                                                  |
-| ------------ | ------------------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `BatchTransferFrom` | Multiple tokens have been transferred. | `to_token_id_pair_list` : `List (Pair ByStr20 Uint256)` <br/><br/> List of Pair (`to`, `token_id`)<br/><br/><ul><li>`to` : `ByStr20`<br/>Address of a recipient</li><li>`token_id` : `Uint256`<br/>Unique ID of a token</li></ul> |
+Equivalent to multiple [`TransferFrom`](#15-transferfrom) events.
 
 #### 17. `SetContractOwnershipRecipient` (Optional)
 
