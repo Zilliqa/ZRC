@@ -126,7 +126,7 @@ The main advantages of this standard are:
 
 ### D. Error Codes
 
-The NFT contract must define the following constants for use as error codes for the `Error` event.
+The NFT contract must define the following constants for use as error codes for the `Error` exception.
 
 | Name                                 | Type    |  Code | Description                                                          | Required |
 | ------------------------------------ | ------- | ----: | -------------------------------------------------------------------- | :------: |
