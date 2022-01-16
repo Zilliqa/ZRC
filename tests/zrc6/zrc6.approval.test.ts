@@ -710,16 +710,28 @@ describe("Approval", () => {
         },
         events: [
           {
-            name: "BatchTransferFrom",
+            name: "TransferFrom",
             getParams: () => ({
-              to_token_id_pair_list: [
-                "List (Pair (ByStr20) (Uint256))",
-                [
-                  [getTestAddr(TOKEN_OWNER_A), 2],
-                  [getTestAddr(STRANGER_A), 3],
-                  [getTestAddr(STRANGER_A), 4],
-                ],
-              ],
+              from: ["ByStr20", getTestAddr(TOKEN_OWNER_B)],
+              to: ["ByStr20", getTestAddr(STRANGER_A)],
+              token_id: ["Uint256", 4],
+            }),
+          },
+
+          {
+            name: "TransferFrom",
+            getParams: () => ({
+              from: ["ByStr20", getTestAddr(TOKEN_OWNER_B)],
+              to: ["ByStr20", getTestAddr(STRANGER_A)],
+              token_id: ["Uint256", 3],
+            }),
+          },
+          {
+            name: "TransferFrom",
+            getParams: () => ({
+              from: ["ByStr20", getTestAddr(TOKEN_OWNER_B)],
+              to: ["ByStr20", getTestAddr(TOKEN_OWNER_A)],
+              token_id: ["Uint256", 2],
             }),
           },
         ],
