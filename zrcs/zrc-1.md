@@ -35,7 +35,7 @@ The NFT contract specification describes:
 
 ### B. Error Codes
 
-The NFT contract must define the following constants for use as error codes for the `Error` event.
+The NFT contract must define the following constants for use as error codes for the `Error` exception.
 
 | Name                               | Type    | Code  | Description                                                                         |
 | ---------------------------------- | ------- | ----- | ----------------------------------------------------------------------------------- |
