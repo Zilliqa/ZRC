@@ -48,15 +48,16 @@ The consistent metadata structure can help the NFT creators and builders to hand
 
 The metadata must be structured as the following:
 
-| Property            |        Type        | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | Required |
-| ------------------- | :----------------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------: |
-| `name`              |      `String`      | Name of the asset.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |    ✓     |
-| `description`       |      `String`      | A human readable description of the asset.                                                                                                                                                                                                                                                                                                                                                                                                                                                            |          |
-| `resource`          |      `String`      | A URI that points to the asset's resource. This can be either point to centralized storage e.g. S3 or decentralized file storage e.g. IPFS, Arweave.                                                                                                                                                                                                                                                                                                                                                  |    ✓     |
-| `resource_mimetype` |      `String`      | A [MIME type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types#types) of the asset's resource _(discrete type only)_. The examples of MIME types are `image/png`, `audio/mpeg`, `video/mp4`, `model/3mf`, `font/otf`, and `application/pdf`.                                                                                                                                                                                                                               |          |
-| `attributes`        | `Array of Objects` | An array of attributes.<br/><br/> Each attribute has the following properties: <ul> <li>`trait_type` : `String` <br/> The name of the trait. <br/> _(optional)_</li> <li>`value` : `String` or `Number` or `Boolean` <br/> The value of the trait. If the value is `Number`, it should be integer or float. <br/> _(required)_</li> <li>`display_type` : `String` <br/> The display type of the trait. If the display type is `timestamp`, it should be Unix timestamp. <br/> _(optional)_</li> </ul> |          |
-| `external_url`      |      `String`      | A URL that points to an external website presenting the asset.                                                                                                                                                                                                                                                                                                                                                                                                                                        |          |
-| `animation_url`     |      `String`      | A URL to a multi-media attachment for the asset. The examples of file extensions are GLTF, GLB, WEBM, MP4, M4V, OGV, OGG, MP3, WAV, and OGA. <br/><br/> Also, `animation_url` can be HTML pages for interactive NFTs using JavaScript canvas, WebGL, etc.                                                                                                                                                                                                                                             |          |
+| Property             |        Type        | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Required |
+| -------------------- | :----------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :------: |
+| `name`               |      `String`      | Name of the asset.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |    ✓     |
+| `description`        |      `String`      | A human readable description of the asset.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |          |
+| `resource`           |      `String`      | A URI that points to the asset's resource. This can be either point to centralized storage e.g. S3 or decentralized file storage e.g. IPFS, Arweave.                                                                                                                                                                                                                                                                                                                                                                                                                                                         |    ✓     |
+| `resource_mimetype`  |      `String`      | A [MIME type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types#types) of the asset's resource _(discrete type only)_. The examples of MIME types are `image/png`, `audio/mpeg`, `video/mp4`, `model/3mf`, `font/otf`, and `application/pdf`.                                                                                                                                                                                                                                                                                                                                      |          |
+| `resource_integrity` |      `String`      | A Base64 encoded SHA digest of the file pointed by the `resource`. This is an [integrity metadata](https://w3c.github.io/webappsec-subresource-integrity/#integrity-metadata-description). For example, if the SHA-256 is the hash function and `8z5D++W8NDHzFm5rY4/JxkXlIlU2cSQ65XjighJVk9U=` is the Base64 encoded SHA digest of the resource file, the `resource_integrity` is `sha256-8z5D++W8NDHzFm5rY4/JxkXlIlU2cSQ65XjighJVk9U=`. <br/><br/> If `resource` points to centralized storage, this property can be used to ensure the integrity of the resource. Otherwise, this property is unnecessary. |          |
+| `attributes`         | `Array of Objects` | An array of attributes.<br/><br/> Each attribute has the following properties: <ul> <li>`trait_type` : `String` <br/> The name of the trait. <br/> _(optional)_</li> <li>`value` : `String`, `Number`, or `Boolean` <br/> The value of the trait. When the value is `Number`, it should be integer or float. <br/> _(required)_</li> <li>`display_type` : `String` <br/> The display type of the trait. If the display type is `timestamp`, we recommend using unix timestamp. <br/> _(optional)_</li> </ul>                                                                                                 |          |
+| `external_url`       |      `String`      | A URL that points to an external website presenting the asset.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |          |
+| `animation_url`      |      `String`      | A URL to a multi-media attachment for the asset. The examples of file extensions are GLTF, GLB, WEBM, MP4, M4V, OGV, OGG, MP3, WAV, and OGA. <br/><br/> Also, `animation_url` can be HTML pages for interactive NFTs using JavaScript canvas, WebGL, etc.                                                                                                                                                                                                                                                                                                                                                    |          |
 
 #### Examples
 
@@ -99,7 +100,19 @@ The metadata must be structured as the following:
 }
 ```
 
-**External and Animation URL**
+**Resource Integrity**
+
+Note that resource is stored on centralized storage.
+
+```json
+{
+  "name": "Creature #101",
+  "resource": "https://storage.googleapis.com/creature-prod.appspot.com/creature/101.png",
+  "resource_integrity": "sha256-8z5D++W8NDHzFm5rY4/JxkXlIlU2cSQ65XjighJVk9U="
+}
+```
+
+**External & Animation URL**
 
 ```json
 {
@@ -112,7 +125,7 @@ The metadata must be structured as the following:
 
 **Other Properties**
 
-Note that it is valid to have other properties for the several use cases.
+Note that it is valid to have other properties for several use cases.
 
 ```json
 {
@@ -196,6 +209,7 @@ The token URIs can be just the following:
 - [RFC6838 - Media Type Specifications and Registration Procedures](https://datatracker.ietf.org/doc/html/rfc6838)
 - [IANA - Media Types](https://www.iana.org/assignments/media-types/media-types.xhtml)
 - [Mozilla - MIME types (IANA media types)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types)
+- [W3C - Subresource Integrity](https://w3c.github.io/webappsec-subresource-integrity)
 
 ## VI. Copyright
 
