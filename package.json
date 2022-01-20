@@ -3,7 +3,7 @@
   "scripts": {
     "run:isolated-server": "docker run --name zrc_local -d -p 5555:5555 --entrypoint isolatedServer zilliqa/zilliqa-isolated-server:a01fe00 -t 5000 -f boot.json -u 0",
     "rm:isolated-server": "docker stop zrc_local | xargs docker rm",
-    "test:zrc": "PORT=5555 CONTAINER=zrc_local jest --passWithNoTests",
+    "test:zrc": "PORT=5555 CONTAINER=zrc_local jest",
     "test": "npm run run:isolated-server; npm run test:zrc && npm run rm:isolated-server",
     "format": "npx prettier --write ."
   },
@@ -12,7 +12,7 @@
     "@zilliqa-js/zilliqa": "3.3.1",
     "jest": "^27.2.4",
     "prettier": "^2.4.1",
-    "@zilliqa-js/scilla-json-utils": "^0.1.0",
+    "@zilliqa-js/scilla-json-utils": "0.2.0",
     "ts-jest": "^27.0.5",
     "typescript": "^4.4.4"
   },
