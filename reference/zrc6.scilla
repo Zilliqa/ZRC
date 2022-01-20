@@ -407,6 +407,7 @@ procedure BurnToken(token_id: Uint256)
     RequireOwnerOrOperator token_owner;
     (* Destroy existing token *)
     delete token_owners[token_id];
+    delete token_uris[token_id];
     delete spenders[token_id];
 
     (* subtract one from the balance *)
