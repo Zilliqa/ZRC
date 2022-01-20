@@ -2,7 +2,7 @@ import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { expect } from "@jest/globals";
 import { getAddressFromPrivateKey, schnorr } from "@zilliqa-js/crypto";
 
-import { getJSONValue, getJSONParams } from "@zilliqa-js/scilla-json-utils";
+import { scillaJSONVal, scillaJSONParams } from "@zilliqa-js/scilla-json-utils";
 
 import {
   getErrorMsg,
@@ -78,7 +78,7 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   zilliqa.wallet.setDefault(getTestAddr(CONTRACT_OWNER));
-  const init = getJSONParams({
+  const init = scillaJSONParams({
     _scilla_version: ["Uint32", 0],
     initial_contract_owner: ["ByStr20", getTestAddr(CONTRACT_OWNER)],
     initial_base_uri: ["String", BASE_URI],
@@ -96,7 +96,7 @@ beforeEach(async () => {
 
   const tx: any = await zilliqa.contracts.at(globalContractAddress).call(
     "BatchMint",
-    getJSONParams({
+    scillaJSONParams({
       to_token_uri_pair_list: [
         "List (Pair (ByStr20) (String))",
         [
@@ -165,7 +165,7 @@ describe("Contract Contraint", () => {
   for (const testCase of testCases) {
     it(`${testCase.name}`, async () => {
       zilliqa.wallet.setDefault(getTestAddr(CONTRACT_OWNER));
-      const init = getJSONParams(testCase.getParams());
+      const init = scillaJSONParams(testCase.getParams());
       const [tx] = await zilliqa.contracts
         .new(CODE, init)
         .deploy(TX_PARAMS, 33, 1000, true);
@@ -435,9 +435,12 @@ describe("Contract", () => {
           base_uri: BASE_URI,
           contract_owner: getTestAddr(CONTRACT_OWNER).toLowerCase(),
           contract_ownership_recipient: ZERO_ADDRESS,
-          is_paused: getJSONValue(false),
+          is_paused: scillaJSONVal("Bool", false),
           minters: {
-            [getTestAddr(CONTRACT_OWNER).toLowerCase()]: getJSONValue(true),
+            [getTestAddr(CONTRACT_OWNER).toLowerCase()]: scillaJSONVal(
+              "Bool",
+              true
+            ),
           },
           operators: {},
           royalty_fee_bps: "1000",
@@ -461,7 +464,7 @@ describe("Contract", () => {
         .at(globalContractAddress)
         .call(
           testCase.transition,
-          getJSONParams(testCase.getParams()),
+          scillaJSONParams(testCase.getParams()),
           TX_PARAMS
         );
 
@@ -491,7 +494,7 @@ describe("Accept Contract Ownership", () => {
   beforeEach(async () => {
     const tx: any = await zilliqa.contracts.at(globalContractAddress).call(
       "SetContractOwnershipRecipient",
-      getJSONParams({
+      scillaJSONParams({
         to: ["ByStr20", getTestAddr(CONTRACT_OWNERSHIP_RECIPIENT)],
       }),
       TX_PARAMS
@@ -564,9 +567,12 @@ describe("Accept Contract Ownership", () => {
           contract_ownership_recipient: getTestAddr(
             CONTRACT_OWNERSHIP_RECIPIENT
           ).toLowerCase(),
-          is_paused: getJSONValue(false),
+          is_paused: scillaJSONVal("Bool", false),
           minters: {
-            [getTestAddr(CONTRACT_OWNER).toLowerCase()]: getJSONValue(true),
+            [getTestAddr(CONTRACT_OWNER).toLowerCase()]: scillaJSONVal(
+              "Bool",
+              true
+            ),
           },
           operators: {},
           royalty_fee_bps: "1000",
@@ -590,7 +596,7 @@ describe("Accept Contract Ownership", () => {
         .at(globalContractAddress)
         .call(
           testCase.transition,
-          getJSONParams(testCase.getParams()),
+          scillaJSONParams(testCase.getParams()),
           TX_PARAMS
         );
 
@@ -642,7 +648,7 @@ describe("Unpaused", () => {
       want: {
         expectState: (state) => {
           expect(JSON.stringify(state.is_paused)).toBe(
-            JSON.stringify(getJSONValue(true))
+            JSON.stringify(scillaJSONVal("Bool", true))
           );
         },
         events: [
@@ -672,7 +678,7 @@ describe("Unpaused", () => {
         .getState();
 
       expect(JSON.stringify(state.is_paused)).toBe(
-        JSON.stringify(getJSONValue(false))
+        JSON.stringify(scillaJSONVal("Bool", false))
       );
 
       zilliqa.wallet.setDefault(testCase.getSender());
@@ -680,7 +686,7 @@ describe("Unpaused", () => {
         .at(globalContractAddress)
         .call(
           testCase.transition,
-          getJSONParams(testCase.getParams()),
+          scillaJSONParams(testCase.getParams()),
           TX_PARAMS
         );
 
@@ -742,7 +748,7 @@ describe("Paused", () => {
       want: {
         expectState: (state) => {
           expect(JSON.stringify(state.is_paused)).toBe(
-            JSON.stringify(getJSONValue(false))
+            JSON.stringify(scillaJSONVal("Bool", false))
           );
         },
         events: [
@@ -821,7 +827,7 @@ describe("Paused", () => {
         .getState();
 
       expect(JSON.stringify(state.is_paused)).toBe(
-        JSON.stringify(getJSONValue(true))
+        JSON.stringify(scillaJSONVal("Bool", true))
       );
 
       zilliqa.wallet.setDefault(testCase.getSender());
@@ -829,7 +835,7 @@ describe("Paused", () => {
         .at(globalContractAddress)
         .call(
           testCase.transition,
-          getJSONParams(testCase.getParams()),
+          scillaJSONParams(testCase.getParams()),
           TX_PARAMS
         );
 

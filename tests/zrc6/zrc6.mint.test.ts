@@ -1,7 +1,7 @@
 import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { expect } from "@jest/globals";
 import { getAddressFromPrivateKey, schnorr } from "@zilliqa-js/crypto";
-import { getJSONParams } from "@zilliqa-js/scilla-json-utils";
+import { scillaJSONParams } from "@zilliqa-js/scilla-json-utils";
 
 import {
   getErrorMsg,
@@ -76,7 +76,7 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   zilliqa.wallet.setDefault(getTestAddr(CONTRACT_OWNER));
-  const init = getJSONParams({
+  const init = scillaJSONParams({
     _scilla_version: ["Uint32", 0],
     initial_contract_owner: ["ByStr20", getTestAddr(CONTRACT_OWNER)],
     initial_base_uri: ["String", BASE_URI],
@@ -94,7 +94,7 @@ beforeEach(async () => {
 
   let tx: any = await zilliqa.contracts.at(globalContractAddress).call(
     "AddMinter",
-    getJSONParams({
+    scillaJSONParams({
       minter: ["ByStr20", getTestAddr(MINTER)],
     }),
     TX_PARAMS
@@ -106,7 +106,7 @@ beforeEach(async () => {
 
   tx = await zilliqa.contracts.at(globalContractAddress).call(
     "BatchMint",
-    getJSONParams({
+    scillaJSONParams({
       to_token_uri_pair_list: [
         "List (Pair (ByStr20) (String))",
         [
@@ -239,7 +239,7 @@ describe("Minter", () => {
         .at(globalContractAddress)
         .call(
           testCase.transition,
-          getJSONParams(testCase.getParams()),
+          scillaJSONParams(testCase.getParams()),
           TX_PARAMS
         );
 
@@ -635,7 +635,7 @@ describe("Mint & Burn", () => {
         .at(globalContractAddress)
         .call(
           testCase.transition,
-          getJSONParams(testCase.getParams()),
+          scillaJSONParams(testCase.getParams()),
           TX_PARAMS
         );
 
