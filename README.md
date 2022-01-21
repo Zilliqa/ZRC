@@ -14,7 +14,7 @@ The Zilliqa Reference Contracts (ZRCs) are the contract standards for the Zilliq
 
 |           ZRC           | Title                                           |
 | :---------------------: | ----------------------------------------------- |
-| [ZRC-7](/zrcs/zrc-7.md) | Metadata Standard                               |
+| [ZRC-7](/zrcs/zrc-7.md) | NFT Metadata Standard                           |
 | [ZRC-6](/zrcs/zrc-6.md) | Non-Fungible Token Standard                     |
 | [ZRC-5](/zrcs/zrc-5.md) | Convention for Deposit of ZIL                   |
 | [ZRC-4](/zrcs/zrc-4.md) | Standard for Multisig Wallet                    |

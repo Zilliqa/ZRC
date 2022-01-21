@@ -1,6 +1,6 @@
-| ZRC | Title             | Status |   Type   | Author                                                                                                                    | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
-| :-: | ----------------- | :----: | :------: | ------------------------------------------------------------------------------------------------------------------------- | :------------------: | :------------------: |
-|  7  | Metadata Standard | Ready  | Standard | Neuti Yoo<br/><noel@zilliqa.com> <br/> Elliott Green<br/><elliott@zilliqa.com> <br/> Jun Hao Tan<br/><junhao@zilliqa.com> |      2021-10-11      |      2022-01-11      |
+| ZRC | Title                 | Status |   Type   | Author                                                                                                                    | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
+| :-: | --------------------- | :----: | :------: | ------------------------------------------------------------------------------------------------------------------------- | :------------------: | :------------------: |
+|  7  | NFT Metadata Standard | Ready  | Standard | Neuti Yoo<br/><noel@zilliqa.com> <br/> Elliott Green<br/><elliott@zilliqa.com> <br/> Jun Hao Tan<br/><junhao@zilliqa.com> |      2021-10-11      |      2022-01-20      |
 
 ## Table of Contents
 
@@ -9,19 +9,38 @@
 - [III. Motivation](#iii-motivation)
 - [IV. Specification](#iv-specification)
   - [A. Metadata Structure](#a-metadata-structure)
-  - [B. Token URI Optimization](#b-token-uri-optimization)
+    - [1. Collection Metadata Structure](#1-collection-metadata-structure-optional)
+    - [2. Token Metadata Structure](#2-token-metadata-structure)
 - [V. References](#v-references)
 - [VI. Copyright](#vi-copyright)
 
 ## I. What is Metadata and Token URI?
 
-Metadata is data that provides information about other data. Metadata allows NFTs to have additional properties e.g. name, description, and resource. The example is the following:
+Metadata is data that provides information about other data. Metadata allows NFTs to have additional properties e.g. name, resource, and attributes. The example is the following:
 
 ```json
 {
   "name": "Creature #101",
-  "description": "10,000 unique and diverse creatures living on the blockchain.",
-  "resource": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1"
+  "resource": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1",
+  "attributes": [
+    {
+      "trait_type": "Background",
+      "value": "Black"
+    },
+    {
+      "trait_type": "Eyes",
+      "value": "Big"
+    },
+    {
+      "trait_type": "Mouth",
+      "value": "Grin"
+    },
+    {
+      "display_type": "timestamp",
+      "trait_type": "Birthday",
+      "value": 1546360800
+    }
+  ]
 }
 ```
 
@@ -34,32 +53,100 @@ The above is a JSON blob of data with the metadata for the NFT. It is returned b
 - `https://foo.mypinata.cloud/ipfs/QmZILYgURKVnLWBm1aXH1BqKqFgmj7j1K6MWAFTkf9xm8A/1`
 - `https://creatures-api.zilliqa.com/api/creature/1`
 
+Token URIs can be gas-efficient with the concatenation of [ZRC-6](https://github.com/Zilliqa/ZRC/blob/master/zrcs/zrc-6.md) compliant base URI and token ID. The concatenated token URI is `<base_uri><token_id>`.
+
+| Base URI                                                 |
+| :------------------------------------------------------- |
+| `ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/` |
+
+When the base URI is the above, the token URIs are the following:
+
+| Token ID | Token URI                                                 |
+| :------: | :-------------------------------------------------------- |
+|    1     | `ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/1` |
+|    2     | `ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/2` |
+|    3     | `ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/3` |
+
+Note that each token can have its own token URI when the base URI does not exist.
+
 ## II. Abstract
 
-ZRC-7 standardizes the metadata structure and covers token URI optimization with base token URI.
+ZRC-7 standardizes the NFT metadata structure.
 
 ## III. Motivation
 
-The consistent metadata structure can help the NFT creators and builders to handle the NFT metadata more simply. Also, base token URI can be used to reduce the gas cost.
+The consistent metadata structure can help the NFT creators and builders to handle the NFT metadata more simply.
 
 ## IV. Specification
 
 ### A. Metadata Structure
 
-The metadata must be structured as the following:
+There are two types of metadata structure to be described: collection metadata, token metadata
+
+|        Type         | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | Required |
+| :-----------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------: |
+| Collection Metadata | Contract-level metadata for the NFT collection. It is returned by the URI of this format: `<base_uri>metadata.json`. For example, if `ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1/` is the [ZRC-6](https://github.com/Zilliqa/ZRC/blob/master/zrcs/zrc-6.md) compliant `base_uri`, then collection metadata JSON file is returned by `ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1/metadata.json`. <br/><br/> It can be space-efficient to use collection metadata. It's because the redundant data in the token metadata can be stored in the collection metadata instead. <br/><br/>This is optional. If there is no `base_uri`, the collection metadata cannot be accessed. |
+|   Token Metadata    | Token-level metadata for a specific NFT. It is returned by the token URI.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |    ✓     |
+
+#### 1. Collection Metadata Structure (Optional)
+
+Collection metadata must be structured as the following:
+
+| Property        |   Type   | Description                                                                                                                                                                                                                                                    | Required |
+| --------------- | :------: | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------: |
+| `name`          | `String` | Name of the collection.                                                                                                                                                                                                                                        |    ✓     |
+| `description`   | `String` | A human readable description of the collection.                                                                                                                                                                                                                |          |
+| `external_url`  | `String` | A URL that points to an external website presenting the collection.                                                                                                                                                                                            |          |
+| `animation_url` | `String` | A URL to a multi-media attachment for the collection. The examples of file extensions are GLTF, GLB, WEBM, MP4, M4V, OGV, OGG, MP3, WAV, and OGA. <br/><br/> Also, `animation_url` can be HTML pages for interactive NFTs using JavaScript canvas, WebGL, etc. |          |
+
+##### Examples
+
+**Minimal**
+
+```json
+{
+  "name": "Unique and Diverse Creatures"
+}
+```
+
+**Basic**
+
+```json
+{
+  "name": "Unique and Diverse Creatures",
+  "description": "10,000 unique and diverse creatures living on the blockchain.",
+  "external_url": "https://example.com/creature",
+  "animation_url": "https://animation.example.com/creature"
+}
+```
+
+**Other Properties**
+
+Note that it is valid to have other properties for several use cases.
+
+```json
+{
+  "name": "Unique and Diverse Creatures",
+  "image_url": "https://storage.googleapis.com/creature-prod.appspot.com/unique-and-diverse-creatures.png"
+}
+```
+
+#### 2. Token Metadata Structure
+
+Token metadata must be structured as the following:
 
 | Property             |        Type        | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Required |
 | -------------------- | :----------------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------: |
 | `name`               |      `String`      | Name of the asset.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |    ✓     |
-| `description`        |      `String`      | A human readable description of the asset.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |          |
 | `resource`           |      `String`      | A URI that points to the asset's resource. This can be either point to centralized storage e.g. S3 or decentralized file storage e.g. IPFS, Arweave.                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |    ✓     |
 | `resource_mimetype`  |      `String`      | A [MIME type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types#types) of the asset's resource _(discrete type only)_. The examples of MIME types are `image/png`, `audio/mpeg`, `video/mp4`, `model/3mf`, `font/otf`, and `application/pdf`.                                                                                                                                                                                                                                                                                                                                                |          |
 | `resource_integrity` |      `String`      | A Base64 encoded SHA digest of the file pointed by the `resource`. This is an [integrity metadata](https://w3c.github.io/webappsec-subresource-integrity/#integrity-metadata-description). For example, if the SHA-256 is the hash function and `8z5D++W8NDHzFm5rY4/JxkXlIlU2cSQ65XjighJVk9U=` is the Base64 encoded SHA digest of the resource file, then the `resource_integrity` is `sha256-8z5D++W8NDHzFm5rY4/JxkXlIlU2cSQ65XjighJVk9U=`. <br/><br/> If `resource` points to centralized storage, then this property can be used to ensure the integrity of the resource. Otherwise, this property is unnecessary. |          |
 | `attributes`         | `Array of Objects` | An array of attributes.<br/><br/> Each attribute has the following properties: <ul> <li>`trait_type` : `String` <br/> The name of the trait. <br/> _(optional)_</li> <li>`value` : `String`, `Number`, or `Boolean` <br/> The value of the trait. When the value is `Number`, it should be integer or float. <br/> _(required)_</li> <li>`display_type` : `String` <br/> The display type of the trait. If the display type is `timestamp`, we recommend using unix timestamp. <br/> _(optional)_</li> </ul>                                                                                                           |          |
+| `description`        |      `String`      | A human readable description of the asset.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |          |
 | `external_url`       |      `String`      | A URL that points to an external website presenting the asset.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |          |
 | `animation_url`      |      `String`      | A URL to a multi-media attachment for the asset. The examples of file extensions are GLTF, GLB, WEBM, MP4, M4V, OGV, OGG, MP3, WAV, and OGA. <br/><br/> Also, `animation_url` can be HTML pages for interactive NFTs using JavaScript canvas, WebGL, etc.                                                                                                                                                                                                                                                                                                                                                              |          |
 
-#### Examples
+##### Examples
 
 **Minimal**
 
@@ -75,7 +162,6 @@ The metadata must be structured as the following:
 ```json
 {
   "name": "Creature #101",
-  "description": "10,000 unique and diverse creatures living on the blockchain.",
   "resource": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1",
   "resource_mimetype": "image/png",
   "attributes": [
@@ -109,6 +195,16 @@ Note that resource is stored on centralized storage.
   "name": "Creature #101",
   "resource": "https://storage.googleapis.com/creature-prod.appspot.com/creature/101.png",
   "resource_integrity": "sha256-8z5D++W8NDHzFm5rY4/JxkXlIlU2cSQ65XjighJVk9U="
+}
+```
+
+**Description**
+
+```json
+{
+  "name": "Creature #101",
+  "resource": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1",
+  "description": "10,000 unique and diverse creatures living on the blockchain."
 }
 ```
 
@@ -168,34 +264,6 @@ Note that it is valid to have other properties for several use cases.
   ]
 }
 ```
-
-### B. Token URI Optimization
-
-We recommend using a token URI with the concatenation of base token URI and token ID only if it is possible. The concatenated token URI is `<base_uri><token_id>` and it can be gas-efficient.
-
-| Base URI                                                 |
-| :------------------------------------------------------- |
-| `ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/` |
-
-When the base token URI is the above, the token URIs are the following:
-
-| Token ID | Token URI                                                 |
-| :------: | :-------------------------------------------------------- |
-|    1     | `ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/1` |
-|    2     | `ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/2` |
-|    3     | `ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/3` |
-
-**When there is no base token URI**
-
-Each token can have its own token URI when the base token URI does not exist. For example, there can be no base token URI for the randomized or dynamic minting with decentralized token URIs. It's because Content Identifier (CID) will change as NFTs are minted dynamically.
-
-The token URIs can be just the following:
-
-| Token ID | Token URI                                               |
-| :------: | :------------------------------------------------------ |
-|    1     | `ipfs://QmZacCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbEYpS1st` |
-|    2     | `ipfs://QmZec4tcBsMqLRuCQtPmPe84bpSjrC3Ky7t3JWuHXYB2nd` |
-|    3     | `ipfs://QmZi2Jxm3aqVmByTMdud3z2pDiAYARBfLTEFg1Z7iiK3rd` |
 
 ## V. References
 
