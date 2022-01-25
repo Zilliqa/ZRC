@@ -3,7 +3,7 @@
   "scripts": {
     "run:isolated-server": "docker run --name zrc_local -d -p 5555:5555 --entrypoint isolatedServer zilliqa/zilliqa-isolated-server:a01fe00 -t 5000 -f boot.json -u 0",
     "rm:isolated-server": "docker stop zrc_local | xargs docker rm",
-    "test:zrc": "PORT=5555 CONTAINER=zrc_local jest",
+    "test:zrc": "PORT=5555 jest",
     "test": "npm run run:isolated-server; npm run test:zrc && npm run rm:isolated-server",
     "format": "npx prettier --write ."
   },
