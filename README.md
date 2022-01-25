@@ -42,6 +42,12 @@ When you believe your ZRC is ready to progress past the 'Draft' phase, you shoul
 3. **Approved** - a finalized version of the ZRC that has been in the 'Ready' state for at least 2 weeks and any technical changes that were requested have been addressed by the author.
 4. **Implemented** - a finalized version of the ZRC that the Core Devs have decided to implement and release.
 
+## Contract Testing
+
+### `npm test`
+
+Runs contract tests using [Isolated Server container](https://hub.docker.com/r/zilliqa/zilliqa-isolated-server), [Jest](https://jestjs.io/), and [Scilla JSON Utils](https://github.com/Zilliqa/scilla-json-utils)
+
 ## License
 
 This project is open source software licensed as [MIT](https://github.com/zilliqa/zrc/blob/master/LICENSE).
