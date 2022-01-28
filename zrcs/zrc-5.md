@@ -12,11 +12,11 @@ ZRC-5 defines a convention for an interface that a smart contract should impleme
 
 ## III. Motivation
 
-For a smart contract to accept incoming ZIL, it needs to do so explicitly using the `accept` statement. As such, any transition that does not have the `accept` statement  will not be able to accept any incoming ZIL transfer. 
+For a smart contract to accept incoming ZIL, it needs to do so explicitly using the `accept` statement. As such, any transition that does not have the `accept` statement will not be able to accept any incoming ZIL transfer.
 
-However, there is currently no naming convention for transitions that can accept ZIL. As a result, cryptocurrency exchanges or cryptocurrency wallet providers do not know which `_tag` to set, should they wish to transfer ZIL to a contract address. 
+However, there is currently no naming convention for transitions that can accept ZIL. As a result, cryptocurrency exchanges or cryptocurrency wallet providers do not know which `_tag` to set, should they wish to transfer ZIL to a contract address.
 
-By having a naming convention for transitions that can accept ZIL, one can easily transfer ZIL to a contract that follows this convention, thereby improving composability. 
+By having a naming convention for transitions that can accept ZIL, one can easily transfer ZIL to a contract that follows this convention, thereby improving composability.
 
 ## IV. Specification
 
@@ -29,15 +29,16 @@ The deposit of ZIL specification describes:
 
 For a contract that wishes to conditionally or unconditionally accept ZIL, it should implement a transition named `AddFunds` that does not take any parameters.
 
-### B. Mandatory instruction 
+### B. Mandatory instruction
 
-Within the `AddFunds` transition, there should be an `accept` instruction. 
+Within the `AddFunds` transition, there should be an `accept` instruction.
 
 ### C. Conditional acceptance of ZIL
 
-Smart contract developers are free to introduce any programmatic logic to conditionally accept ZIL in `AddFunds` transition. Smart contract developers can also use `accept` instruction in other transitions, however, such transitions may reduce composability of the smart contract. 
+Smart contract developers are free to introduce any programmatic logic to conditionally accept ZIL in `AddFunds` transition. Smart contract developers can also use `accept` instruction in other transitions, however, such transitions may reduce composability of the smart contract.
 
 ### D. Sample implementation
+
 This is a sample implementation of `AddFunds` transition that unconditionally accepts ZIL.
 
 ```
