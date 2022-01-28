@@ -1,6 +1,6 @@
-| ZRC | Title                            | Status       | Type     | Author                                                                                                      | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
-| --- | -------------------------------- | ------------ | -------- | ----------------------------------------------------------------------------------------------------------- | -------------------- | -------------------- |
-| 1   | Standard for Non Fungible Tokens | Implemented  | Standard | Edison Lim <edison@aqilliz.com> <br> Han Wen Chua <hanwen@zilliqa.com> <br> Arnav Vohra <arnav@zilliqa.com> | 2019-09-28           | 2021-11-12           |
+| ZRC | Title                            | Status      | Type     | Author                                                                                                      | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
+| --- | -------------------------------- | ----------- | -------- | ----------------------------------------------------------------------------------------------------------- | -------------------- | -------------------- |
+| 1   | Standard for Non Fungible Tokens | Implemented | Standard | Edison Lim <edison@aqilliz.com> <br> Han Wen Chua <hanwen@zilliqa.com> <br> Arnav Vohra <arnav@zilliqa.com> | 2019-09-28           | 2021-11-12           |
 
 ## I. What are Non Fungible Tokens?
 
@@ -48,7 +48,7 @@ The NFT contract must define the following constants for use as error codes for 
 | `CodeNotFound`                     | `Int32` | `-7`  | Emit when a value is missing.                                                       |
 | `CodeNotApprovedForAll`            | `Int32` | `-8`  | Emit when the address is not an operator for the token owner.                       |
 | `CodeNotOwnerOrOperator`           | `Int32` | `-9`  | Emit when the sender is neither a token owner nor a token operator.                 |
-| `CodeNotApprovedSpenderOrOperator` | `Int32` | `-10` | Emit when the sender is neither an approved spender nor a token operator.            |
+| `CodeNotApprovedSpenderOrOperator` | `Int32` | `-10` | Emit when the sender is neither an approved spender nor a token operator.           |
 
 ### C. Immutable Variables
 
@@ -250,9 +250,9 @@ transition Mint(to: ByStr20, token_uri: String)
 
 **Messages sent:**
 
-|        | Name                  | Description                                           | Callback Parameters                                                                                                                                                                                                                    |
-| ------ | --------------------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `RecipientAcceptMint` | Dummy callback to prevent invalid recipient contract. |                                                                                                                                                                                                                                        |
+|        | Name                  | Description                                           | Callback Parameters                                                                                                                                                                                                                           |
+| ------ | --------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `RecipientAcceptMint` | Dummy callback to prevent invalid recipient contract. |                                                                                                                                                                                                                                               |
 | `_tag` | `MintCallBack`        | Provide the sender the status of the mint.            | `recipient`: `ByStr20`, `token_id`: `Uint256`, `token_uri`: `String`, where `recipient` is the address of the recipient, `token_id` is the unique token_id of the NFT to be minted, and `token_uri` is the token URI of the NFT to be minted. |
 
 **Events:**
@@ -285,9 +285,9 @@ transition Burn(tokenId: Uint256)
 
 **Events:**
 
-|           | Name          | Description            | Event Parameters                                                                                                                                                                                                                                                            |
-| --------- | ------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| _eventName | `BurnSuccess` | Burning is successful. | `initiator`: `ByStr20`, `burn_address`: `ByStr20`, `token_id`: `Uint256`, where, `initiator` is the address of caller, `burn_address` is the address of the token_owner whose NFT is being burned, and `token_id` is the unique token_id of the token that has been burned. |
+|             | Name          | Description            | Event Parameters                                                                                                                                                                                                                                                            |
+| ----------- | ------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| \_eventName | `BurnSuccess` | Burning is successful. | `initiator`: `ByStr20`, `burn_address`: `ByStr20`, `token_id`: `Uint256`, where, `initiator` is the address of caller, `burn_address` is the address of the token_owner whose NFT is being burned, and `token_id` is the unique token_id of the token that has been burned. |
 
 #### 4. SetApprove()
 
@@ -315,10 +315,10 @@ transition SetApprove(to: ByStr20, token_id: Uint256)
 
 **Events:**
 
-|           | Name                    | Description                                 | Event Parameters                                                                                                                                                                                                                                                              |
-| --------- | ----------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| _eventName | `AddApprovalSuccess`    | Adding of approved_spender is successful.   | `initiator`: `ByStr20`, `approved_spender`: `ByStr20`, `token_id`: `Uint256`, where `initiator` is the address of the \_sender, `approved_spender` is address to be set as an approved_spender of a given token_id, and `token_id` is the unique token_id of an existing NFT. |
-| _eventName | `RemoveApprovalSuccess` | Removing of approved_spender is successful. | `initiator`: `ByStr20`, `removed_spender`: `ByStr20`, `token_id`: `Uint256`, where `initiator` is the address of the \_sender, `removed_spender` is address to removed as an approved_spender of a given token_id, and `token_id` is the unique token_id of an existing NFT.  |
+|             | Name                    | Description                                 | Event Parameters                                                                                                                                                                                                                                                              |
+| ----------- | ----------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| \_eventName | `AddApprovalSuccess`    | Adding of approved_spender is successful.   | `initiator`: `ByStr20`, `approved_spender`: `ByStr20`, `token_id`: `Uint256`, where `initiator` is the address of the \_sender, `approved_spender` is address to be set as an approved_spender of a given token_id, and `token_id` is the unique token_id of an existing NFT. |
+| \_eventName | `RemoveApprovalSuccess` | Removing of approved_spender is successful. | `initiator`: `ByStr20`, `removed_spender`: `ByStr20`, `token_id`: `Uint256`, where `initiator` is the address of the \_sender, `removed_spender` is address to removed as an approved_spender of a given token_id, and `token_id` is the unique token_id of an existing NFT.  |
 
 #### 5. SetApprovalForAll()
 
@@ -336,16 +336,16 @@ transition SetApprovalForAll(to: ByStr20)
 
 **Messages sent:**
 
-|        | Name                               | Description                                                   | Callback Parameters                                                                                                                                                     |
-| ------ | ---------------------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|        | Name                               | Description                                                   | Callback Parameters                                                                                                                                             |
+| ------ | ---------------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_tag` | `SetApprovalForAllSuccessCallBack` | Provide the sender the status of the approval of an operator. | `operator`: `ByStr20`, `status`: `Bool`, where `operator` is the address of the operator whose status was being set, and `status` is status it is being set to. |
 
 **Events:**
 
-|           | Name                          | Description                                     | Event Parameters                                                                                                                                                          |
-| --------- | ----------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| _eventName | `AddApprovalForAllSuccess`    | Addition of an operator's status is successful. | `initiator`: `ByStr20`, `operator`: `ByStr20`, where `initiator` is the address of the \_sender, and `operator` is the address of the approved_spender which was added.   |
-| _eventName | `RemoveApprovalForAllSuccess` | Removal of an operator's status is successful.  | `initiator`: `ByStr20`, `operator`: `ByStr20`, where `initiator` is the address of the \_sender, and `operator` is the address of the approved_spender which was removed. |
+|             | Name                          | Description                                     | Event Parameters                                                                                                                                                          |
+| ----------- | ----------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| \_eventName | `AddApprovalForAllSuccess`    | Addition of an operator's status is successful. | `initiator`: `ByStr20`, `operator`: `ByStr20`, where `initiator` is the address of the \_sender, and `operator` is the address of the approved_spender which was added.   |
+| \_eventName | `RemoveApprovalForAllSuccess` | Removal of an operator's status is successful.  | `initiator`: `ByStr20`, `operator`: `ByStr20`, where `initiator` is the address of the \_sender, and `operator` is the address of the approved_spender which was removed. |
 
 #### 6. Transfer()
 
@@ -372,9 +372,9 @@ transition Transfer(to: ByStr20, token_id: Uint256)
 
 **Events:**
 
-|           | Name              | Description                    | Event Parameters                                                                                                                                                                                              |
-| --------- | ----------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| _eventName | `TransferSuccess` | Transfer of NFT is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the \_sender address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |
+|             | Name              | Description                    | Event Parameters                                                                                                                                                                                              |
+| ----------- | ----------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| \_eventName | `TransferSuccess` | Transfer of NFT is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the \_sender address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |
 
 #### 7. TransferFrom()
 
@@ -401,9 +401,9 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
 
 **Events:**
 
-|           | Name                  | Description                    | Event Parameters                                                                                                                                                                                                 |
-| --------- | --------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| _eventName | `TransferFromSuccess` | Transfer of NFT is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the token_owner address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |
+|             | Name                  | Description                    | Event Parameters                                                                                                                                                                                                 |
+| ----------- | --------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| \_eventName | `TransferFromSuccess` | Transfer of NFT is successful. | `from`: `ByStr20`, `recipient`: `ByStr20`, `token_id`: `Uint256`, where, `from` is the token_owner address, `recipient` is the recipient address and `token_id` is the unique ID of the NFT that is transferred. |
 
 ## V. Existing Implementation(s)
 

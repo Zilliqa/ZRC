@@ -1,7 +1,6 @@
-
-|  ZRC | Title | Status| Type | Author | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd)
-|--|--|--|--| -- | -- | -- |
-| 0  | ZRC Purpose and Guidelines | Implemented | Meta  | Amrit Kumar <amrit@zilliqa.com> | 2019-09-20 | 2021-11-12 
+| ZRC | Title                      | Status      | Type | Author                          | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
+| --- | -------------------------- | ----------- | ---- | ------------------------------- | -------------------- | -------------------- |
+| 0   | ZRC Purpose and Guidelines | Implemented | Meta | Amrit Kumar <amrit@zilliqa.com> | 2019-09-20           | 2021-11-12           |
 
 ## What is a ZRC?
 
@@ -15,23 +14,21 @@ For implementers, ZRCs are a convenient way to track the progress of their imple
 
 It is highly recommended that a single ZRC contain a single key contract or library standard and it should present a proposal that defines a standard for multiple apps to use.
 
-A ZRC must meet certain minimum criteria. It must be a clear and complete description of the proposed smart contract or library standard. The proposed implementation, if applicable, must be solid and complete. Since the target language of the proposed contract and library will be Scilla, the proposal must use Scilla as the description language. 
-
-
+A ZRC must meet certain minimum criteria. It must be a clear and complete description of the proposed smart contract or library standard. The proposed implementation, if applicable, must be solid and complete. Since the target language of the proposed contract and library will be Scilla, the proposal must use Scilla as the description language.
 
 ## ZRC Work Flow
 
 ### Shepherding a ZRC
 
-Parties involved in the process are you, the champion or *ZRC author*, the [*ZRC editors*](#zrc-editors), and the [*Zilliqa Core Developers*](https://github.com/orgs/Zilliqa/people).
+Parties involved in the process are you, the champion or _ZRC author_, the [_ZRC editors_](#zrc-editors), and the [_Zilliqa Core Developers_](https://github.com/orgs/Zilliqa/people).
 
-Before you begin writing a formal ZRC, you should vet your idea. Ask the Zilliqa community first if an idea is original to avoid wasting time on something that will be be rejected based on prior research. It is thus recommended to use one of the groups on the [Zilliqa Discord Channel](https://discord.gg/mWp9HdR),  or [the Issues section of this repository](https://github.com/Zilliqa/ZRC/issues). 
+Before you begin writing a formal ZRC, you should vet your idea. Ask the Zilliqa community first if an idea is original to avoid wasting time on something that will be be rejected based on prior research. It is thus recommended to use one of the groups on the [Zilliqa Discord Channel](https://discord.gg/mWp9HdR), or [the Issues section of this repository](https://github.com/Zilliqa/ZRC/issues).
 
-In addition to making sure your idea is original, it will be your role as the author to make your idea clear to reviewers and interested parties, as well as inviting editors, developers and community to give feedback on the aforementioned channels. You should try and gauge whether the interest in your ZRC is commensurate with both the work involved in implementing it and how many parties will have to conform to it.  Negative community feedback will be taken into consideration and may prevent your ZRC from moving past the Draft stage.
+In addition to making sure your idea is original, it will be your role as the author to make your idea clear to reviewers and interested parties, as well as inviting editors, developers and community to give feedback on the aforementioned channels. You should try and gauge whether the interest in your ZRC is commensurate with both the work involved in implementing it and how many parties will have to conform to it. Negative community feedback will be taken into consideration and may prevent your ZRC from moving past the Draft stage.
 
-*In short, your role as the champion is to write the ZRC using the style and format described below, shepherd the discussions in the appropriate forums, and build community consensus around the idea.* 
+_In short, your role as the champion is to write the ZRC using the style and format described below, shepherd the discussions in the appropriate forums, and build community consensus around the idea._
 
-### ZRC Process 
+### ZRC Process
 
 Following is the process that a successful ZRC will move along:
 
@@ -41,25 +38,26 @@ Following is the process that a successful ZRC will move along:
 
 Each status change is requested by the ZRC author and reviewed by the ZRC editors. Use a pull request to update the status. Please include a link to where people should continue discussing your ZRC. The ZRC editors will process these requests as per the conditions below.
 
-* **DRAFT** -- Once the champion has asked the Zilliqa community whether an idea has any chance of support, they will write a draft ZRC as a pull request. Consider including an implementation if this will aid people in studying the ZRC. A draft is a preliminary version of the ZRC that is not yet ready for final submission. Once the first draft has been merged, you may submit follow-up pull requests with further changes to your draft until such point as you believe the ZRC to be mature and ready to proceed to the next status.
-  * :arrow_right: Ready -- If agreeable, ZRC editor will assign the ZRC a number (generally the issue or PR number related to the ZRC) and merge your pull request. The ZRC editor will not unreasonably deny a ZRC .
-  * :x: Ready -- Reasons for denying ready status include being too unfocused, too broad, duplication of effort, being technically unsound, not providing proper motivation or addressing backwards compatibility, etc.
-* **READY** -- This status means that the ZRC is ready for review by a wide audience. At this stage, the contract standard must accompany an implementation.
-  * :arrow_right: Approved -- If agreeable, the ZRC editor will assign Approved and set a review end date usually two weeks.
-  * :x: Approved -- A request for Approved will be denied if material changes are still expected to be made to the draft. 
-* **APPROVED** -- It signals a finalized version of the ZRC that has been in the Ready state for at least 2 weeks and any technical changes that were requested have been addressed by the author.
-  * :x:  Implemented which results in material changes or substantial unaddressed technical complaints will cause the ZRC to revert to Draft.
-  * :arrow_right: Implemented -- a finalized version of the ZRC that the Core Devs have decided to implement and release.
+- **DRAFT** -- Once the champion has asked the Zilliqa community whether an idea has any chance of support, they will write a draft ZRC as a pull request. Consider including an implementation if this will aid people in studying the ZRC. A draft is a preliminary version of the ZRC that is not yet ready for final submission. Once the first draft has been merged, you may submit follow-up pull requests with further changes to your draft until such point as you believe the ZRC to be mature and ready to proceed to the next status.
+  - :arrow_right: Ready -- If agreeable, ZRC editor will assign the ZRC a number (generally the issue or PR number related to the ZRC) and merge your pull request. The ZRC editor will not unreasonably deny a ZRC .
+  - :x: Ready -- Reasons for denying ready status include being too unfocused, too broad, duplication of effort, being technically unsound, not providing proper motivation or addressing backwards compatibility, etc.
+- **READY** -- This status means that the ZRC is ready for review by a wide audience. At this stage, the contract standard must accompany an implementation.
+  - :arrow_right: Approved -- If agreeable, the ZRC editor will assign Approved and set a review end date usually two weeks.
+  - :x: Approved -- A request for Approved will be denied if material changes are still expected to be made to the draft.
+- **APPROVED** -- It signals a finalized version of the ZRC that has been in the Ready state for at least 2 weeks and any technical changes that were requested have been addressed by the author.
 
-* **IMPLEMENTED** -- This ZRC represents the current state-of-the-art. An Implemented ZRC should only be updated to correct errata.
+  - :x: Implemented which results in material changes or substantial unaddressed technical complaints will cause the ZRC to revert to Draft.
+  - :arrow_right: Implemented -- a finalized version of the ZRC that the Core Devs have decided to implement and release.
+
+- **IMPLEMENTED** -- This ZRC represents the current state-of-the-art. An Implemented ZRC should only be updated to correct errata.
 
 ## What belongs in a successful ZRC?
 
 Each ZRC should have the following parts:
 
-- Preamble - RFC 822 style headers containing metadata about the ZRC, including the ZRC number, a short descriptive title (limited to a maximum of 44 characters), and the author details. 
+- Preamble - RFC 822 style headers containing metadata about the ZRC, including the ZRC number, a short descriptive title (limited to a maximum of 44 characters), and the author details.
 - Abstract - A short (~200 word) description of the technical issue (contract or library standard) being addressed.
-- Motivation (*optional) - It should clearly explain why the proposal is important. ZRC submissions without sufficient motivation may be rejected outright.
+- Motivation (\*optional) - It should clearly explain why the proposal is important. ZRC submissions without sufficient motivation may be rejected outright.
 - Specification - The technical specification should describe the syntax and semantics of the contract and its various components. The specification should be detailed enough to allow competing, interoperable implementations.
 - Rationale - The rationale fleshes out the specification by describing what motivated the design and why particular design decisions were made. It should describe alternate designs that were considered and related work, e.g. how the feature is supported in other languages. The rationale may also provide evidence of consensus within the community, and should discuss important objections or concerns raised during discussion.
 - Backwards Compatibility - All ZRCs that introduce backwards incompatibilities must include a section describing these incompatibilities and their severity. The ZRC must explain how the author proposes to deal with these incompatibilities. ZRC submissions without a sufficient backwards compatibility treatise may be rejected outright.
@@ -74,33 +72,33 @@ Image files should be included in a subdirectory of the `assets` folder for that
 
 ## ZRC Header Preamble
 
-Each ZRC must begin with an [RFC 822](https://www.ietf.org/rfc/rfc822.txt) style header preamble, preceded and followed by three hyphens (`---`). This header is also termed ["front matter" by Jekyll](https://jekyllrb.com/docs/front-matter/). The headers must appear in the following order. Headers marked with "*" are optional and are described below. All other headers are required.
+Each ZRC must begin with an [RFC 822](https://www.ietf.org/rfc/rfc822.txt) style header preamble, preceded and followed by three hyphens (`---`). This header is also termed ["front matter" by Jekyll](https://jekyllrb.com/docs/front-matter/). The headers must appear in the following order. Headers marked with "\*" are optional and are described below. All other headers are required.
 
-` zrc:` *ZRC number* (this is determined by the ZRC editor)
+` zrc:` _ZRC number_ (this is determined by the ZRC editor)
 
-` title:` *ZRC title*
+` title:` _ZRC title_
 
-` author:` *a list of the author's or authors' name(s) and/or username(s), or name(s) and email(s).*
+` author:` _a list of the author's or authors' name(s) and/or username(s), or name(s) and email(s)._
 
-` * discussions-to:` *a url pointing to the official discussion thread*
+` * discussions-to:` _a url pointing to the official discussion thread_
 
-` status:` *Draft | Ready | Approved | Implemented*
+` status:` _Draft | Ready | Approved | Implemented_
 
-`* review-period-end:` *date review period ends*
+`* review-period-end:` _date review period ends_
 
-` type:` *Standard | Meta*
+` type:` _Standard | Meta_
 
-` created:` *date created on*
+` created:` _date created on_
 
-` * updated:` *comma separated list of dates*
+` * updated:` _comma separated list of dates_
 
-` * requires:` *ZRC number(s)*
+` * requires:` _ZRC number(s)_
 
-` * replaces:` *ZRC number(s)*
+` * replaces:` _ZRC number(s)_
 
-` * superseded-by:` *ZRC number(s)*
+` * superseded-by:` _ZRC number(s)_
 
-` * resolution:` *a url pointing to the resolution of this ZRC*
+` * resolution:` _a url pointing to the resolution of this ZRC_
 
 Headers that permit lists must separate elements with commas.
 
@@ -136,7 +134,7 @@ As a single exception, `discussions-to` cannot point to GitHub pull requests.
 
 #### `type` header
 
-The `type` header specifies the type of ZRC: Standards Track or Meta. 
+The `type` header specifies the type of ZRC: Standards Track or Meta.
 
 #### `created` header
 
@@ -144,7 +142,7 @@ The `created` header records the date that the ZRC was assigned a number. Both h
 
 #### `updated` header
 
-The `updated` header records the date(s) when the ZIP was updated with "substantial" changes. 
+The `updated` header records the date(s) when the ZIP was updated with "substantial" changes.
 
 #### `requires` header
 
@@ -184,7 +182,6 @@ The current ZRC editors are
 
 - Vaivaswatha Nagaraj ([**@vaivaswatha**](https://github.com/vaivaswatha))
 
-
 ## ZRC Editor Responsibilities
 
 For each new ZRC that comes in, an editor does the following:
@@ -211,9 +208,6 @@ The editors don't pass judgment on ZRCs. We merely do the administrative & edito
 
 This document was derived heavily from [Ethereum's EIP-1](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1.md) which in turn was derived from [Bitcoin's BIP-0001](https://github.com/bitcoin/bips/blob/master/bip-0001.mediawiki) written by Amir Taaki which in turn was derived from [Python's PEP-0001](https://www.python.org/dev/peps/pep-0001/). In many places text was simply copied and modified. Although the PEP-0001 text was written by Barry Warsaw, Jeremy Hylton, and David Goodger, they are not responsible for its use in the Zilliqa Reference Contracts, and should not be bothered with technical questions specific to Zilliqa or the ZRC. Please direct all comments to the ZRC editors.
 
-
 ## Copyright
 
 Copyright and related rights waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
-
-

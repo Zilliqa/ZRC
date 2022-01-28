@@ -1,18 +1,20 @@
-| ZRC | Title                        | Status   | Type     | Author                                                                               | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
-| --- | ---------------------------- | -------- | -------- | ------------------------------------------------------------------------------------ | -------------------- | -------------------- |
-| 3   | Standard for Metatransactions | Draft | Standard | Cameron Sajedi <cameron@starlingfoundries.com> | 2019-10-15           | 2021-06-29           |
+| ZRC | Title                         | Status | Type     | Author                                         | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
+| --- | ----------------------------- | ------ | -------- | ---------------------------------------------- | -------------------- | -------------------- |
+| 3   | Standard for Metatransactions | Draft  | Standard | Cameron Sajedi <cameron@starlingfoundries.com> | 2019-10-15           | 2021-06-29           |
 
 ## I. What are Metatransactions?
 
-[The concept of metatransactions](https://medium.com/builders-of-zilliqa/zrc3s-grand-rewrite-22558797ea0) is intended to allow wallets to sign incomplete transactions that represent the authorization to spend a certain amount of tokens. These are valuable to users who do not wish to go through KYC, etc to get a trivial amount of ZIL in order to pay for a transaction. Developers may choose to include this pattern to give an easier onboarding UX, or also to enable transactions to be paid for in the native token. This standard includes an example of ZRC-2 integrated with metatransactions, but there are many situations where authorizing an effect via a signed message is valuable.  The drawback is a metatransaction cannot easily be cancelled, so signers of metatransactions should view them as transactions that have already been processed, and if the relayer censors them they should re-send the same exact metatransaction to another relayer to void the original censored transaction.
+[The concept of metatransactions](https://medium.com/builders-of-zilliqa/zrc3s-grand-rewrite-22558797ea0) is intended to allow wallets to sign incomplete transactions that represent the authorization to spend a certain amount of tokens. These are valuable to users who do not wish to go through KYC, etc to get a trivial amount of ZIL in order to pay for a transaction. Developers may choose to include this pattern to give an easier onboarding UX, or also to enable transactions to be paid for in the native token. This standard includes an example of ZRC-2 integrated with metatransactions, but there are many situations where authorizing an effect via a signed message is valuable. The drawback is a metatransaction cannot easily be cancelled, so signers of metatransactions should view them as transactions that have already been processed, and if the relayer censors them they should re-send the same exact metatransaction to another relayer to void the original censored transaction.
 
 ## II. Abstract
 
-ZRC-3 defines a basic supplement to another contract with the ability to perform transitions with metatransactions. In this provided standard we build on ZRC-2 to enable metatransaction transfers. 
+ZRC-3 defines a basic supplement to another contract with the ability to perform transitions with metatransactions. In this provided standard we build on ZRC-2 to enable metatransaction transfers.
 
 ## III. Motivation
-Metatransactions provide an alternative flow for users just getting started with their cryptocurrency and wallets. It allows for gasless transactions, cutting out the barrier of getting ZIL from an exchange or via mining before a Dapp user can interact with the smart contract. 
+
+Metatransactions provide an alternative flow for users just getting started with their cryptocurrency and wallets. It allows for gasless transactions, cutting out the barrier of getting ZIL from an exchange or via mining before a Dapp user can interact with the smart contract.
 It can also be seen as a way to defer the processing of transactions or even to guard a transition that requires multiparty authorization, although those applications are left to implementations and future standards. This contract adds a `metatransfer` transition to the existing ZRC-2. It does this in a way that maintains compatibility with the Operator and Mintable variants of ZRC-2 as well as the Zilswap exchange, and hopefully future OpFi tools.
+
 ## IV. Specification
 
 The fungible token contract specification describes:
@@ -43,10 +45,9 @@ The fungible token contract must define the following constants for use as error
 | `CodeInsufficientAllowance` | `Int32` | `-3` | Emit when there is insufficient allowance to authorise transaction.                            |
 | `CodeChequeVoid`            | `Int32` | `-4` | Emit when the metatransaction cheque is improperly formed.                                     |
 | `CodeSignatureInvalid`      | `Int32` | `-5` | Emit when a metatransaction signature does not match the cheque parameters.                    |
-| `CodeInvalidSigner`      | `Int32` | `-6` | Emit when a metatransaction signer is not the owner of the tokens they try to move. |
+| `CodeInvalidSigner`         | `Int32` | `-6` | Emit when a metatransaction signer is not the owner of the tokens they try to move.            |
 | `CodeNotOwner`              | `Int32` | `-7` | Emit when the sender is not contract_owner. This error code is optional.                       |
 | `CodeNotApprovedOperator`   | `Int32` | `-8` | Emit when caller is not an approved operator or default_operator. This error code is optional. |
-
 
 ### C. Immutable Variables
 
@@ -68,7 +69,7 @@ The fungible token contract must define the following constants for use as error
 | `allowances`                | `Map ByStr20 (Map ByStr20 Uint128)` | Mapping from token owner to approved spender address. Token owner can give an address an allowance of tokens to transfer tokens to other addresses.                                                                                                    |
 | `operators`                 | `Map ByStr20 (Map ByStr20 Unit)`    | Mapping from token owner to designated operators. A token owner can approve an address as an operator (as per the definition of operator given above). This mapping is optional.                                                                       |
 | `revoked_default_operators` | `Map ByStr20 (Map ByStr20 Unit)`    | Mapping from token owner to revoked default operators. Default operators are intialised by the contract owner. A token owner can revoked a default operator (as per the definition of default operator given above) at will. This mapping is optional. |
-| `void_cheques` | `Map ByStr ByStr20` | Mapping of the hashes of the metatransaction that has been processed, and the relayer wallet that submitted it to the chain. |
+| `void_cheques`              | `Map ByStr ByStr20`                 | Mapping of the hashes of the metatransaction that has been processed, and the relayer wallet that submitted it to the chain.                                                                                                                           |
 
 ### E. Getter Transitions
 
@@ -299,7 +300,7 @@ transition TransferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
 |        | Name                          | Description                                           | Callback Parameters                                                                                                                                                                                                                                                                                          |
 | ------ | ----------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `_tag` | `RecipientAcceptTransferFrom` | Dummy callback to prevent invalid recipient contract. | `initiator`: `ByStr20`, `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `initiator` is the address of an approved_spender,`sender` is the address of the token_owner, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred. |
-| `_tag` | `TransferFromSuccessCallBack` | Provide the initiator the status of the transfer.        | `initiator`: `ByStr20`, `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `initiator` is the address of an approved_spender,`sender` is the address of the token_owner, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred. |
+| `_tag` | `TransferFromSuccessCallBack` | Provide the initiator the status of the transfer.     | `initiator`: `ByStr20`, `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `initiator` is the address of an approved_spender,`sender` is the address of the token_owner, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred. |
 
 **Events:**
 
@@ -332,7 +333,7 @@ transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
 |        | Name                          | Description                                           | Callback Parameters                                                                                                                                                                                                                                                                                  |
 | ------ | ----------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_tag` | `RecipientAcceptOperatorSend` | Dummy callback to prevent invalid recipient contract. | `initiator`: `ByStr20`, `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `initiator` is the address of an operator,`sender` is the address of the token_owner, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred. |
-| `_tag` | `OperatorSendSuccessCallBack` | Provide the operator the status of the transfer.        | `initiator`: `ByStr20`, `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `initiator` is the address of an operator,`sender` is the address of the token_owner, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred. |
+| `_tag` | `OperatorSendSuccessCallBack` | Provide the operator the status of the transfer.      | `initiator`: `ByStr20`, `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `initiator` is the address of an operator,`sender` is the address of the token_owner, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred. |
 
 **Events/Errors:**
 
@@ -357,27 +358,28 @@ transition ChequeSend(pubkey: ByStr20, to: ByStr20, amount: Uint128, fee: Uint12
 
 **Arguments:**
 
-|        | Name       | Type      | Description                                                        |
-| ------ | --------   | --------- | --------------------------------------------------------           |
-| @param | `pubkey`   | `ByStr33` | Public Key of the token_owner whose balance is to decrease.        |
-| @param | `to`       | `ByStr20` | Address of the recipient whose balance is to increase.             |
-| @param | `amount`   | `Uint128` | Amount of tokens to be sent.                                       |
-| @param | `fee`      | `Uint128` | Reward taken from the cheque senders balance for the relayer.      |
-| @param | `nonce`    | `Uint128` | A random value included in the cheque to make each unique.         |
-| @param | `signature`| `ByStr64` | The signature of the cheque by the token owner to authorize spend. |
+|        | Name        | Type      | Description                                                        |
+| ------ | ----------- | --------- | ------------------------------------------------------------------ |
+| @param | `pubkey`    | `ByStr33` | Public Key of the token_owner whose balance is to decrease.        |
+| @param | `to`        | `ByStr20` | Address of the recipient whose balance is to increase.             |
+| @param | `amount`    | `Uint128` | Amount of tokens to be sent.                                       |
+| @param | `fee`       | `Uint128` | Reward taken from the cheque senders balance for the relayer.      |
+| @param | `nonce`     | `Uint128` | A random value included in the cheque to make each unique.         |
+| @param | `signature` | `ByStr64` | The signature of the cheque by the token owner to authorize spend. |
+
 **Messages sent:**
 
-|        | Name                          | Description                                           | Callback Parameters                                                                                                                                                                                                                                                                                  |
-| ------ | ----------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|        | Name                        | Description                                           | Callback Parameters                                                                                                                                                                                                                                                                                  |
+| ------ | --------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_tag` | `RecipientAcceptChequeSend` | Dummy callback to prevent invalid recipient contract. | `initiator`: `ByStr20`, `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `initiator` is the address of an operator,`sender` is the address of the token_owner, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred. |
-| `_tag` | `ChequeSendSuccessCallBack` | Provide the relayer the status of the transfer.        | `initiator`: `ByStr20`, `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `initiator` is the address of an relayer,`sender` is the address of the token_owner, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred. |
+| `_tag` | `ChequeSendSuccessCallBack` | Provide the relayer the status of the transfer.       | `initiator`: `ByStr20`, `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `initiator` is the address of an relayer,`sender` is the address of the token_owner, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred.  |
 
 **Events/Errors:**
 
-|              | Name                  | Description                | Event Parameters                                                                                                                                                                                                                                           |
-| ------------ | --------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `ChequeSendSuccess` | Sending is successful.     | `initiator`: `ByStr20` which is the operator's address, `sender`: `ByStr20` which is the token_owner's address, `recipient`: `ByStr20` which is the recipient's address, and `amount`: `Uint128` which is the amount of fungible tokens to be transferred. |
-| `_eventname` | `Error`               | Sending is not successful. | - emit `CodeChequeVoid` if the cheque submitted has already been transferred.<br>- emit `CodeInsufficientFunds` if the balance of the token_owner is lesser than the specified amount that is to be transferred.<br> - emit `CodeSignatureInvalid` if the signature of the cheque does not match the cheque parameters. <br> - emit `CodeInvalidSigner` if the signer of the metatransaction is not the owner of the tokens to be moved.  |
+|              | Name                | Description                | Event Parameters                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ------------ | ------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `ChequeSendSuccess` | Sending is successful.     | `initiator`: `ByStr20` which is the operator's address, `sender`: `ByStr20` which is the token_owner's address, `recipient`: `ByStr20` which is the recipient's address, and `amount`: `Uint128` which is the amount of fungible tokens to be transferred.                                                                                                                                                                               |
+| `_eventname` | `Error`             | Sending is not successful. | - emit `CodeChequeVoid` if the cheque submitted has already been transferred.<br>- emit `CodeInsufficientFunds` if the balance of the token_owner is lesser than the specified amount that is to be transferred.<br> - emit `CodeSignatureInvalid` if the signature of the cheque does not match the cheque parameters. <br> - emit `CodeInvalidSigner` if the signer of the metatransaction is not the owner of the tokens to be moved. |
 
 #### 11. ChequeVoid() (Optional)
 
@@ -396,31 +398,32 @@ transition ChequeVoid(pubkey: ByStr33, from: ByStr20, to: ByStr20, amount: Uint1
 
 **Arguments:**
 
-|        | Name       | Type      | Description                                                        |
-| ------ | --------   | --------- | --------------------------------------------------------           |
-| @param | `pubkey`   | `ByStr33` | Public Key of the token_owner within the cheque.         |
-| @param | `to`       | `ByStr20` | Address of the recipient within the cheque.             |
-| @param | `amount`   | `Uint128` |  Amount of tokens which would have been sent within the cheque.                                       |
-| @param | `fee`      | `Uint128` | Reward to be taken from the cheque senders balance if the cheque was processed.      |
-| @param | `nonce`    | `Uint128` | A random value included in the cheque to make each unique.         |
-| @param | `signature`| `ByStr64` | The signature of the cheque by the token owner that authorized the spend. |
+|        | Name        | Type      | Description                                                                     |
+| ------ | ----------- | --------- | ------------------------------------------------------------------------------- |
+| @param | `pubkey`    | `ByStr33` | Public Key of the token_owner within the cheque.                                |
+| @param | `to`        | `ByStr20` | Address of the recipient within the cheque.                                     |
+| @param | `amount`    | `Uint128` | Amount of tokens which would have been sent within the cheque.                  |
+| @param | `fee`       | `Uint128` | Reward to be taken from the cheque senders balance if the cheque was processed. |
+| @param | `nonce`     | `Uint128` | A random value included in the cheque to make each unique.                      |
+| @param | `signature` | `ByStr64` | The signature of the cheque by the token owner that authorized the spend.       |
+
 **Messages sent:**
 
-|        | Name                          | Description                                           | Callback Parameters                                                                                                                                                                                                                                                                                  |
-| ------ | ----------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|     | Name | Description | Callback Parameters |
+| --- | ---- | ----------- | ------------------- |
 
 **Events/Errors:**
 
-|              | Name                  | Description                | Event Parameters                                                                                                                                                                                                                                           |
-| ------------ | --------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `ChequeVoidSuccess` | Broadcast if voiding is successful.     | `initiator`: `ByStr20` which is the operator's address, `sender`: `ByStr20` which is the token_owner's address, `recipient`: `ByStr20` which is the recipient's address, and `amount`: `Uint128` which is the amount of fungible tokens to be transferred. |
-| `_eventname` | `Error`               | Sending is not successful. | - emit `CodeChequeVoid` if the cheque submitted has already been transferred.<br>- emit `CodeInsufficientFunds` if the balance of the token_owner is lesser than the specified amount that is to be transferred.<br> - emit `CodeSignatureInvalid` if the signature of the cheque does not match the cheque parameters. <br> - emit `CodeInvalidSigner` if the signer of the metatransaction is not the owner of the tokens to be moved.  |
+|              | Name                | Description                         | Event Parameters                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ------------ | ------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `ChequeVoidSuccess` | Broadcast if voiding is successful. | `initiator`: `ByStr20` which is the operator's address, `sender`: `ByStr20` which is the token_owner's address, `recipient`: `ByStr20` which is the recipient's address, and `amount`: `Uint128` which is the amount of fungible tokens to be transferred.                                                                                                                                                                               |
+| `_eventname` | `Error`             | Sending is not successful.          | - emit `CodeChequeVoid` if the cheque submitted has already been transferred.<br>- emit `CodeInsufficientFunds` if the balance of the token_owner is lesser than the specified amount that is to be transferred.<br> - emit `CodeSignatureInvalid` if the signature of the cheque does not match the cheque parameters. <br> - emit `CodeInvalidSigner` if the signer of the metatransaction is not the owner of the tokens to be moved. |
 
 ## V. Existing Implementation(s)
 
 - [ZRC3 Reference contract](../reference/MetaFungibleToken.scilla)
 - [ZRC3 Reference Relayer ](https://github.com/starling-foundries/relay.js)
-To test the reference contract, simply go to the [`example`](../example) folder and run one of the JS scripts. For example, to deploy the contract, run:
+  To test the reference contract, simply go to the [`example`](../example) folder and run one of the JS scripts. For example, to deploy the contract, run:
 
 ```shell
 yarn deploy.js

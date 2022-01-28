@@ -2,16 +2,15 @@
 
 # Introduction
 
-The purpose of this guide is to provide coding conventions for writing scilla code. 
+The purpose of this guide is to provide coding conventions for writing scilla code.
 
 Please note that as Scilla is an evolving language, this style guide will change over time to reflect the latest usability feedback and features. This guide shall hence be thought of as an evolving document over time, instead of a commandment that is set in stone.
 
 ## General
 
-Scilla belongs to the meta-language ("ML") family of languages, and therefore, the style shall be consistent with the principles laid out in ML-languagues. 
+Scilla belongs to the meta-language ("ML") family of languages, and therefore, the style shall be consistent with the principles laid out in ML-languagues.
 
 Scilla is developed off the back of OCaml, therfore our guidelines are very similar to the ones laid out by the OCaml community. There are however, some variations that we have made intentionally to cater for the design and purpose of Scilla. For example, OCaml does not specify naming conventions for variables, but we hope that Scilla developers will follow the `snake_case` convention. This is because smart contract parameters are meant to be interoperable, and sticking to consistent cases can make it easier for people to read your code and send transactions to your contract if required.
-
 
 In the event where you encounter something that is _not_ covered by this document, you can refer to [https://ocaml.org/learn/tutorials/guidelines.html](https://ocaml.org/learn/tutorials/guidelines.html)
 
@@ -77,7 +76,7 @@ Wrapped lines should conform to the following rules:
       let first_square = move_one_square square north in
         let final_square = move_one_square first_square direction in
           Cons {Square} final_square nil_path
- ```
+```
 
 ## Naming Conventions
 
@@ -138,7 +137,7 @@ e = {_eventname: "TransferFrom: Success"}
 
 ### Transition Name
 
-- TransitionName should be named in PascalCase 
+- TransitionName should be named in PascalCase
 - E.g. `TransferFrom`
 
 ### Abstract Data Types (ADT)
@@ -148,6 +147,7 @@ e = {_eventname: "TransferFrom: Success"}
 > **NOTE:** The checker currently checks if the error is capitalised, but it does not check for PascalCase
 
 Example:
+
 ```ocaml
 (* Good *)
 type Error =
@@ -172,12 +172,12 @@ type Error =
 
 
 ```
+
 ### Local Variable Names
 
 - To be consistent with OCaml styling guidelines, variable names should be named in snake_case. Variable names with only one word should be in lowercase E.g. `one_msg`,`transfer_amt`, `zero`, `player1`
 
-
-``` ocaml
+```ocaml
 (* Good *)
 let code_success = Uint32 0
 
