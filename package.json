@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "@types/jest": "^27.0.2",
-    "@zilliqa-js/zilliqa": "3.3.1",
+    "@zilliqa-js/zilliqa": "3.3.4",
     "jest": "^27.2.4",
     "prettier": "^2.4.1",
     "@zilliqa-js/scilla-json-utils": "0.2.0",
