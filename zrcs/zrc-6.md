@@ -63,12 +63,12 @@ The main advantages of this standard are:
 
 ### A. Immutable Parameters
 
-| Name                     | Type      | Description                                                                                                     |
-| ------------------------ | --------- | --------------------------------------------------------------------------------------------------------------- |
-| `initial_contract_owner` | `ByStr20` | Address of contract owner. It must not be the zero address. i.e., `0x0000000000000000000000000000000000000000`. |
-| `initial_base_uri`       | `String`  | Base URI. e.g. `https://creatures-api.zilliqa.com/api/creature/`.                                               |
-| `name`                   | `String`  | NFT name. It must not be an empty string.                                                                       |
-| `symbol`                 | `String`  | NFT symbol. It must not be an empty string.                                                                     |
+| Name                     | Type      | Description                                                                                                    |
+| ------------------------ | --------- | -------------------------------------------------------------------------------------------------------------- |
+| `initial_contract_owner` | `ByStr20` | Address of contract owner. It must not be the zero address i.e., `0x0000000000000000000000000000000000000000`. |
+| `initial_base_uri`       | `String`  | Base URI. e.g. `https://creatures-api.zilliqa.com/api/creature/`.                                              |
+| `name`                   | `String`  | NFT name. It must not be an empty string.                                                                      |
+| `symbol`                 | `String`  | NFT symbol. It must not be an empty string.                                                                    |
 
 ### B. Mutable Fields
 
@@ -467,7 +467,7 @@ Removes `minter`.
 
 #### 12. `SetSpender`
 
-Sets `spender` for `token_id`. To remove `spender` for a token, use `zero_address`. i.e., `0x0000000000000000000000000000000000000000`
+Sets `spender` for `token_id`. To remove `spender` for a token, use `zero_address` i.e., `0x0000000000000000000000000000000000000000`
 
 **Arguments:**
 
@@ -613,7 +613,7 @@ Equivalent to multiple [`TransferFrom`](#15-transferfrom) events.
 
 #### 17. `SetContractOwnershipRecipient` (Optional)
 
-Sets `to` as the contract ownership recipient. To reset `contract_ownership_recipient`, use `zero_address`. i.e., `0x0000000000000000000000000000000000000000`.
+Sets `to` as the contract ownership recipient. To reset `contract_ownership_recipient`, use `zero_address` i.e., `0x0000000000000000000000000000000000000000`.
 
 **Arguments:**
 
