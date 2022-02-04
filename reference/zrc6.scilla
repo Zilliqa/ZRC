@@ -800,6 +800,7 @@ transition SetSpender(spender: ByStr20, token_id: Uint256)
 
     e = {
       _eventname: "SetSpender";
+      token_owner: token_owner;
       spender: spender;
       token_id: token_id
     };
@@ -808,6 +809,7 @@ transition SetSpender(spender: ByStr20, token_id: Uint256)
       _tag: "ZRC6_SetSpenderCallback";
       _recipient: _sender;
       _amount: Uint128 0;
+      token_owner: token_owner;
       spender: spender;
       token_id: token_id
     };
@@ -845,6 +847,7 @@ transition AddOperator(operator: ByStr20)
     end;
     e = {
       _eventname: "AddOperator";
+      token_owner: _sender;
       operator: operator
     };
     event e;
@@ -852,6 +855,7 @@ transition AddOperator(operator: ByStr20)
       _tag: "ZRC6_AddOperatorCallback";
       _recipient: _sender;
       _amount: Uint128 0;
+      token_owner: _sender;
       operator: operator
     };
     msgs = one_msg msg_to_sender;
@@ -874,6 +878,7 @@ transition RemoveOperator(operator: ByStr20)
   end;
   e = {
     _eventname: "RemoveOperator";
+    token_owner: _sender;
     operator: operator
   };
   event e;
@@ -881,6 +886,7 @@ transition RemoveOperator(operator: ByStr20)
     _tag: "ZRC6_RemoveOperatorCallback";
     _recipient: _sender;
     _amount: Uint128 0;
+    token_owner: _sender;
     operator: operator
   };
   msgs = one_msg msg_to_sender;
