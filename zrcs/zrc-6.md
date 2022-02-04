@@ -485,9 +485,9 @@ Sets `spender` for `token_id`. To remove `spender` for a token, use `zero_addres
 
 **Messages:**
 
-|        | Name                      | Description                                                 | Callback Parameters                                                                                                                                                                                |
-| ------ | ------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_SetSpenderCallback` | Provide the sender the address of the spender and token ID. | <ul><li>`token_owner` : `ByStr20`<br/>Address of the token owner</li><li>`spender` : `ByStr20`<br/>Address that has been updated</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
+|        | Name                      | Description                                                 | Callback Parameters                                                                                                               |
+| ------ | ------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `ZRC6_SetSpenderCallback` | Provide the sender the address of the spender and token ID. | <ul><li>`spender` : `ByStr20`<br/>Address that has been updated</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
 
 **Events:**
 
@@ -513,9 +513,9 @@ Adds `operator` for `_sender`.
 
 **Messages:**
 
-|        | Name                       | Description                                     | Callback Parameters                                                                                                                       |
-| ------ | -------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_AddOperatorCallback` | Provide the sender the address of the operator. | <ul><li>`token_owner` : `ByStr20`<br/>Address of the token owner</li><li>`operator` : `ByStr20`<br/>Address that has been added</li></ul> |
+|        | Name                       | Description                                     | Callback Parameters                                    |
+| ------ | -------------------------- | ----------------------------------------------- | ------------------------------------------------------ |
+| `_tag` | `ZRC6_AddOperatorCallback` | Provide the sender the address of the operator. | `operator` : `ByStr20`<br/>Address that has been added |
 
 **Events:**
 
@@ -539,9 +539,9 @@ Removes `operator` for `_sender`.
 
 **Messages:**
 
-|        | Name                          | Description                                           | Callback Parameters                                                                                                                         |
-| ------ | ----------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_RemoveOperatorCallback` | Provide the sender the address that has been removed. | <ul><li>`token_owner` : `ByStr20`<br/>Address of the token owner</li><li>`operator` : `ByStr20`<br/>Address that has been removed</li></ul> |
+|        | Name                          | Description                                           | Callback Parameters                                      |
+| ------ | ----------------------------- | ----------------------------------------------------- | -------------------------------------------------------- |
+| `_tag` | `ZRC6_RemoveOperatorCallback` | Provide the sender the address that has been removed. | `operator` : `ByStr20`<br/>Address that has been removed |
 
 **Events:**
 
