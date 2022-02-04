@@ -487,7 +487,7 @@ Sets `spender` for `token_id`. To remove `spender` for a token, use `zero_addres
 
 |        | Name                      | Description                                                 | Callback Parameters                                                                                                                                                                                |
 | ------ | ------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `ZRC6_AddSpenderCallback` | Provide the sender the address of the spender and token ID. | <ul><li>`token_owner` : `ByStr20`<br/>Address of the token owner</li><li>`spender` : `ByStr20`<br/>Address that has been updated</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
+| `_tag` | `ZRC6_SetSpenderCallback` | Provide the sender the address of the spender and token ID. | <ul><li>`token_owner` : `ByStr20`<br/>Address of the token owner</li><li>`spender` : `ByStr20`<br/>Address that has been updated</li><li>`token_id` : `Uint256`</br>Unique ID of a token</li></ul> |
 
 **Events:**
 
