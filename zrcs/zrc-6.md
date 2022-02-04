@@ -1,6 +1,6 @@
 | ZRC | Title                       |  Status  |   Type   | Author                                                                      | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
 | :-: | :-------------------------- | :------: | :------: | :-------------------------------------------------------------------------- | :------------------: | :------------------: |
-|  6  | Non-Fungible Token Standard | Approved | Standard | Neuti Yoo<br/><noel@zilliqa.com> <br/> Jun Hao Tan<br/><junhao@zilliqa.com> |      2021-10-01      |      2022-01-05      |
+|  6  | Non-Fungible Token Standard | Approved | Standard | Neuti Yoo<br/><noel@zilliqa.com> <br/> Jun Hao Tan<br/><junhao@zilliqa.com> |      2021-10-01      |      2022-02-04      |
 
 ## Table of Contents
 
