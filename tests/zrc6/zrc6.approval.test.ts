@@ -217,7 +217,6 @@ describe("Approval", () => {
           {
             tag: "ZRC6_SetSpenderCallback",
             getParams: () => ({
-              token_owner: ["ByStr20", getTestAddr(TOKEN_OWNER_A)],
               spender: ["ByStr20", getTestAddr(STRANGER_A)],
               token_id: ["Uint256", 1],
             }),
@@ -252,7 +251,6 @@ describe("Approval", () => {
           {
             tag: "ZRC6_SetSpenderCallback",
             getParams: () => ({
-              token_owner: ["ByStr20", getTestAddr(TOKEN_OWNER_A)],
               spender: ["ByStr20", ZERO_ADDRESS],
               token_id: ["Uint256", 1],
             }),
@@ -319,7 +317,6 @@ describe("Approval", () => {
           {
             tag: "ZRC6_AddOperatorCallback",
             getParams: () => ({
-              token_owner: ["ByStr20", getTestAddr(TOKEN_OWNER_A)],
               operator: ["ByStr20", getTestAddr(STRANGER_A)],
             }),
           },
@@ -375,7 +372,6 @@ describe("Approval", () => {
           {
             tag: "ZRC6_RemoveOperatorCallback",
             getParams: () => ({
-              token_owner: ["ByStr20", getTestAddr(TOKEN_OWNER_A)],
               operator: ["ByStr20", getTestAddr(OPERATOR)],
             }),
           },
