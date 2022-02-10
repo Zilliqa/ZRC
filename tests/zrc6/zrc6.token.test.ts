@@ -469,7 +469,7 @@ describe("Contract", () => {
         );
 
       if (testCase.want === undefined) {
-        // Nagative Cases
+        // Negative Cases
         expect(tx.receipt.success).toBe(false);
         expect(tx.receipt.exceptions[0].message).toBe(
           getErrorMsg(testCase.error)
@@ -601,7 +601,7 @@ describe("Accept Contract Ownership", () => {
         );
 
       if (testCase.want === undefined) {
-        // Nagative Cases
+        // Negative Cases
         expect(tx.receipt.success).toBe(false);
         expect(tx.receipt.exceptions[0].message).toBe(
           getErrorMsg(testCase.error)
