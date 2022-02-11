@@ -145,6 +145,7 @@ Token metadata must be structured as the following:
 | `description`        |      `String`      | A human readable description of the asset.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |          |
 | `external_url`       |      `String`      | A URL that points to an external website presenting the asset.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |          |
 | `animation_url`      |      `String`      | A URL to a multi-media attachment for the asset. The examples of file extensions are GLTF, GLB, WEBM, MP4, M4V, OGV, OGG, MP3, WAV, and OGA. <br/><br/> Also, `animation_url` can be HTML pages for interactive NFTs using JavaScript canvas, WebGL, etc.                                                                                                                                                                                                                                                                                                                                                              |          |
+| `transitions`        | `Array of Objects` | An array of Scilla transitions that can be executed by the token owner. Each transition has the following properties: <ul> <li>`vname` : `String` <br/> The name of transition.</li><li>`params` : `[{ type: String, vname: String }]` <br/> The types and names of the transition parameters.</li></ul>                                                                                                                                                                                                                                                                                                               |          |
 
 ##### Examples
 
@@ -216,6 +217,21 @@ Note that resource is stored on centralized storage.
   "resource": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1",
   "external_url": "https://example.com/creature/101",
   "animation_url": "https://animation.example.com/creature/101"
+}
+```
+
+**Transitions**
+
+```json
+{
+  "name": "Creature #101",
+  "resource": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1",
+  "transitions": [
+    {
+      "vname": "Foo",
+      "params": [{ "vname": "x", "type": "String", "default_value": "foo" }]
+    }
+  ]
 }
 ```
 
