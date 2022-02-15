@@ -1,6 +1,6 @@
 | ZRC | Title                       |  Status  |   Type   | Author                                                                      | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
 | :-: | :-------------------------- | :------: | :------: | :-------------------------------------------------------------------------- | :------------------: | :------------------: |
-|  6  | Non-Fungible Token Standard | Approved | Standard | Neuti Yoo<br/><noel@zilliqa.com> <br/> Jun Hao Tan<br/><junhao@zilliqa.com> |      2021-10-01      |      2022-02-04      |
+|  6  | Non-Fungible Token Standard | Approved | Standard | Neuti Yoo<br/><noel@zilliqa.com> <br/> Jun Hao Tan<br/><junhao@zilliqa.com> |      2021-10-01      |      2022-02-14      |
 
 ## Table of Contents
 
@@ -31,7 +31,7 @@ The main advantages of this standard are:
 
 1. ZRC-6 standardizes royalty information retrieval with a percentage-based royalty fee model and unit-less royalty payments to a single address. Funds will be paid for secondary sales only if a marketplace chooses to implement royalty payments. Marketplace contracts should transfer the actual funds.
 
-2. ZRC-6 includes base URI to support token URI with the concatenation of base URI and token ID. A token URI is an HTTP or IPFS URL. This URL must return a JSON blob of data with the metadata for the NFT when queried.
+2. ZRC-6 includes base URI to support token URI with the concatenation of base URI and token ID. A token URI is an IPFS, HTTP, or data URL. This URL must return a JSON blob of data with the metadata for the NFT when queried. [ZRC-7](https://github.com/Zilliqa/ZRC/blob/master/zrcs/zrc-7.md) covers metadata and token URI in detail.
 
 3. ZRC-6 is designed for remote state read ([`x <- & c.f`](https://scilla.readthedocs.io/en/latest/scilla-in-depth.html?#remote-fetches)) such that logic to get data from a ZRC-6 contract is straightforward. ZRC-6 exposes immutable parameters via mutable fields and includes only transitions that mutate the state of the contract.
 
@@ -681,6 +681,9 @@ Sets `contract_ownership_recipient` as the contract owner.
 - [ZRC-1: Standard for Non Fungible Tokens](https://github.com/Zilliqa/ZRC/blob/master/zrcs/zrc-1.md)
 - [ZRC issue #88 - ZRC contracts must have unique names for callback transitions](https://github.com/Zilliqa/ZRC/issues/88)
 - [SWC Registry - Smart Contract Weakness Classification and Test Cases](https://swcregistry.io)
+- [RFC 1738 - Uniform Resource Locators (URL)](https://datatracker.ietf.org/doc/html/rfc1738)
+- [RFC 2397 - The "data" URL scheme](https://datatracker.ietf.org/doc/html/rfc2397)
+- [ZRC-7: NFT Metadata Standard](https://github.com/Zilliqa/ZRC/blob/master/zrcs/zrc-7.md)
 
 ## VII. Copyright
 
