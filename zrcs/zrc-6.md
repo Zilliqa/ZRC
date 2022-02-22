@@ -660,7 +660,7 @@ Sets `contract_ownership_recipient` as the contract owner.
 
 ## V. Implementations
 
-[zrc6.scilla](../reference/zrc6.scilla) - a reference implementation
+[zrc6.scilla](../reference-contracts/zrc6.scilla) - a reference implementation
 
 - includes [test cases](../tests/zrc6) written using [Zilliqa Isolated Server](https://hub.docker.com/r/zilliqa/zilliqa-isolated-server) and [Jest](https://jestjs.io/)
 - MIT licensed

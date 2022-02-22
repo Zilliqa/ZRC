@@ -7,7 +7,7 @@ export const CHAIN_ID = 222;
 export const MSG_VERSION = 1;
 export const VERSION = bytes.pack(CHAIN_ID, MSG_VERSION);
 
-const CODE_PATH = "reference/zrc6.scilla";
+const CODE_PATH = "reference-contracts/zrc6.scilla";
 export const CODE = fs.readFileSync(CODE_PATH).toString();
 
 export const ZRC6_ERROR = {

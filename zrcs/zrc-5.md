@@ -49,7 +49,7 @@ end
 
 ## V. Existing Implementation(s)
 
-- [MultiSig Wallet Reference contract](../reference/multisig_wallet.scilla#L406)
+- [MultiSig Wallet Reference contract](../reference-contracts/multisig_wallet.scilla#L406)
 
 To test the reference contract, simply go to the [`example/zrc4`](../example/zrc4) folder and run `node add_funds.js`.
 

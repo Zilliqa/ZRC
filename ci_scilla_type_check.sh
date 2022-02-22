@@ -12,7 +12,7 @@ function quit {
     exit $1
 }
 
-for src in reference/*.scilla; do
+for src in reference-contracts/*.scilla; do
     file="zrc_${src##*/}"
     check="docker exec $container $checker -libdir $stdlib -gaslimit $gas_limit ${scilla}${file}"
     copy="docker cp ./$src $container:${scilla}/$file"
