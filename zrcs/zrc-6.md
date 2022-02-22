@@ -667,8 +667,7 @@ Sets `contract_ownership_recipient` as the contract owner.
 
 ## VI. References
 
-- [Ethereum Smart Contract Best Practices - General Philosophy](https://github.com/ConsenSys/smart-contract-best-practices/blob/master/docs/general_philosophy.md)
-- [Ethereum Smart Contract Best Practices - Software Engineering Techniques](https://github.com/ConsenSys/smart-contract-best-practices/blob/master/docs/software_engineering.md)
+- [Ethereum Smart Contract Best Practices](https://consensys.github.io/smart-contract-best-practices/)
 - [EIP-721: Non-Fungible Token Standard](https://eips.ethereum.org/EIPS/eip-721)
 - [EIP-2981: NFT Royalty Standard](https://eips.ethereum.org/EIPS/eip-2981)
 - [EIP-1155: Multi Token Standard](https://eips.ethereum.org/EIPS/eip-1155)
@@ -677,7 +676,6 @@ Sets `contract_ownership_recipient` as the contract owner.
 - [OpenZeppelin ERC1155.sol Implementation](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC1155/ERC1155.sol)
 - [OpenZeppelin Pausable.sol Implementation](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/security/Pausable.sol)
 - [OpenSea - Metadata Standards](https://docs.opensea.io/docs/metadata-standards)
-- [Ethereum Smart Contract Best Practices - Token Implementation Best Practice](https://github.com/ConsenSys/smart-contract-best-practices/blob/master/docs/tokens.md)
 - [ZRC-1: Standard for Non Fungible Tokens](https://github.com/Zilliqa/ZRC/blob/master/zrcs/zrc-1.md)
 - [ZRC issue #88 - ZRC contracts must have unique names for callback transitions](https://github.com/Zilliqa/ZRC/issues/88)
 - [SWC Registry - Smart Contract Weakness Classification and Test Cases](https://swcregistry.io)
