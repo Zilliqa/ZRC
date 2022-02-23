@@ -126,7 +126,7 @@ Note that it is valid to have other properties for several use cases.
 ```json
 {
   "name": "Unique and Diverse Creatures",
-  "image_url": "https://storage.googleapis.com/creature-prod.appspot.com/unique-and-diverse-creatures.png"
+  "foo": "bar"
 }
 ```
 
