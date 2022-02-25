@@ -1,6 +1,6 @@
-| ZRC | Title                 | Status |   Type   | Author                                                                                                                    | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
-| :-: | --------------------- | :----: | :------: | ------------------------------------------------------------------------------------------------------------------------- | :------------------: | :------------------: |
-|  7  | NFT Metadata Standard | Ready  | Standard | Neuti Yoo<br/><noel@zilliqa.com> <br/> Elliott Green<br/><elliott@zilliqa.com> <br/> Jun Hao Tan<br/><junhao@zilliqa.com> |      2021-10-11      |      2022-02-14      |
+| ZRC | Title                 |  Status  |   Type   | Author                                                                                                                    | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
+| :-: | --------------------- | :------: | :------: | ------------------------------------------------------------------------------------------------------------------------- | :------------------: | :------------------: |
+|  7  | NFT Metadata Standard | Approved | Standard | Neuti Yoo<br/><noel@zilliqa.com> <br/> Elliott Green<br/><elliott@zilliqa.com> <br/> Jun Hao Tan<br/><junhao@zilliqa.com> |      2021-10-11      |      2022-02-22      |
 
 ## Table of Contents
 
