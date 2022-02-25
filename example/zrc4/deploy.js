@@ -23,7 +23,7 @@ const MSG_VERSION = 1;
 const VERSION = bytes.pack(CHAIN_ID, MSG_VERSION);
 const GAS_PRICE = units.toQa('2000', units.Units.Li);
 
-const MULTISIG_CONTRACT_PATH = "../../reference/multisig_wallet.scilla";
+const MULTISIG_CONTRACT_PATH = "../../reference-contracts/multisig_wallet.scilla";
 
 async function main() {
     try {

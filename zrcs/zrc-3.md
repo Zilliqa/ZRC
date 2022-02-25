@@ -421,7 +421,7 @@ transition ChequeVoid(pubkey: ByStr33, from: ByStr20, to: ByStr20, amount: Uint1
 
 ## V. Existing Implementation(s)
 
-- [ZRC3 Reference contract](../reference/MetaFungibleToken.scilla)
+- [ZRC3 Reference contract](../reference-contracts/MetaFungibleToken.scilla)
 - [ZRC3 Reference Relayer ](https://github.com/starling-foundries/relay.js)
   To test the reference contract, simply go to the [`example`](../example) folder and run one of the JS scripts. For example, to deploy the contract, run:
 

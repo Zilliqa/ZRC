@@ -20,7 +20,7 @@ async function main() {
     const myGasPrice = units.toQa('2000', units.Units.Li); // Gas Price that will be used by all transactions
 
     console.log("start to deploy zrc2: ");
-    const code = fs.readFileSync("../../reference/FungibleToken-Operator.scilla").toString();
+    const code = fs.readFileSync("../../reference-contracts/FungibleToken-Operator.scilla").toString();
     console.log("contract code is: ");
     console.log(code);
     const init = [

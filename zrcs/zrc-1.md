@@ -407,7 +407,7 @@ transition TransferFrom(to: ByStr20, token_id: Uint256)
 
 ## V. Existing Implementation(s)
 
-- [Non-Fungible Token](../reference/nonfungible-token.scilla)
+- [Non-Fungible Token](../reference-contracts/nonfungible-token.scilla)
 
 To test the reference contract, simply go to the [`example/zrc1`](../example/zrc1) folder and run one of the JS scripts. For example, to deploy the contract, run:
 
