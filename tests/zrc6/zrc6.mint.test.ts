@@ -18,12 +18,12 @@ import {
   TOKEN_NAME,
   TOKEN_SYMBOL,
   FAUCET_PARAMS,
-  INITIAL_TOTAL_SUPPLY,
   BASE_URI,
 } from "./config";
 
 const JEST_WORKER_ID = Number(process.env["JEST_WORKER_ID"]);
 const GENESIS_PRIVATE_KEY = global.GENESIS_PRIVATE_KEYS[JEST_WORKER_ID - 1];
+const INITIAL_TOTAL_SUPPLY = 3;
 
 const zilliqa = new Zilliqa(API);
 zilliqa.wallet.addByPrivateKey(GENESIS_PRIVATE_KEY);

@@ -34,7 +34,6 @@ export const ZRC6_ERROR = {
 export const TOKEN_NAME = "TEST";
 export const TOKEN_SYMBOL = "T";
 export const BASE_URI = "https://creatures-api.zilliqa.com/api/creature/";
-export const INITIAL_TOTAL_SUPPLY = 3;
 
 export const GAS_LIMIT = Long.fromNumber(100000);
 export const GAS_PRICE = units.toQa("2000", units.Units.Li);
