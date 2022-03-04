@@ -66,7 +66,15 @@ When the base URI is the above, the token URIs are the following:
 |    2     | `ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/2` |
 |    3     | `ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/3` |
 
-Note that each token can have its own token URI when the base URI does not exist.
+Also, each token can have its own token URI when the base URI does not exist as the following:
+
+| Token ID | Token URI                                                 |
+| :------: | :-------------------------------------------------------- |
+|    1     | `ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/1` |
+|    2     | `ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/2` |
+|    3     | `ipfs://QmZILw65yBXgyfG2ZBg5TrfB2hPjrDQH3RCQFJGkARStAE`   |
+
+In this case, `Token ID 1` and `Token ID 2` use the concatenated URIs with ZRC-6 `base_uri` field while `Token ID 3` uses its own token URI (`ipfs://QmZILw65yBXgyfG2ZBg5TrfB2hPjrDQH3RCQFJGkARStAE`) by using ZRC-6 `token_uris` field.
 
 ## II. Abstract
 
