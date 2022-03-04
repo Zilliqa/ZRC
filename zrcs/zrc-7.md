@@ -91,7 +91,7 @@ This can be optimized by using `base_uri` as the following:
 As a result, the contract state can only contain a base URI, instead of `n` token URIs.
 Therefore, this is space-efficient.
 
-**Limitation**
+**Limitations**
 
 However, there are cases where this optimization is not possible e.g., randomized or dynamic minting.
 
