@@ -108,7 +108,7 @@ Note that a token can have its own token URI when a base URI cannot be used as t
   "1": "ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI"
   "2": "ipfs://QmZILw65yBXgyfG2ZBg5TrfB2hPjrDQH3RCQFJGkARStAE"
   "3": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1"
-},
+}
 ```
 
 Also, it is possible that some tokens use the concatenated URIs while some tokens use their own token URIs as the following:
@@ -123,7 +123,7 @@ Also, it is possible that some tokens use the concatenated URIs while some token
 "base_uri": "ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/",
 "token_uris": {
   "3": "ipfs://QmZILw65yBXgyfG2ZBg5TrfB2hPjrDQH3RCQFJGkARStAE"
-},
+}
 ```
 
 In this case, `Token ID 1` and `Token ID 2` use the concatenated URIs with ZRC-6 `base_uri` field while `Token ID 3` uses its own token URI by using ZRC-6 `token_uris` field.
