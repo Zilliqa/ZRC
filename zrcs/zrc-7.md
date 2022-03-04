@@ -66,7 +66,53 @@ When the base URI is the above, the token URIs are the following:
 |    2     | `ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/2` |
 |    3     | `ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/3` |
 
-Also, each token can have its own token URI when the base URI does not exist as the following:
+**Token URI optimization by using base URI**
+
+By using base URI, a ZRC-6 contract state can use less space for token URIs. Let's assume the following contract state contains `n` token URIs where `n` is the number of tokens:
+
+```json
+"base_uri": "",
+"token_uris": {
+  "1": "ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/1",
+  "2": "ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/2",
+  "3": "ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/3",
+  "4": "ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/4",
+  "5": "ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/5"
+}
+```
+
+This can be optimized by using `base_uri` as the following:
+
+```json
+"base_uri": "ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/",
+"token_uris": {}
+```
+
+As a result, the contract state can only contain a base URI, instead of `n` token URIs.
+Therefore, this is space-efficient.
+
+**Limitations**
+
+However, there are cases where this optimization is not possible e.g., randomized or dynamic minting.
+
+Note that a token can have its own token URI when a base URI cannot be used as the following:
+
+| Token ID | Token URI                                               |
+| :------: | :------------------------------------------------------ |
+|    1     | `ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI` |
+|    2     | `ipfs://QmZILw65yBXgyfG2ZBg5TrfB2hPjrDQH3RCQFJGkARStAE` |
+|    3     | `ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1` |
+
+```json
+"base_uri": "",
+"token_uris": {
+  "1": "ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI"
+  "2": "ipfs://QmZILw65yBXgyfG2ZBg5TrfB2hPjrDQH3RCQFJGkARStAE"
+  "3": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1"
+},
+```
+
+Also, it is possible that some tokens use the concatenated URIs while some tokens use their own token URIs as the following:
 
 | Token ID | Token URI                                                 |
 | :------: | :-------------------------------------------------------- |
@@ -74,7 +120,14 @@ Also, each token can have its own token URI when the base URI does not exist as 
 |    2     | `ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/2` |
 |    3     | `ipfs://QmZILw65yBXgyfG2ZBg5TrfB2hPjrDQH3RCQFJGkARStAE`   |
 
-In this case, `Token ID 1` and `Token ID 2` use the concatenated URIs with ZRC-6 `base_uri` field while `Token ID 3` uses its own token URI (`ipfs://QmZILw65yBXgyfG2ZBg5TrfB2hPjrDQH3RCQFJGkARStAE`) by using ZRC-6 `token_uris` field.
+```json
+"base_uri": "ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/",
+"token_uris": {
+  "3": "ipfs://QmZILw65yBXgyfG2ZBg5TrfB2hPjrDQH3RCQFJGkARStAE"
+},
+```
+
+In this case, `Token ID 1` and `Token ID 2` use the concatenated URIs with ZRC-6 `base_uri` field while `Token ID 3` uses its own token URI by using ZRC-6 `token_uris` field.
 
 ## II. Abstract
 
