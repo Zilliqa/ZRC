@@ -52,7 +52,7 @@ The above is a JSON blob of data with the metadata for the NFT. It is returned b
 - `data:application/json;base64,ewogICJuYW1lIjogIkNyZWF0dXJlICMxMDEiLAogICJyZXNvdXJjZXMiOiBbCiAgICB7ICJ1cmkiOiAiaXBmczovL1FtWklMR2E3elhVYml4dllKcGdrUmthU0NZRUJ0U3dnVnRmemtvRDNZa05zRTEiIH0KICBdCn0=`
 - `data:application/json,%7B%22name%22%3A%22Creature%20%23101%22%2C%22resources%22%3A%5B%7B%22uri%22%3A%22ipfs%3A%2F%2FQmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1%22%7D%5D%7D`
 
-Token URIs can be gas-efficient with the concatenation of [ZRC-6](https://github.com/Zilliqa/ZRC/blob/master/zrcs/zrc-6.md) compliant base URI and token ID. The concatenated token URI is `<base_uri><token_id>`.
+Token URIs can be space-efficient and gas-efficient with the concatenation of [ZRC-6](https://github.com/Zilliqa/ZRC/blob/master/zrcs/zrc-6.md) compliant base URI and token ID. The concatenated token URI is `<base_uri><token_id>`.
 
 | Base URI                                                 |
 | :------------------------------------------------------- |
@@ -88,8 +88,7 @@ This can be optimized by using `base_uri` as the following:
 "token_uris": {}
 ```
 
-As a result, the contract state can only contain a base URI, instead of `n` token URIs.
-Therefore, this is space-efficient.
+It is space-efficient because the contract state can only contain a base URI, instead of `n` token URIs. Also, it is gas-efficient since `token_uris` is not mutated, resulting in less gas cost for minting or burning.
 
 **Limitations**
 
