@@ -1,6 +1,6 @@
 | ZRC | Title                 |  Status  |   Type   | Author                                                                                                                    | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
 | :-: | --------------------- | :------: | :------: | ------------------------------------------------------------------------------------------------------------------------- | :------------------: | :------------------: |
-|  7  | NFT Metadata Standard | Approved | Standard | Neuti Yoo<br/><noel@zilliqa.com> <br/> Elliott Green<br/><elliott@zilliqa.com> <br/> Jun Hao Tan<br/><junhao@zilliqa.com> |      2021-10-11      |      2022-02-22      |
+|  7  | NFT Metadata Standard | Approved | Standard | Neuti Yoo<br/><noel@zilliqa.com> <br/> Elliott Green<br/><elliott@zilliqa.com> <br/> Jun Hao Tan<br/><junhao@zilliqa.com> |      2021-10-11      |      2022-03-04      |
 
 ## Table of Contents
 
@@ -52,7 +52,7 @@ The above is a JSON blob of data with the metadata for the NFT. It is returned b
 - `data:application/json;base64,ewogICJuYW1lIjogIkNyZWF0dXJlICMxMDEiLAogICJyZXNvdXJjZXMiOiBbCiAgICB7ICJ1cmkiOiAiaXBmczovL1FtWklMR2E3elhVYml4dllKcGdrUmthU0NZRUJ0U3dnVnRmemtvRDNZa05zRTEiIH0KICBdCn0=`
 - `data:application/json,%7B%22name%22%3A%22Creature%20%23101%22%2C%22resources%22%3A%5B%7B%22uri%22%3A%22ipfs%3A%2F%2FQmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1%22%7D%5D%7D`
 
-Token URIs can be gas-efficient with the concatenation of [ZRC-6](https://github.com/Zilliqa/ZRC/blob/master/zrcs/zrc-6.md) compliant base URI and token ID. The concatenated token URI is `<base_uri><token_id>`.
+Token URIs can be space-efficient and gas-efficient with the concatenation of [ZRC-6](https://github.com/Zilliqa/ZRC/blob/master/zrcs/zrc-6.md) compliant base URI and token ID. The concatenated token URI is `<base_uri><token_id>`.
 
 | Base URI                                                 |
 | :------------------------------------------------------- |
@@ -88,8 +88,7 @@ This can be optimized by using `base_uri` as the following:
 "token_uris": {}
 ```
 
-As a result, the contract state can only contain a base URI, instead of `n` token URIs.
-Therefore, this is space-efficient.
+It is space-efficient because the contract state can only contain a base URI, instead of `n` token URIs. Also, it is gas-efficient since `token_uris` is not mutated, resulting in less gas cost for minting or burning.
 
 **Limitations**
 
@@ -109,7 +108,7 @@ Note that a token can have its own token URI when a base URI cannot be used as t
   "1": "ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI"
   "2": "ipfs://QmZILw65yBXgyfG2ZBg5TrfB2hPjrDQH3RCQFJGkARStAE"
   "3": "ipfs://QmZILGa7zXUbixvYJpgkRkaSCYEBtSwgVtfzkoD3YkNsE1"
-},
+}
 ```
 
 Also, it is possible that some tokens use the concatenated URIs while some tokens use their own token URIs as the following:
@@ -124,7 +123,7 @@ Also, it is possible that some tokens use the concatenated URIs while some token
 "base_uri": "ipfs://QmZILCdt3yb6mZitzWBmQr65AW6Wska295Dg9nbS0M3UrI/",
 "token_uris": {
   "3": "ipfs://QmZILw65yBXgyfG2ZBg5TrfB2hPjrDQH3RCQFJGkARStAE"
-},
+}
 ```
 
 In this case, `Token ID 1` and `Token ID 2` use the concatenated URIs with ZRC-6 `base_uri` field while `Token ID 3` uses its own token URI by using ZRC-6 `token_uris` field.
