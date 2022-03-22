@@ -171,11 +171,9 @@ describe("Contract Contraint", () => {
         .deploy(TX_PARAMS, 33, 1000, true);
       expect(tx.txParams.receipt?.success).toBe(testCase.want);
       if (testCase.want === false) {
-        expect(JSON.stringify(tx.txParams.receipt?.exceptions)).toBe(
-          JSON.stringify([
-            { line: 0, message: "Contract constraint violation.\n" },
-          ])
-        );
+        const exceptions = tx.txParams.receipt?.exceptions;
+        const msg = (Array.isArray(exceptions) && exceptions[0]?.message) || "";
+        expect(msg.includes("Contract constraint violation")).toBe(true);
       }
     });
   }
