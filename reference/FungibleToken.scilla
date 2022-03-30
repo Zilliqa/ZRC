@@ -36,10 +36,6 @@ let make_error =
   
 let zero = Uint128 0
 
-(* Dummy user-defined ADT *)
-type Unit =
-| Unit
-
 let get_val =
   fun (some_val: Option Uint128) =>
   match some_val with
