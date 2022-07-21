@@ -190,7 +190,7 @@ end
 
 procedure RequireNotPaused()
   (* Reference: *)
-  (* https://consensys.github.io/smart-contract-best-practices/general_philosophy/#prepare-for-failure *)
+  (* https://consensys.github.io/smart-contract-best-practices/general-philosophy/prepare-for-failure/ *)
   paused <- is_paused;
   match paused with
   | False =>
@@ -246,7 +246,8 @@ procedure RequireExistingToken(token_id: Uint256)
 end
 
 procedure RequireValidDestination(to: ByStr20)
-  (* Reference: https://github.com/ConsenSys/smart-contract-best-practices/blob/master/docs/tokens.md *)
+  (* Don's send tokens to Zero address. Reference:
+     https://consensys.github.io/smart-contract-best-practices/development-recommendations/token-specific/zero-address/ *)
   is_zero_address = builtin eq to zero_address;
   match is_zero_address with
   | False =>
