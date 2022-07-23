@@ -309,38 +309,43 @@ transition TransferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
 | `_eventname` | `TransferFromSuccess` | Sending is successful.     | `initiator`: `ByStr20`, `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `initiator` is the address of an approved_spender,`sender` is the address of the token_owner, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred. |
 | `_eventname` | `Error`               | Sending is not successful. | - emit `CodeInsufficientAllowance` if the allowance of approved_spender is lesser than the specified amount that is to be transferred. <br> - emit `CodeInsufficientFunds` if the balance of the token_owner lesser than the specified amount that is to be transferred.                                     |
 
-#### 9. OperatorSend() (Optional)
+#### 9. Claim() (Optional)
 
-```ocaml
-(* @dev: Moves amount tokens from token_owner to recipient. _sender must be an operator of token_owner. *)
-(* @dev: Balance of recipient will increase. Balance of token_owner will decrease.                      *)
-(* @param from:        Address of the token_owner whose balance is decreased.                           *)
-(* @param to:          Address of the recipient whose balance is increased.                             *)
-(* @param amount:      Amount of tokens to be sent.                                                     *)
-transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
+(* @dev: Enables a cheque signer to recieve/claim tokens from the `_sender` or relayer, while paying for the relayer's gas fee. *)
+(* @dev: Balance of recipient will increase. Balance of `sender_ will decrease.                                                 *)
+(* @param pubkey:      Public Key of the token_owner whose balance is decreased.                                                *)
+(* @param to:          Address of the recipient whose balance is increased.                                                     *)
+(* @param amount:      Amount of tokens to be sent.                                                                             *)
+(* @param fee:         Reward taken/minings fee from the signer's balance to the relayer.                                       *)
+(* @param nonce:       A random value included in the cheque to make each unique.                                               *)
+(* @param signature:   The signature of the cheque by the token owner to authorize spend.                                       *)
 ```
 
 **Arguments:**
 
-|        | Name     | Type      | Description                                              |
-| ------ | -------- | --------- | -------------------------------------------------------- |
-| @param | `from`   | `ByStr20` | Address of the token_owner whose balance is to decrease. |
-| @param | `to`     | `ByStr20` | Address of the recipient whose balance is to increase.   |
-| @param | `amount` | `Uint128` | Amount of tokens to be sent.                             |
+|        | Name        | Type      | Description                                                        |
+| ------ | ----------- | --------- | ------------------------------------------------------------------ |
+| @param | `pubkey`    | `ByStr33` | Public Key of the token_owner whose balance is to decrease.        |
+| @param | `to`        | `ByStr20` | Address of the recipient whose balance is to increase.             |
+| @param | `amount`    | `Uint128` | Amount of tokens to be sent.                                       |
+| @param | `fee`       | `Uint128` | Reward taken/minings fee from the signer's balance to the relayer. |
+| @param | `nonce`     | `Uint128` | A random value included in the cheque to make each unique.         |
+| @param | `signature` | `ByStr64` | The signature of the cheque by the token owner to authorize spend. |
+
 
 **Messages sent:**
 
-|        | Name                          | Description                                           | Callback Parameters                                                                                                                                                                                                                                                                                  |
-| ------ | ----------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `RecipientAcceptOperatorSend` | Dummy callback to prevent invalid recipient contract. | `initiator`: `ByStr20`, `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `initiator` is the address of an operator,`sender` is the address of the token_owner, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred. |
-| `_tag` | `OperatorSendSuccessCallBack` | Provide the operator the status of the transfer.      | `initiator`: `ByStr20`, `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `initiator` is the address of an operator,`sender` is the address of the token_owner, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred. |
+|        | Name                        | Description                                           | Callback Parameters                                                                                                                                                                                                                                                                                  |
+| ------ | --------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_tag` | `RecipientAcceptChequeSend` | Dummy callback to prevent invalid recipient contract. | `initiator`: `ByStr20`, `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `initiator` is the address of an operator,`sender` is the address of the token_owner, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred. |
+| `_tag` | `ChequeSendSuccessCallBack` | Provide the relayer the status of the transfer.       | `initiator`: `ByStr20`, `sender` : `ByStr20`, `recipient`: `ByStr20`, `amount`: `Uint128`, where `initiator` is the address of an relayer,`sender` is the address of the token_owner, `recipient` is the address of the recipient, and `amount` is the amount of fungible tokens to be transferred.  |
 
 **Events/Errors:**
 
-|              | Name                  | Description                | Event Parameters                                                                                                                                                                                                                                           |
-| ------------ | --------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_eventname` | `OperatorSendSuccess` | Sending is successful.     | `initiator`: `ByStr20` which is the operator's address, `sender`: `ByStr20` which is the token_owner's address, `recipient`: `ByStr20` which is the recipient's address, and `amount`: `Uint128` which is the amount of fungible tokens to be transferred. |
-| `_eventname` | `Error`               | Sending is not successful. | - emit `CodeNotApprovedOperator` if sender is not an approved operator for the token_owner <br> - emit `CodeInsufficientFunds` if the balance of the token_owner is lesser than the specified amount that is to be transferred.                            |
+|              | Name                | Description                | Event Parameters                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ------------ | ------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_eventname` | `ClaimSuccess` | claim is successful.     | `initiator`: `ByStr20` which is the _sender's address, `sender`: `ByStr20` which is the token_owner's (and `_sender`'s) address, `recipient`: `ByStr20` which is the recipient's address, and `amount`: `Uint128` which is the amount of fungible tokens to be transferred.                                                                                                                                                                               |
+| `_eventname` | `Error`             | Sending is not successful. | - emit `CodeChequeVoid` if the cheque submitted has already been transferred.<br>- emit `CodeInsufficientFunds` if the balance of the token_owner is lesser than the specified amount that is to be transferred.<br> - emit `CodeSignatureInvalid` if the signature of the cheque does not match the cheque parameters. <br> - emit `CodeInvalidSigner` if the signer of the metatransaction is not the owner of the tokens to be moved. |
 
 #### 10. ChequeSend()
 
