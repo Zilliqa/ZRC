@@ -318,7 +318,7 @@ transition TransferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
 (* @param amount:      Amount of tokens to be sent.                                                                             *)
 (* @param fee:         Reward taken/minings fee from the signer's balance to the relayer.                                       *)
 (* @param nonce:       A random value included in the cheque to make each unique.                                               *)
-(* @param signature:   The signature of the cheque by the token owner to authorize spend.                                       *)
+(* @param signature:   The signature of the cheque by the recipient to authorize paying a fee to receive.                       *)
 ```
 
 **Arguments:**
