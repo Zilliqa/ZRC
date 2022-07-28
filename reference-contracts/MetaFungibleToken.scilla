@@ -382,14 +382,14 @@ transition TransferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
   end
 end
 
-(* @dev: Moves amount tokens from _sender to recipient.                                                 *)
-(* @dev: Balance of recipient will increase. Balance of _sender will decrease.                          *)
-(* @param pubkey:      Public Key of the recipient who is paying the fee, and recieving the credit      *)
-(* @param to:          Address of the recipient whose balance is increased.                             *)
-(* @param amount:      Amount of tokens to be sent.                                                     *)
+(* @dev: Moves amount tokens from _sender to recipient.                                                   *)
+(* @dev: Balance of recipient will increase. Balance of _sender will decrease.                            *)
+(* @param pubkey:      Public Key of the recipient who is paying the fee, and recieving the credit        *)
+(* @param to:          Address of the recipient whose balance is increased.                               *)
+(* @param amount:      Amount of tokens to be sent.                                                       *)
 (* @param fee:         Reward taken from the transfer recipients balance for the relayer, as they pay for the gas *)
-(* @param nonce:       A random value included in the cheque to make each unique.                       *)
-(* @param signature:   The signature of the cheque by the _sender to authorize spend.                   *)
+(* @param nonce:       A random value included in the cheque to make each unique.                         *)
+(* @param signature:   The signature of the cheque by the recipient to authorize paying a fee to receive. *)
 transition Claim(pubkey: ByStr33, to: ByStr20, amount: Uint128, fee: Uint128, nonce:Uint128, signature: ByStr64)
   from = extract_from pubkey;
   cheque_hash = hash_cheque to amount fee nonce signature _this_address;
