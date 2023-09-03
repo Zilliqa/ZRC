@@ -1,0 +1,105 @@
+{
+  "contract_info": {
+    "scilla_major_version": "0",
+    "vname": "Operator",
+    "params": [
+      { "vname": "init_admin", "type": "ByStr20" },
+      { "vname": "init_bancor_formula", "type": "ByStr20" },
+      { "vname": "init_spread", "type": "Uint128" },
+      { "vname": "max_spread", "type": "Uint128" },
+      { "vname": "init_beneficiary", "type": "ByStr20" }
+    ],
+    "fields": [
+      { "vname": "admin", "type": "ByStr20", "depth": 0 },
+      { "vname": "staging_admin", "type": "Option (ByStr20)", "depth": 0 },
+      { "vname": "bancor_formula_contract", "type": "ByStr20", "depth": 0 },
+      { "vname": "spread", "type": "Uint128", "depth": 0 },
+      { "vname": "beneficiary", "type": "ByStr20", "depth": 0 }
+    ],
+    "transitions": [
+      {
+        "vname": "SetStagedAdmin",
+        "params": [ { "vname": "staged", "type": "ByStr20" } ]
+      },
+      { "vname": "ClaimStagedAdmin", "params": [] },
+      {
+        "vname": "UpgradeFormula",
+        "params": [ { "vname": "new", "type": "ByStr20" } ]
+      },
+      {
+        "vname": "ChangeSpread",
+        "params": [ { "vname": "new", "type": "Uint128" } ]
+      },
+      {
+        "vname": "ChangeBeneficiary",
+        "params": [ { "vname": "new", "type": "ByStr20" } ]
+      }
+    ],
+    "procedures": [
+      {
+        "vname": "ThrowError",
+        "params": [ { "vname": "err", "type": "Operator.Error" } ]
+      },
+      {
+        "vname": "AssertAddrEquality",
+        "params": [
+          { "vname": "ad1", "type": "ByStr20" },
+          { "vname": "ad2", "type": "ByStr20" }
+        ]
+      },
+      { "vname": "IsAdmin", "params": [] }
+    ],
+    "events": [],
+    "ADTs": [
+      {
+        "tname": "Operator.Error",
+        "tparams": [],
+        "tmap": [
+          { "cname": "Operator.NotAuthorized", "argtypes": [] },
+          { "cname": "Operator.NoStagedAdmin", "argtypes": [] },
+          { "cname": "Operator.SpreadTooBig", "argtypes": [] }
+        ]
+      },
+      {
+        "tname": "Option",
+        "tparams": [ "'A" ],
+        "tmap": [
+          { "cname": "Some", "argtypes": [ "'A" ] },
+          { "cname": "None", "argtypes": [] }
+        ]
+      },
+      {
+        "tname": "Bool",
+        "tparams": [],
+        "tmap": [
+          { "cname": "True", "argtypes": [] },
+          { "cname": "False", "argtypes": [] }
+        ]
+      },
+      {
+        "tname": "Nat",
+        "tparams": [],
+        "tmap": [
+          { "cname": "Zero", "argtypes": [] },
+          { "cname": "Succ", "argtypes": [ "Nat" ] }
+        ]
+      },
+      {
+        "tname": "List",
+        "tparams": [ "'A" ],
+        "tmap": [
+          { "cname": "Cons", "argtypes": [ "'A", "List ('A)" ] },
+          { "cname": "Nil", "argtypes": [] }
+        ]
+      },
+      {
+        "tname": "Pair",
+        "tparams": [ "'A", "'B" ],
+        "tmap": [ { "cname": "Pair", "argtypes": [ "'A", "'B" ] } ]
+      }
+    ]
+  },
+  "warnings": [],
+  "gas_remaining": "9941"
+}
+

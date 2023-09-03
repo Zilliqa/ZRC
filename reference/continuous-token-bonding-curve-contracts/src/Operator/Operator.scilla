@@ -1,0 +1,108 @@
+scilla_version 0
+(* Author: Mateusz Bednarski https://github.com/MszBednarski *)
+
+import IntUtils BoolUtils
+library Operator
+type Error =
+| NotAuthorized
+| NoStagedAdmin
+| SpreadTooBig
+
+let make_error =
+fun (result: Error) =>
+let result_code =
+match result with
+| NotAuthorized => Int32 -1
+| NoStagedAdmin => Int32 -2
+| SpreadTooBig  => Int32 -3
+end
+in
+{ _exception: "Error"; code: result_code }
+
+let spread_denominator = Uint128 10000
+let zeroByStr20 = 0x0000000000000000000000000000000000000000
+let option_value = tfun 'A => fun( default: 'A ) => fun( input: Option 'A) =>
+  match input with
+  | Some v => v
+  | None => default end
+let option_bystr20_value = let f = @option_value ByStr20 in f zeroByStr20
+
+(*
+    @param init_admin: the admin of the contract
+    @param init_bancor_formula: the address of the bancor formula contract that the token should use
+    @params init_spread: the spread for the buy function expressed in terms of 0.01%
+    @params max_spread: the max unmodifiable spread that the buy function can ever have to
+    preserve legitimacy as to how big the spread can ever get!
+*)
+contract Operator(
+    init_admin: ByStr20,
+    init_bancor_formula: ByStr20,
+    init_spread: Uint128,
+    max_spread: Uint128,
+    init_beneficiary: ByStr20
+)
+with
+    let valid_spread = uint128_le init_spread max_spread in
+    let valid_max_spread = uint128_lt max_spread spread_denominator in
+    andb valid_spread valid_max_spread
+=>
+field admin: ByStr20 = init_admin
+field staging_admin: Option ByStr20 = None {ByStr20}
+field bancor_formula_contract: ByStr20 = init_bancor_formula
+field spread: Uint128 = init_spread
+field beneficiary: ByStr20 = init_beneficiary
+
+procedure ThrowError(err: Error)
+    e = make_error err;
+    throw e
+end
+(***************************************************)
+(*                 Admin Utill                     *)
+(***************************************************)
+procedure AssertAddrEquality(ad1: ByStr20, ad2: ByStr20)
+    is_same = builtin eq ad1 ad2;
+    match is_same with
+    | False => e = NotAuthorized; ThrowError e
+    | True =>
+    end 
+end
+procedure IsAdmin()
+    tmp <- admin;
+    AssertAddrEquality tmp _sender
+end
+transition SetStagedAdmin(staged: ByStr20)
+    IsAdmin;
+    opt_staged = Some {ByStr20} staged;
+    staging_admin := opt_staged
+end
+transition ClaimStagedAdmin()
+    option_staged <- staging_admin;
+    staged = option_bystr20_value option_staged;
+    staged_is_sender = builtin eq _sender staged;
+    match staged_is_sender with
+    | False => e = NotAuthorized; ThrowError e
+    | True => admin := staged
+    end
+end
+(***************************************************)
+(*                 Admin only                      *)
+(***************************************************)
+transition UpgradeFormula(new: ByStr20)
+    IsAdmin;
+    bancor_formula_contract := new 
+end
+
+transition ChangeSpread(new: Uint128)
+    IsAdmin;
+    is_valid = uint128_le new max_spread;
+    match is_valid with
+    | False => e = SpreadTooBig; ThrowError e
+    | True =>
+        spread := new
+    end
+end
+
+transition ChangeBeneficiary(new: ByStr20)
+    IsAdmin;
+    beneficiary := new
+end
