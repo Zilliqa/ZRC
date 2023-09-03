@@ -1,4 +1,4 @@
-# Style Style
+# Style Guide
 
 # Introduction
 
