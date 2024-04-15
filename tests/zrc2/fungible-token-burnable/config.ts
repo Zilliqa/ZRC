@@ -10,7 +10,6 @@ export const FungibleBurnableToken_ERROR = {
   CodeIsSender: -1,
   CodeInsufficientFunds: -2,
   CodeInsufficientAllowance: -3,
-  CodeNotOwner: -4
 };
 
 export const TOKEN_NAME = "TEST";

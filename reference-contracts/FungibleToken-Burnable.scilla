@@ -22,7 +22,6 @@ type Error =
 | CodeIsSender
 | CodeInsufficientFunds
 | CodeInsufficientAllowance
-| CodeNotOwner
 
 let make_error =
   fun (result : Error) =>
@@ -31,7 +30,6 @@ let make_error =
       | CodeIsSender              => Int32 -1
       | CodeInsufficientFunds     => Int32 -2
       | CodeInsufficientAllowance => Int32 -3
-      | CodeNotOwner              => Int32 -4
       end
     in
     { _exception : "Error"; code : result_code }
@@ -80,16 +78,6 @@ field allowances: Map ByStr20 (Map ByStr20 Uint128)
 procedure ThrowError(err : Error)
   e = make_error err;
   throw e
-end
-
-procedure IsOwner(address: ByStr20)
-  is_owner = builtin eq contract_owner address;
-  match is_owner with
-  | True =>
-  | False =>
-    err = CodeNotOwner;
-    ThrowError err
-  end
 end
 
 procedure IsNotSender(address: ByStr20)
