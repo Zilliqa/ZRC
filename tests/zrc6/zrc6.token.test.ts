@@ -1,35 +1,26 @@
-import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { expect } from "@jest/globals";
-import { getAddressFromPrivateKey, schnorr } from "@zilliqa-js/crypto";
-
 import { scillaJSONVal, scillaJSONParams } from "@zilliqa-js/scilla-json-utils";
-
+import { JEST_WORKER_ID, GENESIS_PRIVATE_KEY, zilliqa } from "../globalConfig";
 import {
   getErrorMsg,
   expectTransitions,
   expectEvents,
   ZERO_ADDRESS,
-} from "./testutils";
-
+  getAccounts,
+  runAllTestCases,
+} from "./../testutils";
 import {
-  API,
   TX_PARAMS,
   CODE,
   ZRC6_ERROR,
   TOKEN_NAME,
   TOKEN_SYMBOL,
-  FAUCET_PARAMS,
   BASE_URI,
 } from "./config";
 
-const JEST_WORKER_ID = Number(process.env["JEST_WORKER_ID"]);
-const GENESIS_PRIVATE_KEY = global.GENESIS_PRIVATE_KEYS[JEST_WORKER_ID - 1];
 const INITIAL_TOTAL_SUPPLY = 3;
 
-const zilliqa = new Zilliqa(API);
-zilliqa.wallet.addByPrivateKey(GENESIS_PRIVATE_KEY);
-
-let globalContractAddress;
+let globalContractAddress: string | undefined;
 
 let globalTestAccounts: Array<{
   privateKey: string;
@@ -43,28 +34,7 @@ const STRANGER = 3;
 const getTestAddr = (index) => globalTestAccounts[index]?.address as string;
 
 beforeAll(async () => {
-  const accounts = Array.from({ length: 4 }, schnorr.generatePrivateKey).map(
-    (privateKey) => ({
-      privateKey,
-      address: getAddressFromPrivateKey(privateKey),
-    })
-  );
-  for (const { privateKey, address } of accounts) {
-    zilliqa.wallet.addByPrivateKey(privateKey);
-    const tx = await zilliqa.blockchain.createTransaction(
-      zilliqa.transactions.new(
-        {
-          ...FAUCET_PARAMS,
-          toAddr: address,
-        },
-        false
-      )
-    );
-    if (!tx.getReceipt()?.success) {
-      throw new Error();
-    }
-  }
-  globalTestAccounts = accounts;
+  globalTestAccounts = await getAccounts(4);
 
   console.table({
     JEST_WORKER_ID,
@@ -422,7 +392,7 @@ describe("Contract", () => {
 
   for (const testCase of testCases) {
     it(`${testCase.transition}: ${testCase.name}`, async () => {
-      let state = await zilliqa.contracts.at(globalContractAddress).getState();
+      let state = await zilliqa.contracts.at(globalContractAddress!).getState();
       expect(JSON.stringify(state)).toBe(
         JSON.stringify({
           _balance: "0",
@@ -459,7 +429,7 @@ describe("Contract", () => {
 
       zilliqa.wallet.setDefault(testCase.getSender());
       const tx: any = await zilliqa.contracts
-        .at(globalContractAddress)
+        .at(globalContractAddress!)
         .call(
           testCase.transition,
           scillaJSONParams(testCase.getParams()),
@@ -479,7 +449,7 @@ describe("Contract", () => {
         expectTransitions(tx.receipt.transitions, testCase.want.transitions);
 
         const state = await zilliqa.contracts
-          .at(globalContractAddress)
+          .at(globalContractAddress!)
           .getState();
 
         testCase.want.expectState(state);
@@ -490,7 +460,7 @@ describe("Contract", () => {
 
 describe("Accept Contract Ownership", () => {
   beforeEach(async () => {
-    const tx: any = await zilliqa.contracts.at(globalContractAddress).call(
+    const tx: any = await zilliqa.contracts.at(globalContractAddress!).call(
       "SetContractOwnershipRecipient",
       scillaJSONParams({
         to: ["ByStr20", getTestAddr(CONTRACT_OWNERSHIP_RECIPIENT)],
@@ -551,7 +521,7 @@ describe("Accept Contract Ownership", () => {
 
   for (const testCase of testCases) {
     it(`${testCase.transition}: ${testCase.name}`, async () => {
-      let state = await zilliqa.contracts.at(globalContractAddress).getState();
+      let state = await zilliqa.contracts.at(globalContractAddress!).getState();
 
       expect(JSON.stringify(state)).toBe(
         JSON.stringify({
@@ -591,7 +561,7 @@ describe("Accept Contract Ownership", () => {
 
       zilliqa.wallet.setDefault(testCase.getSender());
       const tx: any = await zilliqa.contracts
-        .at(globalContractAddress)
+        .at(globalContractAddress!)
         .call(
           testCase.transition,
           scillaJSONParams(testCase.getParams()),
@@ -611,7 +581,7 @@ describe("Accept Contract Ownership", () => {
         expectTransitions(tx.receipt.transitions, testCase.want.transitions);
 
         const state = await zilliqa.contracts
-          .at(globalContractAddress)
+          .at(globalContractAddress!)
           .getState();
 
         testCase.want.expectState(state);
@@ -621,99 +591,64 @@ describe("Accept Contract Ownership", () => {
 });
 
 describe("Unpaused", () => {
-  const testCases = [
-    {
-      name: "Throws NotPausedError for the not paused contract",
-      transition: "Unpause",
-      getSender: () => getTestAddr(CONTRACT_OWNER),
-      getParams: () => ({}),
-      error: ZRC6_ERROR.NotPausedError,
-      want: undefined,
-    },
-    {
-      name: "Throws NotContractOwnerError",
-      transition: "Pause",
-      getSender: () => getTestAddr(STRANGER),
-      getParams: () => ({}),
-      error: ZRC6_ERROR.NotContractOwnerError,
-      want: undefined,
-    },
-    {
-      name: "Pause the contract",
-      transition: "Pause",
-      getSender: () => getTestAddr(CONTRACT_OWNER),
-      getParams: () => ({}),
-      want: {
-        expectState: (state) => {
-          expect(JSON.stringify(state.is_paused)).toBe(
-            JSON.stringify(scillaJSONVal("Bool", true))
-          );
-        },
-        events: [
-          {
-            name: "Pause",
-            getParams: () => ({
-              is_paused: ["Bool", true],
-            }),
-          },
-        ],
-        transitions: [
-          {
-            tag: "ZRC6_PauseCallback",
-            getParams: () => ({
-              is_paused: ["Bool", true],
-            }),
-          },
-        ],
+  runAllTestCases(
+    [
+      {
+        name: "Throws NotPausedError for the not paused contract",
+        transition: "Unpause",
+        getSender: () => getTestAddr(CONTRACT_OWNER),
+        getParams: () => ({}),
+        error: ZRC6_ERROR.NotPausedError,
+        want: undefined,
       },
-    },
-  ];
-
-  for (const testCase of testCases) {
-    it(`${testCase.transition}: ${testCase.name}`, async () => {
-      const state = await zilliqa.contracts
-        .at(globalContractAddress)
-        .getState();
-
-      expect(JSON.stringify(state.is_paused)).toBe(
-        JSON.stringify(scillaJSONVal("Bool", false))
-      );
-
-      zilliqa.wallet.setDefault(testCase.getSender());
-      const tx: any = await zilliqa.contracts
-        .at(globalContractAddress)
-        .call(
-          testCase.transition,
-          scillaJSONParams(testCase.getParams()),
-          TX_PARAMS
-        );
-
-      if (testCase.want === undefined) {
-        // Negative Cases
-        expect(tx.receipt.success).toBe(false);
-        expect(tx.receipt.exceptions[0].message).toBe(
-          getErrorMsg(testCase.error)
-        );
-      } else {
-        // Positive Cases
-        expect(tx.receipt.success).toBe(true);
-        expectEvents(tx.receipt.event_logs, testCase.want.events);
-        expectTransitions(tx.receipt.transitions, testCase.want.transitions);
-
-        const state = await zilliqa.contracts
-          .at(globalContractAddress)
-          .getState();
-
-        testCase.want.expectState(state);
-      }
-    });
-  }
+      {
+        name: "Throws NotContractOwnerError",
+        transition: "Pause",
+        getSender: () => getTestAddr(STRANGER),
+        getParams: () => ({}),
+        error: ZRC6_ERROR.NotContractOwnerError,
+        want: undefined,
+      },
+      {
+        name: "Pause the contract",
+        transition: "Pause",
+        getSender: () => getTestAddr(CONTRACT_OWNER),
+        getParams: () => ({}),
+        error: undefined,
+        want: {
+          expectState: (state) => {
+            expect(JSON.stringify(state.is_paused)).toBe(
+              JSON.stringify(scillaJSONVal("Bool", true))
+            );
+          },
+          events: [
+            {
+              name: "Pause",
+              getParams: () => ({
+                is_paused: ["Bool", true],
+              }),
+            },
+          ],
+          transitions: [
+            {
+              tag: "ZRC6_PauseCallback",
+              getParams: () => ({
+                is_paused: ["Bool", true],
+              }),
+            },
+          ],
+        },
+      },
+    ],
+    () => globalContractAddress!,
+    TX_PARAMS
+  );
 });
 
 describe("Paused", () => {
   beforeEach(async () => {
     let tx: any = await zilliqa.contracts
-      .at(globalContractAddress)
+      .at(globalContractAddress!)
       .call("Pause", [], TX_PARAMS);
 
     if (!tx.receipt.success) {
@@ -821,7 +756,7 @@ describe("Paused", () => {
   for (const testCase of testCases) {
     it(`${testCase.transition}: ${testCase.name}`, async () => {
       const state = await zilliqa.contracts
-        .at(globalContractAddress)
+        .at(globalContractAddress!)
         .getState();
 
       expect(JSON.stringify(state.is_paused)).toBe(
@@ -830,7 +765,7 @@ describe("Paused", () => {
 
       zilliqa.wallet.setDefault(testCase.getSender());
       const tx: any = await zilliqa.contracts
-        .at(globalContractAddress)
+        .at(globalContractAddress!)
         .call(
           testCase.transition,
           scillaJSONParams(testCase.getParams()),
@@ -850,7 +785,7 @@ describe("Paused", () => {
         expectTransitions(tx.receipt.transitions, testCase.want.transitions);
 
         const state = await zilliqa.contracts
-          .at(globalContractAddress)
+          .at(globalContractAddress!)
           .getState();
 
         testCase.want.expectState(state);
