@@ -1,6 +1,6 @@
 | ZRC | Title                        | Status      | Type     | Author                                                                               | Created (yyyy-mm-dd) | Updated (yyyy-mm-dd) |
 | --- | ---------------------------- | ----------- | -------- | ------------------------------------------------------------------------------------ | -------------------- | -------------------- |
-| 2   | Standard for Fungible Tokens | Implemented | Standard | Vaivaswatha Nagaraj <vaivaswatha@zilliqa.com> <br> Chua Han Wen <hanwen@zilliqa.com> | 2019-11-18           | 2020-11-12           |
+| 2   | Standard for Fungible Tokens | Implemented | Standard | Vaivaswatha Nagaraj <vaivaswatha@zilliqa.com> <br> Chua Han Wen <hanwen@zilliqa.com> | 2019-11-18           | 2024-08-27           |
 
 ## I. What are Fungible Tokens?
 
@@ -125,24 +125,22 @@ transition Mint(recipient: ByStr20, amount: Uint128)
 #### 2. Burn() (Optional)
 
 ```ocaml
-(* @dev: Burn existing tokens. Only contract_owner can burn.                      *)
-(* @param burn_account: Address of the token_owner whose balance is to decrease.  *)
+(* @dev: Burn existing tokens. Only the owner of the tokens can burn.             *)
 (* @param amount:       Number of tokens to be burned.                            *)
-transition Burn(burn_account: ByStr20, amount: Uint128)
+transition Burn(amount: Uint128)
 ```
 
 **Arguments:**
 
 |        | Name           | Type      | Description                                              |
 | ------ | -------------- | --------- | -------------------------------------------------------- |
-| @param | `burn_account` | `ByStr20` | Address of the token_owner whose balance is to decrease. |
 | @param | `amount`       | `Uint128` | Number of tokens to be burned.                           |
 
 **Messages sent:**
 
 |        | Name                  | Description                                | Callback Parameters                                                                                                                                                                                                                     |
 | ------ | --------------------- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_tag` | `BurnSuccessCallBack` | Provide the sender the status of the burn. | `burner` : `ByStr20`, `burn_account`: `ByStr20`, `amount`: `Uint128`, where `burner` is the address of the burner, `burn_account` is the address whose balance will be decreased, and `amount` is the amount of fungible tokens burned. |
+| `_tag` | `BurnSuccessCallBack` | Provide the sender the status of the burn. | `burner` : `ByStr20`, `amount`: `Uint128`, where `burner` is the address of the burner, and `amount` is the amount of fungible tokens burned. |
 
 **Events/Errors:**
 
