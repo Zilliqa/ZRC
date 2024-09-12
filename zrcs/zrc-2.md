@@ -128,7 +128,7 @@ transition Mint(recipient: ByStr20, amount: Uint128)
 (* @dev: Burn existing tokens. Only the owner of the tokens can burn.             *)
 (* @param burn_account: Address of the token_owner whose balance is to decrease.  *)
 (* @param amount:       Number of tokens to be burned.                            *)
-transition Burn(burn_account: ByStr20, amount: Uint128)
+transition Burn(amount: Uint128)
 ```
 
 **Arguments:**
